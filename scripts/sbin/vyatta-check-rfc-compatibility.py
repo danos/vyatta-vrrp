@@ -1,10 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 #
 # Module: vyatta-check-rfc-compatibility.py
 #
 # **** License ****
 #
-# # Copyright (c) 2019 AT&T Intellectual Property.
+# # Copyright (c) 2019-2020 AT&T Intellectual Property.
 # All rights reserved.
 #
 # Copyright (c) 2016 by Brocade Communications Systems, Inc.

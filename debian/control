@@ -2,16 +2,9 @@ Source: vyatta-vrrp
 Section: contrib/net
 Priority: optional
 Maintainer: Vyatta Package Maintainers <DL-vyatta-help@att.com>
-Build-Depends:
- debhelper (>= 9),
- debhelper (>= 9.20160709) | dh-systemd,
- dh-python,
- dh-yang,
- libnet-dbus-perl,
- libsort-versions-perl,
- libtest-class-perl,
- libtry-tiny-perl,
- python
+Build-Depends: debhelper (>= 9), debhelper (>= 9.20160709) | dh-systemd, dh-yang, libtest-class-perl,
+               libsort-versions-perl, libnet-dbus-perl, libtry-tiny-perl,
+               python3, dh-python, dh-vci
 Standards-Version: 3.9.6
 
 Package: vyatta-vrrp
@@ -34,7 +27,14 @@ Depends:
  vyatta-op-network,
  vyatta-system (>= 1.6.1),
  ${misc:Depends},
- ${perl:Depends}
+ ${perl:Depends},
+ ${python3:Depends},
+ python3,
+ python3-daemon,
+ python3-gi,
+ python3-dbus,
+ libnet-dbus-perl,
+ libtry-tiny-perl
 Breaks: vyatta-op (<< 1.0)
 Replaces: vyatta-op (<< 1.0)
 Description: Vyatta VRRP configuration/operational commands
@@ -61,6 +61,7 @@ Architecture: all
 Depends:
  vyatta-vrrp (>= ${source:Version}),
  vyatta-vrrp-dataplane (>= ${source:Version}),
+ vyatta-vrrp-vci (>= ${source:Version}),
  ${misc:Depends},
  ${yang:Depends}
 Section: contrib/admin
@@ -186,3 +187,10 @@ Section: contrib/admin
 Description: vyatta-vrrp-state-interfaces-switch-v1 yang module
  The YANG module that augments switch vif interfaces with state nodes.
 
+Package: vyatta-vrrp-vci
+Architecture: any
+Priority: extra
+Depends: python3, python3-vci, ${python3:Depends}, ${misc:Depends}, ${shlibs:depends}
+Built-Using: ${misc:Built-Using}
+Description: Vci Service for vyatta-vrrp config
+ Service for vyatta vrrp using the Vyatta Component Infrastructure

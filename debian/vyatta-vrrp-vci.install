@@ -1,0 +1,2 @@
+scripts/sbin/vyatta-vrrp-vci 	opt/vyatta/sbin/
+vyatta/* 			usr/lib/python3/dist-packages/vyatta

@@ -3,7 +3,7 @@
 #VERBOSE=1
 
 %:
-	 dh $@ --with=systemd --with=yang
+	 dh $@ --with=systemd,yang,python3,vci
 
 override_dh_auto_test:
 	t/./test-runner.t

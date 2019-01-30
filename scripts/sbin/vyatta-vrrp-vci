@@ -1,0 +1,38 @@
+#! /usr/bin/python3
+
+# Copyright (c) 2019-2020 AT&T Intellectual Property.
+# All rights reserved.
+# SPDX-License-Identifier: GPL-2.0-only
+
+import vci
+import json
+import sys
+import vyatta.keepalived
+
+class Config(vci.Config):
+
+    def set(self, conf):
+        print("Got config for vrrp\n")
+        print(json.dumps(conf, indent=4, sort_keys=True))
+
+        conf_obj = vyatta.keepalived.Keepalived(conf)
+        sys.stdout.flush()
+        return
+
+    def get(self):
+        return {"state": True}
+
+    def check(self, conf):
+        return
+
+
+class State(vci.State):
+    def get(self):
+        return {'state': 'test'}
+
+(vci.Component("net.vyatta.vci.vrrp")
+    .model(vci.Model("net.vyatta.vci.vrrp.v1")
+          .config(Config())
+          .state(State()))
+    .run()
+    .wait())
