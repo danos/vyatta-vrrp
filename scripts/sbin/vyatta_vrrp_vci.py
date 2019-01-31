@@ -34,6 +34,7 @@ class Config(vci.Config):
 
     def remove_empty_vrrp(self, conf):
         intf_dict = conf["vyatta-interfaces-v1:interfaces"]
+        new_dict = {}
         for intf_type in intf_dict:
             new_list = []
             count = 0
@@ -42,10 +43,8 @@ class Config(vci.Config):
                     new_list.append(intf_dict[intf_type][count])
                 count += 1
             if new_list != []:
-                intf_dict[intf_type] = new_list
-            else:
-                del(intf_dict[intf_type])
-        return {"vyatta-interfaces-v1:interfaces": intf_dict}
+                new_dict[intf_type] = new_list
+        return {"vyatta-interfaces-v1:interfaces": new_dict}
 
 
 
@@ -54,9 +53,10 @@ class State(vci.State):
     def get(self):
         return {'state': 'test'}
 
-(vci.Component("net.vyatta.vci.vrrp")
-    .model(vci.Model("net.vyatta.vci.vrrp.v1")
-          .config(Config())
-          .state(State()))
-    .run()
-    .wait())
+if __name__ == "__main__":
+    (vci.Component("net.vyatta.vci.vrrp")
+        .model(vci.Model("net.vyatta.vci.vrrp.v1")
+              .config(Config())
+              .state(State()))
+        .run()
+        .wait())
