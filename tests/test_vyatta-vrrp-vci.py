@@ -19,7 +19,7 @@ class FakeVci(object):
             pass
 
 sys.modules['vci'] = FakeVci
-from scripts.sbin.vyatta_vrrp_vci import Config
+from vyatta.vyatta_vrrp_vci import Config
 
 class TestVyattaVrrpVci(TestCase):
 

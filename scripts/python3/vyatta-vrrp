@@ -1,0 +1,16 @@
+#! /usr/bin/python3
+
+# Copyright (c) 2019-2020 AT&T Intellectual Property.
+# All rights reserved.
+# SPDX-License-Identifier: GPL-2.0-only
+
+import vci
+import vyatta.vyatta_vrrp_vci as vrrp
+
+if __name__ == "__main__":
+    (vci.Component("net.vyatta.vci.vrrp")
+        .model(vci.Model("net.vyatta.vci.vrrp.v1")
+              .config(vrrp.Config())
+              .state(vrrp.State()))
+        .run()
+        .wait())
