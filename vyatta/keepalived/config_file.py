@@ -24,14 +24,14 @@ global_defs {
 }
     """
         self.config_file = config_file_path
-        self.impl_name = "Keepalived"
+        self.implmentation_name = "Keepalived"
         self.vrrp_instances = []
 
     def config_file_path(self):
         return self.config_file
 
     def impl_name(self):
-        return self.impl_name
+        return self.implmentation_name
 
     def update(self, new_config):
         pass
