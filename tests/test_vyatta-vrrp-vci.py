@@ -4,8 +4,7 @@
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
-from unittest import TestCase, mock
-import logging
+from unittest import TestCase
 import copy
 import sys
 
