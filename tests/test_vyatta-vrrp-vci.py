@@ -82,7 +82,7 @@ class TestVyattaVrrpVci(TestCase):
 
 
     def test_remove_empty_vrrp_one_configured(self):
-        result = self.test_conf.remove_empty_vrrp(self.simple_conf)
+        result = self.test_conf._sanitize_vrrp_config(self.simple_conf)
         expected =\
         {"vyatta-interfaces-v1:interfaces": {
                 "vyatta-interfaces-dataplane-v1:dataplane": [
@@ -125,7 +125,7 @@ class TestVyattaVrrpVci(TestCase):
             }
         }
         assert test_conf != expected
-        result = self.test_conf.remove_empty_vrrp(test_conf)
+        result = self.test_conf._sanitize_vrrp_config(test_conf)
         assert result == expected
 
     def test_remove_empty_vrrp_one_configured_one_not_configured(self):
@@ -156,7 +156,7 @@ class TestVyattaVrrpVci(TestCase):
         test_conf = self.simple_conf
         test_conf["vyatta-interfaces-v1:interfaces"]["vyatta-interfaces-dataplane-v1:dataplane"].append(self.second_intf)
         assert test_conf != expected
-        result = self.test_conf.remove_empty_vrrp(test_conf)
+        result = self.test_conf._sanitize_vrrp_config(test_conf)
         assert result == expected
 
     def test_remove_empty_vrrp_two_intf_type(self):
@@ -166,6 +166,6 @@ class TestVyattaVrrpVci(TestCase):
         test_conf["vyatta-interfaces-v1:interfaces"]["vyatta-interfaces-dataplane-v1:dataplane"].append(self.second_intf)
         test_conf["vyatta-interfaces-v1:interfaces"]["vyatta-bonding-v1:bonding"] = self.bonding_list
         assert test_conf != expected
-        result = self.test_conf.remove_empty_vrrp(test_conf)
+        result = self.test_conf._sanitize_vrrp_config(test_conf)
         assert result == expected
 

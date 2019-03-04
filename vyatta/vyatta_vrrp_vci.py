@@ -19,7 +19,7 @@ class Config(vci.Config):
 
     def set(self, conf):
         print("Got config for vrrp\n")
-        conf = self.remove_empty_vrrp(conf)
+        conf = self._sanitize_vrrp_config(conf)
 
         # If all the default config has been removed and
         # there's nothing left in the interfaces dictionary
@@ -38,7 +38,7 @@ class Config(vci.Config):
     def check(self, conf):
         return
 
-    def remove_empty_vrrp(self, conf):
+    def _sanitize_vrrp_config(self, conf):
         intf_dict = conf["vyatta-interfaces-v1:interfaces"]
         new_dict = {}
         for intf_type in intf_dict:
