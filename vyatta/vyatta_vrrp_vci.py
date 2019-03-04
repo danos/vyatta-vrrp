@@ -41,6 +41,7 @@ class Config(vci.Config):
     def _sanitize_vrrp_config(self, conf):
         intf_dict = conf["vyatta-interfaces-v1:interfaces"]
         new_dict = {}
+        vif_list = []
         for intf_type in intf_dict:
             new_list = []
             count = 0
@@ -48,8 +49,17 @@ class Config(vci.Config):
                 if "vrrp-group" in intf["vyatta-vrrp-v1:vrrp"]:
                     new_list.append(intf_dict[intf_type][count])
                 count += 1
+                if "vif" in intf:
+                    for vif_intf in intf["vif"]:
+                        if "vrrp-group" in vif_intf["vyatta-vrrp-v1:vrrp"]:
+                            new_vif = vif_intf
+                            new_vif["tagnode"] = "{}.{}".format(intf["tagnode"], vif_intf["tagnode"])
+                            vif_list.append(new_vif)
+                    del(intf["vif"])
             if new_list != []:
                 new_dict[intf_type] = new_list
+        if vif_list != []:
+            new_dict["vif"] = vif_list
         return {"vyatta-interfaces-v1:interfaces": new_dict}
 
 
