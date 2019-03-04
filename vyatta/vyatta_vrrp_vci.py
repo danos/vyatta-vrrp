@@ -7,9 +7,15 @@
 import vci
 import json
 import sys
-import vyatta.keepalived
+import vyatta.keepalived.config_file as impl_conf
+import vyatta.abstract_vrrp_classes as AbstractVrrpConfig
 
 class Config(vci.Config):
+
+    def __init__(self):
+        self._conf_obj = impl_conf.KeepalivedConfig("")
+        if not isinstance(self._conf_obj, AbstractVrrpConfig.ConfigFile):
+            raise TypeError("Implementation of config object does not inherit from abstract class, developer needs to fix this ")
 
     def set(self, conf):
         print("Got config for vrrp\n")

@@ -4,7 +4,9 @@
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
-class Keepalived(object):
+import vyatta.abstract_vrrp_classes as AbstractConfig
+
+class KeepalivedConfig(AbstractConfig.ConfigFile):
 
     def __init__(self, new_config):
         print("Got new config")
@@ -22,6 +24,18 @@ global_defs {
         enable_snmp_rfc
 }
     """
+
+    def update(self, new_config):
+        pass
+
+    def write_config(self):
+        pass
+
+    def read_config(self):
+        pass
+
+    def convert_to_vci_format(self, config_string):
+        pass
 
 if __name__ == "__main__":
     print("test")
