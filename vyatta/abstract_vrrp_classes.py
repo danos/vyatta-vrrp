@@ -23,3 +23,12 @@ class ConfigFile(ABC):
     @abstractmethod
     def convert_to_vci_format(self, config_string):
         raise NotImplementedError
+
+    @abstractmethod
+    def config_file_path(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def impl_name(self):
+        raise NotImplementedError
+
