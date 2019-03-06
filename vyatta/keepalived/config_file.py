@@ -45,5 +45,10 @@ global_defs {
     def convert_to_vci_format(self, config_string):
         pass
 
+    def _get_config_indexes(self, config_lines, search_string):
+        config_lines = [x.strip() for x in config_lines]
+        config_start_indices = [ i for i, x in enumerate(config_lines) if search_string in x]
+        return config_start_indices
+
 if __name__ == "__main__":
     print("test")
