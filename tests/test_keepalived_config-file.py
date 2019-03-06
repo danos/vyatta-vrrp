@@ -37,8 +37,7 @@ global_defs {
         snmp_socket tcp:localhost:705:1
         enable_snmp_keepalived
         enable_snmp_rfc
-}
-        """
+}"""
         self.toplevel_dictionary = {"vyatta-interfaces-v1:interfaces": {}}
         self.dataplane_dictionary = {"vyatta-interfaces-dataplane-v1:dataplane": []}
         self.bonding_dictionary = {"vyatta-bonding-v1:bonding":[]}
@@ -54,8 +53,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
 	    10.10.1.100/25
     }
-}
-        """
+}"""
         self.dataplane_group_yang_repr = \
                     {
                         "tagnode": "dp0p1s1",
@@ -87,8 +85,7 @@ vrrp_instance vyatta-dp0p1s1.10-2 {
     virtual_ipaddress {
 	    10.10.2.100/25
     }
-}
-        """
+}"""
         self.dataplane_vif_group_yang_repr = \
                         {
                                 "start-delay": 0,
@@ -108,7 +105,7 @@ vrrp_instance vyatta-dp0p1s1.10-2 {
         self.bonding_group_config_string = """
 vrrp_instance vyatta-dp0bond0-2 {
     state BACKUP
-    interface dp0bond2
+    interface dp0bond0
     virtual_router_id 2
     version 2
     start_delay 60
@@ -117,8 +114,7 @@ vrrp_instance vyatta-dp0bond0-2 {
     virtual_ipaddress {
 	    10.11.2.100/25
     }
-}
-        """
+}"""
         self.bonding_group_yang_repr = \
                     {
                         "tagnode": "dp0bond0",
@@ -178,7 +174,7 @@ vrrp_instance vyatta-dp0bond0-2 {
         config_string = copy_string
         copy_string = copy.deepcopy(self.dataplane_group_config_string)
         config_string += copy_string
-        expected = [14]
+        expected = [13]
         config = KeepalivedConfig()
         result = config._get_config_indexes(config_string.splitlines(), "vrrp_instance")
         assert result == expected
@@ -190,8 +186,66 @@ vrrp_instance vyatta-dp0bond0-2 {
         config_string += copy_string
         copy_string = copy.deepcopy(self.bonding_group_config_string)
         config_string += copy_string
-        expected = [14, 27]
+        expected = [13, 25]
         config = KeepalivedConfig()
         result = config._get_config_indexes(config_string.splitlines(), "vrrp_instance")
+        assert result == expected
+
+    def test_get_config_blocks_autogen(self):
+        copy_string = copy.deepcopy(self.autogeneration_string)
+        config_string = copy_string
+        expected = [[
+            "global_defs {", "enable_traps", "enable_dbus",\
+            "snmp_socket tcp:localhost:705:1", "enable_snmp_keepalived",\
+            "enable_snmp_rfc", "}"]]
+        config = KeepalivedConfig()
+        result = config._get_config_blocks(config_string.splitlines(), [6])
+        assert result == expected
+
+    def test_get_config_blocks_no_groups(self):
+        copy_string = copy.deepcopy(self.autogeneration_string)
+        config_string = copy_string
+        expected = []
+        config = KeepalivedConfig()
+        result = config._get_config_blocks(config_string.splitlines(), [])
+        assert result == expected
+
+    def test_get_config_blocks_single_group(self):
+        copy_string = copy.deepcopy(self.autogeneration_string)
+        config_string = copy_string
+        copy_string = copy.deepcopy(self.dataplane_group_config_string)
+        config_string += copy_string
+        expected = [\
+                    ["vrrp_instance vyatta-dp0p1s1-1 {", "state BACKUP",\
+                     "interface dp0p1s1", "virtual_router_id 1", "version 2",\
+                     "start_delay 0", "priority 100", "advert_int 1",\
+                     "virtual_ipaddress {", "10.10.1.100/25", "}", "}"
+                    ]
+                   ]
+        config = KeepalivedConfig()
+        result = config._get_config_blocks(config_string.splitlines(), [13])
+        assert result == expected
+
+    def test_get_config_blocks_multiple_groups(self):
+        copy_string = copy.deepcopy(self.autogeneration_string)
+        config_string = copy_string
+        copy_string = copy.deepcopy(self.dataplane_group_config_string)
+        config_string += copy_string
+        copy_string = copy.deepcopy(self.bonding_group_config_string)
+        config_string += copy_string
+        expected = [\
+                    ["vrrp_instance vyatta-dp0p1s1-1 {", "state BACKUP",\
+                     "interface dp0p1s1", "virtual_router_id 1", "version 2",\
+                     "start_delay 0", "priority 100", "advert_int 1",\
+                     "virtual_ipaddress {", "10.10.1.100/25", "}", "}"
+                    ],
+                    ["vrrp_instance vyatta-dp0bond0-2 {", "state BACKUP",\
+                     "interface dp0bond0", "virtual_router_id 2", "version 2",\
+                     "start_delay 60", "priority 100", "advert_int 1",\
+                     "virtual_ipaddress {", "10.11.2.100/25", "}", "}"
+                    ]
+                   ]
+        config = KeepalivedConfig()
+        result = config._get_config_blocks(config_string.splitlines(), [13, 25])
         assert result == expected
 
