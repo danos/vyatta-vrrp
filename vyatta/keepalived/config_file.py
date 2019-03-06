@@ -7,6 +7,7 @@
 import re
 import vyatta.abstract_vrrp_classes as AbstractConfig
 
+
 class KeepalivedConfig(AbstractConfig.ConfigFile):
 
     def __init__(self, config_file_path="/etc/keepalived/keepalived.conf"):
@@ -48,7 +49,8 @@ global_defs {
 
     def _get_config_indexes(self, config_lines, search_string):
         config_lines = [x.strip() for x in config_lines]
-        config_start_indices = [ i for i, x in enumerate(config_lines) if search_string in x]
+        config_start_indices = [i for i, x in enumerate(config_lines)
+                                if search_string in x]
         return config_start_indices
 
     def _get_config_blocks(self, config_list, indexes_list):

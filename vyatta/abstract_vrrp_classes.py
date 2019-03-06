@@ -6,6 +6,7 @@
 
 from abc import ABC, abstractmethod
 
+
 class ConfigFile(ABC):
 
     @abstractmethod
@@ -31,4 +32,3 @@ class ConfigFile(ABC):
     @abstractmethod
     def impl_name(self):
         raise NotImplementedError
-
