@@ -50,5 +50,17 @@ global_defs {
         config_start_indices = [ i for i, x in enumerate(config_lines) if search_string in x]
         return config_start_indices
 
+    def _get_config_blocks(self, config_list, indexes_list):
+        config_list = [x.strip() for x in config_list]
+        group_list = []
+        for idx, start in enumerate(indexes_list):
+            if idx+1 < len(indexes_list):
+                end = indexes_list[idx+1]
+            else:
+                end = None
+            group_list.append(config_list[start:end])
+        return group_list
+
+
 if __name__ == "__main__":
     print("test")
