@@ -157,3 +157,41 @@ vrrp_instance vyatta-dp0bond0-2 {
         result = config.impl_name()
         assert result == expected
 
+    def test_get_config_indexes_list_autogen(self):
+        copy_string = copy.deepcopy(self.autogeneration_string)
+        config_string = copy_string
+        expected = [6]
+        config = KeepalivedConfig()
+        result = config._get_config_indexes(config_string.splitlines(), "global_defs")
+        assert result == expected
+
+    def test_get_config_indexes_list_no_groups(self):
+        copy_string = copy.deepcopy(self.autogeneration_string)
+        config_string = copy_string
+        expected = []
+        config = KeepalivedConfig()
+        result = config._get_config_indexes(config_string.splitlines(), "vrrp_instance")
+        assert result == expected
+
+    def test_get_config_indexes_list_single_group(self):
+        copy_string = copy.deepcopy(self.autogeneration_string)
+        config_string = copy_string
+        copy_string = copy.deepcopy(self.dataplane_group_config_string)
+        config_string += copy_string
+        expected = [14]
+        config = KeepalivedConfig()
+        result = config._get_config_indexes(config_string.splitlines(), "vrrp_instance")
+        assert result == expected
+
+    def test_get_config_indexes_list_multiple_groups(self):
+        copy_string = copy.deepcopy(self.autogeneration_string)
+        config_string = copy_string
+        copy_string = copy.deepcopy(self.dataplane_group_config_string)
+        config_string += copy_string
+        copy_string = copy.deepcopy(self.bonding_group_config_string)
+        config_string += copy_string
+        expected = [14, 27]
+        config = KeepalivedConfig()
+        result = config._get_config_indexes(config_string.splitlines(), "vrrp_instance")
+        assert result == expected
+
