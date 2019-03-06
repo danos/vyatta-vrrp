@@ -4,6 +4,7 @@
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
+import re
 import vyatta.abstract_vrrp_classes as AbstractConfig
 
 class KeepalivedConfig(AbstractConfig.ConfigFile):
@@ -24,14 +25,14 @@ global_defs {
 }
     """
         self.config_file = config_file_path
-        self.implmentation_name = "Keepalived"
+        self.implementation_name = "Keepalived"
         self.vrrp_instances = []
 
     def config_file_path(self):
         return self.config_file
 
     def impl_name(self):
-        return self.implmentation_name
+        return self.implementation_name
 
     def update(self, new_config):
         pass
@@ -60,6 +61,19 @@ global_defs {
                 end = None
             group_list.append(config_list[start:end])
         return group_list
+
+    def _find_config_value(self, config_list, search_term):
+        for line in config_list:
+            regex_search = re.match("{}".format(search_term), line)
+            if regex_search is not None:
+                regex_search = re.match(f"{search_term}\s+(.*)", line)
+                if regex_search is not None:
+                    return (True, regex_search.group(1))
+                else:
+                    # Yang JSON representation has single key with no value as
+                    # <key>: [null]
+                    return (True, [None])
+        return (False, "NOTFOUND")
 
 
 if __name__ == "__main__":
