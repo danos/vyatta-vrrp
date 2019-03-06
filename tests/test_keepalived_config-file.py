@@ -249,3 +249,115 @@ vrrp_instance vyatta-dp0bond0-2 {
         result = config._get_config_blocks(config_string.splitlines(), [13, 25])
         assert result == expected
 
+
+    def test_find_config_value_autogen_key_value_defined_entry(self):
+        config_list = [[
+            "global_defs {", "enable_traps", "enable_dbus",\
+            "snmp_socket tcp:localhost:705:1", "enable_snmp_keepalived",\
+            "enable_snmp_rfc", "}"]]
+        expected = (True, "tcp:localhost:705:1")
+        config = KeepalivedConfig()
+        for block in config_list:
+            result = config._find_config_value(block, "snmp_socket")
+            assert result == expected
+
+    def test_find_config_value_autogen_key_value_undefined_entry(self):
+        config_list = [[
+            "global_defs {", "enable_traps", "enable_dbus",\
+            "snmp_socket tcp:localhost:705:1", "enable_snmp_keepalived",\
+            "enable_snmp_rfc", "}"]]
+        expected = (False, "NOTFOUND")
+        config = KeepalivedConfig()
+        for block in config_list:
+            result = config._find_config_value(block, "Alice_in_wonderland")
+            assert result == expected
+
+    def test_find_config_value_autogen_presence_defined_entry(self):
+        config_list = [[
+            "global_defs {", "enable_traps", "enable_dbus",\
+            "snmp_socket tcp:localhost:705:1", "enable_snmp_keepalived",\
+            "enable_snmp_rfc", "}"]]
+        expected = (True, [None])
+        config = KeepalivedConfig()
+        for block in config_list:
+            result = config._find_config_value(block, "enable_dbus")
+            assert result == expected
+
+    def test_find_config_value_autogen_presence_undefined_entry(self):
+        config_list = [[
+            "global_defs {", "enable_traps", "enable_dbus",\
+            "snmp_socket tcp:localhost:705:1", "enable_snmp_keepalived",\
+            "enable_snmp_rfc", "}"]]
+        expected = (False, "NOTFOUND")
+        config = KeepalivedConfig()
+        for block in config_list:
+            result = config._find_config_value(block, "The_two_towers")
+            assert result == expected
+
+    def test_find_config_value_single_group_defined_entry(self):
+        config_list = [\
+                    ["vrrp_instance vyatta-dp0p1s1-1 {", "state BACKUP",\
+                     "interface dp0p1s1", "virtual_router_id 1", "version 2",\
+                     "start_delay 0", "priority 100", "advert_int 1",\
+                     "virtual_ipaddress {", "10.10.1.100/25", "}", "}"
+                    ]
+                   ]
+        expected = (True, "BACKUP")
+        config = KeepalivedConfig()
+        for block in config_list:
+            result = config._find_config_value(block, "state")
+            assert result == expected
+
+    def test_find_config_value_single_group_undefined_entry(self):
+        config_list = [\
+                    ["vrrp_instance vyatta-dp0p1s1-1 {", "state BACKUP",\
+                     "interface dp0p1s1", "virtual_router_id 1", "version 2",\
+                     "start_delay 0", "priority 100", "advert_int 1",\
+                     "virtual_ipaddress {", "10.10.1.100/25", "}", "}"
+                    ]
+                   ]
+        expected = (False, "NOTFOUND")
+        config = KeepalivedConfig()
+        for block in config_list:
+            result = config._find_config_value(block, "There_and_back_again")
+            assert result == expected
+
+    def test_find_config_value_multiple_group_defined_entry(self):
+        config_list = [\
+                    ["vrrp_instance vyatta-dp0p1s1-1 {", "state BACKUP",\
+                     "interface dp0p1s1", "virtual_router_id 1", "version 2",\
+                     "start_delay 0", "priority 100", "advert_int 1",\
+                     "virtual_ipaddress {", "10.10.1.100/25", "}", "}"
+                    ],
+                    ["vrrp_instance vyatta-dp0bond0-2 {", "state BACKUP",\
+                     "interface dp0bond0", "virtual_router_id 2", "version 2",\
+                     "start_delay 60", "priority 100", "advert_int 1",\
+                     "virtual_ipaddress {", "10.11.2.100/25", "}", "}"
+                    ]
+                   ]
+        expected = (True, "BACKUP")
+        config = KeepalivedConfig()
+        for block in config_list:
+            result = config._find_config_value(block, "state")
+            assert result == expected
+
+    def test_find_config_value_multiple_group_undefined_entry(self):
+        config_list = [\
+                    ["vrrp_instance vyatta-dp0p1s1-1 {", "state BACKUP",\
+                     "interface dp0p1s1", "virtual_router_id 1", "version 2",\
+                     "start_delay 0", "priority 100", "advert_int 1",\
+                     "virtual_ipaddress {", "10.10.1.100/25", "}", "}"
+                    ],
+                    ["vrrp_instance vyatta-dp0bond0-2 {", "state BACKUP",\
+                     "interface dp0bond0", "virtual_router_id 2", "version 2",\
+                     "start_delay 60", "priority 100", "advert_int 1",\
+                     "virtual_ipaddress {", "10.11.2.100/25", "}", "}"
+                    ]
+                   ]
+        expected = (False, "NOTFOUND")
+        config = KeepalivedConfig()
+        for block in config_list:
+            result = config._find_config_value(block, "A_tale_of_two_cities")
+            assert result == expected
+
+
