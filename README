@@ -1,1 +1,25 @@
 This package has the Vyatta configuration/operational templates and scripts for VRRP.
+
+For Python development with VCI setup running unit tests requires the following (and unit tests before and after changes are required!)
+Install virtualenv: pip3 install virtualenv (on python > 3.3 the venv module is included in the install)
+Setup virtual environment: virtualenv <env_name> or python3 -m venv <env_name>
+# I've used venv here, and added it to .gitignore
+source <env_name>/bin/activate
+pip install -r requirements.txt
+
+Running unit tests
+I recommend adding an alias like this to your aliases file
+alias run_test="ptw -- -vv -s --flake8 --pep8 --spec --cov=vyatta/ tests/"
+calling this from the vyatta-vrrp directory will also have the tests run every time
+a file is written. (Tmux/screen with the test in one pannel and the code in another is
+a good workflow for this).
+Going forward PRs will require the output of
+pytest -s --cov=vyatta/ tests/
+pep8 and flake8 tests aren't required to pass but best effort should be made to conform
+to these tools. VIM has plugins that can run on file write and execute flake8,
+emacs has similar tools
+
+Running acceptance tests
+TODO
+
+
