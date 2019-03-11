@@ -29,6 +29,9 @@ global_defs {
         self.implementation_name = "Keepalived"
         self.vrrp_instances = []
 
+        self.VIF_YANG_NAME = "vif"
+        self.VRRP_YANG_NAME = "vyatta-vrrp-v1:vrrp"
+
     def config_file_path(self):
         return self.config_file
 
@@ -76,6 +79,62 @@ global_defs {
                     # <key>: [null]
                     return (True, [None])
         return (False, "NOTFOUND")
+
+    def _find_interface_in_yang_repr(
+            self, interface_name, vif_number, interface_list):
+
+        interface_level = None
+
+        # Interface list is empty so create the interface and add it to the
+        # list and then return the reference
+        if interface_list == []:
+            intf_dict = {"tagnode": interface_name}
+            interface_level = intf_dict
+            if vif_number != "":
+                vif_dict = {"tagnode": vif_number}
+                intf_dict[self.VIF_YANG_NAME] = [vif_dict]
+                interface_level = vif_dict
+            interface_list.append(intf_dict)
+        else:
+            # Interface list has entries so we need to loop through them and
+            # see if the interface already exists
+            for intf in interface_list:
+                if intf["tagnode"] == interface_name:
+                    if vif_number != "":
+                        if self.VIF_YANG_NAME not in intf:
+                            vif_dict = {"tagnode": vif_number}
+                            intf[self.VIF_YANG_NAME] = [vif_dict]
+                            interface_level = vif_dict
+                            break
+                        else:
+                            for vif in intf[self.VIF_YANG_NAME]:
+                                if vif["tagnode"] == vif_number:
+                                    interface_level = vif
+                                    break
+                            if interface_level is None:
+                                vif_dict = {"tagnode": vif_number}
+                                intf[self.VIF_YANG_NAME].append(vif_dict)
+                                interface_level = vif_dict
+                            break
+                    else:
+                        interface_level = intf
+                        break
+
+        # Interface doesn't exists yet but there are interfaces in the list
+        # so create the interface and return the reference
+        if interface_level is None:
+            intf_dict = {"tagnode": interface_name}
+            interface_level = intf_dict
+            if vif_number != "":
+                vif_dict = {"tagnode": vif_number}
+                intf_dict[self.VIF_YANG_NAME] = [vif_dict]
+                interface_level = vif_dict
+            interface_list.append(intf_dict)
+
+        if self.VRRP_YANG_NAME not in interface_level:
+            interface_level[self.VRRP_YANG_NAME] = {"start-delay": 0,
+                                                    "vrrp-group": []}
+        return interface_level
 
 
 if __name__ == "__main__":
