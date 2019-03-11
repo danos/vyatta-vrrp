@@ -313,3 +313,85 @@ class TestKeepalivedConfigFile():
             result = keepalived_config._find_config_value(
                 block, "vmac_xmit_base")
             assert result == expected
+
+    def test_find_interface_in_yang_dataplane_list_empty(
+            self, keepalived_config, interface_yang_name,
+            dataplane_yang_name, simple_config, dataplane_interface):
+        simple_config[interface_yang_name][dataplane_yang_name] = []
+        interface_list = \
+            simple_config[interface_yang_name][dataplane_yang_name]
+        result = keepalived_config._find_interface_in_yang_repr(
+            "dp0p1s1", "", interface_list)
+        expected = dataplane_interface
+        expected["vyatta-vrrp-v1:vrrp"]["vrrp-group"] = []
+        assert result == expected
+        assert result is \
+            simple_config[interface_yang_name][dataplane_yang_name][0]
+
+    def test_find_interface_in_yang_dataplane_intf_exists(
+            self, keepalived_config, interface_yang_name,
+            dataplane_yang_name, simple_config):
+        interface_list = \
+            simple_config[interface_yang_name][dataplane_yang_name]
+        result = keepalived_config._find_interface_in_yang_repr(
+            "dp0p1s1", "", interface_list)
+        expected = simple_config[interface_yang_name][dataplane_yang_name][0]
+        assert result is expected
+
+    def test_find_interface_in_yang_dataplane_intf_doesnt_exist(
+            self, keepalived_config, interface_yang_name,
+            dataplane_yang_name, simple_config, second_dataplane_interface):
+        interface_list = \
+            simple_config[interface_yang_name][dataplane_yang_name]
+        result = keepalived_config._find_interface_in_yang_repr(
+            "dp0p1s2", "", interface_list)
+        expected = second_dataplane_interface
+        expected["vyatta-vrrp-v1:vrrp"]["vrrp-group"] = []
+        assert result == expected
+        assert result is \
+            simple_config[interface_yang_name][dataplane_yang_name][1]
+
+    def test_find_interface_in_yang_dataplane_intf_exist_vif_doesnt_exist(
+            self, keepalived_config, interface_yang_name,
+            dataplane_yang_name, simple_config, vif_dataplane_interface):
+        interface_list = \
+            simple_config[interface_yang_name][dataplane_yang_name]
+        result = keepalived_config._find_interface_in_yang_repr(
+            "dp0p1s1", "10", interface_list)
+        expected = vif_dataplane_interface
+        expected["vyatta-vrrp-v1:vrrp"]["vrrp-group"] = []
+        yang_repr_dataplane_list = interface_list
+        assert result == expected
+        assert result is \
+            yang_repr_dataplane_list[0]["vif"][0]
+
+    def test_find_interface_in_yang_datapln_intf_doesnt_exist_vif_doesnt_exist(
+            self, keepalived_config, interface_yang_name,
+            dataplane_yang_name, simple_config, vif_dataplane_interface):
+        interface_list = \
+            simple_config[interface_yang_name][dataplane_yang_name]
+        result = keepalived_config._find_interface_in_yang_repr(
+            "dp0p1s2", "10", interface_list)
+        expected = vif_dataplane_interface
+        expected["vyatta-vrrp-v1:vrrp"]["vrrp-group"] = []
+        yang_repr_dataplane_list = \
+            simple_config[interface_yang_name][dataplane_yang_name]
+        assert result == expected
+        assert result is \
+            yang_repr_dataplane_list[1]["vif"][0]
+
+    def test_find_interface_in_yang_datapln_intf_exist_multiple_vif_exist(
+            self, keepalived_config, interface_yang_name,
+            dataplane_yang_name, simple_config, vif_dataplane_interface):
+        interface_list = \
+            simple_config[interface_yang_name][dataplane_yang_name]
+        interface_list[0]["vif"] = [vif_dataplane_interface]
+        result = keepalived_config._find_interface_in_yang_repr(
+            "dp0p1s1", "20", interface_list)
+        expected = vif_dataplane_interface
+        expected["tagnode"] = "20"
+        expected["vyatta-vrrp-v1:vrrp"]["vrrp-group"] = []
+        yang_repr_dataplane_list = interface_list
+        assert result == expected
+        assert result is \
+            yang_repr_dataplane_list[0]["vif"][1]
