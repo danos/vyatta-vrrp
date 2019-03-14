@@ -4,20 +4,9 @@
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
-import pytest
 import copy
+import pytest
 import sys
-
-
-class FakeVci(object):
-
-    class Config(object):
-        def set(self, conf):
-            pass
-
-    class State(object):
-        def get(object):
-            pass
 
 
 class TestKeepalivedConfigFile():
@@ -28,14 +17,14 @@ class TestKeepalivedConfigFile():
         assert result == expected
 
     def test_config_path_user_defined(self):
-        class FakeVci(object):
+        class FakeVci:
 
-            class Config(object):
+            class Config:
                 def set(self, conf):
                     pass
 
-            class State(object):
-                def get(object):
+            class State:
+                def get(self):
                     pass
 
         sys.modules['vci'] = FakeVci
