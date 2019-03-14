@@ -395,3 +395,18 @@ class TestKeepalivedConfigFile():
         assert result == expected
         assert result is \
             yang_repr_dataplane_list[0]["vif"][1]
+
+    def test_convert_minimal_vrrp_keepalived_conf_to_yang(
+            self, datatplane_group_keepalived_config, generic_group,
+            keepalived_config):
+        expected = generic_group
+        expected["virtual-address"] = ["10.10.1.100/25"]
+        expected["priority"] = 100
+        config_split = datatplane_group_keepalived_config.splitlines()
+        indexes = keepalived_config._get_config_indexes(
+            config_split, "vrrp_instance")
+        config_block = keepalived_config._get_config_blocks(
+            config_split, indexes)[0]
+        result = keepalived_config._convert_keepalived_config_to_yang(
+            config_block)
+        assert expected == result
