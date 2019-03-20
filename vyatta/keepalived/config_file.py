@@ -41,7 +41,7 @@ class KeepalivedConfig(AbstractConfig.ConfigFile):
             }
         }
 
-    VCI JSON 7951 fomat:
+    VCI JSON 7951 format:
         {
             "vyatta-interfaces-v1:interfaces":{
                 "vyatta-interfaces-dataplane-v1:dataplane":
