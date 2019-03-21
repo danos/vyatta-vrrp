@@ -8,6 +8,7 @@ Vyatta VCI component to configure keepalived to provide VRRP functionality
 """
 
 import re
+import json
 from typing import List, Union, Tuple, Any
 
 import vyatta.abstract_vrrp_classes as AbstractConfig
@@ -163,6 +164,14 @@ global_defs {
         self.implementation_name = "Keepalived"  # type: str
         self.vrrp_instances = []  # type: List[dict]
 
+        self.interface_yang_name = \
+            "vyatta-interfaces-v1:interfaces"  # type: str
+        self.dataplane_yang_name = \
+            "vyatta-interfaces-dataplane-v1:dataplane"  # type: str
+        self.bonding_yang_name = \
+            "vyatta-bonding-v1:bonding"  # type: str
+        self.switchport_yang_name = \
+            "vyatta-switchport-v1:switchport"  # type: str
         self.vif_yang_name = "vif"  # type: str
         self.vrrp_yang_name = "vyatta-vrrp-v1:vrrp"  # type: str
 
@@ -212,6 +221,68 @@ global_defs {
             dictionary will be in the python format, before returning to the
             infrastructure it should be converted to JSON
         """
+
+        config_lines = config_string.splitlines()  # type: List[str]
+        vrrp_group_start_indexes = self._get_config_indexes(
+            config_lines, "vrrp_instance")  # type: List[int]
+        if vrrp_group_start_indexes == []:
+            return {}
+
+        group_config = self._get_config_blocks(
+            config_lines, vrrp_group_start_indexes)  # type: List[List[str]]
+
+        # config_without_groups = \
+        #    config_lines[:vrrp_group_start_indexes[0]]  # type: List[str]
+
+        yang_representation = {self.interface_yang_name: {}}
+        for group in group_config:
+
+            intf_name = self._find_config_value(
+                group, "interface")[1]  # type: str
+            vif_number = ""
+            if "." in intf_name:
+                vif_sep = intf_name.split(".")
+                intf_name = vif_sep[0]
+                vif_number = vif_sep[1]  # type: str
+
+            interface_list = yang_representation[self.interface_yang_name]
+            # Find the interface type for the interface name, right now this
+            # is just a guess, there might be a better method of doing this
+            # than regexes
+            if re.match(r"dp\d+bond\d+", intf_name):
+                if self.bonding_yang_name not in interface_list:
+                    interface_list[self.bonding_yang_name] = []
+                interface_list = interface_list[self.bonding_yang_name]
+            elif re.match(r"sw\d+", intf_name):
+                if self.switchport_yang_name not in interface_list:
+                    interface_list[self.switchport_yang_name] = []
+                interface_list = interface_list[self.switchport_yang_name]
+            else:
+                if self.dataplane_yang_name not in interface_list:
+                    interface_list[self.dataplane_yang_name] = []
+                interface_list = interface_list[self.dataplane_yang_name]
+
+            # Hackery to find the reference to the interface this vrrp
+            # group should be added to.
+            insertion_reference = self._find_interface_in_yang_repr(
+                intf_name, vif_number, interface_list)
+
+            # All groups should have the same start delay but check and
+            # store the largest delay found
+            new_group_start_delay = \
+                self._find_config_value(group, "start_delay")[1]
+            current_start_delay = \
+                insertion_reference[self.vrrp_yang_name]["start-delay"]
+
+            if new_group_start_delay != current_start_delay and \
+               int(current_start_delay) < int(new_group_start_delay):
+                insertion_reference[self.vrrp_yang_name]["start-delay"] = \
+                        new_group_start_delay
+
+            insertion_reference[self.vrrp_yang_name]["vrrp-group"].append(
+                self._convert_keepalived_config_to_yang(group))
+
+        return json.dumps(yang_representation)
 
     @staticmethod
     def _get_config_indexes(
@@ -419,11 +490,11 @@ global_defs {
         """
 
         config_dict = {
-            "tagnode": "virtual_router_id",
-            "version": "version",
             "accept": "accept",
             "preempt": "preempt",
-            "priority": "priority"
+            "priority": "priority",
+            "tagnode": "virtual_router_id",
+            "version": "version",
         }  # type: Any
 
         # Single line config code
@@ -432,9 +503,9 @@ global_defs {
             config_exists = self._find_config_value(config_block,
                                                     config_dict[key])
             if not config_exists[0]:
-                # Search term doesn't exist in config. Accept and preempt are
-                # required defaults in the YANG called out as a special case
-                # here if they don't explicitly exist in the config block
+                # Accept and preempt are required defaults in the YANG called
+                # out as a special case here if they don't explicitly exist in
+                # the config block
                 if key == "accept":
                     config_dict[key] = False
                 elif key == "preempt":
