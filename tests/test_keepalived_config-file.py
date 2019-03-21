@@ -6,10 +6,10 @@
 
 import copy
 import pytest
-import sys
+import json
 
 
-class TestKeepalivedConfigFile():
+class TestKeepalivedConfigFile:
 
     def test_config_path_default(self, keepalived_config):
         expected = "/etc/keepalived/keepalived.conf"
@@ -399,3 +399,20 @@ class TestKeepalivedConfigFile():
         result = keepalived_config._convert_keepalived_config_to_yang(
             config_block)
         assert expected == result
+
+    def test_config_to_vci_fomat_minimal_config(
+            self, autogeneration_string, datatplane_group_keepalived_config,
+            keepalived_config, simple_config, interface_yang_name,
+            dataplane_yang_name, vrrp_yang_name):
+
+        copy_string = copy.deepcopy(autogeneration_string)
+        config_string = copy_string
+        copy_string = copy.deepcopy(datatplane_group_keepalived_config)
+        config_string += copy_string
+        intf = simple_config[interface_yang_name][dataplane_yang_name][0]
+        intf[vrrp_yang_name]["vrrp-group"][0]["virtual-address"] = \
+            ["10.10.1.100/25"]
+        intf[vrrp_yang_name]["vrrp-group"][0]["priority"] = 100
+        result = json.dumps(simple_config)
+        expect = keepalived_config.convert_to_vci_format(config_string)
+        assert result == expect

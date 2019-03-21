@@ -8,29 +8,37 @@ import pytest
 import sys
 
 
-class FakeVci:
-
-    class Config:
-        def set(self, conf):
-            pass
-
-    class State:
-        def get(self):
-            pass
-
-
-sys.modules['vci'] = FakeVci
-from vyatta.vyatta_vrrp_vci import Config
-from vyatta.keepalived.config_file import KeepalivedConfig
-
-
 @pytest.fixture(scope="function")
 def test_config():
+    class FakeVci:
+
+        class Config:
+            def set(self, conf):
+                pass
+
+        class State:
+            def get(self):
+                pass
+
+    sys.modules['vci'] = FakeVci
+    from vyatta.vyatta_vrrp_vci import Config
     return Config()
 
 
 @pytest.fixture(scope="function")
 def keepalived_config():
+    class FakeVci(object):
+
+        class Config:
+            def set(self, conf):
+                pass
+
+        class State:
+            def get(self):
+                pass
+
+    sys.modules['vci'] = FakeVci
+    from vyatta.keepalived.config_file import KeepalivedConfig
     return KeepalivedConfig()
 
 
@@ -107,6 +115,11 @@ def dataplane_yang_name():
 @pytest.fixture
 def bonding_yang_name():
     return "vyatta-bonding-v1:bonding"
+
+
+@pytest.fixture
+def vrrp_yang_name():
+    return "vyatta-vrrp-v1:vrrp"
 
 
 @pytest.fixture
