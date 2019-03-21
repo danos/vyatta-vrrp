@@ -8,7 +8,7 @@ import pytest
 import sys
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def test_config():
     class FakeVci:
 
@@ -25,7 +25,7 @@ def test_config():
     return Config()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def keepalived_config():
     class FakeVci(object):
 
@@ -40,6 +40,46 @@ def keepalived_config():
     sys.modules['vci'] = FakeVci
     from vyatta.keepalived.config_file import KeepalivedConfig
     return KeepalivedConfig()
+
+
+@pytest.fixture
+def tmp_file_keepalived_config(tmp_path, autogeneration_string,
+                               datatplane_group_keepalived_config):
+    class FakeVci(object):
+
+        class Config:
+            def set(self, conf):
+                pass
+
+        class State:
+            def get(self):
+                pass
+
+    sys.modules['vci'] = FakeVci
+    from vyatta.keepalived.config_file import KeepalivedConfig
+    file_path = f"{tmp_path}/keepalived.conf"
+    with open(file_path, "w") as f:
+        contents = autogeneration_string+"\n"
+        contents += datatplane_group_keepalived_config
+        f.write(contents)
+    return KeepalivedConfig(file_path)
+
+
+@pytest.fixture
+def non_default_keepalived_config():
+    class FakeVci(object):
+
+        class Config:
+            def set(self, conf):
+                pass
+
+        class State:
+            def get(self):
+                pass
+
+    sys.modules['vci'] = FakeVci
+    from vyatta.keepalived.config_file import KeepalivedConfig
+    return KeepalivedConfig("/test/file/path.conf")
 
 
 @pytest.fixture
@@ -286,3 +326,9 @@ global_defs {
         enable_snmp_keepalived
         enable_snmp_rfc
 }"""
+
+
+@pytest.fixture
+def simple_keepalived_config(autogeneration_string,
+                             datatplane_group_keepalived_config):
+    return f"{autogeneration_string}\n{datatplane_group_keepalived_config}"

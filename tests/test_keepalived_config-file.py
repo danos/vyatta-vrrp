@@ -16,23 +16,9 @@ class TestKeepalivedConfigFile:
         result = keepalived_config.config_file_path()
         assert result == expected
 
-    def test_config_path_user_defined(self):
-        class FakeVci:
-
-            class Config:
-                def set(self, conf):
-                    pass
-
-            class State:
-                def get(self):
-                    pass
-
-        sys.modules['vci'] = FakeVci
-        from vyatta.keepalived.config_file import KeepalivedConfig
-
+    def test_config_path_user_defined(self, non_default_keepalived_config):
         expected = "/test/file/path.conf"
-        config = KeepalivedConfig("/test/file/path.conf")
-        result = config.config_file_path()
+        result = non_default_keepalived_config.config_file_path()
         assert result == expected
 
     def test_implementation_name(self, keepalived_config):
@@ -416,3 +402,16 @@ class TestKeepalivedConfigFile:
         result = json.dumps(simple_config)
         expect = keepalived_config.convert_to_vci_format(config_string)
         assert result == expect
+
+    def test_read_config_no_file(self, non_default_keepalived_config):
+        with pytest.raises(FileNotFoundError):
+            non_default_keepalived_config.read_config()
+
+    def test_read_config_file_exists(self, tmp_file_keepalived_config):
+        result = tmp_file_keepalived_config.read_config()
+        assert result is not None
+
+    def test_read_config_keepalived_config(
+            self, tmp_file_keepalived_config, simple_keepalived_config):
+        result = tmp_file_keepalived_config.read_config()
+        assert result == simple_keepalived_config
