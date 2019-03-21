@@ -207,6 +207,10 @@ global_defs {
 
     def read_config(self) -> str:
         """Read config from file at config_file and return to caller"""
+        config_string = ""
+        with open(self.config_file, "r") as f:
+            config_string = f.read()
+        return config_string
 
     def convert_to_vci_format(self, config_string: str) -> dict:
         """
@@ -528,7 +532,3 @@ global_defs {
         vips_end = config_block.index('}', vips_start)  # type: int
         config_dict["virtual-address"] = config_block[vips_start+1:vips_end]
         return config_dict
-
-
-if __name__ == "__main__":
-    print("test")
