@@ -371,6 +371,31 @@ class TestKeepalivedConfigFile:
         assert result is \
             yang_repr_dataplane_list[0]["vif"][1]
 
+    def test_find_interface_in_yang_datapln_intf_same_vif_multi_groups(
+            self, keepalived_config, interface_yang_name,
+            dataplane_yang_name, simple_config, vif_dataplane_interface,
+            generic_group):
+        interface_list = \
+            simple_config[interface_yang_name][dataplane_yang_name]
+
+        multi_vif_groups = copy.deepcopy(vif_dataplane_interface)
+        multi_vif_groups["vrrp-group"] = \
+            copy.deepcopy(generic_group)
+        interface_list[0]["vif"] = [multi_vif_groups]
+        result = keepalived_config._find_interface_in_yang_repr(
+            "dp0p1s1", "10", interface_list)
+        expected = multi_vif_groups
+        yang_repr_dataplane_list = interface_list
+        assert result == expected
+        assert result is \
+            yang_repr_dataplane_list[0]["vif"][0]
+
+    def test_convert_no_vrrp_keepalived_conf_to_yang(
+            self, keepalived_config):
+        expected = {}
+        result = keepalived_config._convert_keepalived_config_to_yang([])
+        assert expected == result
+
     def test_convert_minimal_vrrp_keepalived_conf_to_yang(
             self, datatplane_group_keepalived_config, generic_group,
             keepalived_config):
@@ -386,6 +411,27 @@ class TestKeepalivedConfigFile:
             config_block)
         assert expected == result
 
+    def test_convert_vif_vrrp_keepalived_conf_to_yang(
+            self, datatplane_vif_group_keepalived_config, generic_group,
+            keepalived_config):
+        expected = generic_group
+        expected["virtual-address"] = ["10.10.2.100/25"]
+        expected["priority"] = 100
+        expected["tagnode"] = 2
+        config_split = datatplane_vif_group_keepalived_config.splitlines()
+        indexes = keepalived_config._get_config_indexes(
+            config_split, "vrrp_instance")
+        config_block = keepalived_config._get_config_blocks(
+            config_split, indexes)[0]
+        result = keepalived_config._convert_keepalived_config_to_yang(
+            config_block)
+        assert expected == result
+
+    def test_config_to_vci_fomat_no_config(self, keepalived_config):
+        result = json.dumps({})
+        expect = keepalived_config.convert_to_vci_format("")
+        assert result == expect
+
     def test_config_to_vci_fomat_minimal_config(
             self, autogeneration_string, datatplane_group_keepalived_config,
             keepalived_config, simple_config, interface_yang_name,
@@ -400,6 +446,58 @@ class TestKeepalivedConfigFile:
             ["10.10.1.100/25"]
         intf[vrrp_yang_name]["vrrp-group"][0]["priority"] = 100
         result = json.dumps(simple_config)
+        expect = keepalived_config.convert_to_vci_format(config_string)
+        assert result == expect
+
+    def test_config_to_vci_fomat_bonding_config(
+            self, autogeneration_string, bonding_group_keepalived_config,
+            keepalived_config, simple_bonding_config, interface_yang_name,
+            bonding_yang_name, vrrp_yang_name):
+
+        copy_string = copy.deepcopy(autogeneration_string)
+        config_string = copy_string
+        copy_string = copy.deepcopy(bonding_group_keepalived_config)
+        config_string += copy_string
+
+        intf_list = simple_bonding_config[interface_yang_name]
+        bonding_intf = intf_list[bonding_yang_name][0][vrrp_yang_name]
+        bonding_intf["start-delay"] = "60"
+        bonding_intf["vrrp-group"][0]["virtual-address"] = \
+            ["10.11.2.100/25"]
+        bonding_intf["vrrp-group"][0]["tagnode"] = 2
+        bonding_intf["vrrp-group"][0]["priority"] = 100
+
+        result = json.dumps(simple_bonding_config)
+        expect = keepalived_config.convert_to_vci_format(config_string)
+        assert result == expect
+
+    def test_config_to_vci_fomat_dataplane_vif_config(
+            self, autogeneration_string,
+            datatplane_vif_group_keepalived_config,
+            keepalived_config, simple_dataplane_vif_config,
+            interface_yang_name, dataplane_yang_name, vrrp_yang_name,
+            datatplane_group_keepalived_config, generic_group):
+
+        copy_string = copy.deepcopy(autogeneration_string)
+        config_string = copy_string
+        copy_string = copy.deepcopy(datatplane_group_keepalived_config)
+        config_string += copy_string
+        copy_string = copy.deepcopy(datatplane_vif_group_keepalived_config)
+        config_string += copy_string
+
+        intf_level = simple_dataplane_vif_config[interface_yang_name]
+
+        dp_intf_vrrp = intf_level[dataplane_yang_name][0][vrrp_yang_name]
+        dp_intf_vrrp["vrrp-group"][0]["virtual-address"] = ["10.10.1.100/25"]
+        dp_intf_vrrp["vrrp-group"][0]["priority"] = 100
+        vif_intf = intf_level[dataplane_yang_name][0]["vif"][0]
+        vif_group = copy.deepcopy(generic_group)
+        vif_group["virtual-address"] = ["10.10.2.100/25"]
+        vif_group["priority"] = 100
+        vif_group["tagnode"] = 2
+        vif_intf[vrrp_yang_name]["vrrp-group"] = [vif_group]
+
+        result = json.dumps(simple_dataplane_vif_config)
         expect = keepalived_config.convert_to_vci_format(config_string)
         assert result == expect
 

@@ -212,7 +212,7 @@ global_defs {
             config_string = f.read()
         return config_string
 
-    def convert_to_vci_format(self, config_string: str) -> dict:
+    def convert_to_vci_format(self, config_string: str) -> str:
         """
         Given a string of keepalived config convert to YANG format
 
@@ -230,7 +230,7 @@ global_defs {
         vrrp_group_start_indexes = self._get_config_indexes(
             config_lines, "vrrp_instance")  # type: List[int]
         if vrrp_group_start_indexes == []:
-            return {}
+            return json.dumps({})
 
         group_config = self._get_config_blocks(
             config_lines, vrrp_group_start_indexes)  # type: List[List[str]]
@@ -493,6 +493,8 @@ global_defs {
             the VCI infra
         """
 
+        if config_block == []:
+            return {}
         config_dict = {
             "accept": "accept",
             "preempt": "preempt",

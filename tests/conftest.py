@@ -186,6 +186,25 @@ def simple_config(top_level_dictionary, interface_yang_name,
 
 
 @pytest.fixture
+def simple_bonding_config(top_level_dictionary, interface_yang_name,
+                          bonding_yang_name, bonding_list):
+    simple_config = top_level_dictionary
+    simple_config[interface_yang_name][bonding_yang_name] = bonding_list
+    return simple_config
+
+
+@pytest.fixture
+def simple_dataplane_vif_config(
+        top_level_dictionary, interface_yang_name, dataplane_yang_name,
+        vif_dataplane_list, dataplane_list):
+    simple_config = top_level_dictionary
+    simple_config[interface_yang_name][dataplane_yang_name] = dataplane_list
+    simple_config[interface_yang_name][dataplane_yang_name][0]["vif"] = \
+        vif_dataplane_list
+    return simple_config
+
+
+@pytest.fixture
 def vif_dataplane_interface():
     return \
         {
