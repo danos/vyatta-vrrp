@@ -15,6 +15,20 @@ class TestVyattaVrrpVci:
     # pylint: disable=missing-docstring
     # pylint: disable=no-self-use
     # pylint: disable=too-many-arguments
+
+    @pytest.mark.sanity
+    def test_vci_config_get(self, test_config, simple_config,
+                            tmp_file_keepalived_config, interface_yang_name,
+                            dataplane_yang_name, vrrp_yang_name):
+        intf = simple_config[interface_yang_name][dataplane_yang_name][0]
+        intf[vrrp_yang_name]["vrrp-group"][0]["virtual-address"] = \
+            ["10.10.1.100/25"]
+        intf[vrrp_yang_name]["vrrp-group"][0]["priority"] = 100
+        result = json.dumps(simple_config)
+        test_config._conf_obj = tmp_file_keepalived_config
+        expect = test_config.get()
+        assert result == expect
+
     def test_sanitize_vrrp_config_one_configured(self, test_config,
                                                  simple_config):
         result = test_config._sanitize_vrrp_config(simple_config)
