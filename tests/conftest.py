@@ -6,6 +6,9 @@
 
 import pytest
 import sys
+# pylint: disable=missing-docstring
+# pylint: disable=too-few-public-methods
+# pylint: disable=redefined-outer-name
 
 
 @pytest.fixture

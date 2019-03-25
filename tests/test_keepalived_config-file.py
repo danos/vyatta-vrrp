@@ -11,6 +11,10 @@ import json
 
 class TestKeepalivedConfigFile:
 
+    # pylint: disable=protected-access
+    # pylint: disable=missing-docstring
+    # pylint: disable=no-self-use
+    # pylint: disable=too-many-arguments
     def test_config_path_default(self, keepalived_config):
         expected = "/etc/keepalived/keepalived.conf"
         result = keepalived_config.config_file_path()

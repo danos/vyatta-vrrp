@@ -4,11 +4,9 @@
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
-import vci
 import json
-import sys
 import logging
-import os
+import vci  # pylint: disable=import-error
 import vyatta.keepalived.config_file as impl_conf
 import vyatta.abstract_vrrp_classes as AbstractVrrpConfig
 

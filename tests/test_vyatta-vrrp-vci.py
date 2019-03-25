@@ -10,6 +10,10 @@ import copy
 
 class TestVyattaVrrpVci:
 
+    # pylint: disable=protected-access
+    # pylint: disable=missing-docstring
+    # pylint: disable=no-self-use
+    # pylint: disable=too-many-arguments
     def test_sanitize_vrrp_config_one_configured(self, test_config,
                                                  simple_config):
         result = test_config._sanitize_vrrp_config(simple_config)
