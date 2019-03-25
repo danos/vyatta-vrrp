@@ -199,3 +199,14 @@ class TestVyattaVrrpVci:
             = [generic_group]
         result = test_config._sanitize_vrrp_config(test_conf)
         assert expected == result
+
+    def test_check_conf_object_impl_incorrect(self, test_config):
+        test_config._conf_obj = int(42)
+        with pytest.raises(TypeError):
+            test_config._check_conf_object_implementation()
+
+    def test_check_conf_object_impl_correct(self, test_config):
+        try:
+            test_config._check_conf_object_implementation()
+        except TypeError:
+            pytest.fail("Unexpected TypeError")
