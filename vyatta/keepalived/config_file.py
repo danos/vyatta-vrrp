@@ -9,7 +9,7 @@ Vyatta VCI component to configure keepalived to provide VRRP functionality
 
 import re
 import json
-from typing import List, Union, Tuple, Any
+from typing import List, Union, Tuple, Any, Dict
 
 import vyatta.abstract_vrrp_classes as AbstractConfig
 
@@ -183,7 +183,7 @@ global_defs {
         """Name of the VRRP implementation returns string"""
         return self.implementation_name
 
-    def update(self, new_config: str) -> None:
+    def update(self, new_config: Dict) -> None:
         """
         Update the list of VRRP instances for the object
 
