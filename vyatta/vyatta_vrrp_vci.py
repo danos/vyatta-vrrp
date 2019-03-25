@@ -33,16 +33,16 @@ class Config(vci.Config):
         if {} == conf["vyatta-interfaces-v1:interfaces"]:
             return
         self.log.debug(
-            "Got following config from VCI infra:\n{}".format(
-                json.dumps(conf, indent=4, sort_keys=True)))
+            "Got following config from VCI infra:%s",
+            json.dumps(conf, indent=4, sort_keys=True))
 
         self._conf_obj.update(conf)
         self._conf_obj.write_config()
         self.log.info(
-            " {} config written to {}".format(self._conf_obj.impl_name(),
-                                             self._conf_obj.config_file_path()
-                                             )
-                    )
+            " %s config writen to %s",
+            self._conf_obj.impl_name(),
+            self._conf_obj.config_file_path()
+        )
         return
 
     def get(self):
@@ -53,7 +53,8 @@ class Config(vci.Config):
         self._object_setup()
         return
 
-    def _sanitize_vrrp_config(self, conf):
+    @staticmethod
+    def _sanitize_vrrp_config(conf):
         intf_dict = conf["vyatta-interfaces-v1:interfaces"]
         new_dict = {}
         vif_list = []
@@ -72,7 +73,7 @@ class Config(vci.Config):
                                 "{}.{}".format(intf["tagnode"],
                                                vif_intf["tagnode"])
                             vif_list.append(new_vif)
-                    del(intf["vif"])
+                    del intf["vif"]
             if new_list != []:
                 new_dict[intf_type] = new_list
         if vif_list != []:
@@ -87,7 +88,7 @@ class State(vci.State):
 
 if __name__ == "__main__":
     (vci.Component("net.vyatta.vci.vrrp")
-        .model(vci.Model("net.vyatta.vci.vrrp.v1").config(Config())
-               .state(State()))
-        .run()
-        .wait())
+     .model(vci.Model("net.vyatta.vci.vrrp.v1").config(Config())
+            .state(State()))
+     .run()
+     .wait())

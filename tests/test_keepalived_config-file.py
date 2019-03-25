@@ -5,8 +5,8 @@
 # SPDX-License-Identifier: GPL-2.0-only
 
 import copy
-import pytest
 import json
+import pytest
 
 
 class TestKeepalivedConfigFile:

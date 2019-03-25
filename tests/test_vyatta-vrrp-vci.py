@@ -4,8 +4,9 @@
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
-import pytest
 import copy
+import json
+import pytest
 
 
 class TestVyattaVrrpVci:
@@ -68,7 +69,7 @@ class TestVyattaVrrpVci:
         assert result == expected
 
     def test_sanitize_vrrp_config_one_configured_one_not_configured(
-        self, simple_config, test_config, second_dataplane_interface,
+            self, simple_config, test_config, second_dataplane_interface,
             interface_yang_name, dataplane_yang_name):
         expected =\
             {
@@ -134,7 +135,7 @@ class TestVyattaVrrpVci:
         assert expected == result
 
     def test_sanitize_vrrp_config_move_dataplane_vif(
-        self, simple_config, test_config, interface_yang_name,
+            self, simple_config, test_config, interface_yang_name,
             dataplane_yang_name, generic_group,
             vif_dataplane_list_sanitized,
             vif_dataplane_list):
@@ -152,7 +153,6 @@ class TestVyattaVrrpVci:
     def test_sanitize_vrrp_config_move_bonding_vif(self, simple_config,
                                                    test_config,
                                                    interface_yang_name,
-                                                   dataplane_yang_name,
                                                    bonding_yang_name,
                                                    bonding_list,
                                                    generic_group,
@@ -175,7 +175,7 @@ class TestVyattaVrrpVci:
         assert expected == result
 
     def test_sanitize_vrrp_config_move_two_intf_types_vif(
-        self, simple_config, interface_yang_name, dataplane_yang_name,
+            self, simple_config, interface_yang_name, dataplane_yang_name,
             bonding_list, bonding_yang_name, vif_dataplane_list,
             vif_two_type_list_sanitized, generic_group,
             vif_bonding_list, test_config):

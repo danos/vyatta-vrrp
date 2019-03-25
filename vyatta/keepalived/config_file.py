@@ -208,8 +208,8 @@ global_defs {
     def read_config(self) -> str:
         """Read config from file at config_file and return to caller"""
         config_string = ""
-        with open(self.config_file, "r") as f:
-            config_string = f.read()
+        with open(self.config_file, "r") as file_handle:
+            config_string = file_handle.read()
         return config_string
 
     def convert_to_vci_format(self, config_string: str) -> str:

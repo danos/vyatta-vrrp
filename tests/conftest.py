@@ -4,8 +4,9 @@
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only.
 
-import pytest
 import sys
+import pytest
+
 # pylint: disable=missing-docstring
 # pylint: disable=too-few-public-methods
 # pylint: disable=redefined-outer-name
@@ -30,7 +31,7 @@ def test_config():
 
 @pytest.fixture
 def keepalived_config():
-    class FakeVci(object):
+    class FakeVci:
 
         class Config:
             def set(self, conf):
@@ -48,7 +49,7 @@ def keepalived_config():
 @pytest.fixture
 def tmp_file_keepalived_config(tmp_path, autogeneration_string,
                                datatplane_group_keepalived_config):
-    class FakeVci(object):
+    class FakeVci:
 
         class Config:
             def set(self, conf):
@@ -61,16 +62,16 @@ def tmp_file_keepalived_config(tmp_path, autogeneration_string,
     sys.modules['vci'] = FakeVci
     from vyatta.keepalived.config_file import KeepalivedConfig
     file_path = f"{tmp_path}/keepalived.conf"
-    with open(file_path, "w") as f:
+    with open(file_path, "w") as file_handle:
         contents = autogeneration_string+"\n"
         contents += datatplane_group_keepalived_config
-        f.write(contents)
+        file_handle.write(contents)
     return KeepalivedConfig(file_path)
 
 
 @pytest.fixture
 def non_default_keepalived_config():
-    class FakeVci(object):
+    class FakeVci:
 
         class Config:
             def set(self, conf):
@@ -183,28 +184,30 @@ def bonding_interface_dictionary(bonding_yang_name):
 @pytest.fixture
 def simple_config(top_level_dictionary, interface_yang_name,
                   dataplane_yang_name, dataplane_list):
-    simple_config = top_level_dictionary
-    simple_config[interface_yang_name][dataplane_yang_name] = dataplane_list
-    return simple_config
+    simple_yang_config = top_level_dictionary
+    simple_yang_config[interface_yang_name][dataplane_yang_name] =\
+        dataplane_list
+    return simple_yang_config
 
 
 @pytest.fixture
 def simple_bonding_config(top_level_dictionary, interface_yang_name,
                           bonding_yang_name, bonding_list):
-    simple_config = top_level_dictionary
-    simple_config[interface_yang_name][bonding_yang_name] = bonding_list
-    return simple_config
+    simple_yang_config = top_level_dictionary
+    simple_yang_config[interface_yang_name][bonding_yang_name] = bonding_list
+    return simple_yang_config
 
 
 @pytest.fixture
 def simple_dataplane_vif_config(
         top_level_dictionary, interface_yang_name, dataplane_yang_name,
         vif_dataplane_list, dataplane_list):
-    simple_config = top_level_dictionary
-    simple_config[interface_yang_name][dataplane_yang_name] = dataplane_list
-    simple_config[interface_yang_name][dataplane_yang_name][0]["vif"] = \
+    simple_yang_config = top_level_dictionary
+    simple_yang_config[interface_yang_name][dataplane_yang_name] = \
+        dataplane_list
+    simple_yang_config[interface_yang_name][dataplane_yang_name][0]["vif"] = \
         vif_dataplane_list
-    return simple_config
+    return simple_yang_config
 
 
 @pytest.fixture
