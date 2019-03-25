@@ -13,18 +13,19 @@ import vyatta.abstract_vrrp_classes as AbstractVrrpConfig
 
 class Config(vci.Config):
 
-    def _object_setup(self):
-        self._conf_obj = impl_conf.\
-                KeepalivedConfig("/etc/keepalived/keepalived_test.conf")
-        logging.basicConfig(level=logging.DEBUG, format="%(message)s")
-        self.log = logging.getLogger("vyatta-vrrp-vci")
+    # Class attributes that will be the same across all instances
+    _conf_obj = impl_conf.\
+            KeepalivedConfig("/etc/keepalived/keepalived_test.conf")
+    logging.basicConfig(level=logging.DEBUG, format="%(message)s")
+    log = logging.getLogger("vyatta-vrrp-vci")
+
+    def _check_conf_object_implementation(self):
         if not isinstance(self._conf_obj, AbstractVrrpConfig.ConfigFile):
             raise TypeError("Implementation of config object does not "
                             "inherit from abstract class, developer needs "
                             "to fix this ")
 
     def set(self, conf):
-        self._object_setup()
         conf = self._sanitize_vrrp_config(conf)
 
         # If all the default config has been removed and
@@ -36,6 +37,7 @@ class Config(vci.Config):
             "Got following config from VCI infra:%s",
             json.dumps(conf, indent=4, sort_keys=True))
 
+        self._check_conf_object_implementation()
         self._conf_obj.update(conf)
         self._conf_obj.write_config()
         self.log.info(
@@ -46,11 +48,11 @@ class Config(vci.Config):
         return
 
     def get(self):
-        self._object_setup()
+        self._check_conf_object_implementation()
         return {"state": True}
 
     def check(self, conf):
-        self._object_setup()
+        self._check_conf_object_implementation()
         return
 
     @staticmethod
