@@ -49,7 +49,8 @@ class Config(vci.Config):
 
     def get(self):
         self._check_conf_object_implementation()
-        return {"state": True}
+        file_config = self._conf_obj.read_config()
+        return self._conf_obj.convert_to_vci_format(file_config)
 
     def check(self, conf):
         self._check_conf_object_implementation()
