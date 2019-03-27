@@ -518,3 +518,23 @@ class TestKeepalivedConfigFile:
             simple_keepalived_config):
         result = tmp_file_keepalived_config.read_config()
         assert result == simple_keepalived_config
+
+    def test_update_config_no_config(
+            self, simple_config, keepalived_config):
+        expected = []
+        keepalived_config.update(simple_config)
+        result = keepalived_config.vrrp_instances
+        assert expected == result
+
+    def test_update_config_error_when_vif_under_intf(
+            self, keepalived_config, simple_dataplane_vif_config):
+        with pytest.raises(ValueError):
+            keepalived_config.update(simple_dataplane_vif_config)
+
+    def test_update_config_simple_config(
+            self, keepalived_config, simple_config,
+            simple_vrrp_group_object):
+        expected = [simple_vrrp_group_object]
+        keepalived_config.update(simple_config)
+        result = keepalived_config.vrrp_instances
+        assert result == expected
