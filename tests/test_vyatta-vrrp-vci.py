@@ -29,6 +29,46 @@ class TestVyattaVrrpVci:
         expect = test_config.get()
         assert result == expect
 
+    @pytest.mark.sanity
+    def test_vci_config_set_no_config(
+            self, test_config, tmp_file_keepalived_config_no_write,
+            top_level_dictionary):
+        result = False
+        test_config._conf_obj = tmp_file_keepalived_config_no_write
+        test_config.set(top_level_dictionary)
+        expected = \
+            os.path.isfile(
+                tmp_file_keepalived_config_no_write.config_file_path())
+        assert result == expected
+
+    @pytest.mark.sanity
+    def test_vci_config_set_writes_file(
+            self, test_config, tmp_file_keepalived_config_no_write,
+            simple_config):
+        result = True
+        test_config._conf_obj = tmp_file_keepalived_config_no_write
+        test_config.set(simple_config)
+        expected = \
+            os.path.isfile(
+                tmp_file_keepalived_config_no_write.config_file_path())
+        assert result == expected
+
+    @pytest.mark.sanity
+    def test_vci_config_set_writes_correct_config(
+            self, test_config, tmp_file_keepalived_config_no_write,
+            simple_config, simple_keepalived_config):
+        result = True
+        test_config._conf_obj = tmp_file_keepalived_config_no_write
+        file_path = \
+            tmp_file_keepalived_config_no_write.config_file_path()
+        test_config.set(simple_config)
+        expected = os.path.isfile(file_path)
+        assert result == expected
+        file_contents = ""
+        with open(file_path, "r") as file_handle:
+            file_contents = file_handle.read()
+        assert file_contents == simple_keepalived_config
+
     def test_sanitize_vrrp_config_one_configured(self, test_config,
                                                  simple_config):
         result = test_config._sanitize_vrrp_config(simple_config)

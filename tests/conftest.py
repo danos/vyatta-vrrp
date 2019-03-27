@@ -70,6 +70,24 @@ def tmp_file_keepalived_config(tmp_path, autogeneration_string,
 
 
 @pytest.fixture
+def tmp_file_keepalived_config_no_write(tmp_path):
+    class FakeVci:
+
+        class Config:
+            def set(self, conf):
+                pass
+
+        class State:
+            def get(self):
+                pass
+
+    sys.modules['vci'] = FakeVci
+    from vyatta.keepalived.config_file import KeepalivedConfig
+    file_path = f"{tmp_path}/keepalived.conf"
+    return KeepalivedConfig(file_path)
+
+
+@pytest.fixture
 def non_default_keepalived_config():
     class FakeVci:
 
