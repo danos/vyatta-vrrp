@@ -520,9 +520,19 @@ class TestKeepalivedConfigFile:
         assert result == simple_keepalived_config
 
     def test_update_config_no_config(
-            self, simple_config, keepalived_config):
+            self, top_level_dictionary, keepalived_config):
         expected = []
-        keepalived_config.update(simple_config)
+        keepalived_config.update(top_level_dictionary)
+        result = keepalived_config.vrrp_instances
+        assert expected == result
+
+    def test_update_config_no_vrrp_config(
+            self, top_level_dictionary, keepalived_config,
+            dataplane_yang_name, second_dataplane_interface):
+        expected = []
+        config = top_level_dictionary
+        config[dataplane_yang_name] = [second_dataplane_interface]
+        keepalived_config.update(config)
         result = keepalived_config.vrrp_instances
         assert expected == result
 
