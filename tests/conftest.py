@@ -48,7 +48,7 @@ def keepalived_config():
 
 @pytest.fixture
 def tmp_file_keepalived_config(tmp_path, autogeneration_string,
-                               datatplane_group_keepalived_config):
+                               dataplane_group_keepalived_config):
     class FakeVci:
 
         class Config:
@@ -64,7 +64,7 @@ def tmp_file_keepalived_config(tmp_path, autogeneration_string,
     file_path = f"{tmp_path}/keepalived.conf"
     with open(file_path, "w") as file_handle:
         contents = autogeneration_string+"\n"
-        contents += datatplane_group_keepalived_config
+        contents += dataplane_group_keepalived_config
         file_handle.write(contents)
     return KeepalivedConfig(file_path)
 
@@ -114,7 +114,7 @@ def dataplane_interface(generic_group):
 
 
 @pytest.fixture
-def datatplane_group_keepalived_config():
+def dataplane_group_keepalived_config():
     return """
 vrrp_instance vyatta-dp0p1s1-1 {
     state BACKUP
@@ -239,7 +239,7 @@ def vif_dataplane_interface_sanitized(generic_group):
 
 
 @pytest.fixture
-def datatplane_vif_group_keepalived_config():
+def dataplane_vif_group_keepalived_config():
     return """
 vrrp_instance vyatta-dp0p1s1.10-2 {
     state BACKUP
@@ -355,5 +355,5 @@ global_defs {
 
 @pytest.fixture
 def simple_keepalived_config(autogeneration_string,
-                             datatplane_group_keepalived_config):
-    return f"{autogeneration_string}\n{datatplane_group_keepalived_config}"
+                             dataplane_group_keepalived_config):
+    return f"{autogeneration_string}\n{dataplane_group_keepalived_config}"

@@ -161,8 +161,8 @@ global_defs {
 }
     """
         self.config_file = config_file_path  # type: str
-        self.implementation_name = "Keepalived"  # type: str
         self.vrrp_instances = []  # type: List[dict]
+        self.implementation_name = "Keepalived"  # type: str
 
         self.interface_yang_name = \
             "vyatta-interfaces-v1:interfaces"  # type: str

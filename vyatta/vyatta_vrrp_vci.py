@@ -41,7 +41,7 @@ class Config(vci.Config):
         self._conf_obj.update(conf)
         self._conf_obj.write_config()
         self.log.info(
-            " %s config writen to %s",
+            " %s config written to %s",
             self._conf_obj.impl_name(),
             self._conf_obj.config_file_path()
         )

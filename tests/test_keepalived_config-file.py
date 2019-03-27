@@ -49,11 +49,11 @@ class TestKeepalivedConfigFile:
         assert result == expected
 
     def test_get_config_indexes_list_single_group(
-            self, autogeneration_string, datatplane_group_keepalived_config,
+            self, autogeneration_string, dataplane_group_keepalived_config,
             keepalived_config):
         copy_string = copy.deepcopy(autogeneration_string)
         config_string = copy_string
-        copy_string = copy.deepcopy(datatplane_group_keepalived_config)
+        copy_string = copy.deepcopy(dataplane_group_keepalived_config)
         config_string += copy_string
         expected = [13]
         result = keepalived_config._get_config_indexes(
@@ -61,11 +61,11 @@ class TestKeepalivedConfigFile:
         assert result == expected
 
     def test_get_config_indexes_list_multiple_groups(
-            self, autogeneration_string, datatplane_group_keepalived_config,
+            self, autogeneration_string, dataplane_group_keepalived_config,
             bonding_group_keepalived_config, keepalived_config):
         copy_string = copy.deepcopy(autogeneration_string)
         config_string = copy_string
-        copy_string = copy.deepcopy(datatplane_group_keepalived_config)
+        copy_string = copy.deepcopy(dataplane_group_keepalived_config)
         config_string += copy_string
         copy_string = copy.deepcopy(bonding_group_keepalived_config)
         config_string += copy_string
@@ -96,11 +96,11 @@ class TestKeepalivedConfigFile:
         assert result == expected
 
     def test_get_config_blocks_single_group(
-            self, autogeneration_string, datatplane_group_keepalived_config,
+            self, autogeneration_string, dataplane_group_keepalived_config,
             keepalived_config):
         copy_string = copy.deepcopy(autogeneration_string)
         config_string = copy_string
-        copy_string = copy.deepcopy(datatplane_group_keepalived_config)
+        copy_string = copy.deepcopy(dataplane_group_keepalived_config)
         config_string += copy_string
         expected = \
             [
@@ -116,12 +116,12 @@ class TestKeepalivedConfigFile:
         assert result == expected
 
     def test_get_config_blocks_multiple_groups(
-            self, autogeneration_string, datatplane_group_keepalived_config,
+            self, autogeneration_string, dataplane_group_keepalived_config,
             bonding_group_keepalived_config, keepalived_config):
 
         copy_string = copy.deepcopy(autogeneration_string)
         config_string = copy_string
-        copy_string = copy.deepcopy(datatplane_group_keepalived_config)
+        copy_string = copy.deepcopy(dataplane_group_keepalived_config)
         config_string += copy_string
         copy_string = copy.deepcopy(bonding_group_keepalived_config)
         config_string += copy_string
@@ -401,12 +401,12 @@ class TestKeepalivedConfigFile:
         assert expected == result
 
     def test_convert_minimal_vrrp_keepalived_conf_to_yang(
-            self, datatplane_group_keepalived_config, generic_group,
+            self, dataplane_group_keepalived_config, generic_group,
             keepalived_config):
         expected = generic_group
         expected["virtual-address"] = ["10.10.1.100/25"]
         expected["priority"] = 100
-        config_split = datatplane_group_keepalived_config.splitlines()
+        config_split = dataplane_group_keepalived_config.splitlines()
         indexes = keepalived_config._get_config_indexes(
             config_split, "vrrp_instance")
         config_block = keepalived_config._get_config_blocks(
@@ -416,13 +416,13 @@ class TestKeepalivedConfigFile:
         assert expected == result
 
     def test_convert_vif_vrrp_keepalived_conf_to_yang(
-            self, datatplane_vif_group_keepalived_config, generic_group,
+            self, dataplane_vif_group_keepalived_config, generic_group,
             keepalived_config):
         expected = generic_group
         expected["virtual-address"] = ["10.10.2.100/25"]
         expected["priority"] = 100
         expected["tagnode"] = 2
-        config_split = datatplane_vif_group_keepalived_config.splitlines()
+        config_split = dataplane_vif_group_keepalived_config.splitlines()
         indexes = keepalived_config._get_config_indexes(
             config_split, "vrrp_instance")
         config_block = keepalived_config._get_config_blocks(
@@ -431,19 +431,19 @@ class TestKeepalivedConfigFile:
             config_block)
         assert expected == result
 
-    def test_config_to_vci_fomat_no_config(self, keepalived_config):
+    def test_config_to_vci_format_no_config(self, keepalived_config):
         result = json.dumps({})
         expect = keepalived_config.convert_to_vci_format("")
         assert result == expect
 
-    def test_config_to_vci_fomat_minimal_config(
-            self, autogeneration_string, datatplane_group_keepalived_config,
+    def test_config_to_vci_format_minimal_config(
+            self, autogeneration_string, dataplane_group_keepalived_config,
             keepalived_config, simple_config, interface_yang_name,
             dataplane_yang_name, vrrp_yang_name):
 
         copy_string = copy.deepcopy(autogeneration_string)
         config_string = copy_string
-        copy_string = copy.deepcopy(datatplane_group_keepalived_config)
+        copy_string = copy.deepcopy(dataplane_group_keepalived_config)
         config_string += copy_string
         intf = simple_config[interface_yang_name][dataplane_yang_name][0]
         intf[vrrp_yang_name]["vrrp-group"][0]["virtual-address"] = \
@@ -453,7 +453,7 @@ class TestKeepalivedConfigFile:
         expect = keepalived_config.convert_to_vci_format(config_string)
         assert result == expect
 
-    def test_config_to_vci_fomat_bonding_config(
+    def test_config_to_vci_format_bonding_config(
             self, autogeneration_string, bonding_group_keepalived_config,
             keepalived_config, simple_bonding_config, interface_yang_name,
             bonding_yang_name, vrrp_yang_name):
@@ -475,18 +475,18 @@ class TestKeepalivedConfigFile:
         expect = keepalived_config.convert_to_vci_format(config_string)
         assert result == expect
 
-    def test_config_to_vci_fomat_dataplane_vif_config(
+    def test_config_to_vci_format_dataplane_vif_config(
             self, autogeneration_string,
-            datatplane_vif_group_keepalived_config,
+            dataplane_vif_group_keepalived_config,
             keepalived_config, simple_dataplane_vif_config,
             interface_yang_name, dataplane_yang_name, vrrp_yang_name,
-            datatplane_group_keepalived_config, generic_group):
+            dataplane_group_keepalived_config, generic_group):
 
         copy_string = copy.deepcopy(autogeneration_string)
         config_string = copy_string
-        copy_string = copy.deepcopy(datatplane_group_keepalived_config)
+        copy_string = copy.deepcopy(dataplane_group_keepalived_config)
         config_string += copy_string
-        copy_string = copy.deepcopy(datatplane_vif_group_keepalived_config)
+        copy_string = copy.deepcopy(dataplane_vif_group_keepalived_config)
         config_string += copy_string
 
         intf_level = simple_dataplane_vif_config[interface_yang_name]
@@ -514,6 +514,7 @@ class TestKeepalivedConfigFile:
         assert result is not None
 
     def test_read_config_keepalived_config(
-            self, tmp_file_keepalived_config, simple_keepalived_config):
+            self, tmp_file_keepalived_config,
+            simple_keepalived_config):
         result = tmp_file_keepalived_config.read_config()
         assert result == simple_keepalived_config

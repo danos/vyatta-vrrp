@@ -32,3 +32,4 @@ class ConfigFile(ABC):
     @abstractmethod
     def impl_name(self):
         raise NotImplementedError
+
