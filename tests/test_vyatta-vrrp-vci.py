@@ -4,6 +4,7 @@
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
+import os
 import copy
 import json
 import pytest
