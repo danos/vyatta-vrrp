@@ -12,6 +12,7 @@ import json
 from typing import List, Union, Tuple, Any, Dict
 
 import vyatta.abstract_vrrp_classes as AbstractConfig
+from vyatta.keepalived.vrrp import VrrpGroup
 
 
 class KeepalivedConfig(AbstractConfig.ConfigFile):
@@ -161,8 +162,8 @@ global_defs {
 }
     """
         self.config_file = config_file_path  # type: str
-        self.vrrp_instances = []  # type: List[dict]
         self.implementation_name = "Keepalived"  # type: str
+        self._vrrp_instances = []  # type: List[dict]
 
         self.interface_yang_name = \
             "vyatta-interfaces-v1:interfaces"  # type: str
@@ -174,6 +175,14 @@ global_defs {
             "vyatta-switchport-v1:switchport"  # type: str
         self.vif_yang_name = "vif"  # type: str
         self.vrrp_yang_name = "vyatta-vrrp-v1:vrrp"  # type: str
+
+    @property
+    def vrrp_instances(self):
+        return self._vrrp_instances
+
+    @vrrp_instances.setter
+    def vrrp_instances(self, new_value):
+        self._vrrp_instances = new_value
 
     def config_file_path(self) -> str:
         """Path to the keepalived config file returns string"""
@@ -195,6 +204,30 @@ global_defs {
         Create new VRRP group Objects from the config passed in
         and replace the vrrp_instances list with the new config
         """
+
+        self.vrrp_instances = []  # type: List[VrrpGroup]
+        if self.interface_yang_name not in new_config:
+            return
+        intf_types = new_config[self.interface_yang_name]
+
+        for intf_type in intf_types:
+            for intf in intf_types[intf_type]:
+                if "vif" in intf:
+                    # As we've already sanitized the data and moved
+                    # vif interfaces to their own intf_type if any
+                    # exist in the interface config this is a problem.
+                    raise ValueError(
+                        "VIF interfaces shouldn't be present under" +
+                        " another interface")
+
+                intf_name = intf["tagnode"]
+                vrrp_conf = intf[self.vrrp_yang_name]
+                if vrrp_conf["vrrp-group"] == []:
+                    break
+                start_delay = vrrp_conf["start-delay"]
+                for group in vrrp_conf["vrrp-group"]:
+                    self.vrrp_instances.append(
+                        VrrpGroup(intf_name, start_delay,group))
 
     def write_config(self) -> None:
         """
