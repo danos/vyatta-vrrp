@@ -105,6 +105,12 @@ def non_default_keepalived_config():
 
 
 @pytest.fixture
+def simple_vrrp_group_object(generic_group):
+    from vyatta.keepalived.vrrp import VrrpGroup
+    return VrrpGroup("dp0p1s1", "0", generic_group)
+
+
+@pytest.fixture
 def generic_group():
     return \
         {
