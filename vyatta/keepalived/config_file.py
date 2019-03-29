@@ -225,6 +225,8 @@ global_defs {
                     break
                 start_delay = vrrp_conf["start-delay"]
                 for group in vrrp_conf["vrrp-group"]:
+                    if "disable" in group:
+                        break
                     self.vrrp_instances.append(
                         VrrpGroup(intf_name, start_delay,group))
 
