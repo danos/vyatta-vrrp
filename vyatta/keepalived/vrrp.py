@@ -25,6 +25,12 @@ class VrrpGroup:
         self._version = group_config["version"]
         self._vips = group_config["virtual-address"]
 
+        # Extended config
+        if "priority" in group_config:
+            self._priority = group_config["priority"]
+        if "advert-int" in group_config:
+            self._advert_int = group_config["advert-int"]
+
         # Generate instance name (TODO change to f-string with python 3.7)
         self._instance = "vyatta-{intf}-{vrid}".format(
             intf=self._intf_name, vrid=self._vrid

@@ -67,6 +67,7 @@ class TestVyattaVrrpVci:
             simple_config[interface_yang_name][dataplane_yang_name][0]
         vrrp_group = new_group[vrrp_yang_name]["vrrp-group"][0]
         vrrp_group["virtual-address"] = ["10.10.1.100/25"]
+        vrrp_group["priority"] = 100
         test_config.set(simple_config)
         conf_path = Path(
             tmp_file_keepalived_config_no_write.config_file_path())
