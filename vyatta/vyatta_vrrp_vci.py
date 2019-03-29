@@ -86,7 +86,8 @@ class Config(vci.Config):
 
 class State(vci.State):
     def get(self):
-        return {'state': 'test'}
+        return {'vyatta-interfaces-v1:interfaces':
+                {"vyatta-interfaces-dataplane-v1:dataplane": []}}
 
 
 if __name__ == "__main__":
