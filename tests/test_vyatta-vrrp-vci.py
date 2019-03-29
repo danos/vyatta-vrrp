@@ -78,6 +78,35 @@ class TestVyattaVrrpVci:
             file_contents = file_handle.read()
         assert file_contents == simple_keepalived_config
 
+    def test_vci_config_set_writes_disabled_group(
+            self, test_config, interface_yang_name,
+            tmp_file_keepalived_config_no_write,
+            autogeneration_string,
+            dataplane_yang_name, disabled_group,
+            dataplane_interface):
+        test_config._conf_obj = tmp_file_keepalived_config_no_write
+        file_path = \
+            tmp_file_keepalived_config_no_write.config_file_path()
+        disabled_interface = dataplane_interface
+        disabled_interface["vyatta-vrrp-v1:vrrp"]["vrrp-group"] = [
+            disabled_group
+        ]
+        disabled_config = {
+            interface_yang_name: {
+                dataplane_yang_name: [disabled_interface]
+            }
+        }
+        test_config.set(disabled_config)
+        conf_path = Path(
+            tmp_file_keepalived_config_no_write.config_file_path())
+        expected = conf_path.exists()
+        result = True
+        assert result == expected
+        file_contents = ""
+        with open(file_path, "r") as file_handle:
+            file_contents = file_handle.read()
+        assert file_contents == autogeneration_string
+
     def test_sanitize_vrrp_config_one_configured(self, test_config,
                                                  simple_config):
         result = test_config._sanitize_vrrp_config(simple_config)

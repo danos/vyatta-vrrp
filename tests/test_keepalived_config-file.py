@@ -542,6 +542,26 @@ class TestKeepalivedConfigFile:
         with pytest.raises(ValueError):
             keepalived_config.update(simple_dataplane_vif_config)
 
+    def test_update_config_disabled_group(
+            self, keepalived_config, interface_yang_name,
+            dataplane_yang_name, disabled_group,
+            dataplane_interface):
+        expected = []
+        disabled_interface = dataplane_interface
+        disabled_interface["vyatta-vrrp-v1:vrrp"]["vrrp-group"] = [
+            disabled_group
+        ]
+        disabled_config = {
+            interface_yang_name: {
+                dataplane_yang_name: [disabled_interface]
+            }
+        }
+        keepalived_config.update(disabled_config)
+        result = keepalived_config.vrrp_instances
+        # Contents should be the same, even if the reference
+        # isn't
+        assert str(result) == str(expected)
+
     def test_update_config_simple_config(
             self, keepalived_config, simple_config,
             simple_vrrp_group_object):

@@ -128,6 +128,22 @@ def generic_group():
 
 
 @pytest.fixture
+def disabled_group():
+    return \
+        {
+            "accept": False,
+            "disable": [None],
+            "preempt": True,
+            "priority": 100,
+            "tagnode": 1,
+            "version": 2,
+            "virtual-address": [
+                "10.10.1.100/25"
+            ]
+        }
+
+
+@pytest.fixture
 def dataplane_interface(generic_group):
     return \
         {
