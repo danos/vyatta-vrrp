@@ -6,6 +6,7 @@
 
 import copy
 import json
+from pathlib import Path
 import pytest
 
 
@@ -547,4 +548,23 @@ class TestKeepalivedConfigFile:
         expected = [simple_vrrp_group_object]
         keepalived_config.update(simple_config)
         result = keepalived_config.vrrp_instances
+        # Contents should be the same, even if the reference
+        # isn't
+        assert str(result) == str(expected)
+
+    def test_write_config_file_doesnt_exist(self, tmp_path):
+        file_path = Path(f"{tmp_path}/test_file")
+        result = False
+        expected = file_path.exists()
+        assert result == expected
+
+    def test_write_config_file_exist(
+            self, tmp_path, tmp_file_keepalived_config_no_write):
+        file_path = Path(f"{tmp_path}/keepalived.conf")
+        result = False
+        expected = file_path.exists()
+        assert result == expected
+        tmp_file_keepalived_config_no_write.write_config()
+        result = True
+        expected = file_path.exists()
         assert result == expected
