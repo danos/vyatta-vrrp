@@ -39,7 +39,7 @@ use Vyatta::Interface;
 use Vyatta::Misc;
 use POSIX;
 
-my $keepalived_conf      = '/etc/keepalived/keepalived.conf';
+my $keepalived_conf      = '/etc/keepalived/keepalived_prev.conf';
 my $sbin_dir             = '/opt/vyatta/sbin';
 my $state_transition     = "$sbin_dir/vyatta-vrrp-state.pl";
 my $keepalived_pid       = '/var/run/keepalived.pid';
@@ -116,7 +116,7 @@ sub start_daemon {
       "# DAEMON_ARGS are appended to the keepalived command-line\n";
     my $cmd .=
       'DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x';
-    $cmd .= " --use-file $conf --release-vips";
+    $cmd .= " --use-file /etc/keepalived/keepalived.conf --release-vips";
     if ( $snmp_socket ne "" ) {
         $cmd .= " --snmp-agent-socket $snmp_socket";
     }

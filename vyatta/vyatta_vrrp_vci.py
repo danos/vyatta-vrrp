@@ -15,7 +15,7 @@ class Config(vci.Config):
 
     # Class attributes that will be the same across all instances
     _conf_obj = impl_conf.\
-            KeepalivedConfig("/etc/keepalived/keepalived_test.conf")
+            KeepalivedConfig()
     logging.basicConfig(level=logging.DEBUG, format="%(message)s")
     log = logging.getLogger("vyatta-vrrp-vci")
 
