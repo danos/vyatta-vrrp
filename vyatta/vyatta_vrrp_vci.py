@@ -50,7 +50,12 @@ class Config(vci.Config):
     def get(self):
         self._check_conf_object_implementation()
         file_config = self._conf_obj.read_config()
-        return self._conf_obj.convert_to_vci_format(file_config)
+        yang_repr = self._conf_obj.convert_to_vci_format(file_config)
+        self.log.info(
+            " %s yang repr returned to vci infra",
+            yang_repr
+        )
+        return yang_repr
 
     def check(self, conf):
         self._check_conf_object_implementation()
