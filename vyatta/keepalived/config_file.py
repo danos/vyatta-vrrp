@@ -159,8 +159,7 @@ global_defs {
         snmp_socket tcp:localhost:705:1
         enable_snmp_keepalived
         enable_snmp_rfc
-}
-    """
+}"""
         self.config_file = config_file_path  # type: str
         self.implementation_name = "Keepalived"  # type: str
         self._vrrp_instances = []  # type: List[dict]

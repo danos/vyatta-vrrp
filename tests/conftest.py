@@ -63,7 +63,7 @@ def tmp_file_keepalived_config(tmp_path, autogeneration_string,
     from vyatta.keepalived.config_file import KeepalivedConfig
     file_path = f"{tmp_path}/keepalived.conf"
     with open(file_path, "w") as file_handle:
-        contents = autogeneration_string+"\n"
+        contents = autogeneration_string
         contents += dataplane_group_keepalived_config
         file_handle.write(contents)
     return KeepalivedConfig(file_path)
@@ -83,7 +83,7 @@ def tmp_file_keepalived_config_no_write(tmp_path):
 
     sys.modules['vci'] = FakeVci
     from vyatta.keepalived.config_file import KeepalivedConfig
-    file_path = f"{tmp_path}/keepalived.conf"
+    file_path = f"{str(tmp_path)}/keepalived.conf"
     return KeepalivedConfig(file_path)
 
 
@@ -107,6 +107,8 @@ def non_default_keepalived_config():
 @pytest.fixture
 def simple_vrrp_group_object(generic_group):
     from vyatta.keepalived.vrrp import VrrpGroup
+    new_group = generic_group
+    new_group["virtual-address"] = ["10.10.1.100/25"]
     return VrrpGroup("dp0p1s1", "0", generic_group)
 
 
@@ -380,4 +382,4 @@ global_defs {
 @pytest.fixture
 def simple_keepalived_config(autogeneration_string,
                              dataplane_group_keepalived_config):
-    return f"{autogeneration_string}\n{dataplane_group_keepalived_config}"
+    return f"{autogeneration_string}{dataplane_group_keepalived_config}"

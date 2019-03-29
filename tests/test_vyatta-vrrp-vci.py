@@ -4,9 +4,9 @@
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
-import os
 import copy
 import json
+from pathlib import Path
 import pytest
 
 
@@ -37,9 +37,9 @@ class TestVyattaVrrpVci:
         result = False
         test_config._conf_obj = tmp_file_keepalived_config_no_write
         test_config.set(top_level_dictionary)
-        expected = \
-            os.path.isfile(
-                tmp_file_keepalived_config_no_write.config_file_path())
+        conf_path = Path(
+            tmp_file_keepalived_config_no_write.config_file_path())
+        expected = conf_path.exists()
         assert result == expected
 
     @pytest.mark.sanity
@@ -49,21 +49,28 @@ class TestVyattaVrrpVci:
         result = True
         test_config._conf_obj = tmp_file_keepalived_config_no_write
         test_config.set(simple_config)
-        expected = \
-            os.path.isfile(
-                tmp_file_keepalived_config_no_write.config_file_path())
+        conf_path = Path(
+            tmp_file_keepalived_config_no_write.config_file_path())
+        expected = conf_path.exists()
         assert result == expected
 
     @pytest.mark.sanity
     def test_vci_config_set_writes_correct_config(
             self, test_config, tmp_file_keepalived_config_no_write,
-            simple_config, simple_keepalived_config):
+            simple_config, simple_keepalived_config, interface_yang_name,
+            dataplane_yang_name, vrrp_yang_name):
         result = True
         test_config._conf_obj = tmp_file_keepalived_config_no_write
         file_path = \
             tmp_file_keepalived_config_no_write.config_file_path()
+        new_group = \
+            simple_config[interface_yang_name][dataplane_yang_name][0]
+        vrrp_group = new_group[vrrp_yang_name]["vrrp-group"][0]
+        vrrp_group["virtual-address"] = ["10.10.1.100/25"]
         test_config.set(simple_config)
-        expected = os.path.isfile(file_path)
+        conf_path = Path(
+            tmp_file_keepalived_config_no_write.config_file_path())
+        expected = conf_path.exists()
         assert result == expected
         file_contents = ""
         with open(file_path, "r") as file_handle:
