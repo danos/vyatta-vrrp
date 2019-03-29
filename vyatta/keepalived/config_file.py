@@ -236,6 +236,11 @@ global_defs {
         file provided at instantiation. If there is a problem writing the
         file an error is thrown.
         """
+        keepalived_config = self.config_string
+        for group in self.vrrp_instances:
+            keepalived_config += str(group)
+        with open(self.config_file, "w") as file_handle:
+            file_handle.write(keepalived_config)
 
     def read_config(self) -> str:
         """Read config from file at config_file and return to caller"""
