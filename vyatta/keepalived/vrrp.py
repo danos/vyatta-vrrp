@@ -5,9 +5,29 @@
 # SPDX-License-Identifier: GPL-2.0-only
 
 
-class VrrpGroup:
+from typing import Dict
 
-    def __init__(self, name, delay, group_config):
+class VrrpGroup:
+    """
+    Simple VRRP group representation
+
+    Used to represent the keepalived config for each individual
+    VRRP group
+    """
+    
+
+    def __init__(self, name: str, delay: str, group_config: Dict):
+        """
+        Constructor for the class
+
+        Arguments:
+            name (str):
+                Name of the interface the VRRP group is configured on
+            delay (str):
+                Start delay configured for the interface
+            group_config (Dict):
+                YANG Dictionary for the group's config
+        """
         # Default values from existing code required for minimal
         # config
         self._priority = 100
@@ -53,6 +73,7 @@ vrrp_instance {instance} {{
 
     @property
     def instance_name(self):
+        """Name of this group in the config file"""
         return self._instance
 
     def __repr__(self):
