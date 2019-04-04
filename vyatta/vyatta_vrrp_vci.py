@@ -6,6 +6,8 @@
 
 import json
 import logging
+import ipaddress
+import socket
 import vci  # pylint: disable=import-error
 import vyatta.keepalived.config_file as impl_conf
 import vyatta.abstract_vrrp_classes as AbstractVrrpConfig
@@ -59,7 +61,32 @@ class Config(vci.Config):
 
     def check(self, conf):
         self._check_conf_object_implementation()
+        conf = self._sanitize_vrrp_config(conf)
+        hello_address = list(self.get_hello_sources(conf))
+        for address in hello_address:
+            self.is_local_address(address)
         return
+
+    @staticmethod
+    def get_hello_sources(conf):
+        for intf_type in conf["vyatta-interfaces-v1:interfaces"]:
+            for intf in conf["vyatta-interfaces-v1:interfaces"][intf_type]:
+                if "vrrp-group" not in intf["vyatta-vrrp-v1:vrrp"]:
+                    break  # start-delay default but no vrrp config
+                for group in intf["vyatta-vrrp-v1:vrrp"]["vrrp-group"]:
+                    if "hello-source-address" in group:
+                        yield group["hello-source-address"]
+
+    @staticmethod
+    def is_local_address(address_string):
+        ipaddr = ipaddress.ip_address(address_string)
+        ipaddr_type = None
+        if ipaddr.version == 4:
+            ipaddr_type = socket.AF_INET
+        else:
+            ipaddr_type = socket.AF_INET6
+        with socket.socket(ipaddr_type, socket.SOCK_STREAM) as s:
+            s.bind((address_string, 0))
 
     @staticmethod
     def _sanitize_vrrp_config(conf):
