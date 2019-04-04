@@ -78,6 +78,44 @@ class TestVyattaVrrpVci:
             file_contents = file_handle.read()
         assert file_contents == simple_keepalived_config
 
+    @pytest.mark.sanity
+    def test_vci_config_check_local_address(
+            self, test_config, simple_config, interface_yang_name,
+            dataplane_yang_name, vrrp_yang_name):
+        intf = simple_config[interface_yang_name][dataplane_yang_name][0]
+        intf[vrrp_yang_name]["vrrp-group"][0]["virtual-address"] = \
+            ["10.10.1.100/25"]
+        intf[vrrp_yang_name]["vrrp-group"][0]["priority"] = 100
+        intf[vrrp_yang_name]["vrrp-group"][0]["hello-source-address"] =\
+            "127.0.0.1"
+        result = None
+        expect = test_config.check(simple_config)
+        assert result == expect
+
+    @pytest.mark.sanity
+    def test_vci_config_check_non_local_address(
+            self, test_config, simple_config, interface_yang_name,
+            dataplane_yang_name, vrrp_yang_name):
+        intf = simple_config[interface_yang_name][dataplane_yang_name][0]
+        intf[vrrp_yang_name]["vrrp-group"][0]["virtual-address"] = \
+            ["10.10.1.100/25"]
+        intf[vrrp_yang_name]["vrrp-group"][0]["priority"] = 100
+        intf[vrrp_yang_name]["vrrp-group"][0]["hello-source-address"] =\
+            "10.0.0.1"
+        with pytest.raises(OSError):
+            test_config.check(simple_config)
+
+    def test_vci_config_check(self, test_config, simple_config,
+                              interface_yang_name,
+                              dataplane_yang_name, vrrp_yang_name):
+        intf = simple_config[interface_yang_name][dataplane_yang_name][0]
+        intf[vrrp_yang_name]["vrrp-group"][0]["virtual-address"] = \
+            ["10.10.1.100/25"]
+        intf[vrrp_yang_name]["vrrp-group"][0]["priority"] = 100
+        result = None
+        expect = test_config.check(simple_config)
+        assert result == expect
+
     def test_vci_config_set_writes_disabled_group(
             self, test_config, interface_yang_name,
             tmp_file_keepalived_config_no_write,
