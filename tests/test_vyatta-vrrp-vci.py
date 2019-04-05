@@ -340,3 +340,39 @@ class TestVyattaVrrpVci:
             test_config._check_conf_object_implementation()
         except TypeError:
             pytest.fail("Unexpected TypeError")
+
+    def test_get_hello_sources_no_hellos(
+            self, simple_config, test_config):
+        expected = []
+        result = list(test_config.get_hello_sources(simple_config))
+        assert expected == result
+
+    def test_get_hello_sources(
+            self, simple_config, test_config, interface_yang_name,
+            dataplane_yang_name, vrrp_yang_name):
+        expected = ["10.1.1.1"]
+        intf = simple_config[interface_yang_name][dataplane_yang_name][0]
+        intf[vrrp_yang_name]["vrrp-group"][0]["hello-source-address"] = \
+            "10.1.1.1"
+        result = list(test_config.get_hello_sources(simple_config))
+        assert expected == result
+
+    def test_is_local_address_ipv4(
+            self, test_config):
+        expected = None
+        ipaddress = "127.0.0.1"
+        result = test_config.is_local_address(ipaddress)
+        assert expected == result
+
+    def test_is_local_address_ipv6(
+            self, test_config):
+        expected = None
+        ipaddress = "::1"
+        result = test_config.is_local_address(ipaddress)
+        assert expected == result
+
+    def test_is_local_address_not_local(
+            self, test_config):
+        ipaddress = "10.1.1.1"
+        with pytest.raises(OSError):
+            test_config.is_local_address(ipaddress)
