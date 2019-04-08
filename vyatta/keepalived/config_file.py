@@ -7,11 +7,11 @@
 Vyatta VCI component to configure keepalived to provide VRRP functionality
 """
 
-import re
 import json
-from typing import List, Union, Tuple, Any, Dict
-
+import re
+from typing import Any, Dict, List
 import vyatta.abstract_vrrp_classes as AbstractConfig
+import vyatta.keepalived.util as util
 from vyatta.keepalived.vrrp import VrrpGroup
 
 
@@ -164,17 +164,6 @@ global_defs {
         self.implementation_name = "Keepalived"  # type: str
         self._vrrp_instances = []  # type: List[dict]
 
-        self.interface_yang_name = \
-            "vyatta-interfaces-v1:interfaces"  # type: str
-        self.dataplane_yang_name = \
-            "vyatta-interfaces-dataplane-v1:dataplane"  # type: str
-        self.bonding_yang_name = \
-            "vyatta-bonding-v1:bonding"  # type: str
-        self.switchport_yang_name = \
-            "vyatta-switchport-v1:switchport"  # type: str
-        self.vif_yang_name = "vif"  # type: str
-        self.vrrp_yang_name = "vyatta-vrrp-v1:vrrp"  # type: str
-
     @property
     def vrrp_instances(self):
         return self._vrrp_instances
@@ -205,9 +194,9 @@ global_defs {
         """
 
         self.vrrp_instances = []  # type: List[VrrpGroup]
-        if self.interface_yang_name not in new_config:
+        if util.INTERFACE_YANG_NAME not in new_config:
             return
-        intf_types = new_config[self.interface_yang_name]
+        intf_types = new_config[util.INTERFACE_YANG_NAME]
 
         for intf_type in intf_types:
             for intf in intf_types[intf_type]:
@@ -220,7 +209,7 @@ global_defs {
                         " another interface")
 
                 intf_name = intf["tagnode"]
-                vrrp_conf = intf[self.vrrp_yang_name]
+                vrrp_conf = intf[util.VRRP_YANG_NAME]
                 if vrrp_conf["vrrp-group"] == []:
                     break
                 start_delay = vrrp_conf["start-delay"]
@@ -228,7 +217,7 @@ global_defs {
                     if "disable" in group:
                         break
                     self.vrrp_instances.append(
-                        VrrpGroup(intf_name, start_delay,group))
+                        VrrpGroup(intf_name, start_delay, group))
 
     def write_config(self) -> None:
         """
@@ -266,21 +255,21 @@ global_defs {
         """
 
         config_lines = config_string.splitlines()  # type: List[str]
-        vrrp_group_start_indexes = self._get_config_indexes(
+        vrrp_group_start_indexes = util.get_config_indexes(
             config_lines, "vrrp_instance")  # type: List[int]
         if vrrp_group_start_indexes == []:
             return json.dumps({})
 
-        group_config = self._get_config_blocks(
+        group_config = util.get_config_blocks(
             config_lines, vrrp_group_start_indexes)  # type: List[List[str]]
 
         # config_without_groups = \
         #    config_lines[:vrrp_group_start_indexes[0]]  # type: List[str]
 
-        yang_representation = {self.interface_yang_name: {}}
+        yang_representation = {util.INTERFACE_YANG_NAME: {}}
         for group in group_config:
 
-            intf_name = self._find_config_value(
+            intf_name = util.find_config_value(
                 group, "interface")[1]  # type: str
             vif_number = ""
             if "." in intf_name:
@@ -288,232 +277,44 @@ global_defs {
                 intf_name = vif_sep[0]
                 vif_number = vif_sep[1]  # type: str
 
-            interface_list = yang_representation[self.interface_yang_name]
+            interface_list = yang_representation[util.INTERFACE_YANG_NAME]
             # Find the interface type for the interface name, right now this
             # is just a guess, there might be a better method of doing this
             # than regexes
             if re.match(r"dp\d+bond\d+", intf_name):
-                if self.bonding_yang_name not in interface_list:
-                    interface_list[self.bonding_yang_name] = []
-                interface_list = interface_list[self.bonding_yang_name]
+                if util.BONDING_YANG_NAME not in interface_list:
+                    interface_list[util.BONDING_YANG_NAME] = []
+                interface_list = interface_list[util.BONDING_YANG_NAME]
             elif re.match(r"sw\d+", intf_name):
-                if self.switchport_yang_name not in interface_list:
-                    interface_list[self.switchport_yang_name] = []
-                interface_list = interface_list[self.switchport_yang_name]
+                if util.SWITCHPORT_YANG_NAME not in interface_list:
+                    interface_list[util.SWITCHPORT_YANG_NAME] = []
+                interface_list = interface_list[util.SWITCHPORT_YANG_NAME]
             else:
-                if self.dataplane_yang_name not in interface_list:
-                    interface_list[self.dataplane_yang_name] = []
-                interface_list = interface_list[self.dataplane_yang_name]
+                if util.DATAPLANE_YANG_NAME not in interface_list:
+                    interface_list[util.DATAPLANE_YANG_NAME] = []
+                interface_list = interface_list[util.DATAPLANE_YANG_NAME]
 
             # Hackery to find the reference to the interface this vrrp
             # group should be added to.
-            insertion_reference = self._find_interface_in_yang_repr(
+            insertion_reference = util.find_interface_in_yang_repr(
                 intf_name, vif_number, interface_list)
 
             # All groups should have the same start delay but check and
             # store the largest delay found
             new_group_start_delay = \
-                self._find_config_value(group, "start_delay")[1]
+                util.find_config_value(group, "start_delay")[1]
             current_start_delay = \
-                insertion_reference[self.vrrp_yang_name]["start-delay"]
+                insertion_reference[util.VRRP_YANG_NAME]["start-delay"]
 
             if new_group_start_delay != current_start_delay and \
                int(current_start_delay) < int(new_group_start_delay):
-                insertion_reference[self.vrrp_yang_name]["start-delay"] = \
+                insertion_reference[util.VRRP_YANG_NAME]["start-delay"] = \
                         new_group_start_delay
 
-            insertion_reference[self.vrrp_yang_name]["vrrp-group"].append(
+            insertion_reference[util.VRRP_YANG_NAME]["vrrp-group"].append(
                 self._convert_keepalived_config_to_yang(group))
 
         return json.dumps(yang_representation)
-
-    @staticmethod
-    def _get_config_indexes(
-            config_lines: List[str],
-            search_string: str) -> List[int]:
-        """
-        Get index for every list entry that matches the provided search string
-
-        Arguments:
-            config_lines (List[str]):
-                Keepalived config split into lines
-            search_string (str):
-                The term to search the lines for
-
-        Return:
-            A list of integers denoting the index where a value was found
-
-        Example:
-            test_list = ["Test", "Value", "Test", "Test", "Stop"]
-            index_list = _get_config_indexes(test_list, "Test")
-            print(index_list)  # [0, 2, 3]
-
-        This function is used to find the index of each vrrp_instance, but can
-        be used to find other indexes. It's useful to know where each group
-        in the config starts.
-        """
-
-        stripped_lines = [x.strip() for x in config_lines]  # type: List[str]
-        config_start_indices = [i for i, x in enumerate(stripped_lines)
-                                if search_string in x]  # type: List[int]
-        return config_start_indices
-
-    @staticmethod
-    def _get_config_blocks(
-            config_list: List[str],
-            indexes_list: List[int]) -> List[List[str]]:
-        """
-        Group lines of VRRP config into logical blocks for easier processing
-
-        Arguments:
-            config_list (List[str]):
-                Flat list of keepalived config strings
-            indexes_list (List[str]):
-                List of integers denoting where each individual VRRP config
-                block starts in config_list
-
-        Return:
-            A list of list where each entry is a logical block of VRRP group
-            config
-        """
-
-        stripped_list = [x.strip() for x in config_list]  # type: List[str]
-        group_list = []  # type: List[List[str]]
-        for idx, start in enumerate(indexes_list):
-            end = None  # type: Union[int, None]
-            if idx+1 < len(indexes_list):
-                end = indexes_list[idx+1]
-            group_list.append(stripped_list[start:end])
-        return group_list
-
-    @staticmethod
-    def _find_config_value(
-            config_list: List[str],
-            search_term: str) -> Tuple[bool, Union[List[None], str]]:
-        """
-        Find a config line in a block of config
-
-        Arguments:
-            config_list (List[str]):
-                All config lines relating to a single VRRP group
-            search_term (str):
-                The key to look for in the config
-
-        Return:
-            Returns a tuple that can take one of three formats. The first value
-            in the tuple is always a boolean. True for if the search term was
-            found in the config, false and a value of "NOTFOUND" as the second
-            element otherwise.
-            The second value is either [None] if the search term is a presence
-            indicator or the value found on the line if the search term is a
-            key with configuration
-
-        Example:
-            config_block = ["vrrp_instance dp0p1s1", "priority 200",
-                "use_vmac"]
-            _find_config_value(config_block, "preempt")  # (False, "NOTFOUND")
-            _find_config_value(config_block, "use_vmac")  # (True, [None])
-            _find_config_value(config_block, "priority")  # (True, "200")
-        """
-
-        for line in config_list:
-            regex_search = re.match("{}".format(search_term), line)
-            if regex_search is not None:
-                regex_search = re.match(f"{search_term}\s+(.*)", line)
-                if regex_search is not None:
-                    return (True, regex_search.group(1))
-                # YANG JSON representation has single key with no value as
-                # <key>: [null]
-                return (True, [None])
-        return (False, "NOTFOUND")
-
-    def _find_interface_in_yang_repr(
-            self,
-            interface_name: str,
-            vif_number: str,
-            interface_list: List[Any]) -> dict:
-        """
-        Find the interface that a VRRP group is to be added to based on
-        name of interface and any vif number
-
-        Arguments:
-            interface_name (str):
-                Name of the interface found in the VRRP group config
-            vif_number (str):
-                Vif number for the interface, this may be ""
-            interface_list (List[Any]):
-                The list of interfaces for this interface's type (dataplane,
-                bonding, switching, etc). The interface's type should be
-                found in the caller
-
-        Return:
-            The value returned here is a dictionary representing an YANG
-            interface.
-        NB:
-            There is a little bit of magic (read hackery) done to achieve the
-            return value. This function uses (and possibly abuses) python's
-            pass by assignment characteristics, effectively returning a
-            reference to a dictionary inside the interface_list passed to the
-            function.
-            As we don't reassign interface_list inside the function it is a
-            shallow copy to the data structure from the caller. It's possible
-            to use this to add to that datastructure or point a new variable
-            to an item inside that datastructure.
-            Using this we create the interface if it doesn't exist in the list
-            and then return a reference to the interface to be used to add the
-            VRRP group
-        """
-
-        interface_level = None  # type: Any
-        intf_dict = None  # type: Any
-
-        # TODO: This may be better split into two functions, one for interfaces
-        # and another for vifs
-        if interface_list == []:
-            # Interface list is empty so create the interface and add it to the
-            # list and then return the reference
-            intf_dict = {"tagnode": interface_name}
-            interface_level = intf_dict
-            interface_list.append(intf_dict)
-        else:
-            # Interface list has entries so we need to loop through them and
-            # see if the interface already exists
-            for intf in interface_list:
-                if intf["tagnode"] == interface_name:
-                    interface_level = intf
-                    break
-
-        if interface_level is None:
-            # Interface doesn't exists yet but there are interfaces in the list
-            # so create the interface and return the reference
-            intf_dict = {"tagnode": interface_name}
-            interface_list.append(intf_dict)
-            interface_level = interface_list[-1]
-
-        # Deal with vifs here now that we've found the interface it's on
-        if vif_number != "":
-            if self.vif_yang_name not in interface_level:
-                vif_dict = {"tagnode": vif_number}
-                interface_level[self.vif_yang_name] = [vif_dict]
-                interface_level = vif_dict
-            else:
-                vif_exists = False
-                for vif in interface_level[self.vif_yang_name]:
-                    if vif["tagnode"] == vif_number:
-                        vif_exists = True
-                        interface_level = vif
-                        break
-                if not vif_exists:
-                    vif_dict = {"tagnode": vif_number}
-                    interface_level[self.vif_yang_name].append(vif_dict)
-                    interface_level = vif_dict
-
-        if self.vrrp_yang_name not in interface_level:
-            # If there is no VRRP config in the interface yet add the top level
-            # dictionary to the interface
-            interface_level[self.vrrp_yang_name] = {"start-delay": 0,
-                                                    "vrrp-group": []}
-        return interface_level
 
     def _convert_keepalived_config_to_yang(
             self,
@@ -545,8 +346,8 @@ global_defs {
         # Single line config code
         for key in config_dict:
             # Search for each term in the config
-            config_exists = self._find_config_value(config_block,
-                                                    config_dict[key])
+            config_exists = util.find_config_value(config_block,
+                                                   config_dict[key])
             if not config_exists[0]:
                 # Accept and preempt are required defaults in the YANG called
                 # out as a special case here if they don't explicitly exist in

@@ -6,11 +6,10 @@
 
 import json
 import logging
-import ipaddress
-import socket
 import vci  # pylint: disable=import-error
 import vyatta.keepalived.config_file as impl_conf
 import vyatta.abstract_vrrp_classes as AbstractVrrpConfig
+import vyatta.keepalived.util as util
 
 
 class Config(vci.Config):
@@ -28,12 +27,12 @@ class Config(vci.Config):
                             "to fix this ")
 
     def set(self, conf):
-        conf = self._sanitize_vrrp_config(conf)
+        conf = util.sanitize_vrrp_config(conf)
 
         # If all the default config has been removed and
         # there's nothing left in the interfaces dictionary
         # just return as we have nothing left to do
-        if {} == conf["vyatta-interfaces-v1:interfaces"]:
+        if {} == conf[util.INTERFACE_YANG_NAME]:
             return
         self.log.debug(
             "Got following config from VCI infra:%s",
@@ -61,65 +60,17 @@ class Config(vci.Config):
 
     def check(self, conf):
         self._check_conf_object_implementation()
-        conf = self._sanitize_vrrp_config(conf)
-        hello_address = list(self.get_hello_sources(conf))
+        conf = util.sanitize_vrrp_config(conf)
+        hello_address = util.get_hello_sources(conf)
         for address in hello_address:
-            self.is_local_address(address)
+            util.is_local_address(address)
         return
-
-    @staticmethod
-    def get_hello_sources(conf):
-        for intf_type in conf["vyatta-interfaces-v1:interfaces"]:
-            for intf in conf["vyatta-interfaces-v1:interfaces"][intf_type]:
-                if "vrrp-group" not in intf["vyatta-vrrp-v1:vrrp"]:
-                    break  # start-delay default but no vrrp config
-                for group in intf["vyatta-vrrp-v1:vrrp"]["vrrp-group"]:
-                    if "hello-source-address" in group:
-                        yield group["hello-source-address"]
-
-    @staticmethod
-    def is_local_address(address_string):
-        ipaddr = ipaddress.ip_address(address_string)
-        ipaddr_type = None
-        if ipaddr.version == 4:
-            ipaddr_type = socket.AF_INET
-        else:
-            ipaddr_type = socket.AF_INET6
-        with socket.socket(ipaddr_type, socket.SOCK_STREAM) as s:
-            s.bind((address_string, 0))
-
-    @staticmethod
-    def _sanitize_vrrp_config(conf):
-        intf_dict = conf["vyatta-interfaces-v1:interfaces"]
-        new_dict = {}
-        vif_list = []
-        for intf_type in intf_dict:
-            new_list = []
-            count = 0
-            for intf in intf_dict[intf_type]:
-                if "vrrp-group" in intf["vyatta-vrrp-v1:vrrp"]:
-                    new_list.append(intf_dict[intf_type][count])
-                count += 1
-                if "vif" in intf:
-                    for vif_intf in intf["vif"]:
-                        if "vrrp-group" in vif_intf["vyatta-vrrp-v1:vrrp"]:
-                            new_vif = vif_intf
-                            new_vif["tagnode"] = \
-                                "{}.{}".format(intf["tagnode"],
-                                               vif_intf["tagnode"])
-                            vif_list.append(new_vif)
-                    del intf["vif"]
-            if new_list != []:
-                new_dict[intf_type] = new_list
-        if vif_list != []:
-            new_dict["vif"] = vif_list
-        return {"vyatta-interfaces-v1:interfaces": new_dict}
 
 
 class State(vci.State):
     def get(self):
-        return {'vyatta-interfaces-v1:interfaces':
-                {"vyatta-interfaces-dataplane-v1:dataplane": []}}
+        return {util.INTERFACE_YANG_NAME:
+                {util.DATAPLANE_YANG_NAME: []}}
 
 
 if __name__ == "__main__":
