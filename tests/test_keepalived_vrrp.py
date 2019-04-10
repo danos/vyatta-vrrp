@@ -19,10 +19,9 @@ class TestKeepalivedVrrpGroup:
         result = simple_vrrp_group_object.instance_name
         assert result == expected
 
-    def test_vrrp_group_config_string(
+    def test_vrrp_group_minimal_config_string(
             self, simple_vrrp_group_object,
             dataplane_group_keepalived_config):
-        simple_vrrp_group_object._priority = 100
         expected = dataplane_group_keepalived_config
         result = str(simple_vrrp_group_object)
         assert result == expected
