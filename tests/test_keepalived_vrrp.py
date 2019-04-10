@@ -25,3 +25,10 @@ class TestKeepalivedVrrpGroup:
         expected = dataplane_group_keepalived_config
         result = str(simple_vrrp_group_object)
         assert result == expected
+
+    def test_vrrp_group_fuller_config_string(
+            self, max_group_keepalived_config,
+            fuller_vrrp_group_object):
+        expected = max_group_keepalived_config
+        result = str(fuller_vrrp_group_object)
+        assert expected == result
