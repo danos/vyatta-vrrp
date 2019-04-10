@@ -392,6 +392,38 @@ class TestKeepalivedUtils:
             result = util.find_config_value(block, "state")
             assert result == expected
 
+    def test_find_config_value_over_lapping_default(self):
+        config_list = \
+            [
+                [
+                    "vrrp_instance vyatta-dp0p1s1-1 {", "state BACKUP",
+                    "interface dp0p1s1", "virtual_router_id 1", "version 2",
+                    "start_delay 0", "priority 100", "advert_int 1",
+                    "preempt_delay 10",
+                    "virtual_ipaddress {", "10.10.1.100/25", "}", "}"
+                ]
+            ]
+        expected = (False, "NOTFOUND")
+        for block in config_list:
+            result = util.find_config_value(block, "preempt")
+            assert result == expected
+
+    def test_find_config_value_overwrite_default(self):
+        config_list = \
+            [
+                [
+                    "vrrp_instance vyatta-dp0p1s1-1 {", "state BACKUP",
+                    "interface dp0p1s1", "virtual_router_id 1", "version 2",
+                    "start_delay 0", "priority 100", "advert_int 1",
+                    "preempt False",
+                    "virtual_ipaddress {", "10.10.1.100/25", "}", "}"
+                ]
+            ]
+        expected = (True, "False")
+        for block in config_list:
+            result = util.find_config_value(block, "preempt")
+            assert result == expected
+
     def test_find_config_value_single_group_undefined_entry(self):
         config_list = \
             [

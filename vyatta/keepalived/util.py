@@ -260,7 +260,7 @@ def find_config_value(
     """
 
     for line in config_list:
-        regex_search = re.match("{}".format(search_term), line)
+        regex_search = re.match(r"^{}(\s+|$)".format(search_term), line)
         if regex_search is not None:
             regex_search = re.match(r"{}\s+(.*)".format(search_term), line)
             if regex_search is not None:
