@@ -66,8 +66,59 @@ vrrp_instance {instance} {{
     advert_int {adv}
     virtual_ipaddress {{
         {vips}
-    }}
-"""
+    }}"""
+
+        # Optional config
+        if "rfc-compatibility" in self._group_config:
+            self._template += """
+    use_vmac {vmac}
+    vmac_xmit_base"""
+            # TODO: Generate rfc intf name
+            self._group_config["vmac"] = "dp0vrrp1"
+
+        if "preempt-delay" in self._group_config:
+            self._group_config["preempt_delay"] = \
+                self._group_config["preempt-delay"]
+            del self._group_config["preempt-delay"]
+            self._template += """
+    preempt_delay {preempt_delay}"""
+
+        if "hello-source-address" in self._group_config:
+            self._group_config["mcast_src_ip"] = \
+                self._group_config["hello-source-address"]
+            del self._group_config["hello-source-address"]
+            self._template += """
+    mcast_src_ip {mcast_src_ip}"""
+
+        if "authentication" in self._group_config:
+            self._group_config["auth_pass"] = \
+                self._group_config["authentication"]["password"]
+            if self._group_config["authentication"]["type"] == \
+                    "plaintext-password":
+                auth_type = "PASS"
+            else:
+                auth_type = "OTHER"  # TODO: Fix for AH
+            self._group_config["auth_type"] = auth_type
+            self._template += """
+    authentication {{
+        auth_type {auth_type}
+        auth_pass {auth_pass}
+    }}"""
+
+        if "track" in self._group_config:
+            self._generate_track_string(self._group_config["track"])
+
+        if "notify" in self._group_config:
+            self._template += """
+    notify {{"""
+            if "ipsec" in self._group_config["notify"]:
+                self._template += """
+        /opt/vyatta/sbin/vyatta-ipsec-notify.sh"""
+            if "bgp" in self._group_config["notify"]:
+                self._template += """
+        /opt/vyatta/sbin/notify-bgp"""
+            self._template += """
+    }}"""
 
         # Generate instance name (TODO change to f-string with python 3.7)
         self._instance = "vyatta-{intf}-{vrid}".format(
@@ -75,12 +126,43 @@ vrrp_instance {instance} {{
         )
         self._group_config["instance"] = self._instance
 
-        self._template += "}}"
+        self._template += "\n}}"
 
     @property
     def instance_name(self):
         """Name of this group in the config file"""
         return self._instance
+
+    def _generate_track_string(self, track_dict):
+        self._template += """
+    track {{"""
+        if "interface" in track_dict:
+            self._generate_track_interfaces(track_dict["interface"])
+        if "path-monitor" in track_dict:
+            self._generate_track_pathmon(track_dict["path-monitor"])
+        self._template += """
+    }}"""
+
+    def _generate_track_interfaces(self, intf_dict):
+        self._template += """
+        interface {{"""
+        for interface in intf_dict:
+            track_string = """
+            {}""".format(interface["name"])
+            if "weight" in interface:
+                if interface["weight"]["type"] == "decrement":
+                    multiplier = -1
+                else:
+                    multiplier = 1
+                value = multiplier * interface["weight"]["value"]
+                track_string += "   weight  {}".format(value)
+            self._template += track_string
+        self._template += """
+        }}"""  # Close "interface brace"
+
+    def _generate_track_pathmon(self, pathmon_dict):
+        self._template += """
+        TO BE IMPLEMENTED"""
 
     def __repr__(self):
         completed_config = self._template.format(
