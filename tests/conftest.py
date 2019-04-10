@@ -152,7 +152,6 @@ def max_config_group():
             "rfc-compatibility": [
                 None
             ],
-            "sync-group": "TEST",
             "tagnode": 1,
             "track": {
                 "interface": [
@@ -223,11 +222,6 @@ vrrp_instance vyatta-dp0p1s1-1 {
 @pytest.fixture
 def max_group_keepalived_config():
     return """
-vrrp_sync_group TEST {
-    group {
-        vyatta-dp0p1s1-1
-    }
-}
 vrrp_instance vyatta-dp0p1s1-1 {
     state BACKUP
     interface dp0p1s1
