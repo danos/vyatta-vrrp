@@ -42,8 +42,6 @@ class TestKeepalivedConfigFile:
             self, dataplane_group_keepalived_config, generic_group,
             keepalived_config):
         expected = generic_group
-        expected["virtual-address"] = ["10.10.1.100/25"]
-        expected["priority"] = 100
         config_split = dataplane_group_keepalived_config.splitlines()
         indexes = util.get_config_indexes(
             config_split, "vrrp_instance")
@@ -83,10 +81,6 @@ class TestKeepalivedConfigFile:
         config_string = copy_string
         copy_string = copy.deepcopy(dataplane_group_keepalived_config)
         config_string += copy_string
-        intf = simple_config[interface_yang_name][dataplane_yang_name][0]
-        intf[vrrp_yang_name]["vrrp-group"][0]["virtual-address"] = \
-            ["10.10.1.100/25"]
-        intf[vrrp_yang_name]["vrrp-group"][0]["priority"] = 100
         result = json.dumps(simple_config)
         expect = keepalived_config.convert_to_vci_format(config_string)
         assert result == expect
@@ -128,10 +122,6 @@ class TestKeepalivedConfigFile:
         config_string += copy_string
 
         intf_level = simple_dataplane_vif_config[interface_yang_name]
-
-        dp_intf_vrrp = intf_level[dataplane_yang_name][0][vrrp_yang_name]
-        dp_intf_vrrp["vrrp-group"][0]["virtual-address"] = ["10.10.1.100/25"]
-        dp_intf_vrrp["vrrp-group"][0]["priority"] = 100
         vif_intf = intf_level[dataplane_yang_name][0]["vif"][0]
         vif_group = copy.deepcopy(generic_group)
         vif_group["virtual-address"] = ["10.10.2.100/25"]

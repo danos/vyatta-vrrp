@@ -20,10 +20,6 @@ class TestVyattaVrrpVci:
     def test_vci_config_get(self, test_config, simple_config,
                             tmp_file_keepalived_config, interface_yang_name,
                             dataplane_yang_name, vrrp_yang_name):
-        intf = simple_config[interface_yang_name][dataplane_yang_name][0]
-        intf[vrrp_yang_name]["vrrp-group"][0]["virtual-address"] = \
-            ["10.10.1.100/25"]
-        intf[vrrp_yang_name]["vrrp-group"][0]["priority"] = 100
         result = json.dumps(simple_config)
         test_config._conf_obj = tmp_file_keepalived_config
         expect = test_config.get()
@@ -62,11 +58,6 @@ class TestVyattaVrrpVci:
         test_config._conf_obj = tmp_file_keepalived_config_no_write
         file_path = \
             tmp_file_keepalived_config_no_write.config_file_path()
-        new_group = \
-            simple_config[interface_yang_name][dataplane_yang_name][0]
-        vrrp_group = new_group[vrrp_yang_name]["vrrp-group"][0]
-        vrrp_group["virtual-address"] = ["10.10.1.100/25"]
-        vrrp_group["priority"] = 100
         test_config.set(simple_config)
         conf_path = Path(
             tmp_file_keepalived_config_no_write.config_file_path())

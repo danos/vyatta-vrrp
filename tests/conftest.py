@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: GPL-2.0-only.
 
 import sys
+import copy
 import pytest
 
 # pylint: disable=missing-docstring
@@ -107,9 +108,8 @@ def non_default_keepalived_config():
 @pytest.fixture
 def simple_vrrp_group_object(generic_group):
     from vyatta.keepalived.vrrp import VrrpGroup
-    new_group = generic_group
-    new_group["virtual-address"] = ["10.10.1.100/25"]
-    return VrrpGroup("dp0p1s1", "0", generic_group)
+    new_group = copy.deepcopy(generic_group)
+    return VrrpGroup("dp0p1s1", "0", new_group)
 
 
 @pytest.fixture
@@ -122,7 +122,7 @@ def generic_group():
             "tagnode": 1,
             "version": 2,
             "virtual-address": [
-                "10.10.10.100"
+                "10.10.1.100/25"
             ]
         }
 
@@ -164,7 +164,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_router_id 1
     version 2
     start_delay 0
-    priority 100
+    priority 200
     advert_int 1
     virtual_ipaddress {
         10.10.1.100/25

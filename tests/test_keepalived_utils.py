@@ -61,7 +61,7 @@ class TestKeepalivedUtils:
                                             "tagnode": 1,
                                             "version": 2,
                                             "virtual-address": [
-                                                "10.10.10.100"
+                                                "10.10.1.100/25"
                                             ]
                                         }
                                     ]
@@ -113,7 +113,7 @@ class TestKeepalivedUtils:
                                         "tagnode": 1,
                                         "version": 2,
                                         "virtual-address": [
-                                            "10.10.10.100"
+                                            "10.10.1.100/25"
                                         ]
                                     }
                                 ]
@@ -298,7 +298,7 @@ class TestKeepalivedUtils:
                 [
                     "vrrp_instance vyatta-dp0p1s1-1 {", "state BACKUP",
                     "interface dp0p1s1", "virtual_router_id 1", "version 2",
-                    "start_delay 0", "priority 100", "advert_int 1",
+                    "start_delay 0", "priority 200", "advert_int 1",
                     "virtual_ipaddress {", "10.10.1.100/25", "}", "}"
                 ]
             ]
@@ -321,7 +321,7 @@ class TestKeepalivedUtils:
                 [
                     "vrrp_instance vyatta-dp0p1s1-1 {", "state BACKUP",
                     "interface dp0p1s1", "virtual_router_id 1", "version 2",
-                    "start_delay 0", "priority 100", "advert_int 1",
+                    "start_delay 0", "priority 200", "advert_int 1",
                     "virtual_ipaddress {", "10.10.1.100/25", "}", "}"
                 ],
                 [
