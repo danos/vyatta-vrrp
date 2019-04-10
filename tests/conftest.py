@@ -128,6 +128,54 @@ def generic_group():
 
 
 @pytest.fixture
+def max_config_group():
+    return \
+        {
+            "accept": False,
+            "advertise-interval": 2,
+            "authentication": {
+                "password": "help",
+                "type": "plaintext-password"
+            },
+            "hello-source-address": "192.168.252.91",
+            "notify": {
+                "bgp": [
+                    None
+                ],
+                "ipsec": [
+                    None
+                ]
+            },
+            "preempt": True,
+            "preempt-delay": 10,
+            "priority": 200,
+            "rfc-compatibility": [
+                None
+            ],
+            "sync-group": "TEST",
+            "tagnode": 1,
+            "track": {
+                "interface": [
+                    {
+                        "name": "dp0s2",
+                        "weight": {
+                            "type": "decrement",
+                            "value": 10
+                        }
+                    },
+                    {
+                        "name": "lo"
+                    }
+                ]
+            },
+            "version": 2,
+            "virtual-address": [
+                "10.10.1.100/25"
+            ]
+        }
+
+
+@pytest.fixture
 def disabled_group():
     return \
         {
@@ -168,6 +216,46 @@ vrrp_instance vyatta-dp0p1s1-1 {
     advert_int 1
     virtual_ipaddress {
         10.10.1.100/25
+    }
+}"""
+
+
+@pytest.fixture
+def max_group_keepalived_config():
+    return """
+vrrp_sync_group TEST {
+    group {
+        vyatta-dp0p1s1-1
+    }
+}
+vrrp_instance vyatta-dp0p1s1-1 {
+    state BACKUP
+    interface dp0p1s1
+    virtual_router_id 1
+    version 2
+    start_delay 0
+    priority 200
+    advert_int 2
+    virtual_ipaddress {
+        10.10.1.100/25
+    }
+    use_vmac dp0vrrp1
+    vmac_xmit_base
+    preempt_delay 10
+    mcast_src_ip 192.168.252.91
+    authentication {
+        auth_type PASS
+        auth_pass help
+    }
+    track {
+        interface {
+            dp0s2   weight  -10
+            lo
+        }
+    }
+    notify {
+        /opt/vyatta/sbin/vyatta-ipsec-notify.sh
+        /opt/vyatta/sbin/notify-bgp
     }
 }"""
 
