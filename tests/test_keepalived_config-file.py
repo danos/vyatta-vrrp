@@ -85,6 +85,18 @@ class TestKeepalivedConfigFile:
         expect = keepalived_config.convert_to_vci_format(config_string)
         assert result == expect
 
+    def test_config_to_vci_format_fuller_config(
+            self, autogeneration_string, max_group_keepalived_config,
+            keepalived_config, complex_config):
+
+        copy_string = copy.deepcopy(autogeneration_string)
+        config_string = copy_string
+        copy_string = copy.deepcopy(max_group_keepalived_config)
+        config_string += copy_string
+        result = json.dumps(complex_config)
+        expect = keepalived_config.convert_to_vci_format(config_string)
+        assert result == expect
+
     def test_config_to_vci_format_bonding_config(
             self, autogeneration_string, bonding_group_keepalived_config,
             keepalived_config, simple_bonding_config, interface_yang_name,

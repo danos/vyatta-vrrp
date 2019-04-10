@@ -322,6 +322,19 @@ def simple_config(top_level_dictionary, interface_yang_name,
 
 
 @pytest.fixture
+def complex_config(top_level_dictionary, interface_yang_name,
+                   dataplane_yang_name, dataplane_list,
+                   dataplane_interface, max_config_group,
+                   vrrp_yang_name):
+    dataplane_interface[vrrp_yang_name]["vrrp-group"] = \
+        [max_config_group]
+    complex_yang_config = top_level_dictionary
+    complex_yang_config[interface_yang_name][dataplane_yang_name] =\
+        dataplane_list
+    return complex_yang_config
+
+
+@pytest.fixture
 def simple_bonding_config(top_level_dictionary, interface_yang_name,
                           bonding_yang_name, bonding_list):
     simple_yang_config = top_level_dictionary
