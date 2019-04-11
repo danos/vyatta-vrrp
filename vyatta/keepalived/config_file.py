@@ -8,8 +8,7 @@ Vyatta VCI component to configure keepalived to provide VRRP functionality
 """
 
 import json
-import re
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 import vyatta.abstract_vrrp_classes as AbstractConfig
 import vyatta.keepalived.util as util
 from vyatta.keepalived.vrrp import VrrpGroup
@@ -341,6 +340,10 @@ global_defs {
             "priority": "priority",
             "tagnode": "virtual_router_id",
             "version": "version",
+            "hello-source-address": "mcast_src_ip",
+            "rfc-compatibility": "vmac_xmit_base",
+            "advertise-interval": "advert_int",
+            "preempt-delay": "preempt_delay",
         }  # type: Any
 
         # Single line config code
@@ -366,11 +369,123 @@ global_defs {
                 config_dict[key] = int(config_exists[1])
             else:
                 config_dict[key] = config_exists[1]
-        config_dict = {k: v for k, v in config_dict.items()
-                       if v != "NOTFOUND"}
+
+        # Remove defaults
+        if "advertise-interval" in config_dict and \
+                config_dict["advertise-interval"] == 1:
+            del config_dict["advertise-interval"]
+        if "priority" in config_dict and \
+                config_dict["priority"] == 100:
+            del config_dict["priority"]
 
         # Multi ling config code, look for the block start and then the next }
         vips_start = config_block.index('virtual_ipaddress {')  # type: int
         vips_end = config_block.index('}', vips_start)  # type: int
         config_dict["virtual-address"] = config_block[vips_start+1:vips_end]
+
+        # Authentication only exists in VRRPv2
+        if config_dict["version"] == 2:
+            self._convert_authentication_config(
+                    config_block, config_dict)
+
+        self._convert_tracking_config(
+            config_block, config_dict)
+
+        self._convert_notify_proto_config(
+            config_block, config_dict)
+
+        config_dict = \
+            {key: val for key, val in config_dict.items() if val != "NOTFOUND"}
+        # Sort dictionary alphabetically for unit tests
+        config_dict = \
+            {key: config_dict[key] for key in sorted(config_dict.keys())}
         return config_dict
+
+    @staticmethod
+    def _convert_authentication_config(
+            block: List[str], config_dict: Dict) -> None:
+        try:
+            block.index('authentication {')  # type: int
+        except ValueError:
+            # Authentication doesn't exist in this group
+            return
+
+        auth_type = util.find_config_value(
+            block, "auth_type")  # type: Tuple[bool, Any]
+        auth_pass = util.find_config_value(block,
+                                           "auth_pass")
+        if auth_type[0] and auth_pass[0]:
+            if auth_type[1] == "PASS":
+                auth_type = (auth_type[0], "plaintext-password")
+            config_dict["authentication"] = {
+                "password": auth_pass[1],
+                "type": auth_type[1]
+            }
+
+    @staticmethod
+    def _convert_notify_proto_config(
+            block: List[str], config_dict: Dict) -> None:
+        try:
+            config_start = block.index('notify {')  # type: int
+        except ValueError:
+            # Notify doesn't exist in this group
+            return
+        else:
+            config_end = block.index("}", config_start)  # type: int
+            notify_config = block[config_start+1:config_end]  # type: List[str]
+            config_dict["notify"] = {}
+            if "/opt/vyatta/sbin/notify-bgp" in notify_config:
+                config_dict["notify"]["bgp"] = [None]
+            if "/opt/vyatta/sbin/vyatta-ipsec-notify.sh" in \
+                    notify_config:
+                config_dict["notify"]["ipsec"] = [None]
+
+    def _convert_tracking_config(
+            self, block: List[str], config_dict: Dict) -> None:
+        try:
+            config_start = block.index('track {')  # type: int
+        except ValueError:
+            # No tracking config in this group
+            return
+        else:
+            config_dict["track"] = {}
+            self._convert_interface_tracking_config(
+                block, config_dict, config_start)
+            self._convert_pathmon_tracking_config(
+                block, config_dict, config_start)
+
+    @staticmethod
+    def _convert_interface_tracking_config(
+            block: List[str], config_dict: Dict, start: int) -> None:
+        try:
+            config_start = block.index('interface {', start)  # type: int
+        except ValueError:
+            # Interface tracking doesn't exist in this group
+            return
+        else:
+            interface_list = []
+            config_end = block.index("}", config_start)  # type: int
+            track_intf_config = \
+                block[config_start+1:config_end]  # type: List[str]
+            for line in track_intf_config:
+                if "weight" not in line:
+                    interface_list.append({"name": line})
+                    continue
+                tokens = line.split()
+                weight = int(tokens[-1])
+                if weight < 0:
+                    weight_type = "decrement"
+                else:
+                    weight_type = "increment"
+                interface_list.append(
+                    {"name": tokens[0], "weight": {
+                        "type": weight_type,
+                        "value": abs(weight)
+                    }}
+                )
+            config_dict["track"]["interface"] = interface_list
+
+    @staticmethod
+    def _convert_pathmon_tracking_config(
+            block: List[str], config_dict: Dict, start: int) -> None:
+        return
