@@ -63,6 +63,7 @@ class TestKeepalivedConfigFile:
             config_split, "vrrp_instance")
         config_block = util.get_config_blocks(
             config_split, indexes)[0]
+        del expected["priority"]
         result = keepalived_config._convert_keepalived_config_to_yang(
             config_block)
         assert expected == result
@@ -113,7 +114,7 @@ class TestKeepalivedConfigFile:
         bonding_intf["vrrp-group"][0]["virtual-address"] = \
             ["10.11.2.100/25"]
         bonding_intf["vrrp-group"][0]["tagnode"] = 2
-        bonding_intf["vrrp-group"][0]["priority"] = 100
+        del bonding_intf["vrrp-group"][0]["priority"]
 
         result = json.dumps(simple_bonding_config)
         expect = keepalived_config.convert_to_vci_format(config_string)
@@ -137,7 +138,7 @@ class TestKeepalivedConfigFile:
         vif_intf = intf_level[dataplane_yang_name][0]["vif"][0]
         vif_group = copy.deepcopy(generic_group)
         vif_group["virtual-address"] = ["10.10.2.100/25"]
-        vif_group["priority"] = 100
+        del vif_group["priority"]
         vif_group["tagnode"] = 2
         vif_intf[vrrp_yang_name]["vrrp-group"] = [vif_group]
 
