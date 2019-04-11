@@ -268,7 +268,7 @@ class TestKeepalivedConfigFile:
     def test_convert_authentication_config_config_doesnt_exist(
             self, keepalived_config):
         expected = {}
-        config_block = ['virtual_ipaddress', "10.10.10.100/25", "}"]
+        config_block = ['virtual_ipaddress {', "10.10.10.100/25", "}"]
         result = {}
         keepalived_config._convert_authentication_config(
             config_block, result)
@@ -300,7 +300,7 @@ class TestKeepalivedConfigFile:
     def test_convert_notify_proto_config_config_doesnt_exist(
             self, keepalived_config):
         expected = {}
-        config_block = ['virtual_ipaddress', "10.10.10.100/25", "}"]
+        config_block = ['virtual_ipaddress {', "10.10.10.100/25", "}"]
         result = {}
         keepalived_config._convert_notify_proto_config(
             config_block, result)
@@ -326,7 +326,7 @@ class TestKeepalivedConfigFile:
     def test_convert_interface_tracking_config_config_doesnt_exist(
             self, keepalived_config):
         expected = {}
-        config_block = ['virtual_ipaddress', "10.10.10.100/25", "}"]
+        config_block = ['virtual_ipaddress {', "10.10.10.100/25", "}"]
         result = {}
         keepalived_config._convert_interface_tracking_config(
             config_block, result, 0)
