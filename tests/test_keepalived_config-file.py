@@ -38,6 +38,19 @@ class TestKeepalivedConfigFile:
         result = keepalived_config._convert_keepalived_config_to_yang([])
         assert expected == result
 
+    def test_convert_fuller_vrrp_keepalived_conf_to_yang(
+            self, max_group_keepalived_config, max_config_group,
+            keepalived_config):
+        expected = max_config_group
+        config_split = max_group_keepalived_config.splitlines()
+        indexes = util.get_config_indexes(
+            config_split, "vrrp_instance")
+        config_block = util.get_config_blocks(
+            config_split, indexes)[0]
+        result = keepalived_config._convert_keepalived_config_to_yang(
+            config_block)
+        assert expected == result
+
     def test_convert_minimal_vrrp_keepalived_conf_to_yang(
             self, dataplane_group_keepalived_config, generic_group,
             keepalived_config):
@@ -227,4 +240,94 @@ class TestKeepalivedConfigFile:
         tmp_file_keepalived_config_no_write.write_config()
         result = True
         expected = file_path.exists()
+        assert result == expected
+
+    def test_convert_authentication_config_config_exists(
+            self, keepalived_config):
+        expected = {"authentication": {
+            "password": "test",
+            "type": "plaintext-password"
+        }}
+        config_block = ['authentication {', "auth_type PASS",
+                        "auth_pass test", "}"]
+
+        result = {}
+        keepalived_config._convert_authentication_config(
+            config_block, result)
+        assert result == expected
+
+    def test_convert_authentication_config_no_config(
+            self, keepalived_config):
+        expected = {}
+        config_block = []
+        result = {}
+        keepalived_config._convert_authentication_config(
+            config_block, result)
+        assert result == expected
+
+    def test_convert_authentication_config_config_doesnt_exist(
+            self, keepalived_config):
+        expected = {}
+        config_block = ['virtual_ipaddress', "10.10.10.100/25", "}"]
+        result = {}
+        keepalived_config._convert_authentication_config(
+            config_block, result)
+        assert result == expected
+
+    def test_convert_notify_proto_config_config_exists(
+            self, keepalived_config):
+        expected = {"notify": {
+            "bgp": [None],
+            "ipsec": [None]
+        }}
+        config_block = ["notify {",
+                        "/opt/vyatta/sbin/vyatta-ipsec-notify.sh",
+                        "/opt/vyatta/sbin/notify-bgp", "}"]
+        result = {}
+        keepalived_config._convert_notify_proto_config(
+            config_block, result)
+        assert result == expected
+
+    def test_convert_notify_proto_config_no_config(
+            self, keepalived_config):
+        expected = {}
+        config_block = []
+        result = {}
+        keepalived_config._convert_notify_proto_config(
+            config_block, result)
+        assert result == expected
+
+    def test_convert_notify_proto_config_config_doesnt_exist(
+            self, keepalived_config):
+        expected = {}
+        config_block = ['virtual_ipaddress', "10.10.10.100/25", "}"]
+        result = {}
+        keepalived_config._convert_notify_proto_config(
+            config_block, result)
+        assert result == expected
+
+    def test_convert_interface_tracking_config_config_exists(
+            self, keepalived_config):
+        expected = {"track": {"interface": [
+            {"name": "lo1"},
+            {"name": "dp0p2",
+             "weight": {"type": "decrement", "value": 10}}
+        ]}}
+        config_block = ["track {",
+                        "interface {",
+                        "lo1",
+                        "dp0p2 weight -10",
+                        "}"]
+        result = {"track": {}}
+        keepalived_config._convert_interface_tracking_config(
+            config_block, result, 0)
+        assert result == expected
+
+    def test_convert_interface_tracking_config_config_doesnt_exist(
+            self, keepalived_config):
+        expected = {}
+        config_block = ['virtual_ipaddress', "10.10.10.100/25", "}"]
+        result = {}
+        keepalived_config._convert_interface_tracking_config(
+            config_block, result, 0)
         assert result == expected
