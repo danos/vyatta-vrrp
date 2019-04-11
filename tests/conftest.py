@@ -116,7 +116,7 @@ def simple_vrrp_group_object(generic_group):
 def fuller_vrrp_group_object(max_config_group):
     from vyatta.keepalived.vrrp import VrrpGroup
     new_group = copy.deepcopy(max_config_group)
-    return VrrpGroup("dp0p1s1", "0", new_group)
+    return VrrpGroup("dp0p1s1", "0", new_group, 1)
 
 
 @pytest.fixture

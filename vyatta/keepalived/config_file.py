@@ -162,6 +162,7 @@ global_defs {
         self.config_file = config_file_path  # type: str
         self.implementation_name = "Keepalived"  # type: str
         self._vrrp_instances = []  # type: List[dict]
+        self._rfc_interfaces = 0  # type: int
 
     @property
     def vrrp_instances(self):
@@ -192,6 +193,7 @@ global_defs {
         and replace the vrrp_instances list with the new config
         """
 
+        self._rfc_interfaces = 0
         self.vrrp_instances = []  # type: List[VrrpGroup]
         if util.INTERFACE_YANG_NAME not in new_config:
             return
@@ -215,8 +217,16 @@ global_defs {
                 for group in vrrp_conf["vrrp-group"]:
                     if "disable" in group:
                         break
-                    self.vrrp_instances.append(
-                        VrrpGroup(intf_name, start_delay, group))
+                    if "rfc-compatibility" in group:
+                        self._rfc_interfaces += 1
+                        self.vrrp_instances.append(
+                            VrrpGroup(
+                                intf_name, start_delay, group,
+                                self._rfc_interfaces))
+                    else:
+                        self.vrrp_instances.append(
+                            VrrpGroup(
+                                intf_name, start_delay, group))
 
     def write_config(self) -> None:
         """

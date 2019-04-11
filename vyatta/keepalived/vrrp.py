@@ -16,7 +16,9 @@ class VrrpGroup:
     VRRP group
     """
 
-    def __init__(self, name: str, delay: str, group_config: Dict):
+    def __init__(
+            self, name: str, delay: str, group_config: Dict,
+            rfc_num: int = -1):
         """
         Constructor for the class
 
@@ -74,7 +76,7 @@ vrrp_instance {instance} {{
     use_vmac {vmac}
     vmac_xmit_base"""
             # TODO: Generate rfc intf name
-            self._group_config["vmac"] = "dp0vrrp1"
+            self._group_config["vmac"] = "dp0vrrp{}".format(rfc_num)
 
         if "preempt-delay" in self._group_config:
             self._group_config["preempt_delay"] = \
