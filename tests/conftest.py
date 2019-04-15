@@ -144,7 +144,7 @@ def max_config_group():
                 "password": "help",
                 "type": "plaintext-password"
             },
-            "hello-source-address": "192.168.252.91",
+            "hello-source-address": "127.0.0.1",
             "notify": {
                 "bgp": [
                     None
@@ -243,7 +243,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
     use_vmac dp0vrrp1
     vmac_xmit_base
     preempt_delay 10
-    mcast_src_ip 192.168.252.91
+    mcast_src_ip 127.0.0.1
     authentication {
         auth_type PASS
         auth_pass help

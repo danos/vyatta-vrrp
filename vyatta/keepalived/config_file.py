@@ -381,6 +381,8 @@ global_defs {
                 config_dict[key] = config_exists[1]
 
         # Remove defaults
+        # TODO: Test what is currently returned for defaults
+        # may need to put these back in
         if "advertise-interval" in config_dict and \
                 config_dict["advertise-interval"] == 1:
             del config_dict["advertise-interval"]
@@ -388,7 +390,7 @@ global_defs {
                 config_dict["priority"] == 100:
             del config_dict["priority"]
 
-        # Multi ling config code, look for the block start and then the next }
+        # Multi line config code, look for the block start and then the next }
         vips_start = config_block.index('virtual_ipaddress {')  # type: int
         vips_end = config_block.index('}', vips_start)  # type: int
         config_dict["virtual-address"] = config_block[vips_start+1:vips_end]
