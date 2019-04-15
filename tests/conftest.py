@@ -501,3 +501,54 @@ global_defs {
 def simple_keepalived_config(autogeneration_string,
                              dataplane_group_keepalived_config):
     return f"{autogeneration_string}{dataplane_group_keepalived_config}"
+
+
+@pytest.fixture
+def mock_show_version_rpc_kvm(monkeypatch):
+    import vyatta
+
+    class MockConfigd:
+
+        class Client:
+
+            def __init__(self):
+                pass
+
+            def call_rpc_dict(self, source, action, arguments):
+                return {"output": "Hypervisor: KVM"}
+
+    monkeypatch.setitem(vyatta.__dict__, "configd", MockConfigd)
+
+
+@pytest.fixture
+def mock_show_version_rpc_vmware(monkeypatch):
+    import vyatta
+
+    class MockConfigd:
+
+        class Client:
+
+            def __init__(self):
+                pass
+
+            def call_rpc_dict(self, source, action, arguments):
+                return {"output": "Hypervisor: VMware"}
+
+    monkeypatch.setitem(vyatta.__dict__, "configd", MockConfigd)
+
+
+@pytest.fixture
+def mock_show_version_rpc_no_hypervisor(monkeypatch):
+    import vyatta
+
+    class MockConfigd:
+
+        class Client:
+
+            def __init__(self):
+                pass
+
+            def call_rpc_dict(self, source, action, arguments):
+                return {"output": ""}
+
+    monkeypatch.setitem(vyatta.__dict__, "configd", MockConfigd)

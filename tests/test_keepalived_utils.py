@@ -41,6 +41,36 @@ class TestKeepalivedUtils:
         with pytest.raises(OSError):
             util.is_local_address(ipaddress)
 
+    def test_is_rfc_compat_configured_no(
+            self, simple_config):
+        expected = False
+        result = util.is_rfc_compat_configured(simple_config)
+        assert expected == result
+
+    def test_is_rfc_compat_configured_yes(
+            self, complex_config):
+        expected = True
+        result = util.is_rfc_compat_configured(complex_config)
+        assert expected == result
+
+    def test_running_on_vmware_baremetal(
+            self, mock_show_version_rpc_no_hypervisor):
+        expected = False
+        result = util.running_on_vmware()
+        assert expected == result
+
+    def test_running_on_vmware_no(
+            self, mock_show_version_rpc_kvm):
+        expected = False
+        result = util.running_on_vmware()
+        assert expected == result
+
+    def test_running_on_vmware_yes(
+            self, mock_show_version_rpc_vmware):
+        expected = True
+        result = util.running_on_vmware()
+        assert expected == result
+
     def test_sanitize_vrrp_config_one_configured(self,
                                                  simple_config):
         result = util.sanitize_vrrp_config(simple_config)

@@ -64,6 +64,8 @@ class Config(vci.Config):
         hello_address = util.get_hello_sources(conf)
         for address in hello_address:
             util.is_local_address(address)
+        if util.is_rfc_compat_configured(conf) and util.running_on_vmware():
+            print("RFC compatibility is not supported on VMware\n")
         return
 
 

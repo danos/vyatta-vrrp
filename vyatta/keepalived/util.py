@@ -58,6 +58,15 @@ def get_specific_vrrp_config_from_yang(
                     yield group[value]
 
 
+def is_rfc_compat_configured(conf: Dict) -> bool:
+    conf_exists = list(
+                        get_specific_vrrp_config_from_yang(
+                            conf, "rfc-compatibility"))
+    if conf_exists != []:
+        return True
+    return False
+
+
 def get_hello_sources(conf: Dict) -> str:
     """
     Get every hello address source instance in the config
@@ -357,3 +366,21 @@ def find_interface_in_yang_repr(
         interface_level[VRRP_YANG_NAME] = {"start-delay": 0,
                                            "vrrp-group": []}
     return interface_level
+
+
+def running_on_vmware():
+    """
+    rfc compatibility mode does not work on VMware kit, VSwitches don't like
+    macs moving between boxes, so we need something to check if we're running
+    on this kit. This functionality replaces the
+    scripts/sbin/vyatta-check-rfc-compatibility.py script
+    """
+
+    from vyatta import configd
+    client = configd.Client()
+    version = client.call_rpc_dict("vyatta-opd-v1", "command",
+                                   {"command": "show", "args": "version"})
+    search = re.match(r'Hypervisor:\s*(\w+)', version['output'])
+    if search is not None and search.group(1) == "VMware":
+        return True
+    return False

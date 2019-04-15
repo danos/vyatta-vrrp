@@ -89,10 +89,27 @@ class TestVyattaVrrpVci:
         with pytest.raises(OSError):
             test_config.check(simple_config)
 
-    def test_vci_config_check(self, test_config, simple_config):
+    def test_vci_config_check_simple_config(self, test_config, simple_config):
         result = None
         expect = test_config.check(simple_config)
         assert result == expect
+
+    def test_vci_config_check_fuller_config(
+            self, test_config, complex_config,
+            mock_show_version_rpc_no_hypervisor):
+        result = None
+        expect = test_config.check(complex_config)
+        assert result == expect
+
+    def test_vci_config_check_fuller_config_printed_warnings(
+            self, test_config, complex_config,
+            mock_show_version_rpc_vmware, capsys):
+        result = None
+        print_result = "RFC compatibility is not supported on VMware\n\n"
+        expect = test_config.check(complex_config)
+        captured = capsys.readouterr()
+        assert result == expect
+        assert print_result == captured.out
 
     def test_vci_config_set_writes_disabled_group(
             self, test_config, interface_yang_name,
