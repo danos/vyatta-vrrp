@@ -112,6 +112,21 @@ vrrp_instance {instance} {{
         auth_pass {auth_pass}
     }}"""
 
+        if "track-interface" in self._group_config:
+            if "track" in self._group_config:
+                if "interface" in self._group_config["track"]:
+                    self._group_config["track"]["interface"].append(
+                        *self._group_config["track-interface"]
+                    )
+                else:
+                    self._group_config["track"]["interface"] = \
+                        self._group_config["track-interface"]
+            else:
+                self._group_config["track"] = {}
+                self._group_config["track"]["interface"] = \
+                    self._group_config["track-interface"]
+            del self._group_config["track-interface"]
+
         if "track" in self._group_config:
             self._generate_track_string(self._group_config["track"])
 
