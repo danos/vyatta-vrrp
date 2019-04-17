@@ -32,12 +32,22 @@ class TestKeepalivedVrrpGroup:
          pytest.lazy_fixture("pathmon_track_group"), -1),
          (pytest.lazy_fixture("legacy_track_group_keepalived_config"),
          pytest.lazy_fixture("legacy_track_group"), -1),
+         (pytest.lazy_fixture(
+             "legacy_and_enhanced_track_group_keepalived_config"),
+         pytest.lazy_fixture("legacy_and_enhanced_track_group"), -1),
+         (pytest.lazy_fixture(
+             "legacy_and_pathmon_enhanced_track_group_keepalived_config"),
+         pytest.lazy_fixture("legacy_and_pathmon_enhanced_track_group"), -1),
          (pytest.lazy_fixture("accept_v3_group_keepalived_config"),
          pytest.lazy_fixture("accept_v3_group"), -1),
          (pytest.lazy_fixture("nopreempt_v3_group_keepalived_config"),
-         pytest.lazy_fixture("nopreempt_v3_group"), -1)],
+         pytest.lazy_fixture("nopreempt_v3_group"), -1),
+         (pytest.lazy_fixture("ah_auth_v3_group_keepalived_config"),
+         pytest.lazy_fixture("ah_auth_v3_group"), -1)],
         ids=["Simple", "Complex", "VRRPv3", "Pathmon tracking",
-             "Legacy tracking", "Accept VRRPv3", "No Preempt VRRPv3"])
+             "Legacy tracking", "Legacy & Enhanced Tracking",
+             "Legacy Interface & Enhanced Pathmon Tracking", "Accept VRRPv3",
+             "No Preempt VRRPv3", "AH Auth VRRPv3"])
     def test_vrrp_group_config_string(
             self, keepalived_config, yang, rfc_num):
         result = VrrpGroup("dp0p1s1", "0", yang, rfc_num)

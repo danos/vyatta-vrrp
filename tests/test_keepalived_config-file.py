@@ -343,3 +343,36 @@ class TestKeepalivedConfigFile:
         keepalived_config._convert_interface_tracking_config(
             config_block, result, 0)
         assert result == expected
+
+    @pytest.mark.parametrize(
+        "expected,config_block,result",
+        [
+            ({"track":
+                {
+                    "vyatta-vrrp-path-monitor" +
+                    "-track-interfaces-dataplane-v1:" +
+                    "path-monitor": {
+                        "monitor": [
+                            {
+                                "name": "test_monitor",
+                                "policy": [
+                                    {
+                                        "name": "test_policy"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+              },
+             ["track {", "pathmon {",
+              "monitor test_monitor policy test_policy", "}"],
+             {"track": {}}),
+            ({}, ['virtual_ipaddress {', "10.10.10.100/25", "}"], {})
+        ],
+        ids=["Config exists", "Config doesn't exist"])
+    def test_convert_pathmon_tracking_config(self, expected, config_block,
+                                             keepalived_config, result):
+        keepalived_config._convert_pathmon_tracking_config(
+            config_block, result, 0)
+        assert result == expected

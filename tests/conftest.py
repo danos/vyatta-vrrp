@@ -180,6 +180,86 @@ def nopreempt_v3_group():
 
 
 @pytest.fixture
+def ah_auth_v3_group():
+    return \
+        {
+            "accept": False,
+            "authentication": {
+                "password": "help",
+                "type": "ah"
+            },
+            "fast-advertise-interval": 2000,
+            "preempt": True,
+            "tagnode": 1,
+            "version": 3,
+            "virtual-address": [
+                "10.10.1.100/25"
+            ]
+        }
+
+
+@pytest.fixture
+def legacy_and_enhanced_track_group():
+    return \
+        {
+            "accept": False,
+            "fast-advertise-interval": 2000,
+            "preempt": True,
+            "tagnode": 1,
+            "version": 3,
+            "virtual-address": [
+                "10.10.1.100/25"
+            ],
+            "track": {
+                "interface": [
+                    {
+                        "name": "dp0p1s1",
+                    },
+                ]
+            },
+            "track-interface": [
+                {
+                    "name": "lo"
+                }
+            ]
+        }
+
+
+@pytest.fixture
+def legacy_and_pathmon_enhanced_track_group(pathmon_yang_name):
+    return \
+        {
+            "accept": False,
+            "fast-advertise-interval": 2000,
+            "preempt": True,
+            "tagnode": 1,
+            "version": 3,
+            "virtual-address": [
+                "10.10.1.100/25"
+            ],
+            "track": {
+                 pathmon_yang_name: {
+                     "monitor": [
+                         {
+                             "name": "test_monitor",
+                             "policy": [
+                                 {
+                                     "name": "test_policy",
+                                 }
+                             ]
+                         }
+                     ]
+                 }
+            },
+            "track-interface": [
+                {
+                    "name": "lo"
+                }
+            ]
+        }
+
+
+@pytest.fixture
 def legacy_track_group():
     return \
         {
@@ -408,6 +488,54 @@ vrrp_instance vyatta-dp0p1s1-1 {
 
 
 @pytest.fixture
+def legacy_and_enhanced_track_group_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0p1s1-1 {
+    state BACKUP
+    interface dp0p1s1
+    virtual_router_id 1
+    version 3
+    start_delay 0
+    priority 100
+    advert_int 2
+    virtual_ipaddress {
+        10.10.1.100/25
+    }
+    track {
+        interface {
+            dp0p1s1
+            lo
+        }
+    }
+}"""
+
+
+@pytest.fixture
+def legacy_and_pathmon_enhanced_track_group_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0p1s1-1 {
+    state BACKUP
+    interface dp0p1s1
+    virtual_router_id 1
+    version 3
+    start_delay 0
+    priority 100
+    advert_int 2
+    virtual_ipaddress {
+        10.10.1.100/25
+    }
+    track {
+        interface {
+            lo
+        }
+        pathmon {
+            monitor test_monitor    policy test_policy
+        }
+    }
+}"""
+
+
+@pytest.fixture
 def generic_v3_group_keepalived_config():
     return """
 vrrp_instance vyatta-dp0p1s1-1 {
@@ -457,6 +585,27 @@ vrrp_instance vyatta-dp0p1s1-1 {
         10.10.1.100/25
     }
     nopreempt
+}"""
+
+
+@pytest.fixture
+def ah_auth_v3_group_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0p1s1-1 {
+    state BACKUP
+    interface dp0p1s1
+    virtual_router_id 1
+    version 3
+    start_delay 0
+    priority 100
+    advert_int 2
+    virtual_ipaddress {
+        10.10.1.100/25
+    }
+    authentication {
+        auth_type AH
+        auth_pass help
+    }
 }"""
 
 

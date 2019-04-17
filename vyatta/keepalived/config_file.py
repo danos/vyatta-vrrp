@@ -508,7 +508,7 @@ global_defs {
         try:
             config_start = block.index('pathmon {', start)  # type: int
         except ValueError:
-            # Interface tracking doesn't exist in this group
+            # Pathmon tracking doesn't exist in this group
             return
         else:
             config_end = block.index("}", config_start)  # type: int
