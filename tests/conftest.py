@@ -127,6 +127,13 @@ def simple_v3_vrrp_group_object(generic_v3_group):
 
 
 @pytest.fixture
+def pathmon_track_vrrp_group_object(pathmon_track_group):
+    from vyatta.keepalived.vrrp import VrrpGroup
+    new_group = copy.deepcopy(pathmon_track_group)
+    return VrrpGroup("dp0p1s1", "0", new_group)
+
+
+@pytest.fixture
 def generic_group():
     return \
         {
@@ -153,6 +160,45 @@ def generic_v3_group():
             "virtual-address": [
                 "10.10.1.100/25"
             ]
+        }
+
+
+@pytest.fixture
+def pathmon_track_group(pathmon_yang_name):
+    return \
+        {
+            "accept": False,
+            "preempt": True,
+            "tagnode": 1,
+            "version": 3,
+            "virtual-address": [
+                "10.10.1.100/25"
+            ],
+            "track": {
+                pathmon_yang_name: {
+                    "monitor": [
+                        {
+                            "name": "test_monitor",
+                            "policy": [
+                                {
+                                    "name": "test_policy",
+                                    "weight": {
+                                        "type": "increment",
+                                        "value": 10
+                                    }
+                                },
+                                {
+                                    "name": "tester_policy",
+                                    "weight": {
+                                        "type": "decrement",
+                                        "value": 10
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
         }
 
 
@@ -194,7 +240,23 @@ def max_config_group(pathmon_yang_name):
                     {
                         "name": "lo"
                     }
-                ]
+                ],
+                pathmon_yang_name: {
+                    "monitor": [
+                        {
+                            "name": "test_monitor",
+                            "policy": [
+                                {
+                                    "name": "test_policy",
+                                    "weight": {
+                                        "type": "decrement",
+                                        "value": 10
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
             },
             "version": 2,
             "virtual-address": [
@@ -292,10 +354,36 @@ vrrp_instance vyatta-dp0p1s1-1 {
             dp0s2   weight  -10
             lo
         }
+        pathmon {
+            monitor test_monitor    policy test_policy      weight  -10
+        }
     }
     notify {
         /opt/vyatta/sbin/vyatta-ipsec-notify.sh
         /opt/vyatta/sbin/notify-bgp
+    }
+}"""
+
+
+@pytest.fixture
+def pathmon_track_group_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0p1s1-1 {
+    state BACKUP
+    interface dp0p1s1
+    virtual_router_id 1
+    version 3
+    start_delay 0
+    priority 100
+    advert_int 1
+    virtual_ipaddress {
+        10.10.1.100/25
+    }
+    track {
+        pathmon {
+            monitor test_monitor    policy test_policy      weight  +10
+            monitor test_monitor    policy tester_policy      weight  -10
+        }
     }
 }"""
 

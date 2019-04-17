@@ -51,6 +51,20 @@ class TestKeepalivedConfigFile:
             config_block)
         assert expected == result
 
+    def test_convert_pathmon_vrrp_keepalived_conf_to_yang(
+            self, pathmon_track_group_keepalived_config,
+            pathmon_track_group,
+            keepalived_config):
+        expected = pathmon_track_group
+        config_split = pathmon_track_group_keepalived_config.splitlines()
+        indexes = util.get_config_indexes(
+            config_split, "vrrp_instance")
+        config_block = util.get_config_blocks(
+            config_split, indexes)[0]
+        result = keepalived_config._convert_keepalived_config_to_yang(
+            config_block)
+        assert expected == result
+
     def test_convert_minimal_vrrp_keepalived_conf_to_yang(
             self, dataplane_group_keepalived_config, generic_group,
             keepalived_config):
