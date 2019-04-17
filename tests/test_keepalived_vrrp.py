@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: GPL-2.0-only
 
 import pytest
+from vyatta.keepalived.vrrp import VrrpGroup
 
 
 class TestKeepalivedVrrpGroup:
@@ -36,3 +37,21 @@ class TestKeepalivedVrrpGroup:
     def test_vrrp_group_config_string(
             self, expected, result):
         assert expected == str(result)
+
+    def test_vrrp_group_preempt_delay_printed_warnings(
+            self, preempt_delay_ignored_group, capsys):
+        VrrpGroup("dp0p1s1", "0", preempt_delay_ignored_group)
+        print_result = \
+            "Warning: preempt delay is ignored when preempt=false\n\n"
+        captured = capsys.readouterr()
+        assert print_result == captured.out
+
+    def test_vrrp_group_rfc_name_length_printed_warnings(
+            self, generic_group, capsys):
+        generic_group["rfc-compatibility"] = [None]
+        VrrpGroup("dp0p1s1", "0", generic_group, 1234567890)
+        print_result = \
+            "Warning: generated interface name is longer than 15 " + \
+            "characters\n\n"
+        captured = capsys.readouterr()
+        assert print_result == captured.out

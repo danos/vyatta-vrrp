@@ -330,6 +330,22 @@ def disabled_group():
 
 
 @pytest.fixture
+def preempt_delay_ignored_group():
+    return \
+        {
+            "accept": False,
+            "preempt": False,
+            "preempt-delay": 10,
+            "priority": 200,
+            "tagnode": 1,
+            "version": 2,
+            "virtual-address": [
+                "10.10.1.100/25"
+            ]
+        }
+
+
+@pytest.fixture
 def dataplane_interface(generic_group):
     return \
         {
