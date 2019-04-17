@@ -231,6 +231,13 @@ def max_config_group(pathmon_yang_name):
             "track": {
                 "interface": [
                     {
+                        "name": "dp0p1s1",
+                        "weight": {
+                            "type": "increment",
+                            "value": 10
+                        }
+                    },
+                    {
                         "name": "dp0s2",
                         "weight": {
                             "type": "decrement",
@@ -351,6 +358,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
     }
     track {
         interface {
+            dp0p1s1   weight  +10
             dp0s2   weight  -10
             lo
         }
