@@ -120,6 +120,13 @@ def fuller_vrrp_group_object(max_config_group):
 
 
 @pytest.fixture
+def simple_v3_vrrp_group_object(generic_v3_group):
+    from vyatta.keepalived.vrrp import VrrpGroup
+    new_group = copy.deepcopy(generic_v3_group)
+    return VrrpGroup("dp0p1s1", "0", new_group)
+
+
+@pytest.fixture
 def generic_group():
     return \
         {
@@ -135,7 +142,22 @@ def generic_group():
 
 
 @pytest.fixture
-def max_config_group():
+def generic_v3_group():
+    return \
+        {
+            "accept": False,
+            "fast-advertise-interval": 2000,
+            "preempt": True,
+            "tagnode": 1,
+            "version": 3,
+            "virtual-address": [
+                "10.10.1.100/25"
+            ]
+        }
+
+
+@pytest.fixture
+def max_config_group(pathmon_yang_name):
     return \
         {
             "accept": False,
@@ -220,6 +242,23 @@ vrrp_instance vyatta-dp0p1s1-1 {
     start_delay 0
     priority 200
     advert_int 1
+    virtual_ipaddress {
+        10.10.1.100/25
+    }
+}"""
+
+
+@pytest.fixture
+def generic_v3_group_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0p1s1-1 {
+    state BACKUP
+    interface dp0p1s1
+    virtual_router_id 1
+    version 3
+    start_delay 0
+    priority 100
+    advert_int 2
     virtual_ipaddress {
         10.10.1.100/25
     }
@@ -319,6 +358,19 @@ def simple_config(top_level_dictionary, interface_yang_name,
     simple_yang_config[interface_yang_name][dataplane_yang_name] =\
         dataplane_list
     return simple_yang_config
+
+
+@pytest.fixture
+def generic_v3_config(top_level_dictionary, interface_yang_name,
+                      dataplane_yang_name, dataplane_list,
+                      dataplane_interface, generic_v3_group,
+                      vrrp_yang_name):
+    dataplane_interface[vrrp_yang_name]["vrrp-group"] = \
+        [generic_v3_group]
+    complex_yang_config = top_level_dictionary
+    complex_yang_config[interface_yang_name][dataplane_yang_name] =\
+        dataplane_list
+    return complex_yang_config
 
 
 @pytest.fixture
