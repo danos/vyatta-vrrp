@@ -58,7 +58,7 @@ class VrrpGroup:
 
         self._group_config["vips"] = "\n".join(
             group_config["virtual-address"])
-        del(self._group_config["virtual-address"])
+        del self._group_config["virtual-address"]
 
         # Template required for minimal config
         self._template = """
@@ -164,7 +164,7 @@ vrrp_instance {instance} {{
                 track_string += "   weight  {}".format(value)
             self._template += track_string
         self._template += """
-        }}"""  # Close "interface brace"
+        }}"""  # Close interface brace
 
     def _generate_track_pathmon(self, pathmon_dict):
         self._template += """
