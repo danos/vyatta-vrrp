@@ -104,7 +104,7 @@ vrrp_instance {instance} {{
                     "plaintext-password":
                 auth_type = "PASS"
             else:
-                auth_type = "OTHER"  # TODO: Fix for AH
+                auth_type = "AH"
             self._group_config["auth_type"] = auth_type
             self._template += """
     authentication {{

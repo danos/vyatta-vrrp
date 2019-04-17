@@ -436,7 +436,7 @@ global_defs {
                 auth_type = (auth_type[0], "plaintext-password")
             config_dict["authentication"] = {
                 "password": auth_pass[1],
-                "type": auth_type[1]
+                "type": str.lower(auth_type[1])
             }
 
     @staticmethod
