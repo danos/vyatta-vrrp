@@ -134,6 +134,13 @@ def pathmon_track_vrrp_group_object(pathmon_track_group):
 
 
 @pytest.fixture
+def legacy_track_vrrp_group_object(legacy_track_group):
+    from vyatta.keepalived.vrrp import VrrpGroup
+    new_group = copy.deepcopy(legacy_track_group)
+    return VrrpGroup("dp0p1s1", "0", new_group)
+
+
+@pytest.fixture
 def generic_group():
     return \
         {
@@ -159,6 +166,40 @@ def generic_v3_group():
             "version": 3,
             "virtual-address": [
                 "10.10.1.100/25"
+            ]
+        }
+
+
+@pytest.fixture
+def legacy_track_group():
+    return \
+        {
+            "accept": False,
+            "fast-advertise-interval": 2000,
+            "preempt": True,
+            "tagnode": 1,
+            "version": 3,
+            "virtual-address": [
+                "10.10.1.100/25"
+            ],
+            "track-interface": [
+                {
+                    "name": "dp0p1s1",
+                    "weight": {
+                        "type": "increment",
+                        "value": 10
+                    }
+                },
+                {
+                    "name": "dp0s2",
+                    "weight": {
+                        "type": "decrement",
+                        "value": 10
+                    }
+                },
+                {
+                    "name": "lo"
+                }
             ]
         }
 
@@ -318,6 +359,30 @@ vrrp_instance vyatta-dp0p1s1-1 {
 
 
 @pytest.fixture
+def legacy_track_group_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0p1s1-1 {
+    state BACKUP
+    interface dp0p1s1
+    virtual_router_id 1
+    version 3
+    start_delay 0
+    priority 100
+    advert_int 2
+    virtual_ipaddress {
+        10.10.1.100/25
+    }
+    track {
+        interface {
+            dp0p1s1   weight  +10
+            dp0s2   weight  -10
+            lo
+        }
+    }
+}"""
+
+
+@pytest.fixture
 def generic_v3_group_keepalived_config():
     return """
 vrrp_instance vyatta-dp0p1s1-1 {
@@ -430,6 +495,12 @@ def bonding_yang_name():
 @pytest.fixture
 def vrrp_yang_name():
     return "vyatta-vrrp-v1:vrrp"
+
+
+@pytest.fixture
+def pathmon_yang_name():
+    return \
+        "vyatta-vrrp-path-monitor-track-interfaces-dataplane-v1:path-monitor"
 
 
 @pytest.fixture

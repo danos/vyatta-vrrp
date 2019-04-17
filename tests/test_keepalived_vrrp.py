@@ -19,16 +19,20 @@ class TestKeepalivedVrrpGroup:
         result = simple_vrrp_group_object.instance_name
         assert result == expected
 
-    def test_vrrp_group_minimal_config_string(
-            self, simple_vrrp_group_object,
-            dataplane_group_keepalived_config):
-        expected = dataplane_group_keepalived_config
-        result = str(simple_vrrp_group_object)
-        assert result == expected
-
-    def test_vrrp_group_fuller_config_string(
-            self, max_group_keepalived_config,
-            fuller_vrrp_group_object):
-        expected = max_group_keepalived_config
-        result = str(fuller_vrrp_group_object)
-        assert expected == result
+    @pytest.mark.parametrize(
+        "expected,result",
+        [(pytest.lazy_fixture("dataplane_group_keepalived_config"),
+         pytest.lazy_fixture("simple_vrrp_group_object")),
+         (pytest.lazy_fixture("max_group_keepalived_config"),
+         pytest.lazy_fixture("fuller_vrrp_group_object")),
+         (pytest.lazy_fixture("generic_v3_group_keepalived_config"),
+         pytest.lazy_fixture("simple_v3_vrrp_group_object")),
+         (pytest.lazy_fixture("pathmon_track_group_keepalived_config"),
+         pytest.lazy_fixture("pathmon_track_vrrp_group_object")),
+         (pytest.lazy_fixture("legacy_track_group_keepalived_config"),
+         pytest.lazy_fixture("legacy_track_vrrp_group_object"))],
+        ids=["Simple", "Complex", "VRRPv3", "Pathmon tracking",
+             "Legacy tracking"])
+    def test_vrrp_group_config_string(
+            self, expected, result):
+        assert expected == str(result)
