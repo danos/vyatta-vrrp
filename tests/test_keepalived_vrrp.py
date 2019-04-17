@@ -21,26 +21,27 @@ class TestKeepalivedVrrpGroup:
         assert result == expected
 
     @pytest.mark.parametrize(
-        "expected,result",
+        "keepalived_config,yang,rfc_num",
         [(pytest.lazy_fixture("dataplane_group_keepalived_config"),
-         pytest.lazy_fixture("simple_vrrp_group_object")),
+         pytest.lazy_fixture("generic_group"), -1),
          (pytest.lazy_fixture("max_group_keepalived_config"),
-         pytest.lazy_fixture("fuller_vrrp_group_object")),
+         pytest.lazy_fixture("max_config_group"), 1),
          (pytest.lazy_fixture("generic_v3_group_keepalived_config"),
-         pytest.lazy_fixture("simple_v3_vrrp_group_object")),
+         pytest.lazy_fixture("generic_v3_group"), -1),
          (pytest.lazy_fixture("pathmon_track_group_keepalived_config"),
-         pytest.lazy_fixture("pathmon_track_vrrp_group_object")),
+         pytest.lazy_fixture("pathmon_track_group"), -1),
          (pytest.lazy_fixture("legacy_track_group_keepalived_config"),
-         pytest.lazy_fixture("legacy_track_vrrp_group_object")),
+         pytest.lazy_fixture("legacy_track_group"), -1),
          (pytest.lazy_fixture("accept_v3_group_keepalived_config"),
-         pytest.lazy_fixture("accept_v3_vrrp_group_object")),
+         pytest.lazy_fixture("accept_v3_group"), -1),
          (pytest.lazy_fixture("nopreempt_v3_group_keepalived_config"),
-         pytest.lazy_fixture("nopreempt_v3_vrrp_group_object"))],
+         pytest.lazy_fixture("nopreempt_v3_group"), -1)],
         ids=["Simple", "Complex", "VRRPv3", "Pathmon tracking",
              "Legacy tracking", "Accept VRRPv3", "No Preempt VRRPv3"])
     def test_vrrp_group_config_string(
-            self, expected, result):
-        assert expected == str(result)
+            self, keepalived_config, yang, rfc_num):
+        result = VrrpGroup("dp0p1s1", "0", yang, rfc_num)
+        assert keepalived_config == str(result)
 
     def test_vrrp_group_preempt_delay_printed_warnings(
             self, preempt_delay_ignored_group, capsys):

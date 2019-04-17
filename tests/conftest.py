@@ -120,41 +120,6 @@ def fuller_vrrp_group_object(max_config_group):
 
 
 @pytest.fixture
-def simple_v3_vrrp_group_object(generic_v3_group):
-    from vyatta.keepalived.vrrp import VrrpGroup
-    new_group = copy.deepcopy(generic_v3_group)
-    return VrrpGroup("dp0p1s1", "0", new_group)
-
-
-@pytest.fixture
-def accept_v3_vrrp_group_object(accept_v3_group):
-    from vyatta.keepalived.vrrp import VrrpGroup
-    new_group = copy.deepcopy(accept_v3_group)
-    return VrrpGroup("dp0p1s1", "0", new_group)
-
-
-@pytest.fixture
-def nopreempt_v3_vrrp_group_object(nopreempt_v3_group):
-    from vyatta.keepalived.vrrp import VrrpGroup
-    new_group = copy.deepcopy(nopreempt_v3_group)
-    return VrrpGroup("dp0p1s1", "0", new_group)
-
-
-@pytest.fixture
-def pathmon_track_vrrp_group_object(pathmon_track_group):
-    from vyatta.keepalived.vrrp import VrrpGroup
-    new_group = copy.deepcopy(pathmon_track_group)
-    return VrrpGroup("dp0p1s1", "0", new_group)
-
-
-@pytest.fixture
-def legacy_track_vrrp_group_object(legacy_track_group):
-    from vyatta.keepalived.vrrp import VrrpGroup
-    new_group = copy.deepcopy(legacy_track_group)
-    return VrrpGroup("dp0p1s1", "0", new_group)
-
-
-@pytest.fixture
 def generic_group():
     return \
         {
