@@ -127,6 +127,20 @@ def simple_v3_vrrp_group_object(generic_v3_group):
 
 
 @pytest.fixture
+def accept_v3_vrrp_group_object(accept_v3_group):
+    from vyatta.keepalived.vrrp import VrrpGroup
+    new_group = copy.deepcopy(accept_v3_group)
+    return VrrpGroup("dp0p1s1", "0", new_group)
+
+
+@pytest.fixture
+def nopreempt_v3_vrrp_group_object(nopreempt_v3_group):
+    from vyatta.keepalived.vrrp import VrrpGroup
+    new_group = copy.deepcopy(nopreempt_v3_group)
+    return VrrpGroup("dp0p1s1", "0", new_group)
+
+
+@pytest.fixture
 def pathmon_track_vrrp_group_object(pathmon_track_group):
     from vyatta.keepalived.vrrp import VrrpGroup
     new_group = copy.deepcopy(pathmon_track_group)
@@ -162,6 +176,36 @@ def generic_v3_group():
             "accept": False,
             "fast-advertise-interval": 2000,
             "preempt": True,
+            "tagnode": 1,
+            "version": 3,
+            "virtual-address": [
+                "10.10.1.100/25"
+            ]
+        }
+
+
+@pytest.fixture
+def accept_v3_group():
+    return \
+        {
+            "accept": True,
+            "fast-advertise-interval": 2000,
+            "preempt": True,
+            "tagnode": 1,
+            "version": 3,
+            "virtual-address": [
+                "10.10.1.100/25"
+            ]
+        }
+
+
+@pytest.fixture
+def nopreempt_v3_group():
+    return \
+        {
+            "accept": False,
+            "fast-advertise-interval": 2000,
+            "preempt": False,
             "tagnode": 1,
             "version": 3,
             "virtual-address": [
@@ -412,6 +456,42 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
+}"""
+
+
+@pytest.fixture
+def accept_v3_group_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0p1s1-1 {
+    state BACKUP
+    interface dp0p1s1
+    virtual_router_id 1
+    version 3
+    start_delay 0
+    priority 100
+    advert_int 2
+    virtual_ipaddress {
+        10.10.1.100/25
+    }
+    accept
+}"""
+
+
+@pytest.fixture
+def nopreempt_v3_group_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0p1s1-1 {
+    state BACKUP
+    interface dp0p1s1
+    virtual_router_id 1
+    version 3
+    start_delay 0
+    priority 100
+    advert_int 2
+    virtual_ipaddress {
+        10.10.1.100/25
+    }
+    nopreempt
 }"""
 
 

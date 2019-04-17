@@ -76,6 +76,14 @@ vrrp_instance {instance} {{
     }}"""
 
         # Optional config
+        if self._group_config["accept"]:
+            self._template += """
+    accept"""
+
+        if not self._group_config["preempt"]:
+            self._template += """
+    nopreempt"""
+
         if "rfc-compatibility" in self._group_config:
             self._group_config["vmac"] = "{}vrrp{}".format(name[:3], rfc_num)
             if len(self._group_config["vmac"]) > 15:

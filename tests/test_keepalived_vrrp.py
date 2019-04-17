@@ -31,9 +31,13 @@ class TestKeepalivedVrrpGroup:
          (pytest.lazy_fixture("pathmon_track_group_keepalived_config"),
          pytest.lazy_fixture("pathmon_track_vrrp_group_object")),
          (pytest.lazy_fixture("legacy_track_group_keepalived_config"),
-         pytest.lazy_fixture("legacy_track_vrrp_group_object"))],
+         pytest.lazy_fixture("legacy_track_vrrp_group_object")),
+         (pytest.lazy_fixture("accept_v3_group_keepalived_config"),
+         pytest.lazy_fixture("accept_v3_vrrp_group_object")),
+         (pytest.lazy_fixture("nopreempt_v3_group_keepalived_config"),
+         pytest.lazy_fixture("nopreempt_v3_vrrp_group_object"))],
         ids=["Simple", "Complex", "VRRPv3", "Pathmon tracking",
-             "Legacy tracking"])
+             "Legacy tracking", "Accept VRRPv3", "No Preempt VRRPv3"])
     def test_vrrp_group_config_string(
             self, expected, result):
         assert expected == str(result)
