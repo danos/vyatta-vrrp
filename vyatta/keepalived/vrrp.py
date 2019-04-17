@@ -6,6 +6,7 @@
 
 
 from typing import Dict
+import vyatta.keepalived.util as util
 
 
 class VrrpGroup:
@@ -144,8 +145,8 @@ vrrp_instance {instance} {{
     track {{"""
         if "interface" in track_dict:
             self._generate_track_interfaces(track_dict["interface"])
-        if "path-monitor" in track_dict:
-            self._generate_track_pathmon(track_dict["path-monitor"])
+        if util.PATHMON_YANG_NAME in track_dict:
+            self._generate_track_pathmon(track_dict[util.PATHMON_YANG_NAME])
         self._template += """
     }}"""
 
@@ -161,14 +162,29 @@ vrrp_instance {instance} {{
                 else:
                     multiplier = 1
                 value = multiplier * interface["weight"]["value"]
-                track_string += "   weight  {}".format(value)
+                track_string += "   weight  {:+d}".format(value)
             self._template += track_string
         self._template += """
         }}"""  # Close interface brace
 
     def _generate_track_pathmon(self, pathmon_dict):
         self._template += """
-        TO BE IMPLEMENTED"""
+        pathmon {{"""
+        for monitor in pathmon_dict["monitor"]:
+            monitor_name = monitor["name"]
+            for policy in monitor["policy"]:
+                track_string = """
+            monitor {}    policy {}""".format(monitor_name, policy["name"])
+                if "weight" in policy:
+                    if policy["weight"]["type"] == "decrement":
+                        multiplier = -1
+                    else:
+                        multiplier = 1
+                    value = multiplier * policy["weight"]["value"]
+                    track_string += "      weight  {:+d}".format(value)
+                self._template += track_string
+        self._template += """
+        }}"""  # Close pathmon brace
 
     def __repr__(self):
         completed_config = self._template.format(

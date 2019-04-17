@@ -21,6 +21,8 @@ VRRP_YANG_NAME = "vyatta-vrrp-v1:vrrp"  # type: str
 BONDING_YANG_NAME = "vyatta-bonding-v1:bonding"  # type: str
 SWITCHPORT_YANG_NAME = "vyatta-switchport-v1:switchport"  # type: str
 VIF_YANG_NAME = "vif"  # type: str
+PATHMON_YANG_NAME = \
+    "vyatta-vrrp-path-monitor-track-interfaces-dataplane-v1:path-monitor"
 
 
 def get_specific_vrrp_config_from_yang(

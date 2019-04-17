@@ -505,4 +505,38 @@ global_defs {
     @staticmethod
     def _convert_pathmon_tracking_config(
             block: List[str], config_dict: Dict, start: int) -> None:
-        return
+        try:
+            config_start = block.index('pathmon {', start)  # type: int
+        except ValueError:
+            # Interface tracking doesn't exist in this group
+            return
+        else:
+            config_end = block.index("}", config_start)  # type: int
+            track_pathmon_config = \
+                block[config_start+1: config_end]  # type: List[str]
+            pathmon_dict = {"monitor": []}  # type: Dict
+            for line in track_pathmon_config:
+                tokens = line.split()
+                monitor_name = tokens[1]
+                policy_name = tokens[3]
+                insertion_dictionary = {}
+                for monitor in pathmon_dict["monitor"]:
+                    if monitor_name == monitor["name"]:
+                        insertion_dictionary = monitor
+                        break
+                if insertion_dictionary == {}:
+                    insertion_dictionary["name"] = monitor_name
+                    insertion_dictionary["policy"] = []
+                    pathmon_dict["monitor"].append(insertion_dictionary)
+                policy_dict = {"name": policy_name}
+                if "weight" in line:
+                    policy_dict["weight"] = {}
+                    weight = int(tokens[-1])
+                    if weight < 0:
+                        weight_type = "decrement"
+                    else:
+                        weight_type = "increment"
+                    policy_dict["weight"]["type"] = weight_type
+                    policy_dict["weight"]["value"] = abs(weight)
+                insertion_dictionary["policy"].append(policy_dict)
+            config_dict["track"][util.PATHMON_YANG_NAME] = pathmon_dict
