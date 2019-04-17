@@ -273,92 +273,73 @@ class TestKeepalivedConfigFile:
         expected = file_path.exists()
         assert result == expected
 
-    def test_convert_authentication_config_config_exists(
-            self, keepalived_config):
-        expected = {"authentication": {
-            "password": "test",
-            "type": "plaintext-password"
-        }}
-        config_block = ['authentication {', "auth_type PASS",
-                        "auth_pass test", "}"]
-
+    @pytest.mark.parametrize(
+        "expected,config_block",
+        [
+            ({}, []),
+            ({}, ['virtual_ipaddress {', "10.10.10.100/25", "}"]),
+            (
+                {
+                    "authentication":
+                        {"password": "test", "type": "plaintext-password"}
+                },
+                ['authentication {', "auth_type PASS", "auth_pass test", "}"]
+            ),
+            (
+                {
+                    "authentication":
+                        {"password": "test", "type": "ah"}
+                },
+                ['authentication {', "auth_type AH", "auth_pass test", "}"]
+            )
+        ],
+        ids=["No Config", "No Notify Config",
+             "Plaintext Authentication Config Exists",
+             "Authentication Header Config Exists"])
+    def test_convert_authentication_config(
+            self, keepalived_config, expected, config_block):
         result = {}
         keepalived_config._convert_authentication_config(
             config_block, result)
         assert result == expected
 
-    def test_convert_authentication_config_no_config(
-            self, keepalived_config):
-        expected = {}
-        config_block = []
-        result = {}
-        keepalived_config._convert_authentication_config(
-            config_block, result)
-        assert result == expected
-
-    def test_convert_authentication_config_config_doesnt_exist(
-            self, keepalived_config):
-        expected = {}
-        config_block = ['virtual_ipaddress {', "10.10.10.100/25", "}"]
-        result = {}
-        keepalived_config._convert_authentication_config(
-            config_block, result)
-        assert result == expected
-
-    def test_convert_notify_proto_config_config_exists(
-            self, keepalived_config):
-        expected = {"notify": {
-            "bgp": [None],
-            "ipsec": [None]
-        }}
-        config_block = ["notify {",
-                        "/opt/vyatta/sbin/vyatta-ipsec-notify.sh",
-                        "/opt/vyatta/sbin/notify-bgp", "}"]
+    @pytest.mark.parametrize(
+        "expected,config_block",
+        [
+            ({}, []),
+            ({}, ['virtual_ipaddress {', "10.10.10.100/25", "}"]),
+            (
+                {"notify": {"bgp": [None], "ipsec": [None]}},
+                [
+                    "notify {",
+                    "/opt/vyatta/sbin/vyatta-ipsec-notify.sh",
+                    "/opt/vyatta/sbin/notify-bgp",
+                    "}"
+                ]
+            )
+        ],
+        ids=["No Config", "No Notify Config", "Notify Config Exists"])
+    def test_convert_notify_proto_config(
+            self, keepalived_config, expected, config_block):
         result = {}
         keepalived_config._convert_notify_proto_config(
             config_block, result)
         assert result == expected
 
-    def test_convert_notify_proto_config_no_config(
-            self, keepalived_config):
-        expected = {}
-        config_block = []
-        result = {}
-        keepalived_config._convert_notify_proto_config(
-            config_block, result)
-        assert result == expected
-
-    def test_convert_notify_proto_config_config_doesnt_exist(
-            self, keepalived_config):
-        expected = {}
-        config_block = ['virtual_ipaddress {', "10.10.10.100/25", "}"]
-        result = {}
-        keepalived_config._convert_notify_proto_config(
-            config_block, result)
-        assert result == expected
-
-    def test_convert_interface_tracking_config_config_exists(
-            self, keepalived_config):
-        expected = {"track": {"interface": [
-            {"name": "lo1"},
-            {"name": "dp0p2",
-             "weight": {"type": "decrement", "value": 10}}
-        ]}}
-        config_block = ["track {",
-                        "interface {",
-                        "lo1",
-                        "dp0p2 weight -10",
-                        "}"]
-        result = {"track": {}}
-        keepalived_config._convert_interface_tracking_config(
-            config_block, result, 0)
-        assert result == expected
-
-    def test_convert_interface_tracking_config_config_doesnt_exist(
-            self, keepalived_config):
-        expected = {}
-        config_block = ['virtual_ipaddress {', "10.10.10.100/25", "}"]
-        result = {}
+    @pytest.mark.parametrize(
+        "expected,config_block,result",
+        [
+            ({"track": {"interface": [{"name": "lo1"}, {"name": "dp0p2",
+                                                        "weight":
+                                                        {"type": "decrement",
+                                                         "value": 10}}]}},
+             ["track {", "interface {", "lo1", "dp0p2 weight -10", "}"],
+             {"track": {}}),
+            ({}, ['virtual_ipaddress {', "10.10.10.100/25", "}"], {})
+        ],
+        ids=["Config exists", "Config doesn't exist"])
+    def test_convert_interface_tracking_config(self, expected, config_block,
+                                               keepalived_config, result):
         keepalived_config._convert_interface_tracking_config(
             config_block, result, 0)
         assert result == expected
