@@ -36,12 +36,16 @@ class VrrpGroup:
         if "priority" not in self._group_config:
             self._group_config["priority"] = 100
         if "advertise-interval" not in self._group_config \
-                and self._group_config["version"] == 2:
+                and "fast-advertise-interval" not in self._group_config:
             self._group_config["adv"] = 1
-        else:
+        elif "advertise-interval" in self._group_config:
             self._group_config["adv"] = \
                 group_config["advertise-interval"]
-            del(self._group_config["advertise-interval"])
+            del self._group_config["advertise-interval"]
+        elif "fast-advertise-interval" in self._group_config:
+            self._group_config["adv"] = \
+                int(float(group_config["fast-advertise-interval"]) / 1000)
+            del self._group_config["fast-advertise-interval"]
 
         # Values outwith the dictionary
         self._group_config["intf"] = name

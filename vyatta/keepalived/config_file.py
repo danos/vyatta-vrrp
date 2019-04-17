@@ -352,7 +352,7 @@ global_defs {
             "version": "version",
             "hello-source-address": "mcast_src_ip",
             "rfc-compatibility": "vmac_xmit_base",
-            "advertise-interval": "advert_int",
+            "advertise-interval": "advert_int",  # advert_int used for v2 & v3
             "preempt-delay": "preempt_delay",
         }  # type: Any
 
@@ -395,10 +395,15 @@ global_defs {
         vips_end = config_block.index('}', vips_start)  # type: int
         config_dict["virtual-address"] = config_block[vips_start+1:vips_end]
 
-        # Authentication only exists in VRRPv2
+        # Version specific code
         if config_dict["version"] == 2:
             self._convert_authentication_config(
                     config_block, config_dict)
+        else:
+            if "advertise-interval" in config_dict:
+                config_dict["fast-advertise-interval"] = \
+                    config_dict["advertise-interval"] * 1000
+                del config_dict["advertise-interval"]
 
         self._convert_tracking_config(
             config_block, config_dict)
