@@ -77,11 +77,14 @@ vrrp_instance {instance} {{
 
         # Optional config
         if "rfc-compatibility" in self._group_config:
-            self._template += """
+            self._group_config["vmac"] = "{}vrrp{}".format(name[:3], rfc_num)
+            if len(self._group_config["vmac"]) > 15:
+                print("Warning: generated interface name is longer than 15 " +
+                      "characters\n")
+            else:
+                self._template += """
     use_vmac {vmac}
     vmac_xmit_base"""
-            # TODO: Generate rfc intf name
-            self._group_config["vmac"] = "dp0vrrp{}".format(rfc_num)
 
         if "preempt-delay" in self._group_config:
             self._group_config["preempt_delay"] = \
@@ -89,6 +92,9 @@ vrrp_instance {instance} {{
             del self._group_config["preempt-delay"]
             self._template += """
     preempt_delay {preempt_delay}"""
+            if "preempt" in self._group_config and \
+                    self._group_config["preempt"] is False:
+                print("Warning: preempt delay is ignored when preempt=false\n")
 
         if "hello-source-address" in self._group_config:
             self._group_config["mcast_src_ip"] = \
