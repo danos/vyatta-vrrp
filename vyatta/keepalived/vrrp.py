@@ -57,8 +57,14 @@ class VrrpGroup:
         self._group_config["vrid"] = group_config["tagnode"]
         self._group_config["accept"] = group_config["accept"]
 
-        self._group_config["vips"] = "\n".join(
-            group_config["virtual-address"])
+        first_addr = group_config["virtual-address"][0].split("/")[0]
+        ip_version = util.what_ip_version(first_addr)
+        if ip_version == 4:
+            self._group_config["vips"] = """
+        """.join(sorted(group_config["virtual-address"]))
+        else:
+            self._group_config["vips"] = """
+        """.join(util.vrrp_ipv6_sort(group_config["virtual-address"]))
         del self._group_config["virtual-address"]
 
         # Template required for minimal config
@@ -74,6 +80,10 @@ vrrp_instance {instance} {{
     virtual_ipaddress {{
         {vips}
     }}"""
+
+        if ip_version == 6:
+            self._template += """
+    native_ipv6"""
 
         # Optional config
         if self._group_config["accept"]:

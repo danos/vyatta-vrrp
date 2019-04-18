@@ -80,6 +80,17 @@ def get_hello_sources(conf: Dict) -> str:
                     conf, "hello-source-address"))
 
 
+def what_ip_version(address_string: str) -> int:
+    ipaddr = ipaddress.ip_address(address_string)
+    return ipaddr.version
+
+
+def vrrp_ipv6_sort(ips: List[str]) -> List[str]:
+    link_locals = [ip for ip in ips if re.match(r"^(fe80).*", ip.lower())]
+    global_addr = [ip for ip in ips if re.match(r"^(?!fe80).*", ip.lower())]
+    return link_locals + global_addr
+
+
 def is_local_address(address_string: str) -> None:
     """
     Runtime check to determine if the address passed to the function
@@ -97,11 +108,11 @@ def is_local_address(address_string: str) -> None:
     infrastructure will interpret as a validation error
     """
 
-    ipaddr = ipaddress.ip_address(address_string)
+    ipaddr_version = what_ip_version(address_string)
     ipaddr_type = None
-    if ipaddr.version == 4:
+    if ipaddr_version == 4:
         ipaddr_type = socket.AF_INET
-    elif ipaddr.version == 6:
+    elif ipaddr_version == 6:
         ipaddr_type = socket.AF_INET6
     else:
         raise TypeError("{} is not an IPv4 or IPv6 address".format(
