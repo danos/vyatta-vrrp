@@ -150,6 +150,22 @@ def generic_v3_group():
 
 
 @pytest.fixture
+def generic_ipv6_group():
+    return \
+        {
+            "accept": False,
+            "fast-advertise-interval": 2000,
+            "preempt": True,
+            "tagnode": 1,
+            "version": 3,
+            "virtual-address": [
+                "2001::2/64",
+                "fe80::1/64"
+            ]
+        }
+
+
+@pytest.fixture
 def accept_v3_group():
     return \
         {
@@ -549,6 +565,25 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
+}"""
+
+
+@pytest.fixture
+def generic_ipv6_group_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0p1s1-1 {
+    state BACKUP
+    interface dp0p1s1
+    virtual_router_id 1
+    version 3
+    start_delay 0
+    priority 100
+    advert_int 2
+    virtual_ipaddress {
+        fe80::1/64
+        2001::2/64
+    }
+    native_ipv6
 }"""
 
 
