@@ -193,8 +193,12 @@ vrrp_instance {instance} {{
         self._template += """
         interface {{"""
         for interface in intf_dict:
-            track_string = """
+            if "name" in interface:
+                track_string = """
             {}""".format(interface["name"])
+            if "tagnode" in interface:
+                track_string = """
+            {}""".format(interface["tagnode"])
             if "weight" in interface:
                 if interface["weight"]["type"] == "decrement":
                     multiplier = -1
