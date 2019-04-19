@@ -289,21 +289,21 @@ def legacy_track_group():
             ],
             "track-interface": [
                 {
-                    "name": "dp0p1s1",
+                    "tagnode": "dp0p1s1",
                     "weight": {
                         "type": "increment",
                         "value": 10
                     }
                 },
                 {
-                    "name": "dp0s2",
+                    "tagnode": "dp0s2",
                     "weight": {
                         "type": "decrement",
                         "value": 10
                     }
                 },
                 {
-                    "name": "lo"
+                    "tagnode": "lo"
                 }
             ]
         }
