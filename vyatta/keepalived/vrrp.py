@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: GPL-2.0-only
 
 
+import logging
 from typing import Dict
 import vyatta.keepalived.util as util
 
@@ -31,6 +32,7 @@ class VrrpGroup:
             group_config (Dict):
                 YANG Dictionary for the group's config
         """
+        self.log = logging.getLogger("vyatta-vrrp-vci")
         # Default values from existing code required for minimal
         # config
         self._group_config = group_config
