@@ -166,6 +166,32 @@ vrrp_instance {instance} {{
             self._template += """
     }}"""
 
+        # TODO: This may need changed to add transition scripts
+        # for all the transition scripts not explicitly defined.
+        # That is the behaviour of the legacy scripts but I think
+        # anything that needs to react to a state change should listen
+        # for dbus/yang notifications and react to them.
+        if "run-transition-scripts" in self._group_config:
+            transition_scripts = self._group_config["run-transition-scripts"]
+            if "master" in transition_scripts:
+                self._template += """
+    notify_master \"{} master {} {}\"""".format(
+                                                transition_scripts["master"],
+                                                name,
+                                                self._group_config["vrid"])
+            if "backup" in transition_scripts:
+                self._template += """
+    notify_backup \"{} backup {} {}\"""".format(
+                                                transition_scripts["backup"],
+                                                name,
+                                                self._group_config["vrid"])
+            if "fault" in transition_scripts:
+                self._template += """
+    notify_fault \"{} fault {} {}\"""".format(
+                                                transition_scripts["fault"],
+                                                name,
+                                                self._group_config["vrid"])
+
         # Generate instance name (TODO change to f-string with python 3.7)
         self._instance = "vyatta-{intf}-{vrid}".format(
             intf=name, vrid=group_config["tagnode"]
