@@ -11,7 +11,7 @@ import json
 from typing import Any, Dict, List, Tuple
 import vyatta.abstract_vrrp_classes as AbstractConfig
 import vyatta.keepalived.util as util
-from vyatta.keepalived.vrrp import VrrpGroup
+import vyatta.keepalived.vrrp as vrrp
 
 
 class KeepalivedConfig(AbstractConfig.ConfigFile):
@@ -220,12 +220,12 @@ global_defs {
                     if "rfc-compatibility" in group:
                         self._rfc_interfaces += 1
                         self.vrrp_instances.append(
-                            VrrpGroup(
+                            vrrp.VrrpGroup(
                                 intf_name, start_delay, group,
                                 self._rfc_interfaces))
                     else:
                         self.vrrp_instances.append(
-                            VrrpGroup(
+                            vrrp.VrrpGroup(
                                 intf_name, start_delay, group))
 
     def write_config(self) -> None:
