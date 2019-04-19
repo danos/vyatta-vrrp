@@ -215,6 +215,26 @@ def ah_auth_v3_group():
 
 
 @pytest.fixture
+def runtransition_v3_group():
+    return \
+        {
+            "accept": False,
+            "fast-advertise-interval": 2000,
+            "preempt": True,
+            "tagnode": 1,
+            "version": 3,
+            "virtual-address": [
+                "10.10.1.100/25"
+            ],
+            "run-transition-scripts": {
+                "master": "master.py",
+                "backup": "backup.py",
+                "fault": "fault.py"
+            }
+        }
+
+
+@pytest.fixture
 def legacy_and_enhanced_track_group():
     return \
         {
@@ -602,6 +622,26 @@ vrrp_instance vyatta-dp0p1s1-1 {
         10.10.1.100/25
     }
     accept
+}"""
+
+
+@pytest.fixture
+def runtransition_v3_group_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0p1s1-1 {
+    state BACKUP
+    interface dp0p1s1
+    virtual_router_id 1
+    version 3
+    start_delay 0
+    priority 100
+    advert_int 2
+    virtual_ipaddress {
+        10.10.1.100/25
+    }
+    notify_master "master.py master dp0p1s1 1"
+    notify_backup "backup.py backup dp0p1s1 1"
+    notify_fault "fault.py fault dp0p1s1 1"
 }"""
 
 
