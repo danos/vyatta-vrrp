@@ -163,7 +163,8 @@ global_defs {
 }"""
         self.config_file = config_file_path  # type: str
         self.implementation_name = "Keepalived"  # type: str
-        self._vrrp_instances = []  # type: List[dict]
+        self._vrrp_instances = []  # type: List[Dict]
+        self._sync_instances = {}  # type: Dict[List[str]]
         self._rfc_interfaces = 0  # type: int
 
     @property
@@ -229,6 +230,12 @@ global_defs {
                         self.vrrp_instances.append(
                             vrrp.VrrpGroup(
                                 intf_name, start_delay, group))
+                    if "sync-group" in group:
+                        sync_group_name = group["sync-group"]
+                        if sync_group_name not in self._sync_instances:
+                            self._sync_instances[sync_group_name] = []
+                        self._sync_instances[sync_group_name].append(
+                            self._vrrp_instances[-1].instance_name)
 
     def write_config(self) -> None:
         """
@@ -239,6 +246,17 @@ global_defs {
         file an error is thrown.
         """
         keepalived_config = self.config_string
+        for sync_group in self._sync_instances:
+            keepalived_config += """
+vrrp_sync_group {} {{
+    group {{""".format(sync_group)
+            for instance in self._sync_instances[sync_group]:
+                keepalived_config += """
+        {}""".format(instance)
+            keepalived_config += """
+    }
+}
+"""
         for group in self.vrrp_instances:
             keepalived_config += str(group)
         with open(self.config_file, "w") as file_handle:
@@ -271,6 +289,25 @@ global_defs {
         if vrrp_group_start_indexes == []:
             return json.dumps({})
 
+        sync_group_start_indexes = util.get_config_indexes(
+            config_lines, "vrrp_sync_group")  # type: List[int]
+        sync_group_instances = {}
+        if sync_group_start_indexes != []:
+            sync_group_config = util.get_config_blocks(
+                config_lines[:vrrp_group_start_indexes[0]],
+                sync_group_start_indexes
+            )
+            for sync_group in sync_group_config:
+                group_name_exists = util.find_config_value(
+                    sync_group, "vrrp_sync_group")
+                if not group_name_exists[0]:
+                    continue
+                group_name = group_name_exists[1].split()[0]
+                instance_start = sync_group.index("group {")
+                instance_end = sync_group.index("}", instance_start)
+                for instance in sync_group[instance_start+1:instance_end]:
+                    sync_group_instances[instance] = group_name
+
         group_config = util.get_config_blocks(
             config_lines, vrrp_group_start_indexes)  # type: List[List[str]]
 
@@ -282,6 +319,14 @@ global_defs {
 
             intf_name = util.find_config_value(
                 group, "interface")[1]  # type: str
+            vrid = util.find_config_value(
+                group, "virtual_router_id")[1]  # type: str
+            instance_name = "vyatta-{}-{}".format(intf_name, vrid)
+
+            if instance_name in sync_group_instances:
+                group.append("sync_group {}".format(
+                    sync_group_instances[instance_name]
+                ))
             vif_number = ""
             if "." in intf_name:
                 vif_sep = intf_name.split(".")
@@ -348,6 +393,7 @@ global_defs {
             "rfc-compatibility": "vmac_xmit_base",
             "advertise-interval": "advert_int",  # advert_int used for v2 & v3
             "preempt-delay": "preempt_delay",
+            "sync-group": "sync_group"
         }  # type: Any
 
         # Single line config code
