@@ -397,3 +397,16 @@ def running_on_vmware():
     if search is not None and search.group(1) == "VMware":
         return True
     return False
+
+
+def intf_name_to_type(name):
+    if re.match(r"dp\d+bond\d+", name):
+        return BONDING_YANG_NAME
+    elif re.match(r"sw\d+", name):
+        return SWITCHPORT_YANG_NAME
+    elif re.match(r"dp\d+(.*)\d+", name):
+        return DATAPLANE_YANG_NAME
+    else:
+        raise ValueError(
+            "Unrecognised interface type for interface {}".format(name)
+        )

@@ -768,6 +768,11 @@ def interface_yang_name():
 
 
 @pytest.fixture
+def switchport_yang_name():
+    return "vyatta-switchport-v1:switchport"
+
+
+@pytest.fixture
 def dataplane_yang_name():
     return "vyatta-interfaces-dataplane-v1:dataplane"
 

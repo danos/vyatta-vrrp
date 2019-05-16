@@ -638,3 +638,22 @@ class TestKeepalivedUtils:
         assert result == expected
         assert result is \
             yang_repr_dataplane_list[0]["vif"][0]
+
+    def test_intf_name_to_type_bonding(self, bonding_yang_name):
+        expected = bonding_yang_name
+        result = util.intf_name_to_type("dp0bond1")
+        assert expected == result
+
+    def test_intf_name_to_type_switchport(self, switchport_yang_name):
+        expected = switchport_yang_name
+        result = util.intf_name_to_type("sw0")
+        assert expected == result
+
+    def test_intf_name_to_type_dataplane(self, dataplane_yang_name):
+        expected = dataplane_yang_name
+        result = util.intf_name_to_type("dp0p1s1")
+        assert expected == result
+
+    def test_intf_name_to_type_unknown_type(self):
+        with pytest.raises(ValueError):
+            util.intf_name_to_type("dp0p")

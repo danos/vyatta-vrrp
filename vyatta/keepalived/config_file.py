@@ -8,7 +8,6 @@ Vyatta VCI component to configure keepalived to provide VRRP functionality
 """
 
 import logging
-import re
 import json
 from typing import Any, Dict, List, Tuple
 import vyatta.abstract_vrrp_classes as AbstractConfig
@@ -233,7 +232,7 @@ global_defs {
 
     def write_config(self) -> None:
         """
-        Write config to the file at config_file
+        Write config to the file at self.config_file
 
         Invoke the str method for this object and write it to the config
         file provided at instantiation. If there is a problem writing the
@@ -293,18 +292,10 @@ global_defs {
             # Find the interface type for the interface name, right now this
             # is just a guess, there might be a better method of doing this
             # than regexes
-            if re.match(r"dp\d+bond\d+", intf_name):
-                if util.BONDING_YANG_NAME not in interface_list:
-                    interface_list[util.BONDING_YANG_NAME] = []
-                interface_list = interface_list[util.BONDING_YANG_NAME]
-            elif re.match(r"sw\d+", intf_name):
-                if util.SWITCHPORT_YANG_NAME not in interface_list:
-                    interface_list[util.SWITCHPORT_YANG_NAME] = []
-                interface_list = interface_list[util.SWITCHPORT_YANG_NAME]
-            else:
-                if util.DATAPLANE_YANG_NAME not in interface_list:
-                    interface_list[util.DATAPLANE_YANG_NAME] = []
-                interface_list = interface_list[util.DATAPLANE_YANG_NAME]
+            intf_type = util.intf_name_to_type(intf_name)
+            if intf_type not in interface_list:
+                interface_list[intf_type] = []
+            interface_list = interface_list[intf_type]
 
             # Hackery to find the reference to the interface this vrrp
             # group should be added to.
