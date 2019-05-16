@@ -95,6 +95,20 @@ class TestKeepalivedConfigFile:
             config_block)
         assert expected == result
 
+    def test_convert_syncgroup_vrrp_keepalived_conf_to_yang(
+            self, syncgroup_keepalived_config, sync_group1,
+            keepalived_config):
+        expected = sync_group1
+        config_split = syncgroup_keepalived_config.splitlines()
+        indexes = util.get_config_indexes(
+            config_split, "vrrp_instance")
+        config_block = util.get_config_blocks(
+            config_split, indexes)[0]
+        config_block.append("sync_group TEST")
+        result = keepalived_config._convert_keepalived_config_to_yang(
+            config_block)
+        assert expected == result
+
     def test_config_to_vci_format_no_config(self, keepalived_config):
         result = json.dumps({})
         expect = keepalived_config.convert_to_vci_format("")
@@ -123,6 +137,16 @@ class TestKeepalivedConfigFile:
         copy_string = copy.deepcopy(generic_v3_group_keepalived_config)
         config_string += copy_string
         result = json.dumps(generic_v3_config)
+        expect = keepalived_config.convert_to_vci_format(config_string)
+        assert result == expect
+
+    def test_config_to_vci_format_syncgroup_config(
+            self, syncgroup_keepalived_config,
+            keepalived_config, syncgroup_config):
+
+        copy_string = copy.deepcopy(syncgroup_keepalived_config)
+        config_string = copy_string
+        result = json.dumps(syncgroup_config)
         expect = keepalived_config.convert_to_vci_format(config_string)
         assert result == expect
 

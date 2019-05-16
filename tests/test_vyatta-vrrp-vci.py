@@ -18,10 +18,18 @@ class TestVyattaVrrpVci:
 
     @pytest.mark.sanity
     def test_vci_config_get(self, test_config, simple_config,
-                            tmp_file_keepalived_config, interface_yang_name,
-                            dataplane_yang_name, vrrp_yang_name):
+                            tmp_file_keepalived_config):
         result = json.dumps(simple_config)
         test_config._conf_obj = tmp_file_keepalived_config
+        expect = test_config.get()
+        assert result == expect
+
+    @pytest.mark.sanity
+    def test_vci_config_get_with_syncgroup(
+            self, test_config, syncgroup_config,
+            tmp_file_syncgroup_keepalived_config):
+        result = json.dumps(syncgroup_config)
+        test_config._conf_obj = tmp_file_syncgroup_keepalived_config
         expect = test_config.get()
         assert result == expect
 
@@ -52,8 +60,7 @@ class TestVyattaVrrpVci:
     @pytest.mark.sanity
     def test_vci_config_set_writes_correct_config(
             self, test_config, tmp_file_keepalived_config_no_write,
-            simple_config, simple_keepalived_config, interface_yang_name,
-            dataplane_yang_name, vrrp_yang_name):
+            simple_config, simple_keepalived_config):
         result = True
         test_config._conf_obj = tmp_file_keepalived_config_no_write
         file_path = \
@@ -67,6 +74,24 @@ class TestVyattaVrrpVci:
         with open(file_path, "r") as file_handle:
             file_contents = file_handle.read()
         assert file_contents == simple_keepalived_config
+
+    @pytest.mark.sanity
+    def test_vci_config_set_writes_correct_syncgroup_config(
+            self, test_config, tmp_file_keepalived_config_no_write,
+            syncgroup_config, syncgroup_keepalived_config):
+        result = True
+        test_config._conf_obj = tmp_file_keepalived_config_no_write
+        file_path = \
+            tmp_file_keepalived_config_no_write.config_file_path()
+        test_config.set(syncgroup_config)
+        conf_path = Path(
+            tmp_file_keepalived_config_no_write.config_file_path())
+        expected = conf_path.exists()
+        assert result == expected
+        file_contents = ""
+        with open(file_path, "r") as file_handle:
+            file_contents = file_handle.read()
+        assert file_contents == syncgroup_keepalived_config
 
     @pytest.mark.sanity
     def test_vci_config_check_local_address(

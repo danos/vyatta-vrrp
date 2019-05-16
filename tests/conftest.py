@@ -71,6 +71,28 @@ def tmp_file_keepalived_config(tmp_path, autogeneration_string,
 
 
 @pytest.fixture
+def tmp_file_syncgroup_keepalived_config(
+        tmp_path, syncgroup_keepalived_config):
+    class FakeVci:
+
+        class Config:
+            def set(self, conf):
+                pass
+
+        class State:
+            def get(self):
+                pass
+
+    sys.modules['vci'] = FakeVci
+    from vyatta.keepalived.config_file import KeepalivedConfig
+    file_path = f"{tmp_path}/keepalived.conf"
+    with open(file_path, "w") as file_handle:
+        contents = syncgroup_keepalived_config
+        file_handle.write(contents)
+    return KeepalivedConfig(file_path)
+
+
+@pytest.fixture
 def tmp_file_keepalived_config_no_write(tmp_path):
     class FakeVci:
 
@@ -471,6 +493,108 @@ def preempt_delay_ignored_group():
 
 
 @pytest.fixture
+def sync_group1():
+    return \
+        {
+            "accept": False,
+            "preempt": True,
+            "priority": 200,
+            "sync-group": "TEST",
+            "tagnode": 1,
+            "version": 2,
+            "virtual-address": [
+                "10.10.1.100"
+            ]
+        }
+
+
+@pytest.fixture
+def sync_group2():
+    return \
+        {
+            "accept": False,
+            "preempt": True,
+            "priority": 200,
+            "sync-group": "TEST",
+            "tagnode": 1,
+            "version": 2,
+            "virtual-address": [
+                "10.10.2.100"
+            ]
+        }
+
+
+@pytest.fixture
+def syncgroup1_dataplane_interface(sync_group1):
+    return \
+        {
+            "tagnode": "dp0p1s1",
+            "vyatta-vrrp-v1:vrrp": {
+                "start-delay": 0,
+                "vrrp-group": [sync_group1]
+            }
+        }
+
+
+@pytest.fixture
+def syncgroup2_dataplane_interface(sync_group2):
+    return \
+        {
+            "tagnode": "dp0p1s2",
+            "vyatta-vrrp-v1:vrrp": {
+                "start-delay": 0,
+                "vrrp-group": [sync_group2]
+            }
+        }
+
+
+@pytest.fixture
+def syncgroup1_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0p1s1-1 {
+    state BACKUP
+    interface dp0p1s1
+    virtual_router_id 1
+    version 2
+    start_delay 0
+    priority 200
+    advert_int 1
+    virtual_ipaddress {
+        10.10.1.100
+    }
+}"""
+
+
+@pytest.fixture
+def syncgroup2_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0p1s2-1 {
+    state BACKUP
+    interface dp0p1s2
+    virtual_router_id 1
+    version 2
+    start_delay 0
+    priority 200
+    advert_int 1
+    virtual_ipaddress {
+        10.10.2.100
+    }
+}"""
+
+
+@pytest.fixture
+def syncgroup_keepalived_section():
+    return """
+vrrp_sync_group TEST {
+    group {
+        vyatta-dp0p1s1-1
+        vyatta-dp0p1s2-1
+    }
+}
+"""
+
+
+@pytest.fixture
 def dataplane_interface(generic_group):
     return \
         {
@@ -480,6 +604,13 @@ def dataplane_interface(generic_group):
                 "vrrp-group": [generic_group]
             }
         }
+
+
+@pytest.fixture
+def syncgroup_dataplane_list(
+        syncgroup1_dataplane_interface,
+        syncgroup2_dataplane_interface):
+    return [syncgroup1_dataplane_interface, syncgroup2_dataplane_interface]
 
 
 @pytest.fixture
@@ -864,6 +995,15 @@ def simple_dataplane_vif_config(
 
 
 @pytest.fixture
+def syncgroup_config(top_level_dictionary, interface_yang_name,
+                     dataplane_yang_name, syncgroup_dataplane_list):
+    syncgroup_yang_config = top_level_dictionary
+    syncgroup_yang_config[interface_yang_name][dataplane_yang_name] =\
+        syncgroup_dataplane_list
+    return syncgroup_yang_config
+
+
+@pytest.fixture
 def vif_dataplane_interface():
     return \
         {
@@ -1010,6 +1150,17 @@ global_defs {
 def simple_keepalived_config(autogeneration_string,
                              dataplane_group_keepalived_config):
     return f"{autogeneration_string}{dataplane_group_keepalived_config}"
+
+
+@pytest.fixture
+def syncgroup_keepalived_config(autogeneration_string,
+                                syncgroup_keepalived_section,
+                                syncgroup1_keepalived_config,
+                                syncgroup2_keepalived_config):
+    return f"{autogeneration_string}" + \
+        f"{syncgroup_keepalived_section}" + \
+        f"{syncgroup1_keepalived_config}" + \
+        f"{syncgroup2_keepalived_config}"
 
 
 @pytest.fixture
