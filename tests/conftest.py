@@ -1212,3 +1212,73 @@ def mock_show_version_rpc_no_hypervisor(monkeypatch):
                 return {"output": ""}
 
     monkeypatch.setitem(vyatta.__dict__, "configd", MockConfigd)
+
+
+@pytest.fixture
+def mock_dbus(monkeypatch):
+    import dbus
+
+    class SystemdProxyObject:
+
+        def __init__(self):
+            pass
+
+    class Singleton(type):
+        _instances = {}
+
+        def __call__(cls, *args, **kwargs):  # noqa: N805
+            if cls not in cls._instances:
+                cls._instances[cls] = \
+                    super(Singleton, cls).__call__(*args, **kwargs)
+            return cls._instances[cls]
+
+    class KeepalivedUnitProxyObject(metaclass=Singleton):
+
+        def __init__(self):
+            self._state = "dead"
+
+        @property
+        def state(self):
+            return self._state
+
+        @state.setter
+        def state(self, new_state):
+            self._state = new_state
+
+        def Get(self, obj_name, property, dbus_interface=None):  # noqa: N802
+            return self.state
+
+    class SystemdManagerInterface:
+
+        def __init__(self):
+            self.keepalived_proxy = KeepalivedUnitProxyObject()
+            pass
+
+        def LoadUnit(self, servicefile):  # noqa: N802
+            return "/org/freedesktop/systemd1/" + \
+                        "unit/vyatta_2dkeepalived_2eservice"
+
+        def RestartUnit(self, service_file, action):  # noqa: N802
+            self.keepalived_proxy.state = "running"
+
+        def StopUnit(self, service_file, action):  # noqa: N802
+            self.keepalived_proxy.state = "dead"
+
+    class MockSystemBus:
+
+        def __init__(self):
+            pass
+
+        def get_object(self, obj_name, obj_path):
+            if "/org/freedesktop/systemd1" == obj_path:
+                return SystemdProxyObject()
+            if "/org/freedesktop/systemd1/unit/" + \
+                    "vyatta_2dkeepalived_2eservice" == obj_path:
+                return KeepalivedUnitProxyObject()
+
+    def choose_interface(proxy_object, dbus_interface=None):
+        if "org.freedesktop.systemd1.Manager" == dbus_interface:
+            return SystemdManagerInterface()
+
+    monkeypatch.setitem(dbus.__dict__, "SystemBus", MockSystemBus)
+    monkeypatch.setattr(dbus, "Interface", choose_interface)
