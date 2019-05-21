@@ -10,6 +10,7 @@ import vci  # pylint: disable=import-error
 import vyatta.keepalived.config_file as impl_conf
 import vyatta.abstract_vrrp_classes as AbstractVrrpConfig
 import vyatta.keepalived.util as util
+import vyatta.keepalived.dbus.process_control as process_control
 
 
 class Config(vci.Config):
@@ -27,12 +28,15 @@ class Config(vci.Config):
                             "to fix this ")
 
     def set(self, conf):
+        pc = process_control.ProcessControl()
         conf = util.sanitize_vrrp_config(conf)
 
         # If all the default config has been removed and
         # there's nothing left in the interfaces dictionary
         # just return as we have nothing left to do
         if {} == conf[util.INTERFACE_YANG_NAME]:
+            if pc.is_running():
+                pc.shutdown_process()
             return
         self.log.debug(
             "Got following config from VCI infra:%s",
@@ -41,6 +45,7 @@ class Config(vci.Config):
         self._check_conf_object_implementation()
         self._conf_obj.update(conf)
         self._conf_obj.write_config()
+        pc.restart_process()
         self.log.info(
             " %s config written to %s",
             self._conf_obj.impl_name(),

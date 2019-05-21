@@ -7,6 +7,7 @@
 import json
 from pathlib import Path
 import pytest
+import vyatta.keepalived.dbus.process_control as process_ctrl
 
 
 class TestVyattaVrrpVci:
@@ -48,7 +49,9 @@ class TestVyattaVrrpVci:
     @pytest.mark.sanity
     def test_vci_config_set_writes_file(
             self, test_config, tmp_file_keepalived_config_no_write,
-            simple_config):
+            simple_config, mock_dbus):
+        pc = process_ctrl.ProcessControl()
+        pc.keepalived_proxy_obj.state = "running"
         result = True
         test_config._conf_obj = tmp_file_keepalived_config_no_write
         test_config.set(simple_config)
@@ -60,7 +63,9 @@ class TestVyattaVrrpVci:
     @pytest.mark.sanity
     def test_vci_config_set_writes_correct_config(
             self, test_config, tmp_file_keepalived_config_no_write,
-            simple_config, simple_keepalived_config):
+            simple_config, simple_keepalived_config, mock_dbus):
+        pc = process_ctrl.ProcessControl()
+        pc.keepalived_proxy_obj.state = "running"
         result = True
         test_config._conf_obj = tmp_file_keepalived_config_no_write
         file_path = \
@@ -78,7 +83,9 @@ class TestVyattaVrrpVci:
     @pytest.mark.sanity
     def test_vci_config_set_writes_correct_syncgroup_config(
             self, test_config, tmp_file_keepalived_config_no_write,
-            syncgroup_config, syncgroup_keepalived_config):
+            syncgroup_config, syncgroup_keepalived_config, mock_dbus):
+        pc = process_ctrl.ProcessControl()
+        pc.keepalived_proxy_obj.state = "running"
         result = True
         test_config._conf_obj = tmp_file_keepalived_config_no_write
         file_path = \
@@ -141,7 +148,9 @@ class TestVyattaVrrpVci:
             tmp_file_keepalived_config_no_write,
             autogeneration_string,
             dataplane_yang_name, disabled_group,
-            dataplane_interface):
+            dataplane_interface, mock_dbus):
+        pc = process_ctrl.ProcessControl()
+        pc.keepalived_proxy_obj.state = "running"
         test_config._conf_obj = tmp_file_keepalived_config_no_write
         file_path = \
             tmp_file_keepalived_config_no_write.config_file_path()
