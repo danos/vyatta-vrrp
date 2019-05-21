@@ -1261,6 +1261,12 @@ def mock_dbus(monkeypatch):
         def RestartUnit(self, service_file, action):  # noqa: N802
             self.keepalived_proxy.state = "running"
 
+        def ReloadUnit(self, service_file, action):  # noqa: N802
+            self.keepalived_proxy.state = "running"
+
+        def StartUnit(self, service_file, action):  # noqa: N802
+            self.keepalived_proxy.state = "running"
+
         def StopUnit(self, service_file, action):  # noqa: N802
             self.keepalived_proxy.state = "dead"
 

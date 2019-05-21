@@ -45,7 +45,10 @@ class Config(vci.Config):
         self._check_conf_object_implementation()
         self._conf_obj.update(conf)
         self._conf_obj.write_config()
-        pc.restart_process()
+        if pc.is_running():
+            pc.reload_process_config()
+        else:
+            pc.start_process()
         self.log.info(
             " %s config written to %s",
             self._conf_obj.impl_name(),

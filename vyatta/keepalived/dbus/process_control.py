@@ -69,6 +69,14 @@ class ProcessControl:
         self.systemd_manager_intf.StopUnit(
             self.keepalived_service_file, "replace")
 
+    def start_process(self):
+        self.systemd_manager_intf.StartUnit(
+            self.keepalived_service_file, "replace")
+
+    def reload_process_config(self):
+        self.systemd_manager_intf.ReloadUnit(
+            self.keepalived_service_file, "replace")
+
     def restart_process(self):
         self.systemd_manager_intf.RestartUnit(
             self.keepalived_service_file, "replace")
