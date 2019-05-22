@@ -81,11 +81,3 @@ class State(vci.State):
     def get(self):
         return {util.INTERFACE_YANG_NAME:
                 {util.DATAPLANE_YANG_NAME: []}}
-
-
-if __name__ == "__main__":
-    (vci.Component("net.vyatta.vci.vrrp")
-     .model(vci.Model("net.vyatta.vci.vrrp.v1").config(Config())
-            .state(State()))
-     .run()
-     .wait())

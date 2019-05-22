@@ -10,7 +10,7 @@ import vyatta.vyatta_vrrp_vci as vrrp
 if __name__ == "__main__":
     (vci.Component("net.vyatta.vci.vrrp")
         .model(vci.Model("net.vyatta.vci.vrrp.v1")
-              .config(vrrp.Config())
-              .state(vrrp.State()))
+               .config(vrrp.Config())
+               .state(vrrp.State()))
         .run()
         .wait())
