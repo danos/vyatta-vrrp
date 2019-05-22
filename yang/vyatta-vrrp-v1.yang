@@ -346,10 +346,8 @@ module vyatta-vrrp-v1 {
 		container vrrp {
 			configd:help "Virtual Router Redundancy Protocol (VRRP)";
 			configd:priority "319";
-			configd:end "/opt/vyatta/share/tmplscripts/interfaces/all/vrrp/configd_end.sh";
 			list vrrp-group {
 				configd:help "VRRP group number";
-				configd:delete "/opt/vyatta/share/tmplscripts/interfaces/all/vrrp/vrrp-group/configd_delete.sh";
 				key "tagnode";
 				leaf tagnode {
 					type vrrp-group;
@@ -391,10 +389,8 @@ module vyatta-vrrp-v1 {
 		container vrrp {
 			configd:help "Virtual Router Redundancy Protocol (VRRP)";
 			configd:priority "319";
-			configd:end "/opt/vyatta/share/tmplscripts/interfaces/all/vif/vrrp/configd_end.sh";
 			list vrrp-group {
 				configd:help "VRRP group number";
-				configd:delete "/opt/vyatta/share/tmplscripts/interfaces/all/vif/vrrp/vrrp-group/configd_delete.sh";
 				key "tagnode";
 				leaf tagnode {
 					type vrrp-group;
