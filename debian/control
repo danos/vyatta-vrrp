@@ -185,3 +185,4 @@ Depends: vyatta-vrrp-state-v1-yang, ${misc:Depends}, ${yang:Depends}
 Section: contrib/admin
 Description: vyatta-vrrp-state-interfaces-switch-v1 yang module
  The YANG module that augments switch vif interfaces with state nodes.
+
