@@ -269,25 +269,25 @@ vrrp_sync_group {} {{
             config_string = file_handle.read()
         return config_string
 
-    def convert_to_vci_format(self, config_string: str) -> str:
+    def convert_to_vci_format_dict(self, config_string: str) -> Dict:
         """
-        Given a string of keepalived config convert to YANG format
+        Given a string of keepalived config convert to YANG format return
+        it as a python dictionary
 
         Arguments:
             config_string:
                 A string of Keepalived config, any string can be passed in but
                 this string should have been retrieved using read_config
         Returns:
-            A dictionary of the values found in the config string. This
+            A JSON string of the values found in the config string. This
             dictionary will be in the python format, before returning to the
             infrastructure it should be converted to JSON
         """
-
         config_lines = config_string.splitlines()  # type: List[str]
         vrrp_group_start_indexes = util.get_config_indexes(
             config_lines, "vrrp_instance")  # type: List[int]
         if vrrp_group_start_indexes == []:
-            return json.dumps({})
+            return {}
 
         sync_group_start_indexes = util.get_config_indexes(
             config_lines, "vrrp_sync_group")  # type: List[int]
@@ -361,7 +361,21 @@ vrrp_sync_group {} {{
 
             insertion_reference[util.VRRP_YANG_NAME]["vrrp-group"].append(
                 self._convert_keepalived_config_to_yang(group))
+        return yang_representation
 
+    def convert_to_vci_format(self, config_string: str) -> str:
+        """
+        Given a string of keepalived config convert to yang format
+
+        Arguments:
+            config_string:
+                A string of keepalived config, any string can be passed in but
+                this string should have been retrieved using read_config
+        Returns:
+            A JSON string of the values found in the config string.
+        """
+
+        yang_representation = self.convert_to_vci_format_dict(config_string)
         return json.dumps(yang_representation)
 
     def _convert_keepalived_config_to_yang(

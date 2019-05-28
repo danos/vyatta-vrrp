@@ -12,6 +12,8 @@ import vyatta.keepalived.config_file as impl_conf
 import vyatta.abstract_vrrp_classes as AbstractVrrpConfig
 import vyatta.keepalived.util as util
 import vyatta.keepalived.dbus.process_control as process_control
+import vyatta.keepalived.dbus.vrrp_group_connection as \
+    vrrp_group_connection
 
 
 class Config(vci.Config):
@@ -79,6 +81,36 @@ class Config(vci.Config):
 
 
 class State(vci.State):
+    _conf_obj = impl_conf.\
+            KeepalivedConfig()
+    logging.basicConfig(level=logging.DEBUG, format="%(message)s")
+    log = logging.getLogger("vyatta-vrrp-vci")
+
+    def _check_conf_object_implementation(self):
+        if not isinstance(self._conf_obj, AbstractVrrpConfig.ConfigFile):
+            raise TypeError("Implementation of config object does not " +
+                            "inherit from abstract class, developer needs " +
+                            "to fix this ")
+
     def get(self):
-        return {util.INTERFACE_YANG_NAME:
-                {util.DATAPLANE_YANG_NAME: []}}
+        self._check_conf_object_implementation()
+        file_config = self._conf_obj.read_config()
+        yang_repr = self._conf_obj.convert_to_vci_format_dict(file_config)
+        sysbus = pydbus.SystemBus()
+        for intf_type in yang_repr[util.INTERFACE_YANG_NAME]:
+            intf_list = yang_repr[util.INTERFACE_YANG_NAME][intf_type]
+            for intf in intf_list:
+                transmit_intf = intf["tagnode"]
+                del intf[util.VRRP_YANG_NAME]["start-delay"]
+                vrrp_instances = intf[util.VRRP_YANG_NAME]["vrrp-group"]
+                state_instances = []
+                for vrrp_instance in vrrp_instances:
+                    vrid = vrrp_instance["tagnode"]
+                    af_type = util.what_ip_version(
+                        vrrp_instance["virtual-address"][0].split("/")[0])
+                    state_future = vrrp_group_connection.get_instance_state(
+                        transmit_intf, vrid, af_type, sysbus
+                    )
+                    state_instances.append(state_future)
+                intf[util.VRRP_YANG_NAME]["vrrp-group"] = state_instances
+        return yang_repr
