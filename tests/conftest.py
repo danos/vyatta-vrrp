@@ -63,6 +63,23 @@ def test_config(pydbus_fakes):
 
 
 @pytest.fixture
+def test_state():
+    class FakeVci:
+
+        class Config:
+            def set(self, conf):
+                pass
+
+        class State:
+            def get(self):
+                pass
+
+    sys.modules['vci'] = FakeVci
+    from vyatta.vyatta_vrrp_vci import State
+    return State()
+
+
+@pytest.fixture
 def keepalived_config():
     class FakeVci:
 
@@ -185,6 +202,50 @@ def generic_group():
             "virtual-address": [
                 "10.10.1.100/25"
             ]
+        }
+
+
+@pytest.fixture
+def generic_group_state():
+    return \
+            {
+                "address-owner": False,
+                "last-transition": 0,
+                "rfc-interface": "",
+                "state": "MASTER",
+                "sync-group": "",
+            }
+
+
+@pytest.fixture
+def instance_state():
+    return \
+        {
+            "instance-state":
+            {
+                "address-owner": False,
+                "last-transition": 0,
+                "rfc-interface": "",
+                "state": "MASTER",
+                "sync-group": "",
+            },
+            "tagnode": "1"
+        }
+
+
+@pytest.fixture
+def instance_state_rfc():
+    return \
+        {
+            "instance-state":
+            {
+                "address-owner": False,
+                "last-transition": 0,
+                "rfc-interface": "dp0vrrp1",
+                "state": "MASTER",
+                "sync-group": "",
+            },
+            "tagnode": "1"
         }
 
 
@@ -1193,6 +1254,25 @@ def syncgroup_keepalived_config(autogeneration_string,
         f"{syncgroup_keepalived_section}" + \
         f"{syncgroup1_keepalived_config}" + \
         f"{syncgroup2_keepalived_config}"
+
+
+@pytest.fixture
+def complete_state_yang(top_level_dictionary, interface_yang_name,
+                        dataplane_yang_name, generic_group_state,
+                        vrrp_yang_name):
+    state_config = top_level_dictionary
+    intf = \
+        {
+            "tagnode": "dp0p1s1",
+            vrrp_yang_name:
+                {
+                    "vrrp-group":
+                    [{"instance-state": generic_group_state, "tagnode": "1"}]
+                }
+        }
+    state_config[interface_yang_name][dataplane_yang_name] =\
+        [intf]
+    return state_config
 
 
 @pytest.fixture

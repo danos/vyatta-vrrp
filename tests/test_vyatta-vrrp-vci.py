@@ -7,7 +7,6 @@
 import json
 from pathlib import Path
 import pytest
-import vyatta.keepalived.dbus.process_control as process_ctrl
 
 
 class TestVyattaVrrpVci:
@@ -24,6 +23,15 @@ class TestVyattaVrrpVci:
         test_config._conf_obj = tmp_file_keepalived_config
         expect = test_config.get()
         assert result == expect
+
+    @pytest.mark.sanity
+    def test_vci_state_get(self, complete_state_yang,
+                           test_state, mock_pydbus,
+                           tmp_file_keepalived_config):
+        expected = complete_state_yang
+        test_state._conf_obj = tmp_file_keepalived_config
+        result = test_state.get()
+        assert expected == result
 
     @pytest.mark.sanity
     def test_vci_config_get_with_syncgroup(
