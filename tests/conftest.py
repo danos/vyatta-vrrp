@@ -14,7 +14,39 @@ import pytest
 
 
 @pytest.fixture
-def test_config():
+def pydbus_fakes():
+    class FakeGi:
+
+        class Gio:
+            BusNameOwnerFlags = ""
+            BusNameWatcherFlags = ""
+            DBusSignalFlags = ""
+            BusType = "System"
+
+            class DBusConnection:
+                pass
+
+        class GLib:
+            class Variant:
+                pass
+
+        class GObject:
+            pass
+
+        class ExitableWithAliases:
+
+            def __init__(self):
+                pass
+
+        class NameOwner():
+            pass
+
+    sys.modules['gi.repository'] = FakeGi
+    sys.modules['gi.repository.GLib'] = FakeGi.GLib
+
+
+@pytest.fixture
+def test_config(pydbus_fakes):
     class FakeVci:
 
         class Config:
@@ -1215,76 +1247,178 @@ def mock_show_version_rpc_no_hypervisor(monkeypatch):
 
 
 @pytest.fixture
-def mock_dbus(monkeypatch):
-    import dbus
+def mock_pydbus(monkeypatch, pydbus_fakes):
+    import pydbus
 
     class SystemdProxyObject:
 
         def __init__(self):
-            pass
+            self.vrrp_proxy_obj = VrrpProxyObject()
+            self.manager_proxy_obj = ManagerProxyObject()
+            self.manager_proxy_obj.add_unit(self.vrrp_proxy_obj)
 
-    class Singleton(type):
-        _instances = {}
-
-        def __call__(cls, *args, **kwargs):  # noqa: N805
-            if cls not in cls._instances:
-                cls._instances[cls] = \
-                    super(Singleton, cls).__call__(*args, **kwargs)
-            return cls._instances[cls]
-
-    class KeepalivedUnitProxyObject(metaclass=Singleton):
-
-        def __init__(self):
-            self._state = "dead"
-
-        @property
-        def state(self):
-            return self._state
-
-        @state.setter
-        def state(self, new_state):
-            self._state = new_state
-
-        def Get(self, obj_name, property, dbus_interface=None):  # noqa: N802
-            return self.state
-
-    class SystemdManagerInterface:
-
-        def __init__(self):
-            self.keepalived_proxy = KeepalivedUnitProxyObject()
-            pass
+        def __getitem__(self, name):
+            if name == "org.freedesktop.systemd1.Manager":
+                return self.manager_proxy_obj
+            return self.vrrp_proxy_obj
 
         def LoadUnit(self, servicefile):  # noqa: N802
             return "/org/freedesktop/systemd1/" + \
                         "unit/vyatta_2dkeepalived_2eservice"
 
+    class PropertyInterface:
+
+        def __init__(self):
+            pass
+
+        def GetAll(self, interface_name):  # noqa: N802
+            return {'Name': ("vyatta-dp0p1s1-1",),
+                    "SyncGroup": ("",),
+                    "XmitIntf": ("dp0p1s1",),
+                    "State": (2, "Master"),
+                    "LastTransition": (0,),
+                    "AddressOwner": (False,)
+                    }
+
+    class ManagerProxyObject:
+
+        def ___init__(self):
+            self.manager_obj = None
+
+        def add_unit(self, obj):
+            self.manager_obj = obj
+
         def RestartUnit(self, service_file, action):  # noqa: N802
-            self.keepalived_proxy.state = "running"
+            self.manager_obj.SubState = "running"
 
         def ReloadUnit(self, service_file, action):  # noqa: N802
-            self.keepalived_proxy.state = "running"
+            self.manager_obj.SubState = "running"
 
         def StartUnit(self, service_file, action):  # noqa: N802
-            self.keepalived_proxy.state = "running"
+            self.manager_obj.SubState = "running"
 
         def StopUnit(self, service_file, action):  # noqa: N802
-            self.keepalived_proxy.state = "dead"
+            self.manager_obj.SubState = "dead"
+
+    class VrrpProxyObject:
+
+        def __init__(self):
+            self._state = "dead"
+
+        @property
+        def SubState(self):   # noqa: N802
+            return self._state
+
+        @SubState.setter
+        def SubState(self, new_state):  # noqa: N802
+            self._state = new_state
+
+        def __getitem__(self, name):
+            return PropertyInterface()
 
     class MockSystemBus:
 
         def __init__(self):
             pass
 
-        def get_object(self, obj_name, obj_path):
-            if "/org/freedesktop/systemd1" == obj_path:
-                return SystemdProxyObject()
+        def get(self, obj_name, obj_path):
+
             if "/org/freedesktop/systemd1/unit/" + \
-                    "vyatta_2dkeepalived_2eservice" == obj_path:
-                return KeepalivedUnitProxyObject()
+                    "vyatta_2dkeepalived_2eservice" == obj_path or \
+                    "org.keepalived.Vrrp1" == obj_name:
+                vrrp_proxy = VrrpProxyObject()
+                return vrrp_proxy
+            if "/org/freedesktop/systemd1" == obj_path:
+                systemd = SystemdProxyObject()
+                return systemd
 
-    def choose_interface(proxy_object, dbus_interface=None):
-        if "org.freedesktop.systemd1.Manager" == dbus_interface:
-            return SystemdManagerInterface()
+    monkeypatch.setitem(pydbus.__dict__, "SystemBus", MockSystemBus)
 
-    monkeypatch.setitem(dbus.__dict__, "SystemBus", MockSystemBus)
-    monkeypatch.setattr(dbus, "Interface", choose_interface)
+
+@pytest.fixture
+def mock_pydbus_rfc(monkeypatch, pydbus_fakes):
+    import pydbus
+
+    class SystemdProxyObject:
+
+        def __init__(self):
+            self.vrrp_proxy_obj = VrrpProxyObject()
+            self.manager_proxy_obj = ManagerProxyObject()
+            self.manager_proxy_obj.add_unit(self.vrrp_proxy_obj)
+
+        def __getitem__(self, name):
+            if name == "org.freedesktop.systemd1.Manager":
+                return self.manager_proxy_obj
+            return self.vrrp_proxy_obj
+
+        def LoadUnit(self, servicefile):  # noqa: N802
+            return "/org/freedesktop/systemd1/" + \
+                        "unit/vyatta_2dkeepalived_2eservice"
+
+    class PropertyInterface:
+
+        def __init__(self):
+            pass
+
+        def GetAll(self, interface_name):  # noqa: N802
+            return {'Name': ("vyatta-dp0p1s1-1",),
+                    "SyncGroup": ("",),
+                    "XmitIntf": ("dp0vrrp1",),
+                    "State": (2, "Master"),
+                    "LastTransition": (0,),
+                    "AddressOwner": (False,)
+                    }
+
+    class ManagerProxyObject:
+
+        def ___init__(self):
+            self.manager_obj = None
+
+        def add_unit(self, obj):
+            self.manager_obj = obj
+
+        def RestartUnit(self, service_file, action):  # noqa: N802
+            self.manager_obj.SubState = "running"
+
+        def ReloadUnit(self, service_file, action):  # noqa: N802
+            self.manager_obj.SubState = "running"
+
+        def StartUnit(self, service_file, action):  # noqa: N802
+            self.manager_obj.SubState = "running"
+
+        def StopUnit(self, service_file, action):  # noqa: N802
+            self.manager_obj.SubState = "dead"
+
+    class VrrpProxyObject:
+
+        def __init__(self):
+            self._state = "dead"
+
+        @property
+        def SubState(self):   # noqa: N802
+            return self._state
+
+        @SubState.setter
+        def SubState(self, new_state):  # noqa: N802
+            self._state = new_state
+
+        def __getitem__(self, name):
+            return PropertyInterface()
+
+    class MockSystemBus:
+
+        def __init__(self):
+            pass
+
+        def get(self, obj_name, obj_path):
+
+            if "/org/freedesktop/systemd1/unit/" + \
+                    "vyatta_2dkeepalived_2eservice" == obj_path or \
+                    "org.keepalived.Vrrp1" == obj_name:
+                vrrp_proxy = VrrpProxyObject()
+                return vrrp_proxy
+            if "/org/freedesktop/systemd1" == obj_path:
+                systemd = SystemdProxyObject()
+                return systemd
+
+    monkeypatch.setitem(pydbus.__dict__, "SystemBus", MockSystemBus)

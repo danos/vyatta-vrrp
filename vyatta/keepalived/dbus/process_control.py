@@ -12,39 +12,34 @@ process using dbus controls.
 
 
 import logging
-import dbus
+import pydbus
+import vyatta.keepalived.util as util
 
 
 class ProcessControl:
 
     def __init__(self):
-        self.systemd_obj_name = "org.freedesktop.systemd1"
-        systemd_obj_path = "/org/freedesktop/systemd1"
         self.keepalived_service_file = "vyatta-keepalived.service"
 
         self.log = logging.getLogger("vyatta-vrrp-vci")
-        self.sysbus = dbus.SystemBus()
+        self.sysbus = pydbus.SystemBus()
 
-        self.systemd_proxy = self.sysbus.get_object(
-            self.systemd_obj_name, systemd_obj_path
+        self.systemd_proxy = self.sysbus.get(
+            util.SYSTEMD_DBUS_INTF_NAME,
+            util.SYSTEMD_DBUS_PATH
         )
 
-        self.systemd_manager_intf_name = \
-            "{}.Manager".format(self.systemd_obj_name)
         self.systemd_manager_intf = \
-            dbus.Interface(
-                self.systemd_proxy,
-                dbus_interface=self.systemd_manager_intf_name
-            )
+            self.systemd_proxy[util.SYSTEMD_MANAGER_DBUS_INTF_NAME]
         self.keepalived_unit_file_intf = \
-            self.systemd_manager_intf.LoadUnit(
+            self.systemd_proxy.LoadUnit(
                 self.keepalived_service_file
             )
 
         self.keepalived_proxy_obj = \
-            self.sysbus.get_object(
-                self.systemd_obj_name,
-                str(self.keepalived_unit_file_intf)
+            self.sysbus.get(
+                util.SYSTEMD_DBUS_INTF_NAME,
+                self.keepalived_unit_file_intf
             )
         self.running_state = "UNKNOWN"
 
@@ -53,11 +48,7 @@ class ProcessControl:
 
     def refresh_unit_state(self):
         self.running_state = \
-            self.keepalived_proxy_obj.Get(
-                "org.freedesktop.systemd1.Unit",
-                "SubState",
-                dbus_interface="org.freedesktop.DBus.Properties"
-            )
+            self.keepalived_proxy_obj.SubState
 
     def is_running(self):
         self.refresh_unit_state()

@@ -33,6 +33,7 @@ Depends:
  python3-daemon,
  python3-gi,
  python3-dbus,
+ python3-pydbus,
  libnet-dbus-perl,
  libtry-tiny-perl
 Breaks: vyatta-op (<< 1.0)

@@ -24,6 +24,25 @@ VIF_YANG_NAME = "vif"  # type: str
 PATHMON_YANG_NAME = \
     "vyatta-vrrp-path-monitor-track-interfaces-dataplane-v1:path-monitor"
 
+PROPERTIES_DBUS_INTF_NAME = "org.freedesktop.DBus.Properties"  # type: str
+SYSTEMD_DBUS_INTF_NAME = "org.freedesktop.systemd1"  # type: str
+SYSTEMD_DBUS_PATH = "/{}".format(
+    SYSTEMD_DBUS_INTF_NAME.replace(".", "/")
+ )  # type: str
+SYSTEMD_MANAGER_DBUS_INTF_NAME = "{}.Manager".format(
+    SYSTEMD_DBUS_INTF_NAME
+)  # type: str
+SYSTEMD_UNIT_DBUS_NAME = "{}.Unit".format(
+    SYSTEMD_DBUS_INTF_NAME
+)  # type: str
+
+KEEPALIVED_DBUS_INTF_NAME = "org.keepalived.Vrrp1"  # type: str
+VRRP_INSTANCE_DBUS_INTF_NAME = "{}.Instance".format(
+        KEEPALIVED_DBUS_INTF_NAME)  # type: str
+VRRP_INSTANCE_DBUS_PATH = "/{}".format(
+    VRRP_INSTANCE_DBUS_INTF_NAME.replace(".", "/")
+)  # type: str
+
 
 def get_specific_vrrp_config_from_yang(
         conf: Dict, value: str) -> Union[str, List[str]]:

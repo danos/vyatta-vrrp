@@ -6,6 +6,7 @@
 
 import json
 import logging
+import pydbus
 import vci  # pylint: disable=import-error
 import vyatta.keepalived.config_file as impl_conf
 import vyatta.abstract_vrrp_classes as AbstractVrrpConfig
