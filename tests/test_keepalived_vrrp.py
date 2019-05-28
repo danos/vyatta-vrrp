@@ -20,6 +20,7 @@ class TestKeepalivedVrrpGroup:
         result = simple_vrrp_group_object.instance_name
         assert result == expected
 
+    @pytest.mark.sanity
     @pytest.mark.parametrize(
         "keepalived_config,yang,rfc_num",
         [(pytest.lazy_fixture("dataplane_group_keepalived_config"),

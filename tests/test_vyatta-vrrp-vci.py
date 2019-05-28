@@ -133,6 +133,7 @@ class TestVyattaVrrpVci:
         expect = test_config.check(complex_config)
         assert result == expect
 
+    @pytest.mark.sanity
     def test_vci_config_check_fuller_config_printed_warnings(
             self, test_config, complex_config,
             mock_show_version_rpc_vmware, capsys):
@@ -143,6 +144,7 @@ class TestVyattaVrrpVci:
         assert result == expect
         assert print_result == captured.out
 
+    @pytest.mark.sanity
     def test_vci_config_set_writes_disabled_group(
             self, test_config, interface_yang_name,
             tmp_file_keepalived_config_no_write,

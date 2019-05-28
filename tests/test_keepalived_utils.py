@@ -14,6 +14,7 @@ class TestKeepalivedUtils:
         result = util.get_hello_sources(simple_config)
         assert expected == result
 
+    @pytest.mark.sanity
     def test_get_hello_sources(
             self, simple_config, interface_yang_name,
             dataplane_yang_name, vrrp_yang_name):
@@ -24,29 +25,34 @@ class TestKeepalivedUtils:
         result = util.get_hello_sources(simple_config)
         assert expected == result
 
+    @pytest.mark.sanity
     def test_is_local_address_ipv4(self):
         expected = None
         ipaddress = "127.0.0.1"
         result = util.is_local_address(ipaddress)
         assert expected == result
 
+    @pytest.mark.sanity
     def test_is_local_address_ipv6(self):
         expected = None
         ipaddress = "::1"
         result = util.is_local_address(ipaddress)
         assert expected == result
 
+    @pytest.mark.sanity
     def test_is_local_address_not_local(self):
         ipaddress = "10.1.1.1"
         with pytest.raises(OSError):
             util.is_local_address(ipaddress)
 
+    @pytest.mark.sanity
     def test_is_rfc_compat_configured_no(
             self, simple_config):
         expected = False
         result = util.is_rfc_compat_configured(simple_config)
         assert expected == result
 
+    @pytest.mark.sanity
     def test_is_rfc_compat_configured_yes(
             self, complex_config):
         expected = True
@@ -71,6 +77,7 @@ class TestKeepalivedUtils:
         result = util.running_on_vmware()
         assert expected == result
 
+    @pytest.mark.sanity
     def test_sanitize_vrrp_config_one_configured(self,
                                                  simple_config):
         result = util.sanitize_vrrp_config(simple_config)
@@ -177,6 +184,7 @@ class TestKeepalivedUtils:
         result = util.sanitize_vrrp_config(test_conf)
         assert result == expected
 
+    @pytest.mark.sanity
     def test_sanitize_vrrp_config_remove_empty_vif(self, simple_config,
                                                    interface_yang_name,
                                                    dataplane_yang_name,
@@ -227,6 +235,7 @@ class TestKeepalivedUtils:
         result = util.sanitize_vrrp_config(test_conf)
         assert expected == result
 
+    @pytest.mark.sanity
     def test_sanitize_vrrp_config_move_two_intf_types_vif(
             self, simple_config, interface_yang_name, dataplane_yang_name,
             bonding_list, bonding_yang_name, vif_dataplane_list,
@@ -513,6 +522,7 @@ class TestKeepalivedUtils:
                 block, "A_tale_of_two_cities")
             assert result == expected
 
+    @pytest.mark.sanity
     def test_find_config_value_multiple_group_presence_defined_entry(
             self):
         config_list = \
@@ -552,6 +562,7 @@ class TestKeepalivedUtils:
         assert result is \
             simple_config[interface_yang_name][dataplane_yang_name][0]
 
+    @pytest.mark.sanity
     def test_find_interface_in_yang_dataplane_intf_exists(
             self, interface_yang_name,
             dataplane_yang_name, simple_config):
@@ -562,6 +573,7 @@ class TestKeepalivedUtils:
         expected = simple_config[interface_yang_name][dataplane_yang_name][0]
         assert result is expected
 
+    @pytest.mark.sanity
     def test_find_interface_in_yang_dataplane_intf_doesnt_exist(
             self, interface_yang_name,
             dataplane_yang_name, simple_config, second_dataplane_interface):
@@ -604,6 +616,7 @@ class TestKeepalivedUtils:
         assert result is \
             yang_repr_dataplane_list[1]["vif"][0]
 
+    @pytest.mark.sanity
     def test_find_interface_in_yang_datapln_intf_exist_multiple_vif_exist(
             self, interface_yang_name,
             dataplane_yang_name, simple_config, vif_dataplane_interface):

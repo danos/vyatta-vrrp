@@ -51,6 +51,7 @@ class TestKeepalivedConfigFile:
             config_block)
         assert expected == result
 
+    @pytest.mark.sanity
     def test_convert_pathmon_vrrp_keepalived_conf_to_yang(
             self, pathmon_track_group_keepalived_config,
             pathmon_track_group,
@@ -65,6 +66,7 @@ class TestKeepalivedConfigFile:
             config_block)
         assert expected == result
 
+    @pytest.mark.sanity
     def test_convert_minimal_vrrp_keepalived_conf_to_yang(
             self, dataplane_group_keepalived_config, generic_group,
             keepalived_config):
@@ -162,6 +164,7 @@ class TestKeepalivedConfigFile:
         expect = keepalived_config.convert_to_vci_format(config_string)
         assert result == expect
 
+    @pytest.mark.sanity
     def test_config_to_vci_format_bonding_config(
             self, autogeneration_string, bonding_group_keepalived_config,
             keepalived_config, simple_bonding_config, interface_yang_name,
@@ -184,6 +187,7 @@ class TestKeepalivedConfigFile:
         expect = keepalived_config.convert_to_vci_format(config_string)
         assert result == expect
 
+    @pytest.mark.sanity
     def test_config_to_vci_format_dataplane_vif_config(
             self, autogeneration_string,
             dataplane_vif_group_keepalived_config,
