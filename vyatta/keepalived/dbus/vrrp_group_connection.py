@@ -20,11 +20,12 @@ def get_instance_state(
     dbus_path = "{}/{}/{}/{}".format(
         util.VRRP_INSTANCE_DBUS_PATH, intf, vrid, af_type_str
     )
-    vrrp_proxy = bus_object.get(
+    vrrp_group_proxy = bus_object.get(
         util.KEEPALIVED_DBUS_INTF_NAME,
         dbus_path
     )
-    vrrp_property_interface = vrrp_proxy[util.PROPERTIES_DBUS_INTF_NAME]
+    vrrp_property_interface =\
+        vrrp_group_proxy[util.PROPERTIES_DBUS_INTF_NAME]
     group_state = vrrp_property_interface.GetAll(
         util.VRRP_INSTANCE_DBUS_INTF_NAME
     )
@@ -49,9 +50,20 @@ def garp(intf: str, vrid: str, bus_object: Any):
     dbus_path = "{}/{}/{}/{}".format(
         util.VRRP_INSTANCE_DBUS_PATH, intf, vrid, "IPv4"
     )  # type: str
-    vrrp_proxy = bus_object.get(
+    vrrp_group_proxy = bus_object.get(
         util.KEEPALIVED_DBUS_INTF_NAME,
         dbus_path
     )  # type: Any
-    vrrp_proxy.SendGarp()
+    vrrp_group_proxy.SendGarp()
     return {}
+
+
+def find_recv_intf(intf: str, bus_object: Any):
+    dbus_path = util.VRRP_PROCESS_DBUS_INTF_PATH  # type: str
+    vrrp_process_proxy = bus_object.get(
+        util.KEEPALIVED_DBUS_INTF_NAME,
+        dbus_path
+    )  # type: Any
+    return {
+        "vyatta-vrrp-v1:receive":
+        vrrp_process_proxy.FindRecvIntf(intf)}

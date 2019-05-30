@@ -14,6 +14,7 @@ if __name__ == "__main__":
         .model(vci.Model("{}.v1".format(url))
                .config(vrrp.Config())
                .state(vrrp.State())
-               .rpc(namespace_v1, "garp", vrrp.send_garp))
+               .rpc(namespace_v1, "garp", vrrp.send_garp)
+               .rpc(namespace_v1, "rfc-intf-map", vrrp.find_recv_intf))
         .run()
         .wait())

@@ -37,8 +37,10 @@ SYSTEMD_UNIT_DBUS_NAME = "{}.Unit".format(
 )  # type: str
 
 KEEPALIVED_DBUS_INTF_NAME = "org.keepalived.Vrrp1"  # type: str
+VRRP_PROCESS_DBUS_INTF_PATH = "/{}/Vrrp".format(
+    KEEPALIVED_DBUS_INTF_NAME.replace(".", "/"))  # type: str
 VRRP_INSTANCE_DBUS_INTF_NAME = "{}.Instance".format(
-        KEEPALIVED_DBUS_INTF_NAME)  # type: str
+        KEEPALIVED_DBUS_INTF_NAME.replace(".", "/"))  # type: str
 VRRP_INSTANCE_DBUS_PATH = "/{}".format(
     VRRP_INSTANCE_DBUS_INTF_NAME.replace(".", "/")
 )  # type: str

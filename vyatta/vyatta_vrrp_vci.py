@@ -24,6 +24,12 @@ def send_garp(rpc_input: Dict[str, str]):
     return {}
 
 
+def find_recv_intf(rpc_input: Dict[str, str]):
+    xmit_intf = rpc_input["vyatta-vrrp-v1:transmit"]  # type: str
+    return vrrp_group_connection.find_recv_intf(
+        xmit_intf, pydbus.SystemBus())
+
+
 class Config(vci.Config):
 
     # Class attributes that will be the same across all instances
