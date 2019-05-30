@@ -66,7 +66,9 @@ module vyatta-vrrp-v1 {
 		SPDX-License-Identifier: BSD-3-Clause";
 
 	revision 2020-05-18 {
-		description "Remove call-rpc node, vci will take over";
+		description "Remove call-rpc node, vci will take over.
+			Added new RPC to find the transmitting interface for a vrrp
+			group. Useful for relating RFC interfaces to actual interfaces";
 	}
 
 	revision 2019-04-01 {
@@ -445,6 +447,22 @@ module vyatta-vrrp-v1 {
 				type vrrp-group;
 				mandatory true;
 				description "VRRP group number from which to send the GARP";
+			}
+		}
+	}
+	rpc rfc-intf-map {
+		description "Find receiving interface for VRRP group, useful for RFC interfaces";
+		input {
+			leaf transmit{
+				type types:interface-ifname;
+				mandatory true;
+				description "Transmitting interface for the VRRP group";
+			}
+		}
+		output {
+			leaf receive {
+				type types:interface-ifname;
+				description "The receiving interface for the group, blank if same as transmitting interface";
 			}
 		}
 	}
