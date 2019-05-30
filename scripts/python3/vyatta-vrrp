@@ -8,9 +8,12 @@ import vci
 import vyatta.vyatta_vrrp_vci as vrrp
 
 if __name__ == "__main__":
-    (vci.Component("net.vyatta.vci.vrrp")
-        .model(vci.Model("net.vyatta.vci.vrrp.v1")
+    url = "net.vyatta.vci.vrrp"
+    namespace_v1 = "vyatta-vrrp-v1"
+    (vci.Component(url)
+        .model(vci.Model("{}.v1".format(url))
                .config(vrrp.Config())
-               .state(vrrp.State()))
+               .state(vrrp.State())
+               .rpc(namespace_v1, "garp", vrrp.send_garp))
         .run()
         .wait())

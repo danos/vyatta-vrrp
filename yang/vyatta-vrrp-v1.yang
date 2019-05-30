@@ -27,7 +27,7 @@ module vyatta-vrrp-v1 {
 		Web: www.att.com";
 
 	description
-		"Copyright (c) 2017-2019 AT&T Intellectual Property
+		"Copyright (c) 2017-2020 AT&T Intellectual Property
 		All rights reserved.
 
 		Copyright (c) 2014-2017 by Brocade Communications Systems, Inc.
@@ -64,6 +64,10 @@ module vyatta-vrrp-v1 {
 		POSSIBILITY OF SUCH DAMAGE.
 
 		SPDX-License-Identifier: BSD-3-Clause";
+
+	revision 2020-05-18 {
+		description "Remove call-rpc node, vci will take over";
+	}
 
 	revision 2019-04-01 {
 		description "Move validation into the yang away from scripts";
@@ -443,7 +447,6 @@ module vyatta-vrrp-v1 {
 				description "VRRP group number from which to send the GARP";
 			}
 		}
-		configd:call-rpc "/opt/vyatta/sbin/yangop-vrrp-garp";
 	}
 	augment /if:interfaces/interfaces-dataplane:dataplane {
 		uses itf-vrrp;

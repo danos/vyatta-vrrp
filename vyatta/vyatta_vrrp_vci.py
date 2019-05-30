@@ -7,6 +7,7 @@
 import json
 import logging
 import pydbus
+from typing import Dict
 import vci  # pylint: disable=import-error
 import vyatta.keepalived.config_file as impl_conf
 import vyatta.abstract_vrrp_classes as AbstractVrrpConfig
@@ -14,6 +15,13 @@ import vyatta.keepalived.util as util
 import vyatta.keepalived.dbus.process_control as process_control
 import vyatta.keepalived.dbus.vrrp_group_connection as \
     vrrp_group_connection
+
+
+def send_garp(rpc_input: Dict[str, str]):
+    intf = rpc_input["vyatta-vrrp-v1:interface"]  # type: str
+    group = str(rpc_input["vyatta-vrrp-v1:group"])  # type: str
+    vrrp_group_connection.garp(intf, group, pydbus.SystemBus())
+    return {}
 
 
 class Config(vci.Config):

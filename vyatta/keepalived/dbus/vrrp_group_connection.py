@@ -43,3 +43,15 @@ def get_instance_state(
             },
             "tagnode": "{}".format(vrid)}
     return processed_state
+
+
+def garp(intf: str, vrid: str, bus_object: Any):
+    dbus_path = "{}/{}/{}/{}".format(
+        util.VRRP_INSTANCE_DBUS_PATH, intf, vrid, "IPv4"
+    )  # type: str
+    vrrp_proxy = bus_object.get(
+        util.KEEPALIVED_DBUS_INTF_NAME,
+        dbus_path
+    )  # type: Any
+    vrrp_proxy.SendGarp()
+    return {}
