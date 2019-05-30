@@ -13,8 +13,6 @@ from typing import Any
 
 def get_instance_state(
         intf: str, vrid: str, af_type: str, bus_object: Any):
-    print("Interface: {}, Group: {}, Address Family: {}".format(
-            intf, vrid, af_type))
     if af_type == 4:
         af_type_str = "IPv4"
     else:
