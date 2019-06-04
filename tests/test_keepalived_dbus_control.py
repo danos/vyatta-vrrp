@@ -2,6 +2,7 @@
 
 
 import pytest  # noqa: F401
+from pathlib import Path
 
 
 class TestKeepalivedDbusControl:
@@ -37,3 +38,32 @@ class TestKeepalivedDbusControl:
         pc.shutdown_process()
         pc.keepalived_proxy_obj.SubState = "dead"
         assert pc.is_running() is False
+
+    def test_set_default_daemon_arguments(
+            self, mock_pydbus, tmp_path):
+        import vyatta.keepalived.dbus.process_control as process_ctrl
+        pc = process_ctrl.ProcessControl()
+        pc.systemd_default_file_path = f"{tmp_path}/vyatta-keepalived"
+        conf_path = Path(
+            pc.systemd_default_file_path)
+        expected = True
+        pc.set_default_daemon_arguments()
+        result = conf_path.exists()
+        assert expected == result
+
+    def test_get_agent_x_socket_snmp_not_running(
+            self, mock_pydbus):
+        import vyatta.keepalived.dbus.process_control as process_ctrl
+        pc = process_ctrl.ProcessControl()
+        expected = "tcp:localhost:705:1"
+        result = pc.get_agent_x_socket()
+        assert expected == result
+
+    def test_get_agent_x_socket_snmp_nondefault_socket(
+            self, mock_pydbus, mock_snmp_config, tmp_path):
+        import vyatta.keepalived.dbus.process_control as process_ctrl
+        pc = process_ctrl.ProcessControl()
+        pc.snmpd_conf_file_path = f"{tmp_path}/snmpd.conf"
+        expected = "udp:localhost:100:1"
+        result = pc.get_agent_x_socket()
+        assert expected == result
