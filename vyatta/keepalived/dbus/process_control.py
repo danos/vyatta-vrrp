@@ -13,6 +13,7 @@ process using dbus controls.
 
 import logging
 import pydbus
+from pathlib import Path
 import vyatta.keepalived.util as util
 
 
@@ -42,6 +43,8 @@ class ProcessControl:
                 self.keepalived_unit_file_intf
             )
         self.running_state = "UNKNOWN"
+        self.systemd_default_file_path = "/etc/default/vyatta-keepalived"
+        self.snmpd_conf_file_path = "/etc/snmp/snmpd.conf"
 
     def unit_state(self) -> str:
         return self.running_state
@@ -60,7 +63,33 @@ class ProcessControl:
         self.systemd_manager_intf.StopUnit(
             self.keepalived_service_file, "replace")
 
+    def set_default_daemon_arguments(self) -> None:
+        snmp_socket = self.get_agent_x_socket()  # type: str
+        if snmp_socket != "":
+            snmp_socket = "--snmp-agent-socket {}".format(snmp_socket)
+        default_string = """# Options to pass to keepalived
+# DAEMON_ARGS are appended to the keepalived command-line
+DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc/keepalived/keepalived.conf --release-vips {}"
+""".format(snmp_socket)  # noqa: E501  type: str
+        with open(self.systemd_default_file_path, "w") as f_obj:
+            f_obj.write(default_string)
+
+    def get_agent_x_socket(self) -> str:
+        snmp_socket = "tcp:localhost:705:1"  # type: str
+        snmp_conf_file = Path(self.snmpd_conf_file_path)  # type: Path
+        if (snmp_conf_file.exists() and snmp_conf_file.is_file()):
+            with open(str(snmp_conf_file), "r") as f_obj:
+                content = f_obj.readlines()
+                content = [x.strip() for x in content]
+                for line in content:
+                    if "agentXSocket" in line:
+                        snmp_socket = line.split(" ")[-1]
+                        snmp_socket = "{}:1".format(snmp_socket)
+                        break
+        return snmp_socket
+
     def start_process(self) -> None:
+        self.set_default_daemon_arguments()
         self.systemd_manager_intf.StartUnit(
             self.keepalived_service_file, "replace")
 
