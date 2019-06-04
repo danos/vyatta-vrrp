@@ -43,31 +43,31 @@ class ProcessControl:
             )
         self.running_state = "UNKNOWN"
 
-    def unit_state(self):
+    def unit_state(self) -> str:
         return self.running_state
 
-    def refresh_unit_state(self):
+    def refresh_unit_state(self) -> None:
         self.running_state = \
             self.keepalived_proxy_obj.SubState
 
-    def is_running(self):
+    def is_running(self) -> bool:
         self.refresh_unit_state()
         if self.running_state == "running":
             return True
         return False
 
-    def shutdown_process(self):
+    def shutdown_process(self) -> None:
         self.systemd_manager_intf.StopUnit(
             self.keepalived_service_file, "replace")
 
-    def start_process(self):
+    def start_process(self) -> None:
         self.systemd_manager_intf.StartUnit(
             self.keepalived_service_file, "replace")
 
-    def reload_process_config(self):
+    def reload_process_config(self) -> None:
         self.systemd_manager_intf.ReloadUnit(
             self.keepalived_service_file, "replace")
 
-    def restart_process(self):
+    def restart_process(self) -> None:
         self.systemd_manager_intf.RestartUnit(
             self.keepalived_service_file, "replace")
