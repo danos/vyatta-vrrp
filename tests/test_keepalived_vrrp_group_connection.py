@@ -47,8 +47,9 @@ class TestKeepalivedVrrpGroupControl:
              as group_conn
         import pydbus
         sysbus = pydbus.SystemBus()
-        expected = {"vyatta-vrrp-v1:receive": ""}
-        result = group_conn.find_recv_intf("dp0p1s1", sysbus)
+        expected = {"vyatta-vrrp-v1:receive": "",
+                    "vyatta-vrrp-v1:group": 0}
+        result = group_conn.get_rfc_mapping("dp0p1s1", sysbus)
         assert expected == result
 
     def test_find_recv_intf_rfc(
@@ -57,6 +58,7 @@ class TestKeepalivedVrrpGroupControl:
              as group_conn
         import pydbus
         sysbus = pydbus.SystemBus()
-        expected = {"vyatta-vrrp-v1:receive": "dp0p1s1"}
-        result = group_conn.find_recv_intf("dp0vrrp1", sysbus)
+        expected = {"vyatta-vrrp-v1:receive": "dp0p1s1",
+                    "vyatta-vrrp-v1:group": 1}
+        result = group_conn.get_rfc_mapping("dp0vrrp1", sysbus)
         assert expected == result

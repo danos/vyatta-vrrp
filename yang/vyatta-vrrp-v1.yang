@@ -460,9 +460,13 @@ module vyatta-vrrp-v1 {
 			}
 		}
 		output {
+			leaf group {
+				type uint8;
+				description "The group number on the receiving interface";
+			}
 			leaf receive {
-				type types:interface-ifname;
-				description "The receiving interface for the group, blank if same as transmitting interface";
+				type string;
+				description "The receiving interface name for the group, blank if same as transmitting interface";
 			}
 		}
 	}

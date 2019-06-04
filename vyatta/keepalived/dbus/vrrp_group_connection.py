@@ -58,12 +58,15 @@ def garp(intf: str, vrid: str, bus_object: Any):
     return {}
 
 
-def find_recv_intf(intf: str, bus_object: Any):
+def get_rfc_mapping(intf: str, bus_object: Any):
     dbus_path = util.VRRP_PROCESS_DBUS_INTF_PATH  # type: str
     vrrp_process_proxy = bus_object.get(
         util.KEEPALIVED_DBUS_INTF_NAME,
         dbus_path
     )  # type: Any
+    rfc_mapping = vrrp_process_proxy.GetRfcMapping(intf)
     return {
         "vyatta-vrrp-v1:receive":
-        vrrp_process_proxy.FindRecvIntf(intf)}
+        rfc_mapping[0],
+        "vyatta-vrrp-v1:group":
+        rfc_mapping[1]}

@@ -1396,10 +1396,10 @@ def mock_pydbus(monkeypatch, pydbus_fakes):
         def SubState(self, new_state):  # noqa: N802
             self._state = new_state
 
-        def FindRecvIntf(self, intf: str):  # noqa: N802
+        def GetRfcMapping(self, intf: str):  # noqa: N802
             if "vrrp" in intf:
-                return "dp0p1s1"
-            return ""
+                return ("dp0p1s1", 1)
+            return ("", 0)
 
         def __getitem__(self, name):
             return PropertyInterface()

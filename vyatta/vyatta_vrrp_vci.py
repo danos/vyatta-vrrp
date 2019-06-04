@@ -24,9 +24,9 @@ def send_garp(rpc_input: Dict[str, str]):
     return {}
 
 
-def find_recv_intf(rpc_input: Dict[str, str]):
+def rfc_intf_map(rpc_input: Dict[str, str]):
     xmit_intf = rpc_input["vyatta-vrrp-v1:transmit"]  # type: str
-    return vrrp_group_connection.find_recv_intf(
+    return vrrp_group_connection.get_rfc_mapping(
         xmit_intf, pydbus.SystemBus())
 
 
