@@ -8,6 +8,93 @@ import vyatta.keepalived.util as util
 
 class TestKeepalivedUtils:
 
+    @pytest.mark.parametrize(
+        "expected,actual",
+        [
+            (
+                "vyatta-interfaces-v1:interfaces",
+                util.INTERFACE_YANG_NAME
+            ),
+            (
+                "vyatta-interfaces-dataplane-v1:dataplane",
+                util.DATAPLANE_YANG_NAME
+            ),
+            (
+                "vyatta-vrrp-v1:vrrp",
+                util.VRRP_YANG_NAME
+            ),
+            (
+                "vyatta-bonding-v1:bonding",
+                util.BONDING_YANG_NAME
+            ),
+            (
+                "vyatta-switchport-v1:switchport",
+                util.SWITCHPORT_YANG_NAME
+            ),
+            (
+                "vif",
+                util.VIF_YANG_NAME
+            ),
+            (
+                "vyatta-vrrp-path-monitor-track-interfaces-dataplane" +
+                "-v1:path-monitor",
+                util.PATHMON_YANG_NAME
+            ),
+            (
+                "org.freedesktop.DBus.Properties",
+                util.PROPERTIES_DBUS_INTF_NAME,
+            ),
+            (
+                "org.freedesktop.systemd1",
+                util.SYSTEMD_DBUS_INTF_NAME
+            ),
+            (
+                "/org/freedesktop/systemd1",
+                util.SYSTEMD_DBUS_PATH
+            ),
+            (
+                "org.freedesktop.systemd1.Manager",
+                util.SYSTEMD_MANAGER_DBUS_INTF_NAME
+            ),
+            (
+                "org.freedesktop.systemd1.Unit",
+                util.SYSTEMD_UNIT_DBUS_NAME
+            ),
+            (
+                "org.keepalived.Vrrp1",
+                util.KEEPALIVED_DBUS_INTF_NAME
+            ),
+            (
+                "/org/keepalived/Vrrp1/Vrrp",
+                util.VRRP_PROCESS_DBUS_INTF_PATH
+            ),
+            (
+                "org.keepalived.Vrrp1.Instance",
+                util.VRRP_INSTANCE_DBUS_INTF_NAME
+            ),
+            (
+                "/org/keepalived/Vrrp1/Instance",
+                util.VRRP_INSTANCE_DBUS_PATH
+            )
+        ],
+        ids=[
+            "Interface yang name", "Dataplane yang name",
+            "Vrrp yang name", "Bonding yang name",
+            "Switchport yang name", "Vif yang name",
+            "Path monitor yang name", "DBus properties name",
+            "DBus systemd interface name",
+            "DBus systemd path name",
+            "DBus systemd manager interface name",
+            "DBus systemd unit interface name",
+            "DBus keepalived interface name",
+            "DBus VRRP process interface path",
+            "DBus VRRP Group instance interface name",
+            "DBus VRRP Group instance path"
+        ]
+    )
+    def test_generated_constants(self, expected, actual):
+        assert expected == actual
+
     def test_get_hello_sources_no_hellos(
             self, simple_config):
         expected = []
