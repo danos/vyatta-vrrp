@@ -6,14 +6,18 @@
 
 import vci
 import vyatta.vyatta_vrrp_vci as vrrp
+import vyatta.keepalived.config_file as impl_conf
 
 if __name__ == "__main__":
+    keepalived_implementation = impl_conf.KeepalivedConfig()
+    config_obj = vrrp.Config(keepalived_implementation)
+    state_obj = vrrp.State(keepalived_implementation)
     url = "net.vyatta.vci.vrrp"
     namespace_v1 = "vyatta-vrrp-v1"
     (vci.Component(url)
         .model(vci.Model("{}.v1".format(url))
-               .config(vrrp.Config())
-               .state(vrrp.State())
+               .config(config_obj)
+               .state(state_obj)
                .rpc(namespace_v1, "garp", vrrp.send_garp)
                .rpc(namespace_v1, "rfc-intf-map", vrrp.rfc_intf_map))
         .run()

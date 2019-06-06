@@ -33,39 +33,37 @@ def rfc_intf_map(rpc_input: Dict[str, str]):
 class Config(vci.Config):
 
     # Class attributes that will be the same across all instances
-    _conf_obj = impl_conf.\
-            KeepalivedConfig()
-    logging.basicConfig(level=logging.DEBUG, format="%(message)s")
-    log = logging.getLogger("vyatta-vrrp-vci")
-
-    def _check_conf_object_implementation(self):
+    def __init__(self, config_impl):
+        super().__init__()
+        self._conf_obj = config_impl
         if not isinstance(self._conf_obj, AbstractVrrpConfig.ConfigFile):
             raise TypeError("Implementation of config object does not "
                             "inherit from abstract class, developer needs "
                             "to fix this ")
+        logging.basicConfig(level=logging.DEBUG, format="%(message)s")
+        self.log = logging.getLogger("vyatta-vrrp-vci")
+        self.pc = process_control.ProcessControl()
 
     def set(self, conf):
-        pc = process_control.ProcessControl()
         conf = util.sanitize_vrrp_config(conf)
 
         # If all the default config has been removed and
         # there's nothing left in the interfaces dictionary
         # just return as we have nothing left to do
         if {} == conf[util.INTERFACE_YANG_NAME]:
-            if pc.is_running():
-                pc.shutdown_process()
+            if self.pc.is_running():
+                self.pc.shutdown_process()
             return
         self.log.debug(
             "Got following config from VCI infra:%s",
             json.dumps(conf, indent=4, sort_keys=True))
 
-        self._check_conf_object_implementation()
         self._conf_obj.update(conf)
         self._conf_obj.write_config()
-        if pc.is_running():
-            pc.reload_process_config()
+        if self.pc.is_running():
+            self.pc.reload_process_config()
         else:
-            pc.start_process()
+            self.pc.start_process()
         self.log.info(
             " %s config written to %s",
             self._conf_obj.impl_name(),
@@ -74,7 +72,6 @@ class Config(vci.Config):
         return
 
     def get(self):
-        self._check_conf_object_implementation()
         file_config = self._conf_obj.read_config()
         yang_repr = self._conf_obj.convert_to_vci_format(file_config)
         self.log.info(
@@ -84,7 +81,6 @@ class Config(vci.Config):
         return yang_repr
 
     def check(self, conf):
-        self._check_conf_object_implementation()
         conf = util.sanitize_vrrp_config(conf)
         hello_address = util.get_hello_sources(conf)
         for address in hello_address:
@@ -95,21 +91,24 @@ class Config(vci.Config):
 
 
 class State(vci.State):
-    _conf_obj = impl_conf.\
-            KeepalivedConfig()
-    logging.basicConfig(level=logging.DEBUG, format="%(message)s")
-    log = logging.getLogger("vyatta-vrrp-vci")
 
-    def _check_conf_object_implementation(self):
+    def __init__(self, config_impl):
+        super().__init__()
+        self._conf_obj = config_impl
         if not isinstance(self._conf_obj, AbstractVrrpConfig.ConfigFile):
             raise TypeError("Implementation of config object does not " +
                             "inherit from abstract class, developer needs " +
                             "to fix this ")
+        logging.basicConfig(level=logging.DEBUG, format="%(message)s")
+        self.log = logging.getLogger("vyatta-vrrp-vci")
+        self.pc = process_control.ProcessControl()
 
     def get(self):
-        self._check_conf_object_implementation()
+        if not self.pc.is_running():
+            return {}
         file_config = self._conf_obj.read_config()
-        yang_repr = self._conf_obj.convert_to_vci_format_dict(file_config)
+        yang_repr = self._conf_obj.convert_to_vci_format_dict(
+            file_config)
         sysbus = pydbus.SystemBus()
         for intf_type in yang_repr[util.INTERFACE_YANG_NAME]:
             intf_list = yang_repr[util.INTERFACE_YANG_NAME][intf_type]
