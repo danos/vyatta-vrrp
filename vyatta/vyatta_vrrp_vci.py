@@ -61,7 +61,7 @@ class Config(vci.Config):
         else:
             self.pc.start_process()
         self.log.info(
-            " %s config written to %s",
+            "%s config written to %s",
             self._conf_obj.impl_name(),
             self._conf_obj.config_file_path()
         )
@@ -71,7 +71,7 @@ class Config(vci.Config):
         file_config = self._conf_obj.read_config()
         yang_repr = self._conf_obj.convert_to_vci_format(file_config)
         self.log.info(
-            " %s yang repr returned to vci infra",
+            "%s yang repr returned to vci infra",
             yang_repr
         )
         return yang_repr
@@ -85,7 +85,7 @@ class Config(vci.Config):
             print("RFC compatibility is not supported on VMware\n")
         return
 
-    def rfc_intf_map(self, rpc_input: Dict[str, str]):
+    def rfc_intf_map(self, rpc_input: Dict[str, str]) -> Dict[str, str]:
         xmit_intf = rpc_input["vyatta-vrrp-v1:transmit"]  # type: str
         return self.pc.get_rfc_mapping(xmit_intf)
 
