@@ -8,9 +8,26 @@ Vyatta VCI component to configure keepalived to provide VRRP functionality
 # All rights reserved.
 
 import logging
+from functools import wraps
 import vyatta.keepalived.util as util
 from typing import Any, Dict
 
+
+def activate_connection(func):
+    @wraps(func)
+    def wrapper(inst, *args, **kwargs):
+        if not inst._activated:
+            inst.log.info("Activating object because %s became active",
+                          util.KEEPALIVED_DBUS_INTF_NAME)
+            inst.vrrp_group_proxy = inst.bus_object.get(
+                util.KEEPALIVED_DBUS_INTF_NAME,
+                inst.dbus_path
+            )
+            inst.vrrp_property_interface =\
+                inst.vrrp_group_proxy[util.PROPERTIES_DBUS_INTF_NAME]
+            inst._activated = True
+        return func(inst, *args, **kwargs)
+    return wrapper
 
 class VrrpConnection:
 
@@ -29,24 +46,12 @@ class VrrpConnection:
         )
         self.bus_object.watch_name(
             util.KEEPALIVED_DBUS_INTF_NAME,
-            name_appeared=self.activate_connection
+            name_appeared=activate_connection
         )
         self._activated = False
 
-    def activate_connection(self, name):
-        self.log.info("Activating object because %s became active",
-            name)
-        self.vrrp_group_proxy = self.bus_object.get(
-            name,
-            self.dbus_path
-        )
-        self.vrrp_property_interface =\
-            self.vrrp_group_proxy[util.PROPERTIES_DBUS_INTF_NAME]
-        self._activated = True
-
+    @activate_connection
     def get_instance_state(self) -> Dict:
-        if not self._activated:
-            self.activate_connection(util.KEEPALIVED_DBUS_INTF_NAME)
         group_state = self.vrrp_property_interface.GetAll(
             util.VRRP_INSTANCE_DBUS_INTF_NAME
         )
@@ -67,8 +72,7 @@ class VrrpConnection:
             }
         return processed_state
 
+    @activate_connection
     def garp(self) -> Dict:
-        if not self._activated:
-            self.activate_connection(util.KEEPALIVED_DBUS_INTF_NAME)
         self.vrrp_group_proxy.SendGarp()
         return {}
