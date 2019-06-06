@@ -31,8 +31,9 @@ class ProcessControl:
             util.SYSTEMD_DBUS_PATH
         )
 
-        self.systemd_manager_intf = \
-            self.systemd_proxy[util.SYSTEMD_MANAGER_DBUS_INTF_NAME]
+        self.systemd_manager_intf = self.systemd_proxy[
+            util.SYSTEMD_MANAGER_DBUS_INTF_NAME
+        ]
         self.keepalived_unit_file_intf = \
             self.systemd_proxy.LoadUnit(
                 self.keepalived_service_file
