@@ -271,7 +271,7 @@ class TestKeepalivedConfigFile:
         assert str(result) == str(expected)
 
     def test_update_config_simple_config(
-            self, keepalived_config, simple_config,
+            self, mock_pydbus, keepalived_config, simple_config,
             simple_vrrp_group_object):
         expected = [simple_vrrp_group_object]
         keepalived_config.update(simple_config)
@@ -281,7 +281,7 @@ class TestKeepalivedConfigFile:
         assert str(result) == str(expected)
 
     def test_update_complex_config(
-            self, keepalived_config, complex_config,
+            self, mock_pydbus, keepalived_config, complex_config,
             fuller_vrrp_group_object):
         expected = [fuller_vrrp_group_object]
         keepalived_config.update(complex_config)

@@ -46,11 +46,35 @@ def pydbus_fakes():
 
 
 @pytest.fixture
-def test_config(pydbus_fakes, monkeypatch, tmp_path):
+def tmp_file_keepalived_config_no_write(tmp_path):
+    class FakeVci:
+
+        class Config:
+            def set(self, conf):
+                pass
+
+        class State:
+            def get(self):
+                pass
+
+    sys.modules['vci'] = FakeVci
+    from vyatta.keepalived.config_file import KeepalivedConfig
+    file_path = f"{str(tmp_path)}/keepalived.conf"
+    return KeepalivedConfig(file_path)
+
+
+@pytest.fixture
+def test_config(
+    pydbus_fakes, monkeypatch, tmp_path,
+    tmp_file_keepalived_config_no_write
+):
 
     class FakeVci:
 
         class Config:
+            def __init__(self):
+                pass
+
             def set(self, conf):
                 pass
 
@@ -93,7 +117,7 @@ def test_state(tmp_file_keepalived_config_no_write):
 
 
 @pytest.fixture
-def keepalived_config():
+def keepalived_config(pydbus_fakes):
     class FakeVci:
 
         class Config:
@@ -151,24 +175,6 @@ def tmp_file_syncgroup_keepalived_config(
     with open(file_path, "w") as file_handle:
         contents = syncgroup_keepalived_config
         file_handle.write(contents)
-    return KeepalivedConfig(file_path)
-
-
-@pytest.fixture
-def tmp_file_keepalived_config_no_write(tmp_path):
-    class FakeVci:
-
-        class Config:
-            def set(self, conf):
-                pass
-
-        class State:
-            def get(self):
-                pass
-
-    sys.modules['vci'] = FakeVci
-    from vyatta.keepalived.config_file import KeepalivedConfig
-    file_path = f"{str(tmp_path)}/keepalived.conf"
     return KeepalivedConfig(file_path)
 
 
