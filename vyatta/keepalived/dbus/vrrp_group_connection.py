@@ -7,6 +7,7 @@ Vyatta VCI component to configure keepalived to provide VRRP functionality
 # Copyright (c) 2019 by AT&T, Inc.
 # All rights reserved.
 
+import logging
 import vyatta.keepalived.util as util
 from typing import Any, Dict
 
@@ -18,6 +19,7 @@ class VrrpConnection:
         self.intf = intf
         self.vrid = vrid
         self.bus_object = bus_object
+        self.log = logging.getLogger("vyatta-vrrp-vci")
         if af_type == 4:
             self.af_type_str = "IPv4"
         else:
@@ -25,14 +27,26 @@ class VrrpConnection:
         self.dbus_path = "{}/{}/{}/{}".format(
             util.VRRP_INSTANCE_DBUS_PATH, intf, vrid, self.af_type_str
         )
-        self.vrrp_group_proxy = self.bus_object.get(
+        self.bus_object.watch_name(
             util.KEEPALIVED_DBUS_INTF_NAME,
+            name_appeared=self.activate_connection
+        )
+        self._activated = False
+
+    def activate_connection(self, name):
+        self.log.info("Activating object because %s became active",
+            name)
+        self.vrrp_group_proxy = self.bus_object.get(
+            name,
             self.dbus_path
         )
         self.vrrp_property_interface =\
             self.vrrp_group_proxy[util.PROPERTIES_DBUS_INTF_NAME]
+        self._activated = True
 
     def get_instance_state(self) -> Dict:
+        if not self._activated:
+            self.activate_connection(util.KEEPALIVED_DBUS_INTF_NAME)
         group_state = self.vrrp_property_interface.GetAll(
             util.VRRP_INSTANCE_DBUS_INTF_NAME
         )
@@ -54,5 +68,7 @@ class VrrpConnection:
         return processed_state
 
     def garp(self) -> Dict:
+        if not self._activated:
+            self.activate_connection(util.KEEPALIVED_DBUS_INTF_NAME)
         self.vrrp_group_proxy.SendGarp()
         return {}

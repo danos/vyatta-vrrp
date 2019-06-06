@@ -1440,6 +1440,9 @@ def mock_pydbus(monkeypatch, pydbus_fakes):
                 systemd = SystemdProxyObject()
                 return systemd
 
+        def watch_name(self, name, name_appeared=None):
+            return
+
     monkeypatch.setitem(pydbus.__dict__, "SystemBus", MockSystemBus)
     return PropertyInterface
 
