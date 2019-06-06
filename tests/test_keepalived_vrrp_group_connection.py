@@ -13,9 +13,10 @@ class TestKeepalivedVrrpGroupControl:
         import pydbus
         sysbus = pydbus.SystemBus()
         expected = instance_state
-        result = group_conn.get_instance_state(
+        conn = group_conn.VrrpConnection(
             "dp0p1s1", "1", "IPv4", sysbus
         )
+        result = conn.get_instance_state()
         assert expected == result
 
     def test_get_unit_state_rfc(
@@ -26,9 +27,10 @@ class TestKeepalivedVrrpGroupControl:
         import pydbus
         sysbus = pydbus.SystemBus()
         expected = instance_state_rfc
-        result = group_conn.get_instance_state(
+        conn = group_conn.VrrpConnection(
             "dp0p1s1", "1", "IPv4", sysbus
         )
+        result = conn.get_instance_state()
         assert expected == result
 
     def test_garp(
@@ -38,5 +40,8 @@ class TestKeepalivedVrrpGroupControl:
         import pydbus
         sysbus = pydbus.SystemBus()
         expected = {}
-        result = group_conn.garp("dp0p1s1", "1", sysbus)
+        conn = group_conn.VrrpConnection(
+            "dp0p1s1", "1", "IPv4", sysbus
+        )
+        result = conn.garp()
         assert expected == result

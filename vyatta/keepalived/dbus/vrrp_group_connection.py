@@ -8,51 +8,51 @@ Vyatta VCI component to configure keepalived to provide VRRP functionality
 # All rights reserved.
 
 import vyatta.keepalived.util as util
-from typing import Any
+from typing import Any, Dict
 
 
-def get_instance_state(
-        intf: str, vrid: str, af_type: str, bus_object: Any):
-    if af_type == 4:
-        af_type_str = "IPv4"
-    else:
-        af_type_str = "IPv6"
-    dbus_path = "{}/{}/{}/{}".format(
-        util.VRRP_INSTANCE_DBUS_PATH, intf, vrid, af_type_str
-    )
-    vrrp_group_proxy = bus_object.get(
-        util.KEEPALIVED_DBUS_INTF_NAME,
-        dbus_path
-    )
-    vrrp_property_interface =\
-        vrrp_group_proxy[util.PROPERTIES_DBUS_INTF_NAME]
-    group_state = vrrp_property_interface.GetAll(
-        util.VRRP_INSTANCE_DBUS_INTF_NAME
-    )
-    rfc_intf = ""
-    if group_state["XmitIntf"][0] != intf:
-        rfc_intf = group_state["XmitIntf"][0]
-    processed_state = \
-        {
-            "instance-state":
+class VrrpConnection:
+
+    def __init__(
+            self, intf: str, vrid: str, af_type: str, bus_object: Any):
+        self.intf = intf
+        self.vrid = vrid
+        self.bus_object = bus_object
+        if af_type == 4:
+            self.af_type_str = "IPv4"
+        else:
+            self.af_type_str = "IPv6"
+        self.dbus_path = "{}/{}/{}/{}".format(
+            util.VRRP_INSTANCE_DBUS_PATH, intf, vrid, self.af_type_str
+        )
+        self.vrrp_group_proxy = self.bus_object.get(
+            util.KEEPALIVED_DBUS_INTF_NAME,
+            self.dbus_path
+        )
+        self.vrrp_property_interface =\
+            self.vrrp_group_proxy[util.PROPERTIES_DBUS_INTF_NAME]
+
+    def get_instance_state(self) -> Dict:
+        group_state = self.vrrp_property_interface.GetAll(
+            util.VRRP_INSTANCE_DBUS_INTF_NAME
+        )
+        rfc_intf = ""
+        if group_state["XmitIntf"][0] != self.intf:
+            rfc_intf = group_state["XmitIntf"][0]
+        processed_state = \
             {
-                "address-owner": group_state["AddressOwner"][0],
-                "last-transition": group_state["LastTransition"][0],
-                "rfc-interface": rfc_intf,
-                "state": group_state["State"][1].upper(),
-                "sync-group": group_state["SyncGroup"][0]
-            },
-            "tagnode": "{}".format(vrid)}
-    return processed_state
+                "instance-state":
+                {
+                    "address-owner": group_state["AddressOwner"][0],
+                    "last-transition": group_state["LastTransition"][0],
+                    "rfc-interface": rfc_intf,
+                    "state": group_state["State"][1].upper(),
+                    "sync-group": group_state["SyncGroup"][0]
+                },
+                "tagnode": "{}".format(self.vrid)
+            }
+        return processed_state
 
-
-def garp(intf: str, vrid: str, bus_object: Any):
-    dbus_path = "{}/{}/{}/{}".format(
-        util.VRRP_INSTANCE_DBUS_PATH, intf, vrid, "IPv4"
-    )  # type: str
-    vrrp_group_proxy = bus_object.get(
-        util.KEEPALIVED_DBUS_INTF_NAME,
-        dbus_path
-    )  # type: Any
-    vrrp_group_proxy.SendGarp()
-    return {}
+    def garp(self) -> Dict:
+        self.vrrp_group_proxy.SendGarp()
+        return {}
