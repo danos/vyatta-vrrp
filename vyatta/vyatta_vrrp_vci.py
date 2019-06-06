@@ -120,11 +120,20 @@ class State(vci.State):
                 state_instances = []
                 for vrrp_instance in vrrp_instances:
                     vrid = vrrp_instance["tagnode"]
-                    af_type = util.what_ip_version(
-                        vrrp_instance["virtual-address"][0].split("/")[0])
-                    state_future = vrrp_group_connection.get_instance_state(
-                        transmit_intf, vrid, af_type, sysbus
+                    instance_name = "vyatta-{}-{}".format(
+                        transmit_intf, vrid
                     )
+                    if instance_name not in \
+                            self._conf_obj.vrrp_connections:
+                        af_type = util.what_ip_version(
+                            vrrp_instance["virtual-address"][0].split("/")[0])
+                        vrrp_conn = vrrp_dbus.VrrpConnection(
+                            transmit_intf, vrid, af_type, sysbus
+                        )
+                    else:
+                        vrrp_conn = \
+                            self._conf_obj.vrrp_connections[instance_name]
+                    state_future = vrrp_conn.get_instance_state()
                     state_instances.append(state_future)
                 intf[util.VRRP_YANG_NAME]["vrrp-group"] = state_instances
         return yang_repr

@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Tuple
 import vyatta.abstract_vrrp_classes as AbstractConfig
 import vyatta.keepalived.util as util
 import vyatta.keepalived.vrrp as vrrp
+import vyatta.keepalived.dbus.vrrp_group_connection as vrrp_dbus
 
 
 class KeepalivedConfig(AbstractConfig.ConfigFile):
@@ -169,6 +170,7 @@ global_defs {
         self._vrrp_instances = []  # type: List[Dict]
         self._sync_instances = {}  # type: Dict[List[str]]
         self._rfc_interfaces = 0  # type: int
+        self._vrrp_connections = {}  # noqa: E501 type: Dict[str, vrrp_dbus.VrrpConnection]
 
     @property
     def vrrp_instances(self):
@@ -177,6 +179,10 @@ global_defs {
     @vrrp_instances.setter
     def vrrp_instances(self, new_value):
         self._vrrp_instances = new_value
+
+    @property
+    def vrrp_connections(self):
+        return self._vrrp_connections
 
     def config_file_path(self) -> str:
         """Path to the keepalived config file returns string"""
@@ -201,6 +207,7 @@ global_defs {
 
         self._rfc_interfaces = 0
         self.vrrp_instances = []  # type: List[vrrp.VrrpGroup]
+        self._vrrp_connections = {}  # noqa: E501 type: Dict[str, vrrp_dbus.VrrpConnection]
         if util.INTERFACE_YANG_NAME not in new_config:
             return
         intf_types = new_config[util.INTERFACE_YANG_NAME]
@@ -221,6 +228,9 @@ global_defs {
                     break
                 start_delay = vrrp_conf["start-delay"]
                 for group in vrrp_conf["vrrp-group"]:
+                    first_vip = group["virtual-address"][0]
+                    if "/" in first_vip:
+                        first_vip = first_vip.split("/")[0]
                     if "disable" in group:
                         break
                     if "rfc-compatibility" in group:
@@ -233,6 +243,18 @@ global_defs {
                         self.vrrp_instances.append(
                             vrrp.VrrpGroup(
                                 intf_name, start_delay, group))
+                    af_type = util.what_ip_version(
+                        first_vip
+                    )
+                    connection = vrrp_dbus.VrrpConnection(
+                        intf_name, group["tagnode"],
+                        af_type, pydbus.SystemBus()
+                    )
+                    instance_name = "vyatta-{}-{}".format(
+                        intf_name, group["tagnode"]
+                    )
+                    self._vrrp_connections[instance_name] = \
+                        connection
                     if "sync-group" in group:
                         sync_group_name = group["sync-group"]
                         if sync_group_name not in self._sync_instances:
