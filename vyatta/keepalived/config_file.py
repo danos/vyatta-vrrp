@@ -594,3 +594,8 @@ vrrp_sync_group {} {{
                     policy_dict["weight"]["value"] = abs(weight)
                 insertion_dictionary["policy"].append(policy_dict)
             config_dict["track"][util.PATHMON_YANG_NAME] = pathmon_dict
+
+    def shutdown(self):
+        config_path = Path(self.config_file)
+        if config_path.is_file():
+            os.remove(self.config_file)

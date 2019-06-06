@@ -33,3 +33,6 @@ class ConfigFile(ABC):
     def impl_name(self):
         raise NotImplementedError
 
+    @abstractmethod
+    def shutdown(self):
+        raise NotImplementedError

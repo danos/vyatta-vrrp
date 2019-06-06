@@ -301,6 +301,22 @@ class TestKeepalivedConfigFile:
         expected = file_path.exists()
         assert result == expected
 
+    @pytest.mark.sanity
+    def test_shutdown(
+            self, tmp_path, tmp_file_keepalived_config_no_write):
+        file_path = Path(f"{tmp_path}/keepalived.conf")
+        result = False
+        expected = file_path.exists()
+        assert result == expected
+        tmp_file_keepalived_config_no_write.write_config()
+        result = True
+        expected = file_path.exists()
+        assert result == expected
+        tmp_file_keepalived_config_no_write.shutdown()
+        result = False
+        expected = file_path.exists()
+        assert result == expected
+
     @pytest.mark.parametrize(
         "expected,config_block",
         [
