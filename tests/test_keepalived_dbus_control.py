@@ -67,3 +67,21 @@ class TestKeepalivedDbusControl:
         expected = "udp:localhost:100:1"
         result = pc.get_agent_x_socket()
         assert expected == result
+
+    def test_find_recv_intf_no_rfc(
+            self, mock_pydbus):
+        import vyatta.keepalived.dbus.process_control as process_ctrl
+        pc = process_ctrl.ProcessControl()
+        expected = {"vyatta-vrrp-v1:receive": "",
+                    "vyatta-vrrp-v1:group": 0}
+        result = pc.get_rfc_mapping("dp0p1s1")
+        assert expected == result
+
+    def test_find_recv_intf_rfc(
+            self, mock_pydbus):
+        import vyatta.keepalived.dbus.process_control as process_ctrl
+        pc = process_ctrl.ProcessControl()
+        expected = {"vyatta-vrrp-v1:receive": "dp0p1s1",
+                    "vyatta-vrrp-v1:group": 1}
+        result = pc.get_rfc_mapping("dp0vrrp1")
+        assert expected == result

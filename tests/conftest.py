@@ -72,11 +72,11 @@ def test_config(pydbus_fakes, monkeypatch, tmp_path):
         "ProcessControl",
         MockProcess)
     from vyatta.vyatta_vrrp_vci import Config
-    return Config()
+    return Config(tmp_file_keepalived_config_no_write)
 
 
 @pytest.fixture
-def test_state():
+def test_state(tmp_file_keepalived_config_no_write):
     class FakeVci:
 
         class Config:
@@ -89,7 +89,7 @@ def test_state():
 
     sys.modules['vci'] = FakeVci
     from vyatta.vyatta_vrrp_vci import State
-    return State()
+    return State(tmp_file_keepalived_config_no_write)
 
 
 @pytest.fixture

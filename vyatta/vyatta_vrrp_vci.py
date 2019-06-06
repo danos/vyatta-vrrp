@@ -9,7 +9,6 @@ import logging
 import pydbus
 from typing import Dict
 import vci  # pylint: disable=import-error
-import vyatta.keepalived.config_file as impl_conf
 import vyatta.abstract_vrrp_classes as AbstractVrrpConfig
 import vyatta.keepalived.util as util
 import vyatta.keepalived.dbus.process_control as process_control
@@ -22,12 +21,6 @@ def send_garp(rpc_input: Dict[str, str]):
     group = str(rpc_input["vyatta-vrrp-v1:group"])  # type: str
     vrrp_group_connection.garp(intf, group, pydbus.SystemBus())
     return {}
-
-
-def rfc_intf_map(rpc_input: Dict[str, str]):
-    xmit_intf = rpc_input["vyatta-vrrp-v1:transmit"]  # type: str
-    return vrrp_group_connection.get_rfc_mapping(
-        xmit_intf, pydbus.SystemBus())
 
 
 class Config(vci.Config):
@@ -88,6 +81,10 @@ class Config(vci.Config):
         if util.is_rfc_compat_configured(conf) and util.running_on_vmware():
             print("RFC compatibility is not supported on VMware\n")
         return
+
+    def rfc_intf_map(self, rpc_input: Dict[str, str]):
+        xmit_intf = rpc_input["vyatta-vrrp-v1:transmit"]  # type: str
+        return self.pc.get_rfc_mapping(xmit_intf)
 
 
 class State(vci.State):

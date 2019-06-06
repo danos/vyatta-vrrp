@@ -14,6 +14,7 @@ process using dbus controls.
 import logging
 import pydbus
 from pathlib import Path
+from typing import Any, Dict
 import vyatta.keepalived.util as util
 
 
@@ -100,3 +101,16 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
     def restart_process(self) -> None:
         self.systemd_manager_intf.RestartUnit(
             self.keepalived_service_file, "replace")
+
+    def get_rfc_mapping(self, intf: str) -> Dict[str, str]:
+        dbus_path = util.VRRP_PROCESS_DBUS_INTF_PATH  # type: str
+        vrrp_process_proxy = self.sysbus.get(
+            util.KEEPALIVED_DBUS_INTF_NAME,
+            dbus_path
+        )  # type: Any
+        rfc_mapping = vrrp_process_proxy.GetRfcMapping(intf)  # noqa: E501 type: Tuple[str, str]
+        return {
+            "vyatta-vrrp-v1:receive":
+            rfc_mapping[0],
+            "vyatta-vrrp-v1:group":
+            rfc_mapping[1]}
