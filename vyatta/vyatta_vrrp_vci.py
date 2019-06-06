@@ -16,11 +16,11 @@ import vyatta.keepalived.dbus.vrrp_group_connection as \
     vrrp_dbus
 
 
-def send_garp(rpc_input: Dict[str, str]):
+def send_garp(rpc_input: Dict[str, str]) -> Dict:
     intf = rpc_input["vyatta-vrrp-v1:interface"]  # type: str
     group = str(rpc_input["vyatta-vrrp-v1:group"])  # type: str
     vrrp_conn = vrrp_dbus.vrrp_connection(
-        intf, group, "IPv4", pydbus.SystemBus
+        intf, group, 4, pydbus.SystemBus()
     )
     vrrp_conn.garp()
     return {}
