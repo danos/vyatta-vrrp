@@ -13,7 +13,7 @@ but never actually used anything relating to the class.
 import ipaddress
 import socket
 import re
-from typing import List, Union, Tuple, Any, Dict
+from typing import List, Union, Tuple, Any, Dict, Generator
 
 INTERFACE_YANG_NAME = "vyatta-interfaces-v1:interfaces"  # type: str
 DATAPLANE_YANG_NAME = "vyatta-interfaces-dataplane-v1:dataplane"  # type: str
@@ -47,7 +47,7 @@ VRRP_INSTANCE_DBUS_PATH = "/{}".format(
 
 
 def get_specific_vrrp_config_from_yang(
-        conf: Dict, value: str) -> Union[str, List[str]]:
+        conf: Dict, value: str) -> Generator:
     """
     Generator to return the specific config entry from every VRRP group
 
@@ -90,7 +90,7 @@ def is_rfc_compat_configured(conf: Dict) -> bool:
     return False
 
 
-def get_hello_sources(conf: Dict) -> str:
+def get_hello_sources(conf: Dict) -> List[str]:
     """
     Get every hello address source instance in the config
 

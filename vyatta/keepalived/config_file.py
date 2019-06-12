@@ -12,7 +12,7 @@ import json
 import os
 import pydbus
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Union
 import vyatta.abstract_vrrp_classes as AbstractConfig
 import vyatta.keepalived.util as util
 import vyatta.keepalived.vrrp as vrrp
@@ -167,10 +167,11 @@ global_defs {
 }"""
         self.config_file = config_file_path  # type: str
         self.implementation_name = "Keepalived"  # type: str
-        self._vrrp_instances = []  # type: List[Dict]
-        self._sync_instances = {}  # type: Dict[List[str]]
+        self._vrrp_instances = []  # type: List[vrrp.VrrpGroup]
+        self._sync_instances = {}  # type: Dict[str, List[str]]
         self._rfc_interfaces = 0  # type: int
-        self._vrrp_connections = {}  # noqa: E501 type: Dict[str, vrrp_dbus.VrrpConnection]
+        self._vrrp_connections = {
+        }  # type: Dict[str, vrrp_dbus.VrrpConnection]
 
     @property
     def vrrp_instances(self):
@@ -339,7 +340,9 @@ vrrp_sync_group {} {{
         # config_without_groups = \
         #    config_lines[:vrrp_group_start_indexes[0]]  # type: List[str]
 
-        yang_representation = {util.INTERFACE_YANG_NAME: {}}
+        yang_representation = {
+            util.INTERFACE_YANG_NAME: {}
+        }  # type: Dict[str, Dict]
         for group in group_config:
 
             intf_name = util.find_config_value(
@@ -352,11 +355,11 @@ vrrp_sync_group {} {{
                 group.append("sync_group {}".format(
                     sync_group_instances[instance_name]
                 ))
-            vif_number = ""
+            vif_number = ""  # type: str
             if "." in intf_name:
                 vif_sep = intf_name.split(".")
                 intf_name = vif_sep[0]
-                vif_number = vif_sep[1]  # type: str
+                vif_number = vif_sep[1]
 
             interface_list = yang_representation[util.INTERFACE_YANG_NAME]
             # Find the interface type for the interface name, right now this
@@ -559,7 +562,7 @@ vrrp_sync_group {} {{
             # Interface tracking doesn't exist in this group
             return
         else:
-            interface_list = []
+            interface_list = []  # type: List[Dict]
             config_end = block.index("}", config_start)  # type: int
             track_intf_config = \
                 block[config_start+1:config_end]  # type: List[str]
@@ -598,7 +601,8 @@ vrrp_sync_group {} {{
                 tokens = line.split()
                 monitor_name = tokens[1]
                 policy_name = tokens[3]
-                insertion_dictionary = {}
+                insertion_dictionary = {
+                }  # type: Dict[str, Union[Any, List[Dict]]]
                 for monitor in pathmon_dict["monitor"]:
                     if monitor_name == monitor["name"]:
                         insertion_dictionary = monitor
@@ -607,16 +611,19 @@ vrrp_sync_group {} {{
                     insertion_dictionary["name"] = monitor_name
                     insertion_dictionary["policy"] = []
                     pathmon_dict["monitor"].append(insertion_dictionary)
-                policy_dict = {"name": policy_name}
+                policy_dict = {
+                    "name": policy_name
+                }  # type: Dict[str, Union[str, Dict[str, Union[str, int]]]]
                 if "weight" in line:
-                    policy_dict["weight"] = {}
                     weight = int(tokens[-1])
                     if weight < 0:
                         weight_type = "decrement"
                     else:
                         weight_type = "increment"
-                    policy_dict["weight"]["type"] = weight_type
-                    policy_dict["weight"]["value"] = abs(weight)
+                    policy_dict["weight"] = {
+                        "type": weight_type,
+                        "value": abs(weight)
+                    }
                 insertion_dictionary["policy"].append(policy_dict)
             config_dict["track"][util.PATHMON_YANG_NAME] = pathmon_dict
 

@@ -29,6 +29,7 @@ def activate_connection(func):
         return func(inst, *args, **kwargs)
     return wrapper
 
+
 class VrrpConnection:
 
     def __init__(
@@ -49,9 +50,13 @@ class VrrpConnection:
             name_appeared=activate_connection
         )
         self._activated = False
+        self.vrrp_property_interface = None
+        self.vrrp_group_proxy = None
 
     @activate_connection
     def get_instance_state(self) -> Dict:
+        if self.vrrp_property_interface is None:
+            return {}
         group_state = self.vrrp_property_interface.GetAll(
             util.VRRP_INSTANCE_DBUS_INTF_NAME
         )
@@ -74,5 +79,7 @@ class VrrpConnection:
 
     @activate_connection
     def garp(self) -> Dict:
+        if self.vrrp_group_proxy is None:
+            return {}
         self.vrrp_group_proxy.SendGarp()
         return {}
