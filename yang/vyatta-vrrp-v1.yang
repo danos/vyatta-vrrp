@@ -470,6 +470,18 @@ module vyatta-vrrp-v1 {
 			}
 		}
 	}
+	notification group-state-change {
+		description "group-state-change informs interested parties when a "+
+			"vrrp group changes state";
+		leaf instance {
+			type string;
+			description "Name of the vrrp instance that changed state";
+		}
+		leaf new-state {
+			type string;
+			description "The new state that the group has moved to";
+		}
+	}
 	augment /if:interfaces/interfaces-dataplane:dataplane {
 		uses itf-vrrp;
 	}

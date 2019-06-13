@@ -9,8 +9,9 @@ Vyatta VCI component to configure keepalived to provide VRRP functionality
 
 import logging
 from functools import wraps
-import vyatta.keepalived.util as util
 from typing import Any, Dict
+import vci
+import vyatta.keepalived.util as util
 
 
 def activate_connection(func):
@@ -25,6 +26,10 @@ def activate_connection(func):
             )
             inst.vrrp_property_interface =\
                 inst.vrrp_group_proxy[util.PROPERTIES_DBUS_INTF_NAME]
+            group_state = inst.vrrp_property_interface.GetAll(
+                util.VRRP_INSTANCE_DBUS_INTF_NAME
+            )
+            inst.current_state = group_state["State"][1].upper()
             inst._activated = True
         return func(inst, *args, **kwargs)
     return wrapper
@@ -33,15 +38,23 @@ def activate_connection(func):
 class VrrpConnection:
 
     def __init__(
-            self, intf: str, vrid: str, af_type: str, bus_object: Any):
+            self, intf: str, vrid: str, af_type: str, bus_object: Any,
+            notify_bgp: bool = None, notify_ipsec: bool = None,
+            script_master: bool = None, script_backup: bool = None,
+            script_fault: bool = None):
         self.intf = intf
         self.vrid = vrid
         self.bus_object = bus_object
         self.log = logging.getLogger("vyatta-vrrp-vci")
+        self.current_state = ""  # type: str
+        self.client = vci.Client()
         if af_type == 4:
             self.af_type_str = "IPv4"
         else:
             self.af_type_str = "IPv6"
+        self.instance_name = "vyatta-{}-{}".format(
+            self.intf, self.vrid
+        )
         self.dbus_path = "{}/{}/{}/{}".format(
             util.VRRP_INSTANCE_DBUS_PATH, intf, vrid, self.af_type_str
         )
@@ -83,3 +96,46 @@ class VrrpConnection:
             return {}
         self.vrrp_group_proxy.SendGarp()
         return {}
+
+    @staticmethod
+    def state_int_to_string(state):
+        if state == 0:
+            return "INIT"
+        elif state == 1:
+            return "BACKUP"
+        elif state == 2:
+            return "MASTER"
+        elif state == 3:
+            return "FAULT"
+        else:
+            return "TRANSIENT"
+
+    def state_change(self, status):
+        status_str = self.state_int_to_string(status)
+        # May need to also send 5 gARP replies on a master transition
+        # there's a note about this in the legacy implementation
+        if self.current_state == status_str:
+            # No actual state change so do not emit notification
+            return
+        self.current_state = status_str
+        self.log.debug(
+            "%s changed state to %s",
+            self.instance_name, status_str
+        )
+        self.client.emit(
+            "vyatta-vrrp-v1",
+            "group-state-change",
+            {
+                "vyatta-vrrp-v1:instance": self.instance_name,
+                "vyatta-vrrp-v1:new-state": status_str
+            }
+        )
+
+    @activate_connection
+    def subscribe_instance_signals(self) -> None:
+        self.log.debug("%s subscribing to signals", self.dbus_path)
+        if self.vrrp_group_proxy is None:
+            return
+        self.vrrp_group_proxy.VrrpStatusChange.connect(
+            self.state_change
+        )

@@ -1,0 +1,78 @@
+#!/usr/bin/python3
+
+# Copyright (c) 2019-2020 AT&T Intellectual Property.
+# All rights reserved.
+# SPDX-License-Identifier: GPL-2.0-only
+
+
+import pydbus
+import logging
+import logging.handlers
+from gi.repository import GLib
+import vyatta.keepalived.util as util
+import vyatta.keepalived.config_file as config_file
+import vyatta.keepalived.dbus.process_control as process_control
+
+
+class NotifyDaemon:
+
+    def __init__(self, log):
+        self.log = log
+        self.keepalived = None
+        self.keepalived_dbus = None
+        self.keepalived_proxy = None
+        self._loop = GLib.MainLoop()
+        self.log.info("Notify daemon object created")
+
+    @property
+    def loop(self):
+        return self._loop
+
+    def shutdown_system(self):
+        self.log.info("Keepalived VrrpStopped signal caught")
+        self.loop.quit()
+        self.log.debug("GLib loop shutdown")
+
+
+def bus_activates(name):
+    # This really isn't the best thing to do abusing the scope of variables
+    # need to figure out a better way for this to work
+    log.info("Bus name %s has become active, registering signals", name)
+    log.debug("Registering keepalived shutdown signal")
+    daemon.keepalived = config_file.KeepalivedConfig()
+    file_config = daemon.keepalived.read_config()
+    yang_repr = daemon.keepalived.convert_to_vci_format_dict(file_config)
+    daemon.keepalived.update(yang_repr)
+    daemon.keepalived_dbus = process_control.ProcessControl()
+    daemon.keepalived_dbus.keepalived_process = daemon.keepalived_dbus.sysbus.get(
+        util.KEEPALIVED_DBUS_INTF_NAME,
+        util.VRRP_PROCESS_DBUS_INTF_PATH
+    )
+    daemon.keepalived_proxy = daemon.keepalived_dbus.keepalived_process
+    daemon.keepalived_proxy.VrrpStopped.connect(daemon.shutdown_system)
+    log.debug("Registering vrrp instance signal")
+    for instance, connection in daemon.keepalived.vrrp_connections.items():
+        connection.subscribe_instance_signals()
+    log.debug("Registering other keepalived signals")
+    daemon.keepalived_dbus.subscribe_process_signals()
+
+
+if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="vyatta-vrrp-notify[%(process)d]: %(message)s"
+    )
+    handler = logging.handlers.SysLogHandler(address="/dev/log")
+    log = logging.getLogger("vyatta-vrrp-notify")
+    log.addHandler(handler)
+    log.info("Starting vrrp notify daemon")
+    daemon = NotifyDaemon(log)
+    loop = daemon.loop
+    sysbus = pydbus.SystemBus()
+    sysbus.watch_name(
+        util.KEEPALIVED_DBUS_INTF_NAME,
+        name_appeared=bus_activates
+    )
+    log.debug("Running GLib loop")
+    loop.run()
+    log.info("Shutting down vrrp notify daemon")

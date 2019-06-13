@@ -44,6 +44,7 @@ class ProcessControl:
                 util.SYSTEMD_DBUS_INTF_NAME,
                 self.keepalived_unit_file_intf
             )
+        self.keepalived_process = None
         self.running_state = "UNKNOWN"
         self.systemd_default_file_path = "/etc/default/vyatta-keepalived"
         self.snmpd_conf_file_path = "/etc/snmp/snmpd.conf"
@@ -115,3 +116,6 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
             rfc_mapping[0],
             "vyatta-vrrp-v1:group":
             rfc_mapping[1]}
+
+    def subscribe_process_signals(self) -> None:
+        self.log.debug("Keepalived instance subscribing to signals")

@@ -57,6 +57,10 @@ def tmp_file_keepalived_config_no_write(tmp_path):
             def get(self):
                 pass
 
+        class Client:
+            def emit(self):
+                pass
+
     sys.modules['vci'] = FakeVci
     from vyatta.keepalived.config_file import KeepalivedConfig
     file_path = f"{str(tmp_path)}/keepalived.conf"
@@ -80,6 +84,10 @@ def test_config(
 
         class State:
             def get(self):
+                pass
+
+        class Client:
+            def emit(self):
                 pass
 
     sys.modules['vci'] = FakeVci
@@ -111,6 +119,10 @@ def test_state(tmp_file_keepalived_config_no_write):
             def get(self):
                 pass
 
+        class Client:
+            def emit(self):
+                pass
+
     sys.modules['vci'] = FakeVci
     from vyatta.vyatta_vrrp_vci import State
     return State(tmp_file_keepalived_config_no_write)
@@ -126,6 +138,10 @@ def keepalived_config(pydbus_fakes):
 
         class State:
             def get(self):
+                pass
+
+        class Client:
+            def emit(self):
                 pass
 
     sys.modules['vci'] = FakeVci
@@ -144,6 +160,10 @@ def tmp_file_keepalived_config(tmp_path, autogeneration_string,
 
         class State:
             def get(self):
+                pass
+
+        class Client:
+            def emit(self):
                 pass
 
     sys.modules['vci'] = FakeVci
@@ -169,6 +189,10 @@ def tmp_file_syncgroup_keepalived_config(
             def get(self):
                 pass
 
+        class Client:
+            def emit(self):
+                pass
+
     sys.modules['vci'] = FakeVci
     from vyatta.keepalived.config_file import KeepalivedConfig
     file_path = f"{tmp_path}/keepalived.conf"
@@ -188,6 +212,10 @@ def non_default_keepalived_config():
 
         class State:
             def get(self):
+                pass
+
+        class Client:
+            def emit(self):
                 pass
 
     sys.modules['vci'] = FakeVci
