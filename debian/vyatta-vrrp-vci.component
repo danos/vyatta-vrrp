@@ -7,6 +7,9 @@ ConfigFile=/etc/vyatta-keepalived/keepalived.conf
 [Model net.vyatta.vci.vrrp.v1]
 Modules=vyatta-vrrp-v1, vyatta-vrrp-path-monitor-track-v1, \
   vyatta-vrrp-path-monitor-track-interfaces-dataplane-v1, \
-  vyatta-vrrp-path-monitor-track-interfaces-bonding-v1
+  vyatta-vrrp-path-monitor-track-interfaces-bonding-v1, \
+  vyatta-vrrp-route-to-track-v1, \
+  vyatta-vrrp-route-to-track-interfaces-dataplane-v1, \
+  vyatta-vrrp-route-to-track-interfaces-bonding-v1
 
 ModelSets=vyatta-v1
