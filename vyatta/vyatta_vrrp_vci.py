@@ -49,6 +49,7 @@ class Config(vci.Config):
         if {} == conf[util.INTERFACE_YANG_NAME]:
             if self.pc.is_running():
                 self.pc.shutdown_process()
+                self._conf_obj.shutdown()
             return
         self.log.debug(
             "Got following config from VCI infra:%s",

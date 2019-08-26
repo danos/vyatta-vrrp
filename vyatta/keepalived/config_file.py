@@ -11,6 +11,7 @@ import logging
 import json
 import os
 import pydbus
+import contextlib
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Union
 import vyatta.abstract_vrrp_classes as AbstractConfig
@@ -628,6 +629,5 @@ vrrp_sync_group {} {{
             config_dict["track"][util.PATHMON_YANG_NAME] = pathmon_dict
 
     def shutdown(self):
-        config_path = Path(self.config_file)
-        if config_path.is_file():
+        with contextlib.suppress(FileNotFoundError):
             os.remove(self.config_file)
