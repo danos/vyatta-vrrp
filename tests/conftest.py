@@ -1082,9 +1082,9 @@ def bonding_interface_dictionary(bonding_yang_name):
 @pytest.fixture
 def simple_config(top_level_dictionary, interface_yang_name,
                   dataplane_yang_name, dataplane_list):
-    simple_yang_config = top_level_dictionary
+    simple_yang_config = copy.deepcopy(top_level_dictionary)
     simple_yang_config[interface_yang_name][dataplane_yang_name] =\
-        dataplane_list
+        copy.deepcopy(dataplane_list)
     return simple_yang_config
 
 

@@ -141,6 +141,27 @@ class TestVyattaVrrpVci:
         with pytest.raises(OSError):
             test_config.check(simple_config)
 
+    @pytest.mark.sanity
+    def test_vci_config_set_cleans_up_file(
+            self, mock_pydbus, test_config,
+            simple_config, top_level_dictionary):
+        import vyatta.keepalived.dbus.process_control as process_ctrl
+        pc = process_ctrl.ProcessControl()
+        pc.keepalived_proxy_obj.SubState = "running"
+        result = True
+        test_config.set(simple_config)
+        conf_path = Path(
+            test_config._conf_obj.config_file_path())
+        expected = conf_path.exists()
+        assert result == expected
+        test_config.pc.keepalived_proxy_obj.SubState = "running"
+        result = False
+        test_config.set(top_level_dictionary)
+        conf_path = Path(
+            test_config._conf_obj.config_file_path())
+        expected = conf_path.exists()
+        assert result == expected
+
     def test_vci_config_check_simple_config(
             self, mock_pydbus, test_config, simple_config):
         result = None
