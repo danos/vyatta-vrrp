@@ -212,8 +212,12 @@ vrrp_instance {instance} {{
     track {{"""
         if "interface" in track_dict:
             self._generate_track_interfaces(track_dict["interface"])
-        if util.PATHMON_YANG_NAME in track_dict:
-            self._generate_track_pathmon(track_dict[util.PATHMON_YANG_NAME])
+        if util.PATHMON_DATAPLANE_YANG_NAME in track_dict:
+            self._generate_track_pathmon(
+                track_dict[util.PATHMON_DATAPLANE_YANG_NAME])
+        if util.PATHMON_BONDING_YANG_NAME in track_dict:
+            self._generate_track_pathmon(
+                track_dict[util.PATHMON_BONDING_YANG_NAME])
         self._template += """
     }}"""
 

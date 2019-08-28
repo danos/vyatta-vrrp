@@ -17,12 +17,18 @@ from typing import List, Union, Tuple, Any, Dict, Generator
 
 INTERFACE_YANG_NAME = "vyatta-interfaces-v1:interfaces"  # type: str
 DATAPLANE_YANG_NAME = "vyatta-interfaces-dataplane-v1:dataplane"  # type: str
-VRRP_YANG_NAME = "vyatta-vrrp-v1:vrrp"  # type: str
 BONDING_YANG_NAME = "vyatta-bonding-v1:bonding"  # type: str
 SWITCHPORT_YANG_NAME = "vyatta-switchport-v1:switchport"  # type: str
+VRRP_YANG_NAME = "vyatta-vrrp-v1:vrrp"  # type: str
 VIF_YANG_NAME = "vif"  # type: str
-PATHMON_YANG_NAME = \
+PATHMON_DATAPLANE_YANG_NAME = \
     "vyatta-vrrp-path-monitor-track-interfaces-dataplane-v1:path-monitor"
+PATHMON_BONDING_YANG_NAME = \
+    "vyatta-vrrp-path-monitor-track-interfaces-bonding-v1:path-monitor"
+ROUTE_DATAPLANE_YANG_NAME = \
+    "vyatta-vrrp-route-to-track-interfaces-dataplane-v1:route-to"
+ROUTE_BONDING_YANG_NAME = \
+    "vyatta-vrrp-route-to-track-interfaces-bonding-v1:route-to"
 
 PROPERTIES_DBUS_INTF_NAME = "org.freedesktop.DBus.Properties"  # type: str
 SYSTEMD_DBUS_INTF_NAME = "org.freedesktop.systemd1"  # type: str
