@@ -563,6 +563,8 @@ vrrp_sync_group {} {{
             intf_enum = util.intf_name_to_type(intf_type)[1]  # Type: Enum
             self._convert_pathmon_tracking_config(
                 block, config_dict, config_start, intf_enum)
+            self._convert_route_to_tracking_config(
+                block, config_dict, config_start, intf_enum)
 
     @staticmethod
     def _convert_interface_tracking_config(
@@ -643,6 +645,43 @@ vrrp_sync_group {} {{
             elif intf_type.name == "bonding":
                 config_dict["track"][util.PATHMON_BONDING_YANG_NAME] =\
                     pathmon_dict
+
+    @staticmethod
+    def _convert_route_to_tracking_config(
+            block: List[str], config_dict: Dict, start: int,
+            intf_type: Enum) -> None:
+        try:
+            config_start = block.index('route_to {', start)  # type: int
+        except ValueError:
+            # Interface tracking doesn't exist in this group
+            return
+        else:
+            route_list = []  # type: List[Dict]
+            config_end = block.index("}", config_start)  # type: int
+            track_route_config = \
+                block[config_start+1:config_end]  # type: List[str]
+            for line in track_route_config:
+                if "weight" not in line:
+                    route_list.append({"route": line})
+                    continue
+                tokens = line.split()
+                weight = int(tokens[-1])
+                if weight < 0:
+                    weight_type = "decrement"
+                else:
+                    weight_type = "increment"
+                route_list.append(
+                    {"route": tokens[0], "weight": {
+                        "type": weight_type,
+                        "value": abs(weight)
+                    }}
+                )
+            if intf_type.name == "dataplane":
+                config_dict["track"][util.ROUTE_DATAPLANE_YANG_NAME] = \
+                    route_list
+            elif intf_type.name == "bonding":
+                config_dict["track"][util.ROUTE_BONDING_YANG_NAME] = \
+                    route_list
 
     def shutdown(self):
         with contextlib.suppress(FileNotFoundError):

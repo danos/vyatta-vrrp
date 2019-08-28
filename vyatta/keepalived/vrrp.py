@@ -218,6 +218,12 @@ vrrp_instance {instance} {{
         if util.PATHMON_BONDING_YANG_NAME in track_dict:
             self._generate_track_pathmon(
                 track_dict[util.PATHMON_BONDING_YANG_NAME])
+        if util.ROUTE_DATAPLANE_YANG_NAME in track_dict:
+            self._generate_track_route_to(
+                track_dict[util.ROUTE_DATAPLANE_YANG_NAME])
+        if util.ROUTE_BONDING_YANG_NAME in track_dict:
+            self._generate_track_route_to(
+                track_dict[util.ROUTE_BONDING_YANG_NAME])
         self._template += """
     }}"""
 
@@ -260,6 +266,24 @@ vrrp_instance {instance} {{
                 self._template += track_string
         self._template += """
         }}"""  # Close pathmon brace
+
+    def _generate_track_route_to(self, route_dict):
+        self._template += """
+        route_to {{"""
+        for route in route_dict:
+            if "route" in route:
+                track_string = """
+            {}""".format(route["route"])
+            if "weight" in route:
+                if route["weight"]["type"] == "decrement":
+                    multiplier = -1
+                else:
+                    multiplier = 1
+                value = multiplier * route["weight"]["value"]
+                track_string += "   weight  {:+d}".format(value)
+            self._template += track_string
+        self._template += """
+        }}"""  # Close route brace
 
     def __repr__(self):
         completed_config = self._template.format(
