@@ -38,7 +38,22 @@ class TestKeepalivedUtils:
             (
                 "vyatta-vrrp-path-monitor-track-interfaces-dataplane" +
                 "-v1:path-monitor",
-                util.PATHMON_YANG_NAME
+                util.PATHMON_DATAPLANE_YANG_NAME
+            ),
+            (
+                "vyatta-vrrp-path-monitor-track-interfaces-bonding" +
+                "-v1:path-monitor",
+                util.PATHMON_BONDING_YANG_NAME
+            ),
+            (
+                "vyatta-vrrp-route-to-track-interfaces-dataplane" +
+                "-v1:route-to",
+                util.ROUTE_DATAPLANE_YANG_NAME
+            ),
+            (
+                "vyatta-vrrp-route-to-track-interfaces-bonding" +
+                "-v1:route-to",
+                util.ROUTE_BONDING_YANG_NAME
             ),
             (
                 "org.freedesktop.DBus.Properties",
@@ -81,7 +96,11 @@ class TestKeepalivedUtils:
             "Interface yang name", "Dataplane yang name",
             "Vrrp yang name", "Bonding yang name",
             "Switchport yang name", "Vif yang name",
-            "Path monitor yang name", "DBus properties name",
+            "Path monitor dataplane yang name",
+            "Path monitor bonding yang name",
+            "Route to dataplane yang name",
+            "Route to monitor bonding yang name",
+            "DBus properties name",
             "DBus systemd interface name",
             "DBus systemd path name",
             "DBus systemd manager interface name",
