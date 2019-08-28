@@ -13,12 +13,16 @@ but never actually used anything relating to the class.
 import ipaddress
 import socket
 import re
+from enum import Enum
 from typing import List, Union, Tuple, Any, Dict, Generator
 
 INTERFACE_YANG_NAME = "vyatta-interfaces-v1:interfaces"  # type: str
 DATAPLANE_YANG_NAME = "vyatta-interfaces-dataplane-v1:dataplane"  # type: str
 BONDING_YANG_NAME = "vyatta-bonding-v1:bonding"  # type: str
 SWITCHPORT_YANG_NAME = "vyatta-switchport-v1:switchport"  # type: str
+
+intf_type = Enum("intf_type", "dataplane bonding switchport")
+
 VRRP_YANG_NAME = "vyatta-vrrp-v1:vrrp"  # type: str
 VIF_YANG_NAME = "vif"  # type: str
 PATHMON_DATAPLANE_YANG_NAME = \
@@ -428,11 +432,11 @@ def running_on_vmware():
 
 def intf_name_to_type(name):
     if re.match(r"dp\d+bond\d+", name):
-        return BONDING_YANG_NAME
+        return (BONDING_YANG_NAME, intf_type.bonding)
     elif re.match(r"sw\d+", name):
-        return SWITCHPORT_YANG_NAME
+        return (SWITCHPORT_YANG_NAME, intf_type.switchport)
     elif re.match(r"dp\d+(.*)\d+", name):
-        return DATAPLANE_YANG_NAME
+        return (DATAPLANE_YANG_NAME, intf_type.dataplane)
     else:
         raise ValueError(
             "Unrecognised interface type for interface {}".format(name)
