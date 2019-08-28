@@ -418,5 +418,5 @@ class TestKeepalivedConfigFile:
     def test_convert_pathmon_tracking_config(self, expected, config_block,
                                              keepalived_config, result):
         keepalived_config._convert_pathmon_tracking_config(
-            config_block, result, 0)
+            config_block, result, 0, util.intf_type.dataplane)
         assert result == expected

@@ -12,6 +12,7 @@ import json
 import os
 import pydbus
 import contextlib
+from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Union
 import vyatta.abstract_vrrp_classes as AbstractConfig
@@ -366,7 +367,7 @@ vrrp_sync_group {} {{
             # Find the interface type for the interface name, right now this
             # is just a guess, there might be a better method of doing this
             # than regexes
-            intf_type = util.intf_name_to_type(intf_name)
+            intf_type = util.intf_name_to_type(intf_name)[0]
             if intf_type not in interface_list:
                 interface_list[intf_type] = []
             interface_list = interface_list[intf_type]
@@ -488,8 +489,16 @@ vrrp_sync_group {} {{
                     config_dict["advertise-interval"] * 1000
                 del config_dict["advertise-interval"]
 
+        # Find interface so we know which yang name to use for tracking
+        # augments
+        conf_tuple = util.find_config_value(config_block, "interface")
+        intf_type = None
+        if conf_tuple[0] is True:
+            intf_type = conf_tuple[1]
+        else:
+            return {}
         self._convert_tracking_config(
-            config_block, config_dict)
+            config_block, config_dict, intf_type)
 
         self._convert_notify_proto_config(
             config_block, config_dict)
@@ -541,7 +550,7 @@ vrrp_sync_group {} {{
                 config_dict["notify"]["ipsec"] = [None]
 
     def _convert_tracking_config(
-            self, block: List[str], config_dict: Dict) -> None:
+            self, block: List[str], config_dict: Dict, intf_type: str) -> None:
         try:
             config_start = block.index('track {')  # type: int
         except ValueError:
@@ -551,8 +560,9 @@ vrrp_sync_group {} {{
             config_dict["track"] = {}
             self._convert_interface_tracking_config(
                 block, config_dict, config_start)
+            intf_enum = util.intf_name_to_type(intf_type)[1]  # Type: Enum
             self._convert_pathmon_tracking_config(
-                block, config_dict, config_start)
+                block, config_dict, config_start, intf_enum)
 
     @staticmethod
     def _convert_interface_tracking_config(
@@ -587,7 +597,8 @@ vrrp_sync_group {} {{
 
     @staticmethod
     def _convert_pathmon_tracking_config(
-            block: List[str], config_dict: Dict, start: int) -> None:
+            block: List[str], config_dict: Dict, start: int,
+            intf_type: Enum) -> None:
         try:
             config_start = block.index('pathmon {', start)  # type: int
         except ValueError:
@@ -626,7 +637,12 @@ vrrp_sync_group {} {{
                         "value": abs(weight)
                     }
                 insertion_dictionary["policy"].append(policy_dict)
-            config_dict["track"][util.PATHMON_YANG_NAME] = pathmon_dict
+            if intf_type.name == "dataplane":
+                config_dict["track"][util.PATHMON_DATAPLANE_YANG_NAME] =\
+                    pathmon_dict
+            elif intf_type.name == "bonding":
+                config_dict["track"][util.PATHMON_BONDING_YANG_NAME] =\
+                    pathmon_dict
 
     def shutdown(self):
         with contextlib.suppress(FileNotFoundError):
