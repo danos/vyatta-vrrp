@@ -67,6 +67,21 @@ class TestKeepalivedConfigFile:
         assert expected == result
 
     @pytest.mark.sanity
+    def test_convert_route_to_vrrp_keepalived_conf_to_yang(
+            self, route_to_track_group_keepalived_config,
+            route_to_track_group,
+            keepalived_config):
+        expected = route_to_track_group
+        config_split = route_to_track_group_keepalived_config.splitlines()
+        indexes = util.get_config_indexes(
+            config_split, "vrrp_instance")
+        config_block = util.get_config_blocks(
+            config_split, indexes)[0]
+        result = keepalived_config._convert_keepalived_config_to_yang(
+            config_block)
+        assert expected == result
+
+    @pytest.mark.sanity
     def test_convert_minimal_vrrp_keepalived_conf_to_yang(
             self, dataplane_group_keepalived_config, generic_group,
             keepalived_config):
@@ -418,5 +433,30 @@ class TestKeepalivedConfigFile:
     def test_convert_pathmon_tracking_config(self, expected, config_block,
                                              keepalived_config, result):
         keepalived_config._convert_pathmon_tracking_config(
+            config_block, result, 0, util.intf_type.dataplane)
+        assert result == expected
+
+    @pytest.mark.parametrize(
+        "expected,config_block,result",
+        [
+            ({"track":
+                {
+                    "vyatta-vrrp-route-to" +
+                    "-track-interfaces-dataplane-v1:" +
+                    "route-to": [{
+                        "route": "10.10.10.0/24",
+                    }]
+                }
+              },
+             ["track {", "route_to {",
+              "10.10.10.0/24", "}"],
+             {"track": {}}
+             ),
+            ({}, ['virtual_ipaddress {', "10.10.10.100/25", "}"], {})
+        ],
+        ids=["Config exists", "Config doesn't exist"])
+    def test_convert_route_to_config(self, expected, config_block,
+                                     keepalived_config, result):
+        keepalived_config._convert_route_to_tracking_config(
             config_block, result, 0, util.intf_type.dataplane)
         assert result == expected

@@ -531,7 +531,42 @@ def pathmon_track_group(pathmon_yang_name):
 
 
 @pytest.fixture
-def max_config_group(pathmon_yang_name):
+def route_to_track_group(route_to_yang_name):
+    return \
+        {
+            "accept": False,
+            "preempt": True,
+            "tagnode": 1,
+            "version": 3,
+            "virtual-address": [
+                "10.10.1.100/25"
+            ],
+            "track": {
+                route_to_yang_name: [
+                    {
+                        "route": "10.10.10.128/25",
+                        "weight": {
+                            "type": "increment",
+                            "value": 10
+                        }
+                    },
+                    {
+                        "route": "10.10.10.0/24",
+                        "weight": {
+                            "type": "decrement",
+                            "value": 10
+                        }
+                    },
+                    {
+                        "route": "0.0.0.0/0"
+                    }
+                ]
+            },
+        }
+
+
+@pytest.fixture
+def max_config_group(pathmon_yang_name, route_to_yang_name):
     return \
         {
             "accept": False,
@@ -591,7 +626,10 @@ def max_config_group(pathmon_yang_name):
                             ]
                         }
                     ]
-                }
+                },
+                route_to_yang_name: [
+                    {"route": "10.10.10.0/24"}
+                ]
             },
             "version": 2,
             "virtual-address": [
@@ -986,6 +1024,9 @@ vrrp_instance vyatta-dp0p1s1-1 {
         pathmon {
             monitor test_monitor    policy test_policy      weight  -10
         }
+        route_to {
+            10.10.10.0/24
+        }
     }
     notify {
         /opt/vyatta/sbin/vyatta-ipsec-notify.sh
@@ -1012,6 +1053,30 @@ vrrp_instance vyatta-dp0p1s1-1 {
         pathmon {
             monitor test_monitor    policy test_policy      weight  +10
             monitor test_monitor    policy tester_policy      weight  -10
+        }
+    }
+}"""
+
+
+@pytest.fixture
+def route_to_track_group_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0p1s1-1 {
+    state BACKUP
+    interface dp0p1s1
+    virtual_router_id 1
+    version 3
+    start_delay 0
+    priority 100
+    advert_int 1
+    virtual_ipaddress {
+        10.10.1.100/25
+    }
+    track {
+        route_to {
+            10.10.10.128/25   weight  +10
+            10.10.10.0/24   weight  -10
+            0.0.0.0/0
         }
     }
 }"""
@@ -1062,6 +1127,12 @@ def vrrp_yang_name():
 def pathmon_yang_name():
     return \
         "vyatta-vrrp-path-monitor-track-interfaces-dataplane-v1:path-monitor"
+
+
+@pytest.fixture
+def route_to_yang_name():
+    return \
+        "vyatta-vrrp-route-to-track-interfaces-dataplane-v1:route-to"
 
 
 @pytest.fixture
