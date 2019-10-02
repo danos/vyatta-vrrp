@@ -56,6 +56,11 @@ VRRP_INSTANCE_DBUS_PATH = "/{}".format(
 )  # type: str
 
 
+INSTANCE_STATE_YANG = "instance-state"
+TAGNODE_YANG = "tagnode"
+VRRP_GROUP_YANG = "vrrp-group"
+
+
 def get_specific_vrrp_config_from_yang(
         conf: Dict, value: str) -> Generator:
     """
@@ -441,3 +446,32 @@ def intf_name_to_type(name):
         raise ValueError(
             "Unrecognised interface type for interface {}".format(name)
         )
+
+
+def elapsed_time(time_delta: Any) -> str:
+    seconds = time_delta
+    time_str = ""  # type: str
+    sec_min = 60  # type: int
+    sec_hour = sec_min * 60  # type: int
+    sec_day = sec_hour * 24  # type: int
+    sec_week = sec_day * 7  # type: int
+
+    weeks = int(seconds / sec_week)
+    if weeks > 0:
+        seconds = int(seconds % sec_week)
+        time_str += str(weeks) + "w"
+    days = int(seconds / sec_day)
+    if days > 0:
+        seconds = int(seconds % sec_day)
+        time_str += str(days) + "d"
+    hours = int(seconds / sec_hour)
+    if hours > 0:
+        seconds = int(seconds % sec_hour)
+        time_str += str(hours) + "h"
+    min = int(seconds / sec_min)
+    if min > 0:
+        seconds = int(seconds % sec_min)
+        time_str += str(min) + "m"
+    time_str += str(seconds) + "s"
+
+    return time_str
