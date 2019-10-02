@@ -116,11 +116,17 @@ class TestVyattaShowVrrp:
                     "detailed_backup_track_route_simple_state"
                 )
             ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("generic_v3_group_show_detail"),
+                pytest.lazy_fixture("detailed_v3_simple_state")
+            ),
         ],
         ids=[
             "No rfc", "rfc", "rfc sync", "rfc IPAO", "Backup show",
             "Backup track interface", "Backup track interface no weight",
-            "Backup track pathmon", "Backup track route"
+            "Backup track pathmon", "Backup track route",
+            "No rfc v3"
         ]
     )
     def test_show_vrrp_detail(self, fakes, show, data):
