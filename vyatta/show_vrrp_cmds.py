@@ -150,19 +150,8 @@ def show_vrrp_detail(state_dict: Dict) -> str:
                 output += SHOW_DETAIL_LINE_FORMAT.format(
                     "Effective Priority:", str(state["effective-priority"])
                 )
-                advert = str(state["advert-interval"])
-                if version == 2:
-                    advert += " sec"
-                else:
-                    advert += " milli-sec"
                 output += SHOW_DETAIL_LINE_FORMAT.format(
-                    "Advertisement interval:", advert
-                )
-                auth_value = state["auth-type"]
-                if auth_value is None:
-                    auth_value = "none"
-                output += SHOW_DETAIL_LINE_FORMAT.format(
-                    "Authentication type:", auth_value
+                    "Advertisement interval:", state["advert-interval"]
                 )
                 preempt = "disabled"
                 if state["preempt"]:

@@ -340,7 +340,7 @@ def generic_group_simple_keepalived_data():
    Base priority = 100
    Effective priority = 100
    Address owner = no
-   Advert interval = 1 sec
+   Advert interval = 2 sec
    Accept = enabled
    Preempt = enabled
    Promote_secondaries = disabled
@@ -365,7 +365,7 @@ def detailed_simple_keepalived_state():
                 "src-ip": "10.10.1.1",
                 "base-priority": 100,
                 "effective-priority": 100,
-                "advert-interval": 2,
+                "advert-interval": "2 sec",
                 "accept": True,
                 "preempt": True,
                 "auth-type": None,
@@ -478,7 +478,7 @@ def detailed_rfc_simple_keepalived_state():
                 "src-ip": "10.10.1.1",
                 "base-priority": 100,
                 "effective-priority": 100,
-                "advert-interval": 2,
+                "advert-interval": "2 sec",
                 "accept": True,
                 "preempt": True,
                 "auth-type": None,
@@ -572,7 +572,7 @@ def detailed_rfc_sync_simple_keepalived_state():
                 "src-ip": "10.10.1.1",
                 "base-priority": 100,
                 "effective-priority": 100,
-                "advert-interval": 2,
+                "advert-interval": "2 sec",
                 "accept": True,
                 "preempt": True,
                 "auth-type": None,
@@ -660,7 +660,7 @@ def detailed_rfc_ipao_simple_keepalived_state():
                 "src-ip": "10.10.1.1",
                 "base-priority": 100,
                 "effective-priority": 255,
-                "advert-interval": 2,
+                "advert-interval": "2 sec",
                 "accept": True,
                 "preempt": True,
                 "auth-type": None,
@@ -750,7 +750,7 @@ def detailed_backup_simple_keepalived_state():
                 "src-ip": "10.10.1.1",
                 "base-priority": 50,
                 "effective-priority": 50,
-                "advert-interval": 2,
+                "advert-interval": "2 sec",
                 "accept": True,
                 "preempt": True,
                 "auth-type": None,
@@ -855,7 +855,7 @@ def detailed_backup_track_intf_simple_keepalived_state():
                 "src-ip": "10.10.1.1",
                 "base-priority": 50,
                 "effective-priority": 50,
-                "advert-interval": 2,
+                "advert-interval": "2 sec",
                 "accept": True,
                 "preempt": True,
                 "auth-type": None,
@@ -899,7 +899,7 @@ def backup_generic_group_track_intf_no_weight_simple_keepalived_data():
    Base priority = 150
    Effective priority = 150
    Address owner = no
-   Advert interval = 1 sec
+   Advert interval = 2 sec
    Accept = enabled
    Preempt = enabled
    Promote_secondaries = disabled
@@ -967,7 +967,7 @@ def detailed_backup_track_intf_no_weight_simple_keepalived_state():
                 "src-ip": "10.10.1.1",
                 "base-priority": 50,
                 "effective-priority": 50,
-                "advert-interval": 2,
+                "advert-interval": "2 sec",
                 "accept": True,
                 "preempt": True,
                 "auth-type": None,
@@ -1010,7 +1010,7 @@ def backup_generic_group_track_pathmon_simple_keepalived_data():
    Base priority = 150
    Effective priority = 150
    Address owner = no
-   Advert interval = 1 sec
+   Advert interval = 2 sec
    Accept = enabled
    Preempt = enabled
    Promote_secondaries = disabled
@@ -1072,7 +1072,7 @@ def detailed_backup_track_pathmon_simple_keepalived_state():
                 "src-ip": "10.10.1.1",
                 "base-priority": 50,
                 "effective-priority": 50,
-                "advert-interval": 2,
+                "advert-interval": "2 sec",
                 "accept": True,
                 "preempt": True,
                 "auth-type": None,
@@ -1122,7 +1122,7 @@ def backup_generic_group_track_route_simple_keepalived_data():
    Base priority = 150
    Effective priority = 150
    Address owner = no
-   Advert interval = 1 sec
+   Advert interval = 2 sec
    Accept = enabled
    Preempt = enabled
    Promote_secondaries = disabled
@@ -1183,7 +1183,7 @@ def detailed_backup_track_route_simple_keepalived_state():
                 "src-ip": "10.10.1.1",
                 "base-priority": 50,
                 "effective-priority": 50,
-                "advert-interval": 2,
+                "advert-interval": "2 sec",
                 "accept": True,
                 "preempt": True,
                 "auth-type": None,
