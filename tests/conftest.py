@@ -46,6 +46,16 @@ def pydbus_fakes():
 
 
 @pytest.fixture
+def calendar_fakes():
+    class Calendar:
+
+        def timegm(self):
+            return 3
+
+    sys.modules['calendar'] = Calendar
+
+
+@pytest.fixture
 def tmp_file_keepalived_config_no_write(tmp_path):
     class FakeVci:
 
@@ -265,6 +275,936 @@ def generic_group_state():
 
 
 @pytest.fixture
+def generic_group_show_summary():
+    return """
+                                 RFC        Addr   Last        Sync
+Interface         Group  State   Compliant  Owner  Transition  Group
+---------         -----  -----   ---------  -----  ----------  -----
+dp0p1s1           1      MASTER  no         no     3s          <none>
+
+"""
+
+
+@pytest.fixture
+def generic_group_rfc_show_summary():
+    return """
+                                 RFC        Addr   Last        Sync
+Interface         Group  State   Compliant  Owner  Transition  Group
+---------         -----  -----   ---------  -----  ----------  -----
+dp0p1s1           1      MASTER  dp0vrrp1   no     3s          <none>
+
+"""
+
+
+@pytest.fixture
+def generic_group_rfc_sync_show_summary():
+    return """
+                                 RFC        Addr   Last        Sync
+Interface         Group  State   Compliant  Owner  Transition  Group
+---------         -----  -----   ---------  -----  ----------  -----
+dp0p1s1           1      MASTER  dp0vrrp1   no     3s          TEST
+
+"""
+
+
+@pytest.fixture
+def generic_group_rfc_ipao_show_summary():
+    return """
+                                 RFC        Addr   Last        Sync
+Interface         Group  State   Compliant  Owner  Transition  Group
+---------         -----  -----   ---------  -----  ----------  -----
+dp0p1s1           1      MASTER  dp0vrrp1   yes    3s          <none>
+
+"""
+
+
+@pytest.fixture
+def generic_group_simple_keepalived_data():
+    return """
+------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s1-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 3 (Thur Jan 1 00:00:03 1970)
+   Listening device = dp0p1s1
+   Transmitting device = dp0p1s1
+   Using src_ip = 10.10.1.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 100
+   Effective priority = 100
+   Address owner = no
+   Advert interval = 1 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.1.100/32 dev dp0p1s1 scope global
+"""
+
+
+@pytest.fixture
+def detailed_simple_keepalived_state():
+    return \
+        {
+            "instance-state":
+            {
+                "address-owner": False,
+                "last-transition": 0,
+                "rfc-interface": "",
+                "state": "MASTER",
+                "sync-group": "",
+                "version": 2,
+                "src-ip": "10.10.1.1",
+                "base-priority": 100,
+                "effective-priority": 100,
+                "advert-interval": 2,
+                "accept": True,
+                "preempt": True,
+                "auth-type": None,
+                "virtual-ips": [
+                    "10.10.1.100/32"
+                ]
+            },
+            "tagnode": "1"
+        }
+
+
+@pytest.fixture
+def generic_group_show_detail():
+    return """
+--------------------------------------------------
+Interface: dp0p1s1
+--------------
+  Group: 1
+  ----------
+  State:                        MASTER
+  Last transition:              3s
+
+  Version:                      2
+  Configured Priority:          100
+  Effective Priority:           100
+  Advertisement interval:       2 sec
+  Authentication type:          none
+  Preempt:                      enabled
+
+  VIP count:                    1
+    10.10.1.100/32
+
+"""
+
+
+@pytest.fixture
+def generic_group_rfc_simple_keepalived_data():
+    return """
+------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s1-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:00 1970)
+   Listening device = dp0p1s1
+   Transmitting device = dp0vrrp1
+   Using src_ip = 10.10.1.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 100
+   Effective priority = 100
+   Address owner = no
+   Advert interval = 2 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.1.100/32 dev dp0vrrp1 scope global
+"""
+
+
+@pytest.fixture
+def generic_group_rfc_show_detail():
+    # flake8: noqa: W291
+    return """
+--------------------------------------------------
+Interface: dp0p1s1
+--------------
+  Group: 1
+  ----------
+  State:                        MASTER
+  Last transition:              3s
+
+  Version:                      2
+  RFC Compliant                 
+  Virtual MAC interface:        dp0vrrp1
+  Address Owner:                no
+
+  Source Address:               10.10.1.1
+  Configured Priority:          100
+  Effective Priority:           100
+  Advertisement interval:       2 sec
+  Authentication type:          none
+  Preempt:                      enabled
+
+  VIP count:                    1
+    10.10.1.100/32
+
+"""  # noqa: W291
+
+
+@pytest.fixture
+def detailed_rfc_simple_keepalived_state():
+    return \
+        {
+            "instance-state":
+            {
+                "address-owner": False,
+                "last-transition": 0,
+                "rfc-interface": "dp0vrrp1",
+                "state": "MASTER",
+                "sync-group": "",
+                "version": 2,
+                "src-ip": "10.10.1.1",
+                "base-priority": 100,
+                "effective-priority": 100,
+                "advert-interval": 2,
+                "accept": True,
+                "preempt": True,
+                "auth-type": None,
+                "virtual-ips": [
+                    "10.10.1.100/32"
+                ]
+            },
+            "tagnode": "1"
+        }
+
+
+@pytest.fixture
+def generic_group_rfc_sync_keepalived_data():
+    return """
+------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s1-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:00 1970)
+   Listening device = dp0p1s1
+   Transmitting device = dp0vrrp1
+   Using src_ip = 10.10.1.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 100
+   Effective priority = 100
+   Address owner = no
+   Advert interval = 2 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.1.100/32 dev dp0vrrp1 scope global
+------< VRRP Sync groups >------
+ VRRP Sync Group = TEST, MASTER
+   monitor = vyatta-dp0p1s1-1
+"""
+
+
+@pytest.fixture
+def generic_group_rfc_sync_show_detail():
+    # flake8: noqa: W291
+    return """
+--------------------------------------------------
+Interface: dp0p1s1
+--------------
+  Group: 1
+  ----------
+  State:                        MASTER
+  Last transition:              3s
+
+  Version:                      2
+  RFC Compliant                 
+  Virtual MAC interface:        dp0vrrp1
+  Address Owner:                no
+
+  Source Address:               10.10.1.1
+  Configured Priority:          100
+  Effective Priority:           100
+  Advertisement interval:       2 sec
+  Authentication type:          none
+  Preempt:                      enabled
+
+  Sync-group:                   TEST
+
+  VIP count:                    1
+    10.10.1.100/32
+
+"""  # noqa: W291
+
+
+@pytest.fixture
+def detailed_rfc_sync_simple_keepalived_state():
+    return \
+        {
+            "instance-state":
+            {
+                "address-owner": False,
+                "last-transition": 0,
+                "rfc-interface": "dp0vrrp1",
+                "state": "MASTER",
+                "sync-group": "TEST",
+                "version": 2,
+                "src-ip": "10.10.1.1",
+                "base-priority": 100,
+                "effective-priority": 100,
+                "advert-interval": 2,
+                "accept": True,
+                "preempt": True,
+                "auth-type": None,
+                "virtual-ips": [
+                    "10.10.1.100/32"
+                ]
+            },
+            "tagnode": "1"
+        }
+
+
+@pytest.fixture
+def generic_group_ipao_rfc_simple_keepalived_data():
+    return """
+------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s1-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:00 1970)
+   Listening device = dp0p1s1
+   Transmitting device = dp0vrrp1
+   Using src_ip = 10.10.1.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 100
+   Effective priority = 255
+   Address owner = yes
+   Advert interval = 2 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.1.100/32 dev dp0vrrp1 scope global
+"""
+
+
+@pytest.fixture
+def generic_group_rfc_ipao_show_detail():
+    # flake8: noqa: W291
+    return """
+--------------------------------------------------
+Interface: dp0p1s1
+--------------
+  Group: 1
+  ----------
+  State:                        MASTER
+  Last transition:              3s
+
+  Version:                      2
+  RFC Compliant                 
+  Virtual MAC interface:        dp0vrrp1
+  Address Owner:                yes
+
+  Configured Priority:          100
+  Effective Priority:           255
+  Advertisement interval:       2 sec
+  Authentication type:          none
+  Preempt:                      enabled
+
+  VIP count:                    1
+    10.10.1.100/32
+
+"""  # noqa: W291
+
+
+@pytest.fixture
+def detailed_rfc_ipao_simple_keepalived_state():
+    return \
+        {
+            "instance-state":
+            {
+                "address-owner": True,
+                "last-transition": 0,
+                "rfc-interface": "dp0vrrp1",
+                "state": "MASTER",
+                "sync-group": "",
+                "version": 2,
+                "src-ip": "10.10.1.1",
+                "base-priority": 100,
+                "effective-priority": 255,
+                "advert-interval": 2,
+                "accept": True,
+                "preempt": True,
+                "auth-type": None,
+                "virtual-ips": [
+                    "10.10.1.100/32"
+                ]
+            },
+            "tagnode": "1"
+        }
+
+
+@pytest.fixture
+def backup_generic_group_simple_keepalived_data():
+    return """
+------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s1-1
+ VRRP Version = 2
+   State = BACKUP
+   Master router = 10.10.1.1
+   Master priority = 200
+   Last transition = 1568898694 (Thu Sep 19 13:11:34 2019)
+   Listening device = dp0p1s1
+   Transmitting device = dp0p1s1
+   Using src_ip = 10.10.1.2
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 150
+   Effective priority = 150
+   Address owner = no
+   Advert interval = 1 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.1.100/24 dev dp0p1s1 scope global
+    """
+
+
+@pytest.fixture
+def detailed_backup_generic_group_show_detail():
+    return """
+--------------------------------------------------
+Interface: dp0p1s1
+--------------
+  Group: 1
+  ----------
+  State:                        BACKUP
+  Last transition:              3s
+
+  Master router:                10.10.1.1
+  Master priority:              100
+
+  Version:                      2
+  Configured Priority:          50
+  Effective Priority:           50
+  Advertisement interval:       2 sec
+  Authentication type:          none
+  Preempt:                      enabled
+
+  VIP count:                    1
+    10.10.1.100/24
+
+"""
+
+
+@pytest.fixture
+def detailed_backup_simple_keepalived_state():
+    return \
+        {
+            "instance-state":
+            {
+                "address-owner": False,
+                "last-transition": 0,
+                "rfc-interface": "",
+                "state": "BACKUP",
+                "sync-group": "",
+                "version": 2,
+                "master-router": "10.10.1.1",
+                "master-priority": 100,
+                "src-ip": "10.10.1.1",
+                "base-priority": 50,
+                "effective-priority": 50,
+                "advert-interval": 2,
+                "accept": True,
+                "preempt": True,
+                "auth-type": None,
+                "virtual-ips": [
+                    "10.10.1.100/24"
+                ]
+            },
+            "tagnode": "1"
+        }
+
+
+@pytest.fixture
+def backup_generic_group_track_intf_simple_keepalived_data():
+    return """
+------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s1-1
+ VRRP Version = 2
+   State = BACKUP
+   Master router = 10.10.1.1
+   Master priority = 200
+   Last transition = 1568898694 (Thu Sep 19 13:11:34 2019)
+   Listening device = dp0p1s1
+   Transmitting device = dp0p1s1
+   Using src_ip = 10.10.1.2
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 150
+   Effective priority = 150
+   Address owner = no
+   Advert interval = 1 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Tracked interfaces = 1
+------< NIC >------
+ Name = dp0s2
+ index = 5
+ IPv4 address = 192.168.252.107
+ IPv6 address = fe80::4060:2ff:fe00:2
+ MAC = 42:60:02:00:00:02
+ is UP
+ is RUNNING
+ weight = 10
+ MTU = 1500
+ HW Type = ETHERNET
+ Enabling NIC ioctl refresh polling
+   Virtual IP = 1
+     10.10.1.100/24 dev dp0p1s1 scope global
+    """
+
+
+@pytest.fixture
+def detailed_backup_generic_group_track_intf_show_detail():
+    return """
+--------------------------------------------------
+Interface: dp0p1s1
+--------------
+  Group: 1
+  ----------
+  State:                        BACKUP
+  Last transition:              3s
+
+  Master router:                10.10.1.1
+  Master priority:              100
+
+  Version:                      2
+  Configured Priority:          50
+  Effective Priority:           50
+  Advertisement interval:       2 sec
+  Authentication type:          none
+  Preempt:                      enabled
+
+  Tracked Interfaces count:     1
+    dp0s2   state UP      weight -10
+  VIP count:                    1
+    10.10.1.100/24
+
+"""
+
+
+@pytest.fixture
+def detailed_backup_track_intf_simple_keepalived_state():
+    return \
+        {
+            "instance-state":
+            {
+                "address-owner": False,
+                "last-transition": 0,
+                "rfc-interface": "",
+                "state": "BACKUP",
+                "sync-group": "",
+                "version": 2,
+                "master-router": "10.10.1.1",
+                "master-priority": 100,
+                "src-ip": "10.10.1.1",
+                "base-priority": 50,
+                "effective-priority": 50,
+                "advert-interval": 2,
+                "accept": True,
+                "preempt": True,
+                "auth-type": None,
+                "track": {
+                    "interface": [
+                        {
+                            "name": "dp0s2", "state": "UP",
+                            "weight": "-10"
+                        }
+                    ]
+                },
+                "virtual-ips": [
+                    "10.10.1.100/24"
+                ]
+            },
+            "tagnode": "1"
+        }
+
+
+@pytest.fixture
+def backup_generic_group_track_intf_no_weight_simple_keepalived_data():
+    return """
+------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s1-1
+ VRRP Version = 2
+   State = BACKUP
+   Master router = 10.10.1.1
+   Master priority = 200
+   Last transition = 1568898694 (Thu Sep 19 13:11:34 2019)
+   Listening device = dp0p1s1
+   Transmitting device = dp0p1s1
+   Using src_ip = 10.10.1.2
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 150
+   Effective priority = 150
+   Address owner = no
+   Advert interval = 1 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Tracked interfaces = 1
+------< NIC >------
+ Name = dp0s2
+ index = 5
+ IPv4 address = 192.168.252.107
+ IPv6 address = fe80::4060:2ff:fe00:2
+ MAC = 42:60:02:00:00:02
+ is UP
+ is RUNNING
+ MTU = 1500
+ HW Type = ETHERNET
+ Enabling NIC ioctl refresh polling
+   Virtual IP = 1
+     10.10.1.100/24 dev dp0p1s1 scope global
+    """
+
+
+@pytest.fixture
+def detailed_backup_generic_group_track_intf_no_weight_show_detail():
+    return """
+--------------------------------------------------
+Interface: dp0p1s1
+--------------
+  Group: 1
+  ----------
+  State:                        BACKUP
+  Last transition:              3s
+
+  Master router:                10.10.1.1
+  Master priority:              100
+
+  Version:                      2
+  Configured Priority:          50
+  Effective Priority:           50
+  Advertisement interval:       2 sec
+  Authentication type:          none
+  Preempt:                      enabled
+
+  Tracked Interfaces count:     1
+    dp0s2   state UP      
+  VIP count:                    1
+    10.10.1.100/24
+
+"""  # noqa: W291
+
+
+@pytest.fixture
+def detailed_backup_track_intf_no_weight_simple_keepalived_state():
+    return \
+        {
+            "instance-state":
+            {
+                "address-owner": False,
+                "last-transition": 0,
+                "rfc-interface": "",
+                "state": "BACKUP",
+                "sync-group": "",
+                "version": 2,
+                "master-router": "10.10.1.1",
+                "master-priority": 100,
+                "src-ip": "10.10.1.1",
+                "base-priority": 50,
+                "effective-priority": 50,
+                "advert-interval": 2,
+                "accept": True,
+                "preempt": True,
+                "auth-type": None,
+                "track": {
+                    "interface": [
+                        {
+                            "name": "dp0s2", "state": "UP"
+                        }
+                    ]
+                },
+                "virtual-ips": [
+                    "10.10.1.100/24"
+                ]
+            },
+            "tagnode": "1"
+        }
+
+
+@pytest.fixture
+def backup_generic_group_track_pathmon_simple_keepalived_data():
+    return """
+------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s1-1
+ VRRP Version = 2
+   State = BACKUP
+   Master router = 10.10.1.1
+   Master priority = 200
+   Last transition = 1568898694 (Thu Sep 19 13:11:34 2019)
+   Listening device = dp0p1s1
+   Transmitting device = dp0p1s1
+   Using src_ip = 10.10.1.2
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 150
+   Effective priority = 150
+   Address owner = no
+   Advert interval = 1 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Tracked path-monitors = 1
+   Monitor = test_monitor
+   Policy = test_policy
+   Weight = 10
+   Status = COMPLIANT
+   Virtual IP = 1
+     10.10.1.100/24 dev dp0p1s1 scope global
+    """
+
+
+@pytest.fixture
+def detailed_backup_generic_group_track_pathmon_show_detail():
+    return """
+--------------------------------------------------
+Interface: dp0p1s1
+--------------
+  Group: 1
+  ----------
+  State:                        BACKUP
+  Last transition:              3s
+
+  Master router:                10.10.1.1
+  Master priority:              100
+
+  Version:                      2
+  Configured Priority:          50
+  Effective Priority:           50
+  Advertisement interval:       2 sec
+  Authentication type:          none
+  Preempt:                      enabled
+
+  Tracked Path Monitor count:   1
+    test_monitor
+      test_policy  COMPLIANT  weight 10
+  VIP count:                    1
+    10.10.1.100/24
+
+"""  # noqa: W291
+
+
+@pytest.fixture
+def detailed_backup_track_pathmon_simple_keepalived_state():
+    return \
+        {
+            "instance-state":
+            {
+                "address-owner": False,
+                "last-transition": 0,
+                "rfc-interface": "",
+                "state": "BACKUP",
+                "sync-group": "",
+                "version": 2,
+                "master-router": "10.10.1.1",
+                "master-priority": 100,
+                "src-ip": "10.10.1.1",
+                "base-priority": 50,
+                "effective-priority": 50,
+                "advert-interval": 2,
+                "accept": True,
+                "preempt": True,
+                "auth-type": None,
+                "track": {
+                    "monitor": [
+                        {
+                            "name": "test_monitor",
+                            "policies": [
+                                {
+                                    "name": "test_policy",
+                                    "state": "COMPLIANT",
+                                    "weight": "10"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "virtual-ips": [
+                    "10.10.1.100/24"
+                ]
+            },
+            "tagnode": "1"
+        }
+
+
+@pytest.fixture
+def backup_generic_group_track_route_simple_keepalived_data():
+    return """
+------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s1-1
+ VRRP Version = 2
+   State = BACKUP
+   Master router = 10.10.1.1
+   Master priority = 200
+   Last transition = 1568898694 (Thu Sep 19 13:11:34 2019)
+   Listening device = dp0p1s1
+   Transmitting device = dp0p1s1
+   Using src_ip = 10.10.1.2
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 150
+   Effective priority = 150
+   Address owner = no
+   Advert interval = 1 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Tracked routes = 1
+   Network = 10.10.10.0
+   Prefix = 24
+   Status = DOWN
+   Weight = 10
+   Virtual IP = 1
+     10.10.1.100/24 dev dp0p1s1 scope global
+    """
+
+
+@pytest.fixture
+def detailed_backup_generic_group_track_route_show_detail():
+    return """
+--------------------------------------------------
+Interface: dp0p1s1
+--------------
+  Group: 1
+  ----------
+  State:                        BACKUP
+  Last transition:              3s
+
+  Master router:                10.10.1.1
+  Master priority:              100
+
+  Version:                      2
+  Configured Priority:          50
+  Effective Priority:           50
+  Advertisement interval:       2 sec
+  Authentication type:          none
+  Preempt:                      enabled
+
+  Tracked routes count:         1
+    10.10.10.0/24   state DOWN      weight 10
+  VIP count:                    1
+    10.10.1.100/24
+
+"""
+
+
+@pytest.fixture
+def detailed_backup_track_route_simple_keepalived_state():
+    return \
+        {
+            "instance-state":
+            {
+                "address-owner": False,
+                "last-transition": 0,
+                "rfc-interface": "",
+                "state": "BACKUP",
+                "sync-group": "",
+                "version": 2,
+                "master-router": "10.10.1.1",
+                "master-priority": 100,
+                "src-ip": "10.10.1.1",
+                "base-priority": 50,
+                "effective-priority": 50,
+                "advert-interval": 2,
+                "accept": True,
+                "preempt": True,
+                "auth-type": None,
+                "track": {
+                    "route": [
+                        {
+                            "name": "10.10.10.0/24",
+                            "state": "DOWN",
+                            "weight": "10"
+                        }
+                    ]
+                },
+                "virtual-ips": [
+                    "10.10.1.100/24"
+                ]
+            },
+            "tagnode": "1"
+        }
+
+
+@pytest.fixture
 def instance_state():
     return \
         {
@@ -287,6 +1227,38 @@ def instance_state_rfc():
             "instance-state":
             {
                 "address-owner": False,
+                "last-transition": 0,
+                "rfc-interface": "dp0vrrp1",
+                "state": "MASTER",
+                "sync-group": "",
+            },
+            "tagnode": "1"
+        }
+
+
+@pytest.fixture
+def instance_state_rfc_sync():
+    return \
+        {
+            "instance-state":
+            {
+                "address-owner": False,
+                "last-transition": 0,
+                "rfc-interface": "dp0vrrp1",
+                "state": "MASTER",
+                "sync-group": "TEST",
+            },
+            "tagnode": "1"
+        }
+
+
+@pytest.fixture
+def instance_state_rfc_ipao():
+    return \
+        {
+            "instance-state":
+            {
+                "address-owner": True,
                 "last-transition": 0,
                 "rfc-interface": "dp0vrrp1",
                 "state": "MASTER",
@@ -1157,6 +2129,174 @@ def simple_config(top_level_dictionary, interface_yang_name,
     simple_yang_config[interface_yang_name][dataplane_yang_name] =\
         copy.deepcopy(dataplane_list)
     return simple_yang_config
+
+
+@pytest.fixture
+def simple_state(simple_config, instance_state, vrrp_yang_name,
+                 interface_yang_name, dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = [instance_state]
+    return simple_yang_state
+
+
+@pytest.fixture
+def simple_rfc_state(simple_config, instance_state_rfc, vrrp_yang_name,
+                     interface_yang_name, dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = [instance_state_rfc]
+    return simple_yang_state
+
+
+@pytest.fixture
+def simple_rfc_sync_state(simple_config, instance_state_rfc_sync,
+                          vrrp_yang_name, interface_yang_name,
+                          dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = [instance_state_rfc_sync]
+    return simple_yang_state
+
+
+@pytest.fixture
+def simple_rfc_ipao_state(simple_config, instance_state_rfc_ipao,
+                          vrrp_yang_name, interface_yang_name,
+                          dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = [instance_state_rfc_ipao]
+    return simple_yang_state
+
+
+@pytest.fixture
+def detailed_simple_state(simple_config, detailed_simple_keepalived_state,
+                          vrrp_yang_name, interface_yang_name,
+                          dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [detailed_simple_keepalived_state]
+    return simple_yang_state
+
+
+@pytest.fixture
+def detailed_simple_rfc_state(simple_config,
+                              detailed_rfc_simple_keepalived_state,
+                              vrrp_yang_name,
+                              interface_yang_name, dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [detailed_rfc_simple_keepalived_state]
+    return simple_yang_state
+
+
+@pytest.fixture
+def detailed_simple_rfc_sync_state(simple_config,
+                                   detailed_rfc_sync_simple_keepalived_state,
+                                   vrrp_yang_name, interface_yang_name,
+                                   dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [detailed_rfc_sync_simple_keepalived_state]
+    return simple_yang_state
+
+
+@pytest.fixture
+def detailed_simple_rfc_ipao_state(simple_config,
+                                   detailed_rfc_ipao_simple_keepalived_state,
+                                   vrrp_yang_name, interface_yang_name,
+                                   dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [detailed_rfc_ipao_simple_keepalived_state]
+    return simple_yang_state
+
+
+@pytest.fixture
+def detailed_backup_simple_state(
+        simple_config, detailed_backup_simple_keepalived_state,
+        vrrp_yang_name, interface_yang_name, dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [detailed_backup_simple_keepalived_state]
+    return simple_yang_state
+
+
+@pytest.fixture
+def detailed_backup_track_intf_simple_state(
+        simple_config, detailed_backup_track_intf_simple_keepalived_state,
+        vrrp_yang_name, interface_yang_name, dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [detailed_backup_track_intf_simple_keepalived_state]
+    return simple_yang_state
+
+
+@pytest.fixture
+def detailed_backup_track_intf_no_weight_simple_state(
+        simple_config,
+        detailed_backup_track_intf_no_weight_simple_keepalived_state,
+        vrrp_yang_name, interface_yang_name, dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [detailed_backup_track_intf_no_weight_simple_keepalived_state]
+    return simple_yang_state
+
+
+@pytest.fixture
+def detailed_backup_track_pathmon_simple_state(
+        simple_config,
+        detailed_backup_track_pathmon_simple_keepalived_state,
+        vrrp_yang_name, interface_yang_name, dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [detailed_backup_track_pathmon_simple_keepalived_state]
+    return simple_yang_state
+
+
+@pytest.fixture
+def detailed_backup_track_route_simple_state(
+        simple_config, detailed_backup_track_route_simple_keepalived_state,
+        vrrp_yang_name, interface_yang_name, dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [detailed_backup_track_route_simple_keepalived_state]
+    return simple_yang_state
 
 
 @pytest.fixture
