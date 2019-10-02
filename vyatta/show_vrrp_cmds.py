@@ -153,12 +153,28 @@ def show_vrrp_detail(state_dict: Dict) -> str:
                 output += SHOW_DETAIL_LINE_FORMAT.format(
                     "Advertisement interval:", state["advert-interval"]
                 )
+                if version == 2:
+                    auth_value = state["auth-type"]
+                    if auth_value is None:
+                        auth_value = "none"
+                    output += SHOW_DETAIL_LINE_FORMAT.format(
+                        "Authentication type:", auth_value
+                    )
+
                 preempt = "disabled"
                 if state["preempt"]:
                     preempt = "enabled"
                 output += SHOW_DETAIL_LINE_FORMAT.format(
                     "Preempt:", preempt
                 )
+
+                if version == 3:
+                    accept = "disabled"
+                    if state["accept"]:
+                        accept = "enabled"
+                    output += SHOW_DETAIL_LINE_FORMAT.format(
+                        "Accept:", accept
+                    )
 
                 if state["sync-group"] != "":
                     output += "\n"
