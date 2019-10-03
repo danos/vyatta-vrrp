@@ -167,6 +167,10 @@ def show_vrrp_detail(state_dict: Dict) -> str:
                 output += SHOW_DETAIL_LINE_FORMAT.format(
                     "Preempt:", preempt
                 )
+                if "preempt-delay" in state:
+                    output += SHOW_DETAIL_LINE_FORMAT.format(
+                        "Preempt delay:", state["preempt-delay"]
+                    )
 
                 if "start-delay" in state:
                     output += SHOW_DETAIL_LINE_FORMAT.format(
