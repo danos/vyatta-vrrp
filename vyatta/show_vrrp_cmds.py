@@ -168,6 +168,11 @@ def show_vrrp_detail(state_dict: Dict) -> str:
                     "Preempt:", preempt
                 )
 
+                if "start-delay" in state:
+                    output += SHOW_DETAIL_LINE_FORMAT.format(
+                        "Start delay:", state["start-delay"]
+                    )
+
                 if version == 3:
                     accept = "disabled"
                     if state["accept"]:
