@@ -3,3 +3,7 @@
 debian/vyatta-vrrp
 debian/vyatta-vrrp-dataplane
 debian/vyatta-vrrp-v1-yang/
+.mypy_cache
+__pycache__
+.coverage
+.vscode

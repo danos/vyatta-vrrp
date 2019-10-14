@@ -57,6 +57,15 @@ Section: contrib/admin
 Description: vyatta-vrrp-v1 yang module
  The YANG module for vyatta-vrrp-v1.
 
+Package: vyatta-vrrp-interfaces-switch-v1-yang
+Architecture: all
+Depends: ${misc:Depends},
+ vyatta-vrrp-v1-yang (>= ${source:Version}),
+ ${yang:Depends}
+Section: contrib/admin
+Description: vyatta-vrrp-interfaces-switch-v1 yang module
+ The YANG module for vyatta-vrrp-interfaces-switch-v1.
+
 Package: vyatta-vrrp-path-monitor-track-v1-yang
 Architecture: all
 Depends: ${misc:Depends},
@@ -86,6 +95,16 @@ Section: contrib/admin
 Description: vyatta-vrrp-path-monitor-track-interfaces-bonding-v1 yang module
  The YANG module that augments bonding interfaces with path monitor tracking.
 
+Package: vyatta-vrrp-path-monitor-track-interfaces-switch-v1-yang
+Architecture: all
+Depends: ${misc:Depends},
+ vyatta-vrrp-interfaces-switch-v1-yang,
+ vyatta-vrrp-path-monitor-track-v1-yang,
+ ${yang:Depends}
+Section: contrib/admin
+Description: vyatta-vrrp-path-monitor-track-interfaces-switch-v1 yang module
+ The YANG module that augments switch vif interfaces with path monitor tracking.
+
 Package: vyatta-vrrp-route-to-track-v1-yang
 Architecture: all
 Depends: ${misc:Depends},
@@ -112,3 +131,13 @@ Depends: ${misc:Depends},
 Section: contrib/admin
 Description: vyatta-vrrp-route-to-track-interfaces-bonding-v1 yang module
  The YANG module that augments bonding interfaces with route-to tracking.
+
+Package: vyatta-vrrp-route-to-track-interfaces-switch-v1-yang
+Architecture: all
+Depends: ${misc:Depends},
+ vyatta-vrrp-interfaces-switch-v1-yang,
+ vyatta-vrrp-route-to-track-v1-yang,
+ ${yang:Depends}
+Section: contrib/admin
+Description: vyatta-vrrp-route-to-track-interfaces-switch-v1 yang module
+ The YANG module that augments switch vif interfaces with route-to tracking.
