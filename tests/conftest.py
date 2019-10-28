@@ -1460,6 +1460,198 @@ Interface: dp0p1s1
 
 
 @pytest.fixture
+def sync_group_simple_keepalived_data():
+    return """
+------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s2-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:03 1970)
+   Listening device = dp0p1s2
+   Transmitting device = dp0p1s2
+   Using src_ip = 10.10.2.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 200
+   Effective priority = 200
+   Address owner = no
+   Advert interval = 1 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.2.100/32 dev dp0p1s2 scope global
+ VRRP Instance = vyatta-dp0p1s3-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:03 1970)
+   Listening device = dp0p1s3
+   Transmitting device = dp0p1s3
+   Using src_ip = 10.10.3.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 200
+   Effective priority = 200
+   Address owner = no
+   Advert interval = 1 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.3.100/32 dev dp0p1s3 scope global
+------< VRRP Sync groups >------
+ VRRP Sync Group = TEST, MASTER
+   monitor = vyatta-dp0p1s2-1
+   monitor = vyatta-dp0p1s1-1
+"""
+
+
+@pytest.fixture
+def sync_group_simple_keepalived_state():
+    return \
+        {
+            "groups":
+            [
+                {
+                    "name": "TEST",
+                    "state": "MASTER",
+                    "members": [
+                        "vyatta-dp0p1s2-1",
+                        "vyatta-dp0p1s1-1"
+                    ]
+                }
+            ]
+        }
+
+
+@pytest.fixture
+def detailed_multi_group_first_simple_keepalived_state():
+    return \
+        {
+            "instance-state":
+            {
+                "address-owner": False,
+                "last-transition": 0,
+                "rfc-interface": "",
+                "state": "MASTER",
+                "sync-group": "TEST",
+                "version": 2,
+                "src-ip": "10.10.1.1",
+                "base-priority": 200,
+                "effective-priority": 200,
+                "advert-interval": "1 sec",
+                "accept": True,
+                "preempt": True,
+                "auth-type": None,
+                "virtual-ips": [
+                    "10.10.1.100/32"
+                ]
+            },
+            "tagnode": "1"
+        }
+
+
+@pytest.fixture
+def detailed_multi_group_second_simple_keepalived_state():
+    return \
+        {
+            "instance-state":
+            {
+                "address-owner": False,
+                "last-transition": 0,
+                "rfc-interface": "",
+                "state": "MASTER",
+                "sync-group": "TEST",
+                "version": 2,
+                "src-ip": "10.10.2.1",
+                "base-priority": 200,
+                "effective-priority": 200,
+                "advert-interval": "1 sec",
+                "accept": True,
+                "preempt": True,
+                "auth-type": None,
+                "virtual-ips": [
+                    "10.10.2.100/32"
+                ]
+            },
+            "tagnode": "1"
+        }
+
+
+@pytest.fixture
+def generic_sync_group_show_sync():
+    return """
+--------------------------------------------------
+Group: TEST
+---------
+  State: MASTER
+  Monitoring:
+    Interface: dp0p1s1, Group: 1
+    Interface: dp0p1s2, Group: 1
+
+"""
+
+
+@pytest.fixture
+def multi_group_sync_group_show_detailed():
+    return """
+--------------------------------------------------
+Interface: dp0p1s1
+--------------
+  Group: 1
+  ----------
+  State:                        MASTER
+  Last transition:              3s
+
+  Version:                      2
+  Configured Priority:          200
+  Effective Priority:           200
+  Advertisement interval:       1 sec
+  Authentication type:          none
+  Preempt:                      enabled
+
+  Sync-group:                   TEST
+
+  VIP count:                    1
+    10.10.1.100/32
+
+Interface: dp0p1s2
+--------------
+  Group: 1
+  ----------
+  State:                        MASTER
+  Last transition:              3s
+
+  Version:                      2
+  Configured Priority:          200
+  Effective Priority:           200
+  Advertisement interval:       1 sec
+  Authentication type:          none
+  Preempt:                      enabled
+
+  Sync-group:                   TEST
+
+  VIP count:                    1
+    10.10.2.100/32
+
+"""
+
+
+@pytest.fixture
 def instance_state():
     return \
         {
@@ -2593,6 +2785,27 @@ def detailed_preempt_delay_simple_state(
     del(dataplane_list[0][vrrp_yang_name]["start-delay"])
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_preempt_delay_simple_keepalived_state]
+    return simple_yang_state
+
+
+@pytest.fixture
+def detailed_simple_multi_sync_state(
+        simple_config,
+        detailed_multi_group_first_simple_keepalived_state,
+        second_dataplane_interface,
+        detailed_multi_group_second_simple_keepalived_state,
+        vrrp_yang_name, interface_yang_name,
+        dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    dataplane_list.append(second_dataplane_interface)
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del(dataplane_list[1][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [detailed_multi_group_first_simple_keepalived_state]
+    dataplane_list[1][vrrp_yang_name]["vrrp-group"] = \
+        [detailed_multi_group_second_simple_keepalived_state]
     return simple_yang_state
 
 

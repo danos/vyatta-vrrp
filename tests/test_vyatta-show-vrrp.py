@@ -131,13 +131,18 @@ class TestVyattaShowVrrp:
                 pytest.lazy_fixture("generic_preempt_delay_group_show_detail"),
                 pytest.lazy_fixture("detailed_preempt_delay_simple_state")
             ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("multi_group_sync_group_show_detailed"),
+                pytest.lazy_fixture("detailed_simple_multi_sync_state")
+            ),
         ],
         ids=[
             "No rfc", "rfc", "rfc sync", "rfc IPAO", "Backup show",
             "Backup track interface", "Backup track interface no weight",
             "Backup track pathmon", "Backup track route",
             "No rfc v3", "Start delay",
-            "Preempt delay"
+            "Preempt delay", "Multiple groups in sync-group"
         ]
     )
     def test_show_vrrp_detail(self, fakes, show, data):
