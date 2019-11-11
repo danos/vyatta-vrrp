@@ -1,0 +1,88 @@
+Source: vyatta-vrrp
+Section: contrib/net
+Priority: optional
+Maintainer: Vyatta Package Maintainers <DL-vyatta-help@att.com>
+Build-Depends: debhelper (>= 9), debhelper (>= 9.20160709) | dh-systemd, dh-yang, libtest-class-perl,
+               libsort-versions-perl, libnet-dbus-perl, libtry-tiny-perl,
+               python, dh-python
+Standards-Version: 3.9.6
+
+Package: vyatta-vrrp
+Architecture: all
+Depends:
+ bmon (>= 3.5),
+ dbus,
+ iftop,
+ iproute2 (>= 4.4.0),
+ vyatta-cfg (>= 0.99.83),
+ vyatta-interfaces (>= 0.5),
+ vyatta-op-network,
+ keepalived (>= 1.2.24-git66c870aa+vyatta23.1.1),
+ vyatta-system (>= 1.6.1),
+ ${misc:Depends},
+ ${perl:Depends},
+ python,
+ python-daemon,
+ python-gi,
+ python-dbus,
+ libnet-dbus-perl,
+ libtry-tiny-perl
+Breaks: vyatta-op (<< 1.0)
+Replaces: vyatta-op (<< 1.0)
+Description: Vyatta VRRP configuration/operational commands
+ Vyatta configuration/operational templates and scripts for VRRP
+
+Package: vyatta-op-show-interfaces-vrrp-v1-yang
+Architecture: all
+Depends: ${misc:Depends}, ${yang:Depends}, vyatta-interfaces-base
+Description: vyatta-op-show-interfaces-vrrp-v1 module
+ Operational mode integration for viewing VRRP interface configuration
+
+Package: vyatta-vrrp-dataplane
+Architecture: all
+Depends:  ${misc:Depends},
+ keepalived (>= 1.2.24-git66c870aa+vyatta23.1.1),
+ vplane-config,
+ vyatta-cfg
+Description: vyatta-vrrp dataplane templates
+ Vyatta configuration templates for VRRP use on dataplane devices
+
+Package: vyatta-vrrp-v1-yang
+Architecture: all
+Depends: ${misc:Depends},
+ vyatta-vrrp (>= ${source:Version}),
+ vyatta-vrrp-dataplane (>= ${source:Version}),
+ ${yang:Depends}
+Section: contrib/admin
+Description: vyatta-vrrp-v1 yang module
+ The YANG module for vyatta-vrrp-v1.
+
+Package: vyatta-vrrp-path-monitor-track-v1-yang
+Architecture: all
+Depends: ${misc:Depends},
+ vyatta-vrrp-v1-yang (>= ${source:Version}),
+ monitord-feature-dbus,
+ ${yang:Depends}
+Section: contrib/admin
+Description: vyatta-vrrp-path-monitor-track-v1 yang module
+ The YANG module that defines the grouping to track path monitor
+ combinations.
+
+Package: vyatta-vrrp-path-monitor-track-interfaces-dataplane-v1-yang
+Architecture: all
+Depends: ${misc:Depends},
+ vyatta-vrrp-path-monitor-track-v1-yang,
+ ${yang:Depends}
+Section: contrib/admin
+Description: vyatta-vrrp-path-monitor-track-interfaces-dataplane-v1 yang module
+ The YANG module that augments dataplane interfaces with path monitor tracking.
+
+Package: vyatta-vrrp-path-monitor-track-interfaces-bonding-v1-yang
+Architecture: all
+Depends: ${misc:Depends},
+ vyatta-vrrp-path-monitor-track-v1-yang,
+ ${yang:Depends}
+Section: contrib/admin
+Description: vyatta-vrrp-path-monitor-track-interfaces-bonding-v1 yang module
+ The YANG module that augments bonding interfaces with path monitor tracking.
+

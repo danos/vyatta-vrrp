@@ -1,0 +1,2 @@
+#!/opt/vyatta/bin/cliexpr
+syntax:expression: exec "/opt/vyatta/sbin/check_file_in_config_dir $(echo $VAR(@) | awk -F ' ' '{ print $1 }') '/config/scripts'"

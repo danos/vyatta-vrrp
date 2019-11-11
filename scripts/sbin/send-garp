@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Copyright (c) 2019 AT&T Intellectual Property.
+# All rights reserved.
+# SPDX-License-Identifier: GPL-2.0-only
+
+dbus-send --system --dest=org.keepalived.Vrrp1 --type=method_call /org/keepalived/Vrrp1/Instance/$1/$2/IPv4 org.keepalived.Vrrp1.Instance.SendGarp

@@ -1,0 +1,3 @@
+help: Show VRRP information for specified interface and group
+allowed: vyatta-show-vrrp.pl --show=groups --intf=$4
+run: vyatta-show-vrrp.pl --show=detail --intf=$4 --vrid=$6

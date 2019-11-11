@@ -1,0 +1,4 @@
+scripts/bin/*               opt/vyatta/bin
+scripts/sbin/*              opt/vyatta/sbin
+templates                   opt/vyatta/share/vyatta-op
+lib/*                       opt/vyatta/share/perl5

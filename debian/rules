@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+#VERBOSE=1
+
+%:
+	 dh $@ --with=systemd --with=yang
+
+override_dh_auto_test:
+	t/./test-runner.t

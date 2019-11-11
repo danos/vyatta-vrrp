@@ -1,0 +1,2 @@
+help: Send GARP through specified network interface
+allowed: vyatta-show-vrrp.pl --show=interfaces --quiet

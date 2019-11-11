@@ -1,0 +1,3 @@
+help: Show VRRP sync-group for specified group
+allowed: vyatta-show-vrrp.pl --show=syncs
+run: vyatta-show-vrrp.pl --show=sync --sync=$5

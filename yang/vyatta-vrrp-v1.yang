@@ -1,0 +1,463 @@
+module vyatta-vrrp-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-vrrp:1";
+	prefix vyatta-vrrp-v1;
+
+	import vyatta-types-v1 {
+		prefix types;
+	}
+	import configd-v1 {
+		prefix configd;
+	}
+	import vyatta-interfaces-v1 {
+		prefix if;
+	}
+	import vyatta-interfaces-dataplane-v1 {
+		prefix interfaces-dataplane;
+	}
+	import vyatta-interfaces-bonding-v1 {
+		prefix interfaces-bonding;
+	}
+
+	organization "AT&T Inc.";
+	contact
+		"AT&T
+		Postal: 208 S. Akard Street
+		Dallas, TX 25202
+		Web: www.att.com";
+
+	description
+		"Copyright (c) 2017-2019 AT&T Intellectual Property
+		All rights reserved.
+
+		Copyright (c) 2014-2017 by Brocade Communications Systems, Inc.
+		All rights reserved.
+
+
+		The YANG module for vyatta-vrrp-v1.
+
+     Redistribution and use in source and binary forms, with or without
+     modification, are permitted provided that the following conditions
+     are met:
+ 
+     1. Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+     2. Redistributions in binary form must reproduce the above
+        copyright notice, this list of conditions and the following
+        disclaimer in the documentation and/or other materials provided
+        with the distribution.
+     3. Neither the name of the copyright holder nor the names of its
+        contributors may be used to endorse or promote products derived
+        from this software without specific prior written permission.
+ 
+     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+     'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+     LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+     FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+     COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+     BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+     CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+     LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+     ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+     POSSIBILITY OF SUCH DAMAGE.
+ 
+     SPDX-License-Identifier: BSD-3-Clause";
+
+	revision 2019-04-01 {
+		description "Move validation into the yang away from scripts";
+	}
+
+	revision 2018-08-10 {
+		description "Add start-delay leaf. This allows groups on an
+			interface to delay their start up by a number of seconds
+			up to 600 (10 minutes). The configuration affects
+			all groups on an interface.";
+	}
+
+	revision 2017-10-02 {
+		description "Generalise the weighting for tracking, introduce
+			new track subtree and deprecate track-interface
+			subsection. Updated Copyright information";
+	}
+
+	revision 2017-05-15 {
+		description "Change configd priority from 800 to 319 for vrrp interface";
+	}
+
+	revision 2016-10-31 {
+		description "Add GARP rpc";
+	}
+
+	revision 2016-09-23 {
+		description "A virtual-address may now have a prefix.";
+	}
+
+	revision 2016-06-16 {
+		description "Make nodes inside authentication container mandatory,
+					 Make nodes inside track-interface's weight container mandatory,
+					 Add configd:validate to hello-source-address leaf,
+					 Add must statement to advertise-interval leaf,
+					 Add default to version leaf,
+					 Add must statement to accept leaf,
+					 Add must statement to fast-advertise-interval leaf,
+					 Remove configd:syntax from virtual-address union types,
+					 Add min-elements and max-elements to virtual-address leaf list,
+					 Add must statements to vrrp-group list";
+	}
+
+	revision 2015-08-06 {
+		description "Initial revision of version 1.";
+	}
+
+	typedef vrrp-group {
+		type uint32 {
+			range 1..255 {
+				error-message "VRRP group must be between 1-255";
+			}
+		}
+	}
+
+	grouping track-weight{
+		container weight {
+			presence "If a weighting is defined the group's priority will be modified,
+				 rather than the group's state changing.";
+			configd:help "Weight of the tracked interface";
+			description "The value to raise or lower the VRRP group's priority by";
+			leaf value {
+				configd:help "Value to increment or decrement the priority";
+				description "Value to increment or decrement the priority";
+				type uint8 {
+					range 1..254;
+				}
+				mandatory true;
+			}
+			leaf type {
+				configd:help "Increment or decrement the priority";
+				description "Increment or decrement the priority";
+				type enumeration {
+					enum "increment" {
+						configd:help "Increment the priority";
+						description "Increment the priority";
+					}
+					enum "decrement" {
+						configd:help "Decrement the priority";
+						description "Decrement the priority";
+					}
+				}
+				mandatory true;
+			}
+		}
+	}
+
+	grouping vrrp-configuration {
+		leaf priority {
+			type uint8 {
+				range 1..254;
+			}
+			configd:help "Priority";
+		}
+		container authentication {
+			presence "true";
+			configd:help "Authentication";
+			leaf password {
+				type string {
+					pattern '[^\t\n\r ]{1,8}' {
+						error-message "Password must be 8 characters or less";
+					}
+				}
+				configd:secret "true";
+				configd:help "Password";
+				mandatory true;
+			}
+			leaf type {
+				type enumeration {
+					enum "plaintext-password" {
+						configd:help "Plain text password mode";
+					}
+					enum "ah" {
+						configd:help "IP Authentication Header mode";
+					}
+				}
+				configd:help "Authentication type";
+				configd:allowed "/opt/vyatta/share/tmplscripts/interfaces/all/vrrp/vrrp-group/authentication/type/configd_allowed.sh";
+				mandatory true;
+			}
+			must "not(../version = 3)" {
+				error-message "Cannot define authentication for version 3";
+			}
+		}
+		leaf hello-source-address {
+			type union {
+				type types:ipv4-address;
+				type types:ipv6-address;
+			}
+			configd:help "Hello source address";
+			// Script required as accesses data not stored in configuration.
+			configd:validate "/opt/vyatta/share/tmplscripts/interfaces/all/vrrp/vrrp-group/hello-source-address/configd_validate.cli $VAR(@)";
+		}
+		leaf preempt {
+			type boolean;
+			configd:help "Preempt mode";
+			default "true";
+		}
+		leaf disable {
+			type empty;
+			configd:help "VRRP group disabled";
+		}
+		container run-transition-scripts {
+			presence "true";
+			configd:help "Scripts for VRRP state-transitions";
+			leaf master {
+				type string {
+					configd:syntax "/opt/vyatta/share/tmplscripts/interfaces/all/vrrp/vrrp-group/run-transition-scripts/master/configd_syntax1.cli";
+					configd:syntax "/opt/vyatta/share/tmplscripts/interfaces/all/vrrp/vrrp-group/run-transition-scripts/master/configd_syntax2.cli";
+				}
+				configd:help "Script to run on VRRP state-transition to master";
+			}
+			leaf backup {
+				type string {
+					configd:syntax "/opt/vyatta/share/tmplscripts/interfaces/all/vrrp/vrrp-group/run-transition-scripts/backup/configd_syntax1.cli";
+					configd:syntax "/opt/vyatta/share/tmplscripts/interfaces/all/vrrp/vrrp-group/run-transition-scripts/backup/configd_syntax2.cli";
+				}
+				configd:help "Script to run on VRRP state-transition to backup";
+			}
+			leaf fault {
+				type string {
+					configd:syntax "/opt/vyatta/share/tmplscripts/interfaces/all/vrrp/vrrp-group/run-transition-scripts/fault/configd_syntax1.cli";
+					configd:syntax "/opt/vyatta/share/tmplscripts/interfaces/all/vrrp/vrrp-group/run-transition-scripts/fault/configd_syntax2.cli";
+				}
+				configd:help "Script to run on VRRP state-transition to fault";
+			}
+		}
+		leaf preempt-delay {
+			type uint16 {
+				range 0..1000;
+			}
+			configd:help "Preempt delay";
+		}
+		leaf advertise-interval {
+			type uint8 {
+				range 1..255;
+			}
+			configd:help "Advertise interval";
+			must "../version = 2" {
+				error-message "Fast-advertise-interval is allowed when version 3 is configured";
+			}
+		}
+		leaf sync-group {
+			type string;
+			configd:help "Add this vrrp group to a sync group";
+		}
+		leaf rfc-compatibility {
+			type empty;
+			configd:help "Enable RFC compatibility";
+		}
+		leaf version {
+			type uint8 {
+				range 2..3;
+			}
+			default "2";
+			configd:help "Version 2 is for RFC3768 and version 3 is for RFC5798";
+		}
+		leaf accept {
+			type boolean;
+			configd:help "Accept mode for VRRPv3";
+			default "false";
+			must "(not(current() = 'true' and ../version = 2))" {
+				error-message "Accept mode is supported only for VRRPv3";
+			}
+		}
+		leaf fast-advertise-interval {
+			type uint16 {
+				range 10..40950;
+			}
+			must "current() mod 10 = 0" {
+				error-message "Fast-advertise-interval value is not a multiple of 10";
+			}
+			configd:help "Fast advertise interval in milliseconds. Value should be multiples of 10";
+			must "../version = 3" {
+				error-message "Fast-advertise-interval is allowed when version 3 is configured";
+			}
+		}
+		list track-interface {
+			status deprecated;
+			configd:help "Interface to be tracked";
+			configd:allowed "/opt/vyatta/share/tmplscripts/interfaces/all/vrrp/vrrp-group/track-interface/configd_allowed.sh";
+			key "tagnode";
+			leaf tagnode {
+				type string;
+				configd:allowed "/opt/vyatta/share/tmplscripts/interfaces/all/vrrp/vrrp-group/track-interface/configd_allowed.sh";
+				configd:help "Interface name";
+			}
+			uses track-weight;
+		}
+		container track {
+			configd:help "Enhanced tracking configuration";
+			description "Objects to track that can modify the group's state or priority";
+			list interface {
+				configd:help "Interface to be tracked";
+				description 	"List of interfaces that this VRRP group is tracking.
+						If an interface does not have a weight and is down the
+						group will move to fault state.";
+				configd:allowed "/opt/vyatta/share/tmplscripts/interfaces/all/vrrp/vrrp-group/track-interface/configd_allowed.sh";
+				key "name";
+				leaf name {
+					description "Interface name that will be tracked";
+					configd:help "Interface name";
+					type string;
+					must "(current() = /if:interfaces/*/*[(local-name(.) = 'tagnode') or (local-name(.) = 'ifname')] "
+						+ "or /if:interfaces/*/*[local-name(.) = 'vif'][./../* = substring-before(current(), '.')]"
+						+ "/*[(local-name(.) = 'tagnode') or (local-name(.) = 'ifname')][. = substring-after(current(), '.')])" {
+						error-message "Interface must exist.";
+					}
+				}
+				uses track-weight;
+			}
+		}
+		leaf-list virtual-address {
+			type union {
+				type types:ipv4-address;
+				type types:ipv6-address;
+				type types:ipv4-prefix;
+				type types:ipv6-prefix;
+			}
+			min-elements 1;
+			max-elements 20;
+			ordered-by "user";
+			configd:help "Virtual address for IPv4 or IPv6 [REQUIRED]";
+		}
+	}
+
+	grouping start-delay-configuration {
+		leaf start-delay {
+			description "Delay start up of VRRP groups on this interface by a number of seconds";
+			configd:help "Delay start up of VRRP groups on this interface by a number of seconds";
+			type uint16 {
+				range 0..600;
+			}
+			default 0;
+			units "seconds";
+		}
+	}
+
+	grouping itf-vrrp {
+		container vrrp {
+			configd:help "Virtual Router Redundancy Protocol (VRRP)";
+			configd:priority "319";
+			configd:end "/opt/vyatta/share/tmplscripts/interfaces/all/vrrp/configd_end.sh";
+			list vrrp-group {
+				configd:help "VRRP group number";
+				configd:delete "/opt/vyatta/share/tmplscripts/interfaces/all/vrrp/vrrp-group/configd_delete.sh";
+				key "tagnode";
+				leaf tagnode {
+					type vrrp-group;
+					configd:help "VRRP group number";
+				}
+				leaf description {
+					type string;
+					configd:help "Description";
+				}
+				container notify {
+					presence "true";
+					configd:help "Protocol to notify on VRRP state transition";
+					leaf bgp {
+						type empty;
+						configd:help "Notify bgp daemon on VRRP state transition";
+						configd:delete "/opt/vyatta/share/tmplscripts/interfaces/all/vrrp/vrrp-group/notify/bgp/configd_delete.sh";
+					}
+					leaf ipsec {
+						type empty;
+						configd:help "Enable ipsec restart/stop on VRRP state transition";
+					}
+				}
+				uses vrrp-configuration;
+				must "( (count(virtual-address[contains(., '.')]) > 0 and count(virtual-address[contains(., ':')]) = 0) " +
+					"or (count(virtual-address[contains(., '.')]) = 0 and count(virtual-address[contains(., ':')]) > 0) " +
+					"or (count(virtual-address) = 0) )" {
+ 						error-message "Cannot apply IPv4 and IPv6 addresses to a single VRRP group. Use single address family per group";
+				}
+				must "( (count(virtual-address[contains(., ':')]) > 0 and count(virtual-address[contains(., 'fe80::')]) > 0) " +
+					"or (count(virtual-address[contains(., '.')]) > 0) " +
+					"or (count(virtual-address) = 0))" {
+						error-message "VRRPv3 IPv6 groups must have at least one link-local virtual address";
+				}
+			}
+			uses start-delay-configuration;
+		}
+	}
+	grouping itf-vif-vrrp {
+		container vrrp {
+			configd:help "Virtual Router Redundancy Protocol (VRRP)";
+			configd:priority "319";
+			configd:end "/opt/vyatta/share/tmplscripts/interfaces/all/vif/vrrp/configd_end.sh";
+			list vrrp-group {
+				configd:help "VRRP group number";
+				configd:delete "/opt/vyatta/share/tmplscripts/interfaces/all/vif/vrrp/vrrp-group/configd_delete.sh";
+				key "tagnode";
+				leaf tagnode {
+					type vrrp-group;
+					configd:help "VRRP group number";
+				}
+				leaf description {
+					type string;
+					configd:help "Description";
+				}
+				container notify {
+					presence "true";
+					configd:help "Protocol to notify on VRRP state transition";
+					leaf bgp {
+						type empty;
+						configd:help "Notify bgp daemon on VRRP state transition";
+						configd:delete "/opt/vyatta/share/tmplscripts/interfaces/all/vif/vrrp/vrrp-group/notify/bgp/configd_delete.sh";
+					}
+					leaf ipsec {
+						type empty;
+						configd:help "Enable ipsec restart/stop on VRRP state transition";
+					}
+				}
+				uses vrrp-configuration;
+				must "( (count(virtual-address[contains(., '.')]) > 0 and count(virtual-address[contains(., ':')]) = 0) " +
+					"or (count(virtual-address[contains(., '.')]) = 0 and count(virtual-address[contains(., ':')]) > 0) " +
+					"or (count(virtual-address) = 0) )" {
+ 						error-message "Cannot apply IPv4 and IPv6 addresses to a single VRRP group. Use single address family per group";
+				}
+				must "( (count(virtual-address[contains(., ':')]) > 0 and count(virtual-address[contains(., 'fe80::')]) > 0) " +
+					"or (count(virtual-address[contains(., '.')]) > 0) " +
+					"or (count(virtual-address) = 0))" {
+						error-message "VRRPv3 IPv6 groups must have at least one link-local virtual address";
+				}
+			}
+			uses start-delay-configuration;
+		}
+	}
+
+	rpc garp {
+		description "Generate a GARP from a specified virtual router";
+		input {
+			leaf interface{
+				type types:interface-ifname;
+				mandatory true;
+				description "Interface from which to send the GARP";
+			}
+			leaf group{
+				type vrrp-group;
+				mandatory true;
+				description "VRRP group number from which to send the GARP";
+			}
+		}
+		configd:call-rpc "/opt/vyatta/sbin/yangop-vrrp-garp";
+	}
+	augment /if:interfaces/interfaces-dataplane:dataplane {
+		uses itf-vrrp;
+	}
+	augment /if:interfaces/interfaces-dataplane:dataplane/interfaces-dataplane:vif {
+		uses itf-vif-vrrp;
+	}
+	augment /if:interfaces/interfaces-bonding:bonding {
+		uses itf-vrrp;
+	}
+	augment /if:interfaces/interfaces-bonding:bonding/interfaces-bonding:vif {
+		uses itf-vif-vrrp;
+	}
+}

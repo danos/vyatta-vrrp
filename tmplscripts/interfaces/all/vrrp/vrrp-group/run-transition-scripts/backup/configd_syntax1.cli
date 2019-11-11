@@ -1,0 +1,2 @@
+#!/opt/vyatta/bin/cliexpr
+syntax:expression: exec "[ -x $(echo $VAR(@) | awk -F ' ' '{ print $1 }') ] || exit 1" ; "Backup script should be an existing executable"

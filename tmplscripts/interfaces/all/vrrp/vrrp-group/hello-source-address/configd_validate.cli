@@ -1,0 +1,12 @@
+#!/usr/bin/perl
+
+use lib "/opt/vyatta/share/perl5/";
+use Vyatta::Misc;
+
+use strict;
+use warnings;
+
+my $addr = $ARGV[0];
+
+print "hello-source-address [$addr] must be configured on the interface\n"
+    unless is_local_address($addr);
