@@ -1,0 +1,16 @@
+#! /bin/bash
+#
+# Copyright (c) 2019, AT&T Intellectual Property. All rights reserved.
+# Copyright (c) 2014-2016 by Brocade Communications Systems, Inc.
+# All rights reserved.
+#
+
+source "$(cd "$(dirname "${0}")" && pwd -P)"/../tech-support.functions
+
+header VRRP
+time_out "run show vrrp"
+time_out "run show vrrp detail"
+time_out "run show vrrp statistics"
+do_cmd cat /var/run/vrrpd/vrrp.log
+
+exit 0

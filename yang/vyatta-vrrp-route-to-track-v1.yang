@@ -1,18 +1,15 @@
-module vyatta-vrrp-path-monitor-track-interfaces-bonding-v1 {
-	namespace "urn:vyatta.com:mgmt:vyatta-vrrp-track-interfaces-bonding:1";
-	prefix vyatta-vrrp-path-monitor-track-interfaces-bonding-v1;
+module vyatta-vrrp-route-to-track-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-vrrp-route-to-track:1";
+	prefix vyatta-vrrp-route-to-track-v1;
 
-	import vyatta-interfaces-v1 {
-		prefix if;
-	}
-	import vyatta-interfaces-bonding-v1 {
-		prefix interfaces-bonding;
+	import configd-v1 {
+		prefix configd;
 	}
 	import vyatta-vrrp-v1 {
 		prefix vrrp;
 	}
-	import vyatta-vrrp-path-monitor-track-v1 {
-		prefix vrrp-track;
+	import vyatta-types-v1 {
+		prefix types;
 	}
 
 	organization "AT&T, Inc.";
@@ -24,10 +21,10 @@ module vyatta-vrrp-path-monitor-track-interfaces-bonding-v1 {
 		Web: www.att.com";
 
 	description
-		"Copyright (c) 2017,2019 AT&T Intellectual Property
+		"Copyright (c) 2019 AT&T Intellectual Property
 		All rights reserved.
 
-		Augment enhanced tracking on bonding VRRP groups with path monitor tracking.
+		Enhanced tracking for VRRP groups - route tracking.
 
 		Redistribution and use in source and binary forms, with or without
 		modification, are permitted provided that the following conditions
@@ -58,14 +55,21 @@ module vyatta-vrrp-path-monitor-track-interfaces-bonding-v1 {
 
 		SPDX-License-Identifier: BSD-3-Clause";
 
-	revision 2017-09-26 {
-		description	"Initial revision.";
+	revision 2019-07-22 {
+		description "Initial revision.";
 	}
 
-	augment /if:interfaces/interfaces-bonding:bonding/vrrp:vrrp/vrrp:vrrp-group/vrrp:track {
-		uses vrrp-track:vrrp-track-pathmon;
-	}
-	augment /if:interfaces/interfaces-bonding:bonding/interfaces-bonding:vif/vrrp:vrrp/vrrp:vrrp-group/vrrp:track {
-		uses vrrp-track:vrrp-track-pathmon;
+	grouping vrrp-track-route-to {
+		list route-to {
+			description "Configure a route and prefix to track";
+			configd:help "Route-to tracking config";
+			key route;
+			leaf route {
+				description "IPv4 network and prefix to track";
+				configd:help "CIDR network and prefix format";
+				type types:ipv4-prefix;
+			}
+			uses vrrp:track-weight;
+		}
 	}
 }

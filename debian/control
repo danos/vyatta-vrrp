@@ -17,7 +17,7 @@ Depends:
  vyatta-cfg (>= 0.99.83),
  vyatta-interfaces (>= 0.5),
  vyatta-op-network,
- keepalived (>= 1.2.24-git66c870aa+vyatta23.1.1),
+ keepalived (>= 1.2.24-git66c870aa+vyatta26),
  vyatta-system (>= 1.6.1),
  ${misc:Depends},
  ${perl:Depends},
@@ -41,7 +41,7 @@ Description: vyatta-op-show-interfaces-vrrp-v1 module
 Package: vyatta-vrrp-dataplane
 Architecture: all
 Depends:  ${misc:Depends},
- keepalived (>= 1.2.24-git66c870aa+vyatta23.1.1),
+ keepalived (>= 1.2.24-git66c870aa+vyatta26),
  vplane-config,
  vyatta-cfg
 Description: vyatta-vrrp dataplane templates
@@ -86,3 +86,29 @@ Section: contrib/admin
 Description: vyatta-vrrp-path-monitor-track-interfaces-bonding-v1 yang module
  The YANG module that augments bonding interfaces with path monitor tracking.
 
+Package: vyatta-vrrp-route-to-track-v1-yang
+Architecture: all
+Depends: ${misc:Depends},
+ vyatta-vrrp-v1-yang (>= ${source:Version}),
+ ${yang:Depends}
+Section: contrib/admin
+Description: vyatta-vrrp-route-to-track-v1 yang module
+ The YANG module that defines the grouping to track routes.
+
+Package: vyatta-vrrp-route-to-track-interfaces-dataplane-v1-yang
+Architecture: all
+Depends: ${misc:Depends},
+ vyatta-vrrp-route-to-track-v1-yang,
+ ${yang:Depends}
+Section: contrib/admin
+Description: vyatta-vrrp-route-to-track-interfaces-dataplane-v1 yang module
+ The YANG module that augments dataplane interfaces with route-to tracking.
+
+Package: vyatta-vrrp-route-to-track-interfaces-bonding-v1-yang
+Architecture: all
+Depends: ${misc:Depends},
+ vyatta-vrrp-route-to-track-v1-yang,
+ ${yang:Depends}
+Section: contrib/admin
+Description: vyatta-vrrp-route-to-track-interfaces-bonding-v1 yang module
+ The YANG module that augments bonding interfaces with route-to tracking.

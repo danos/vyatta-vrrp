@@ -125,7 +125,8 @@ sub process_data {
   my (
       $instance, $interface, $in_sync, $in_vip,
       $track_ifp, $if_name, $if_state, $if_weight,
-      $track_pm, $monitor, $policy, $pm_state, $pm_weight
+      $track_pm, $monitor, $policy, $pm_state, $pm_weight,
+      $track_route, $route, $prefix
   );
   if ($dbus_object){
 	 $dbus_object->PrintData();
@@ -158,6 +159,25 @@ sub process_data {
         my $inst = $dh->{'instances'}->{$interface}->{$instance};
         $inst->{vips} = [ $inst->{vips} ? @{ $inst->{vips} } : (), trim $1 ];
       };
+    }
+    if ($track_route) {
+        m/Network = (.*)/ && do {
+            $route = $1;
+            next;
+        };
+        m/Prefix = (.*)/ && do {
+            $prefix = $1;
+            next;
+        };
+        m/Status = (.*)/ && do {
+            $dh->{'instances'}->{$interface}->{$instance}->{'routes'}
+            ->{$route."/".$prefix}->{'state'} = $1;
+             next;
+        };
+        m/Weight = (.*)/ && do {
+            $dh->{'instances'}->{$interface}->{$instance}->{'routes'}->{$route."/".$prefix}
+            ->{'weight'} = $1;
+        };
     }
     if ($track_pm) {
         m/Monitor = (.*)/ && do {
@@ -200,10 +220,11 @@ sub process_data {
     m/(.*?) = (.*)/ && do {
       $in_vip = undef;
       add_to_datahash $dh, $interface, $instance, $in_sync, $1, $2;
-      m/Virtual IP/ && do {$in_vip = 1; $track_ifp = undef; $track_pm = undef};
-      m/Tracked interface/ && do {$track_ifp = 1; $in_vip = undef; $track_pm = undef;};
+      m/Virtual IP/ && do {$in_vip = 1; $track_ifp = undef; $track_pm = undef; $track_route = undef;};
+      m/Tracked interface/ && do {$track_ifp = 1; $in_vip = undef; $track_pm = undef; $track_route = undef;};
       m/Tracked path-monitors/ && do {$track_pm = 1; $in_vip = undef; 
-          $track_ifp = undef;};
+          $track_ifp = undef; $track_route = undef;};
+      m/Tracked routes/ && do {$track_route = 1; $in_vip = undef; $track_pm = undef; $track_ifp = undef;};
       next;
     };
   }
@@ -384,6 +405,26 @@ sub print_detail {
                 }
                 printf "\n";
                 }
+            }
+      }
+      my $track_routes =
+          $dh->{instances}->{$interface}->{$vrid}->{'tracked-routes'};
+      if ( $track_routes ) {
+          printf "  Tracked routes count:\t%s\n", $track_routes;
+
+            foreach my $route (
+                keys( %{ $dh->{instances}->{$interface}->{$vrid}->{routes} } ) )
+            {
+                printf "    %s ", $route;
+                printf "  state %s",
+                  $dh->{instances}->{$interface}->{$vrid}->{routes}->{$route}
+                  ->{'state'};
+                my $weight = $dh->{instances}->{$interface}->{$vrid}->{routes}->{$route}
+                            ->{'weight'};
+                if ( defined $weight ) {
+                    printf "      weight %s", $weight;
+                }
+                printf "\n";
             }
       }
       printf "  VIP count:\t\t\t%s\n",

@@ -38,6 +38,7 @@ my ( $conf_file, $changes_file, $intf_file );
 my %HoA_sync_groups;
 my %tracked_ifs;
 my %tracked_monitors;
+my %tracked_routes;
 my $sync_dp_script = "/opt/vyatta/sbin/vyatta-vrrp-csyncd.sh";
 my %virtual_interfaces;
 
@@ -80,6 +81,7 @@ sub keepalived_get_values {
     # Reset the tracked interfaces and monitor hashes per group
     %tracked_ifs = ();
     %tracked_monitors = ();
+    %tracked_routes = ();
     my $vrrp_instance = "vyatta-$intf-$group";
     $config->setLevel("$path vrrp vrrp-group $group");
     if ( $config->exists("disable") ) {
@@ -241,6 +243,7 @@ sub keepalived_get_values {
     my $track_level = $config->exists("track");
     my $en_track_iface;
     my $en_track_monitor;
+    my $en_track_route;
     if ( defined $track_level) {
         $config->setLevel("$path vrrp vrrp-group $group track");
 
@@ -278,6 +281,23 @@ sub keepalived_get_values {
                         $tracked_monitors{$tpm}{$tpp}{"weight"} =
                           $type eq "increment" ? "+$val" : "-$val";
                     }
+                }
+            }
+        }
+
+        # Find route-to tracking config
+        $en_track_route = $config->exists("route-to");
+        if ( defined $en_track_route ) {
+            my @troutes = $config->listNodes("route-to");
+            foreach my $troute (@troutes) {
+                $tracked_routes{$troute} = undef;
+                if ( $config->exists("route-to $troute weight") ) {
+                    my $val  =
+                      $config->returnValue("route-to $troute weight value");
+                    my $type =
+                      $config->returnValue("route-to $troute weight type");
+                    $tracked_routes{$troute} =
+                      $type eq "increment" ? "+$val" : "-$val";
                 }
             }
         }
@@ -336,7 +356,7 @@ sub keepalived_get_values {
       $output .= "\t\t$vip\n";
     }
     $output .= "\t\}\n";
-    if (defined $track_iface || defined $en_track_iface || defined $en_track_monitor) {
+    if (defined $track_iface || defined $en_track_iface || defined $en_track_monitor || defined $en_track_route) {
         $output .= "\ttrack \{\n";
         if ( defined $track_iface || defined $en_track_iface ) {
             $output .= "\t\tinterface \{\n";
@@ -364,6 +384,19 @@ sub keepalived_get_values {
                     }
                     $output .= "\n";
                 }
+            }
+            $output .= "\t\t\}\n";
+        }
+
+        if ( defined $en_track_route ) {
+            $output .= "\t\troute_to \{\n";
+            foreach my $troute ( keys %tracked_routes ) {
+                $output .= "\t\t\t$troute";
+                if ( defined $tracked_routes{$troute} ) {
+                    $output .= "\tweight\t";
+                    $output .= $tracked_routes{$troute};
+                }
+                $output .= "\n";
             }
             $output .= "\t\t\}\n";
         }

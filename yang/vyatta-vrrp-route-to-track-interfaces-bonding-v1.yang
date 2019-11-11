@@ -1,17 +1,17 @@
-module vyatta-vrrp-path-monitor-track-interfaces-bonding-v1 {
-	namespace "urn:vyatta.com:mgmt:vyatta-vrrp-track-interfaces-bonding:1";
-	prefix vyatta-vrrp-path-monitor-track-interfaces-bonding-v1;
+module vyatta-vrrp-route-to-track-interfaces-bonding-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-vrrp-route-to-track-interfaces-bonding:1";
+	prefix vyatta-vrrp-route-to-track-interfaces-bonding-v1;
 
 	import vyatta-interfaces-v1 {
 		prefix if;
 	}
 	import vyatta-interfaces-bonding-v1 {
-		prefix interfaces-bonding;
+		prefix intf-bond;
 	}
 	import vyatta-vrrp-v1 {
 		prefix vrrp;
 	}
-	import vyatta-vrrp-path-monitor-track-v1 {
+	import vyatta-vrrp-route-to-track-v1 {
 		prefix vrrp-track;
 	}
 
@@ -24,10 +24,10 @@ module vyatta-vrrp-path-monitor-track-interfaces-bonding-v1 {
 		Web: www.att.com";
 
 	description
-		"Copyright (c) 2017,2019 AT&T Intellectual Property
+		"Copyright (c) 2019 AT&T Intellectual Property
 		All rights reserved.
 
-		Augment enhanced tracking on bonding VRRP groups with path monitor tracking.
+		Augment enhanced tracking on bonding VRRP groups with route-to tracking.
 
 		Redistribution and use in source and binary forms, with or without
 		modification, are permitted provided that the following conditions
@@ -58,14 +58,14 @@ module vyatta-vrrp-path-monitor-track-interfaces-bonding-v1 {
 
 		SPDX-License-Identifier: BSD-3-Clause";
 
-	revision 2017-09-26 {
+	revision 2019-07-22 {
 		description	"Initial revision.";
 	}
 
-	augment /if:interfaces/interfaces-bonding:bonding/vrrp:vrrp/vrrp:vrrp-group/vrrp:track {
-		uses vrrp-track:vrrp-track-pathmon;
+	augment /if:interfaces/intf-bond:bonding/vrrp:vrrp/vrrp:vrrp-group/vrrp:track {
+		uses vrrp-track:vrrp-track-route-to;
 	}
-	augment /if:interfaces/interfaces-bonding:bonding/interfaces-bonding:vif/vrrp:vrrp/vrrp:vrrp-group/vrrp:track {
-		uses vrrp-track:vrrp-track-pathmon;
+	augment /if:interfaces/intf-bond:bonding/intf-bond:vif/vrrp:vrrp/vrrp:vrrp-group/vrrp:track {
+		uses vrrp-track:vrrp-track-route-to;
 	}
 }

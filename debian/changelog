@@ -1,6 +1,11 @@
+vyatta-vrrp (2.19) unstable; urgency=medium
+
+  * DANOS Import Master
+
+ -- Vyatta Package Maintainers <DL-vyatta-help@att.com>  Fri, 01 Nov 2019 11:08:50 +0000
+
 vyatta-vrrp (2.16.1) unstable; urgency=medium
 
   * DANOS Import
 
  -- Vyatta Package Maintainers <DL-vyatta-help@att.com>  Thu, 31 Oct 2019 14:49:12 +0000
-
