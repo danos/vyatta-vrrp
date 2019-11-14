@@ -34,6 +34,10 @@ SHOW_DETAIL_TRACKED_FORMAT = \
 SHOW_DETAIL_TRACKED_PMON_FORMAT = \
     "      {0}  {1}  {2}\n"  # type: str
 
+SHOW_SYNC_GROUP_NAME: str = SHOW_DETAIL_GROUP_NAME[2:]
+SHOW_SYNC_GROUP_DIVIDER: str = SHOW_DETAIL_GROUP_DIVIDER[3:]
+SHOW_SYNC_GROUP_STATE: str = "  State: {}\n  Monitoring:\n"
+SHOW_SYNC_GROUP_MEMBERS: str = "    Interface: {}, Group: {}\n"
 
 def show_vrrp_summary(state_dict: Dict) -> str:
     output = "\n"  # type: str
@@ -248,4 +252,24 @@ def show_vrrp_detail(state_dict: Dict) -> str:
                 for vip in state["virtual-ips"]:
                     output += "    {}\n".format(vip)
                 output += "\n"
+    return output
+
+
+def show_vrrp_sync(state_dict: Dict) -> str:
+    output: str = "\n"+SHOW_DETAIL_DIVIDER
+    if (util.VRRP_YANG_NAME in state_dict):
+        for sync_group in state_dict[util.VRRP_YANG_NAME]["sync-groups"]:
+            output += SHOW_SYNC_GROUP_NAME.format(
+                sync_group["name"]
+            )
+            output += SHOW_SYNC_GROUP_DIVIDER
+            output += SHOW_SYNC_GROUP_STATE.format(
+                sync_group["state"]
+            )
+            for group in sorted(sync_group["members"]):
+                tokens: List[str] = group.split("-")
+                output += SHOW_SYNC_GROUP_MEMBERS.format(
+                    tokens[1], tokens[2]
+                )
+        output += "\n"
     return output
