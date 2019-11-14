@@ -1524,7 +1524,7 @@ def sync_group_simple_keepalived_data():
 def sync_group_simple_keepalived_state():
     return \
         {
-            "groups":
+            "sync-groups":
             [
                 {
                     "name": "TEST",
@@ -2806,6 +2806,16 @@ def detailed_simple_multi_sync_state(
         [detailed_multi_group_first_simple_keepalived_state]
     dataplane_list[1][vrrp_yang_name]["vrrp-group"] = \
         [detailed_multi_group_second_simple_keepalived_state]
+    return simple_yang_state
+
+
+@pytest.fixture
+def simple_sync_group_state(
+        simple_config, vrrp_yang_name, interface_yang_name,
+        sync_group_simple_keepalived_state):
+    simple_yang_state = copy.deepcopy(simple_config)
+    del(simple_yang_state[interface_yang_name])
+    simple_yang_state[vrrp_yang_name] = sync_group_simple_keepalived_state
     return simple_yang_state
 
 
