@@ -271,5 +271,5 @@ def show_vrrp_sync(state_dict: Dict) -> str:
                 output += SHOW_SYNC_GROUP_MEMBERS.format(
                     tokens[1], tokens[2]
                 )
-        output += "\n"
+            output += "\n"
     return output

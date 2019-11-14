@@ -1652,6 +1652,60 @@ Interface: dp0p1s2
 
 
 @pytest.fixture
+def no_sync_group_show_sync():
+    return """
+--------------------------------------------------
+"""
+
+
+@pytest.fixture
+def multiple_sync_group_show_sync():
+    return """
+--------------------------------------------------
+Group: TEST
+---------
+  State: MASTER
+  Monitoring:
+    Interface: dp0p1s1, Group: 1
+    Interface: dp0p1s2, Group: 1
+
+Group: TESTV2
+---------
+  State: MASTER
+  Monitoring:
+    Interface: dp0p1s3, Group: 1
+    Interface: dp0p1s4, Group: 1
+
+"""
+
+
+@pytest.fixture
+def multiple_sync_group_simple_keepalived_state():
+    return \
+        {
+            "sync-groups":
+            [
+                {
+                    "name": "TEST",
+                    "state": "MASTER",
+                    "members": [
+                        "vyatta-dp0p1s2-1",
+                        "vyatta-dp0p1s1-1"
+                    ]
+                },
+                {
+                    "name": "TESTV2",
+                    "state": "MASTER",
+                    "members": [
+                        "vyatta-dp0p1s3-1",
+                        "vyatta-dp0p1s4-1"
+                    ]
+                }
+            ]
+        }
+
+
+@pytest.fixture
 def instance_state():
     return \
         {
@@ -2795,7 +2849,7 @@ def detailed_simple_multi_sync_state(
         second_dataplane_interface,
         detailed_multi_group_second_simple_keepalived_state,
         vrrp_yang_name, interface_yang_name,
-        dataplane_yang_name):
+        dataplane_yang_name, sync_group_simple_keepalived_state):
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
@@ -2806,6 +2860,7 @@ def detailed_simple_multi_sync_state(
         [detailed_multi_group_first_simple_keepalived_state]
     dataplane_list[1][vrrp_yang_name]["vrrp-group"] = \
         [detailed_multi_group_second_simple_keepalived_state]
+    simple_yang_state[vrrp_yang_name] = sync_group_simple_keepalived_state
     return simple_yang_state
 
 
@@ -2816,6 +2871,17 @@ def simple_sync_group_state(
     simple_yang_state = copy.deepcopy(simple_config)
     del(simple_yang_state[interface_yang_name])
     simple_yang_state[vrrp_yang_name] = sync_group_simple_keepalived_state
+    return simple_yang_state
+
+
+@pytest.fixture
+def multiple_simple_sync_group_state(
+        simple_config, vrrp_yang_name, interface_yang_name,
+        multiple_sync_group_simple_keepalived_state):
+    simple_yang_state = copy.deepcopy(simple_config)
+    del(simple_yang_state[interface_yang_name])
+    simple_yang_state[vrrp_yang_name] = \
+        multiple_sync_group_simple_keepalived_state
     return simple_yang_state
 
 
