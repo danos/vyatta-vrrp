@@ -121,9 +121,7 @@ class State(vci.State):
                 state_instances = []
                 for vrrp_instance in vrrp_instances:
                     vrid = vrrp_instance["tagnode"]
-                    instance_name = "vyatta-{}-{}".format(
-                        transmit_intf, vrid
-                    )
+                    instance_name = f"vyatta-{transmit_intf}-{vrid}"
                     if instance_name not in \
                             self._conf_obj.vrrp_connections:
                         af_type = util.what_ip_version(

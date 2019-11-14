@@ -36,24 +36,15 @@ ROUTE_BONDING_YANG_NAME = \
 
 PROPERTIES_DBUS_INTF_NAME = "org.freedesktop.DBus.Properties"  # type: str
 SYSTEMD_DBUS_INTF_NAME = "org.freedesktop.systemd1"  # type: str
-SYSTEMD_DBUS_PATH = "/{}".format(
-    SYSTEMD_DBUS_INTF_NAME.replace(".", "/")
- )  # type: str
-SYSTEMD_MANAGER_DBUS_INTF_NAME = "{}.Manager".format(
-    SYSTEMD_DBUS_INTF_NAME
-)  # type: str
-SYSTEMD_UNIT_DBUS_NAME = "{}.Unit".format(
-    SYSTEMD_DBUS_INTF_NAME
-)  # type: str
+SYSTEMD_DBUS_PATH = f"/{SYSTEMD_DBUS_INTF_NAME.replace('.', '/')}"  # type: str
+SYSTEMD_MANAGER_DBUS_INTF_NAME = f"{SYSTEMD_DBUS_INTF_NAME}.Manager"  # type: str
+SYSTEMD_UNIT_DBUS_NAME = f"{SYSTEMD_DBUS_INTF_NAME}.Unit"  # type: str
 
 KEEPALIVED_DBUS_INTF_NAME = "org.keepalived.Vrrp1"  # type: str
-VRRP_PROCESS_DBUS_INTF_PATH = "/{}/Vrrp".format(
-    KEEPALIVED_DBUS_INTF_NAME.replace(".", "/"))  # type: str
-VRRP_INSTANCE_DBUS_INTF_NAME = "{}.Instance".format(
-        KEEPALIVED_DBUS_INTF_NAME)  # type: str
-VRRP_INSTANCE_DBUS_PATH = "/{}".format(
-    VRRP_INSTANCE_DBUS_INTF_NAME.replace(".", "/")
-)  # type: str
+VRRP_PROCESS_DBUS_INTF_PATH = \
+    f"/{KEEPALIVED_DBUS_INTF_NAME.replace('.', '/')}/Vrrp"  # type: str
+VRRP_INSTANCE_DBUS_INTF_NAME = f"{KEEPALIVED_DBUS_INTF_NAME}.Instance"  # type: str
+VRRP_INSTANCE_DBUS_PATH = f"/{VRRP_INSTANCE_DBUS_INTF_NAME.replace('.', '/')}"  # type: str
 
 
 INSTANCE_STATE_YANG = "instance-state"
@@ -151,9 +142,7 @@ def is_local_address(address_string: str) -> None:
     elif ipaddr_version == 6:
         ipaddr_type = socket.AF_INET6
     else:
-        raise TypeError("{} is not an IPv4 or IPv6 address".format(
-            address_string
-        ))
+        raise TypeError(f"{address_string} is not an IPv4 or IPv6 address")
     with socket.socket(ipaddr_type, socket.SOCK_STREAM) as s:
         s.bind((address_string, 0))
 
@@ -218,8 +207,7 @@ def sanitize_vrrp_config(conf: Dict) -> Dict:
                     if "vrrp-group" in vif_intf[VRRP_YANG_NAME]:
                         new_vif = vif_intf
                         new_vif["tagnode"] = \
-                            "{}.{}".format(intf["tagnode"],
-                                           vif_intf["tagnode"])
+                            f"{intf['tagnode']}.{vif_intf['tagnode']}"
                         vif_list.append(new_vif)
                 del intf["vif"]
         if new_list != []:
@@ -318,9 +306,9 @@ def find_config_value(
     """
 
     for line in config_list:
-        regex_search = re.match(r"^{}(\s+|$)".format(search_term), line)
+        regex_search = re.match(f"^{search_term}(\s+|$)", line)
         if regex_search is not None:
-            regex_search = re.match(r"{}\s+(.*)".format(search_term), line)
+            regex_search = re.match(f"{search_term}\s+(.*)", line)
             if regex_search is not None:
                 return (True, regex_search.group(1))
             # Yang JSON representation has single key with no value as
@@ -444,7 +432,7 @@ def intf_name_to_type(name):
         return (DATAPLANE_YANG_NAME, intf_type.dataplane)
     else:
         raise ValueError(
-            "Unrecognised interface type for interface {}".format(name)
+            f"Unrecognised interface type for interface {name}"
         )
 
 

@@ -97,7 +97,7 @@ vrrp_instance {instance} {{
     nopreempt"""
 
         if "rfc-compatibility" in self._group_config:
-            self._group_config["vmac"] = "{}vrrp{}".format(name[:3], rfc_num)
+            self._group_config["vmac"] = f"{name[:3]}vrrp{rfc_num}"
             if len(self._group_config["vmac"]) > 15:
                 print("Warning: generated interface name is longer than 15 " +
                       "characters\n")
@@ -176,28 +176,17 @@ vrrp_instance {instance} {{
         if "run-transition-scripts" in self._group_config:
             transition_scripts = self._group_config["run-transition-scripts"]
             if "master" in transition_scripts:
-                self._template += """
-    notify_master \"{} master {} {}\"""".format(
-                                                transition_scripts["master"],
-                                                name,
-                                                self._group_config["vrid"])
+                self._template += f"""
+    notify_master \"{transition_scripts['master']} master {name} {self._group_config['vrid']}\""""
             if "backup" in transition_scripts:
-                self._template += """
-    notify_backup \"{} backup {} {}\"""".format(
-                                                transition_scripts["backup"],
-                                                name,
-                                                self._group_config["vrid"])
+                self._template += f"""
+    notify_backup \"{transition_scripts['backup']} backup {name} {self._group_config['vrid']}\""""
             if "fault" in transition_scripts:
-                self._template += """
-    notify_fault \"{} fault {} {}\"""".format(
-                                                transition_scripts["fault"],
-                                                name,
-                                                self._group_config["vrid"])
+                self._template += f"""
+    notify_fault \"{transition_scripts['fault']} fault {name} {self._group_config['vrid']}\""""
 
         # Generate instance name (TODO change to f-string with python 3.7)
-        self._instance = "vyatta-{intf}-{vrid}".format(
-            intf=name, vrid=group_config["tagnode"]
-        )
+        self._instance = f"vyatta-{name}-{group_config['tagnode']}"
         self._group_config["instance"] = self._instance
 
         self._template += "\n}}"
@@ -232,18 +221,18 @@ vrrp_instance {instance} {{
         interface {{"""
         for interface in intf_dict:
             if "name" in interface:
-                track_string = """
-            {}""".format(interface["name"])
+                track_string = f"""
+            {interface['name']}"""
             if "tagnode" in interface:
-                track_string = """
-            {}""".format(interface["tagnode"])
+                track_string = f"""
+            {interface['tagnode']}"""
             if "weight" in interface:
                 if interface["weight"]["type"] == "decrement":
                     multiplier = -1
                 else:
                     multiplier = 1
                 value = multiplier * interface["weight"]["value"]
-                track_string += "   weight  {:+d}".format(value)
+                track_string += f"   weight  {value:+d}"
             self._template += track_string
         self._template += """
         }}"""  # Close interface brace
@@ -254,15 +243,15 @@ vrrp_instance {instance} {{
         for monitor in pathmon_dict["monitor"]:
             monitor_name = monitor["name"]
             for policy in monitor["policy"]:
-                track_string = """
-            monitor {}    policy {}""".format(monitor_name, policy["name"])
+                track_string = f"""
+            monitor {monitor_name}    policy {policy['name']}"""
                 if "weight" in policy:
                     if policy["weight"]["type"] == "decrement":
                         multiplier = -1
                     else:
                         multiplier = 1
                     value = multiplier * policy["weight"]["value"]
-                    track_string += "      weight  {:+d}".format(value)
+                    track_string += f"      weight  {value:+d}"
                 self._template += track_string
         self._template += """
         }}"""  # Close pathmon brace
@@ -272,15 +261,15 @@ vrrp_instance {instance} {{
         route_to {{"""
         for route in route_dict:
             if "route" in route:
-                track_string = """
-            {}""".format(route["route"])
+                track_string = f"""
+            {route['route']}"""
             if "weight" in route:
                 if route["weight"]["type"] == "decrement":
                     multiplier = -1
                 else:
                     multiplier = 1
                 value = multiplier * route["weight"]["value"]
-                track_string += "   weight  {:+d}".format(value)
+                track_string += f"   weight  {value:+d}"
             self._template += track_string
         self._template += """
         }}"""  # Close route brace

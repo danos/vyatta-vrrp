@@ -52,12 +52,8 @@ class VrrpConnection:
             self.af_type_str = "IPv4"
         else:
             self.af_type_str = "IPv6"
-        self.instance_name = "vyatta-{}-{}".format(
-            self.intf, self.vrid
-        )
-        self.dbus_path = "{}/{}/{}/{}".format(
-            util.VRRP_INSTANCE_DBUS_PATH, intf, vrid, self.af_type_str
-        )
+        self.instance_name = f"vyatta-{self.intf}-{self.vrid}"
+        self.dbus_path = f"{util.VRRP_INSTANCE_DBUS_PATH}/{intf}/{vrid}/{self.af_type_str}"
         self.bus_object.watch_name(
             util.KEEPALIVED_DBUS_INTF_NAME,
             name_appeared=activate_connection
@@ -86,7 +82,7 @@ class VrrpConnection:
                     "state": group_state["State"][1].upper(),
                     "sync-group": group_state["SyncGroup"][0]
                 },
-                "tagnode": "{}".format(self.vrid)
+                "tagnode": f"{self.vrid}"
             }
         return processed_state
 

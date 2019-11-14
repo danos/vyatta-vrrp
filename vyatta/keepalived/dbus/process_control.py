@@ -69,11 +69,11 @@ class ProcessControl:
     def set_default_daemon_arguments(self) -> None:
         snmp_socket = self.get_agent_x_socket()  # type: str
         if snmp_socket != "":
-            snmp_socket = "--snmp-agent-socket {}".format(snmp_socket)
-        default_string = """# Options to pass to keepalived
+            snmp_socket = f"--snmp-agent-socket {snmp_socket}"
+        default_string = f"""# Options to pass to keepalived
 # DAEMON_ARGS are appended to the keepalived command-line
-DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc/keepalived/keepalived.conf --release-vips {}"
-""".format(snmp_socket)  # noqa: E501  type: str
+DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc/keepalived/keepalived.conf --release-vips {snmp_socket}"
+"""  # noqa: E501  type: str
         with open(self.systemd_default_file_path, "w") as f_obj:
             f_obj.write(default_string)
 
@@ -87,7 +87,7 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
                 for line in content:
                     if "agentXSocket" in line:
                         snmp_socket = line.split(" ")[-1]
-                        snmp_socket = "{}:1".format(snmp_socket)
+                        snmp_socket = f"{snmp_socket}:1"
                         break
         return snmp_socket
 

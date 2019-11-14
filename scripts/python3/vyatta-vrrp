@@ -15,7 +15,7 @@ if __name__ == "__main__":
     url = "net.vyatta.vci.vrrp"
     namespace_v1 = "vyatta-vrrp-v1"
     (vci.Component(url)
-        .model(vci.Model("{}.v1".format(url))
+        .model(vci.Model(f"{url}.v1")
                .config(config_obj)
                .state(state_obj)
                .rpc(namespace_v1, "garp", vrrp.send_garp)

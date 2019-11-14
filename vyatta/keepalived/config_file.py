@@ -253,9 +253,7 @@ global_defs {
                         intf_name, group["tagnode"],
                         af_type, pydbus.SystemBus()
                     )
-                    instance_name = "vyatta-{}-{}".format(
-                        intf_name, group["tagnode"]
-                    )
+                    instance_name = f"vyatta-{intf_name}-{group['tagnode']}"
                     self._vrrp_connections[instance_name] = \
                         connection
                     if "sync-group" in group:
@@ -275,12 +273,12 @@ global_defs {
         """
         keepalived_config = self.config_string
         for sync_group in self._sync_instances:
-            keepalived_config += """
-vrrp_sync_group {} {{
-    group {{""".format(sync_group)
+            keepalived_config += f"""
+vrrp_sync_group {sync_group} {{
+    group {{"""
             for instance in self._sync_instances[sync_group]:
-                keepalived_config += """
-        {}""".format(instance)
+                keepalived_config += f"""
+        {instance}"""
             keepalived_config += """
     }
 }
@@ -351,12 +349,10 @@ vrrp_sync_group {} {{
                 group, "interface")[1]  # type: str
             vrid = util.find_config_value(
                 group, "virtual_router_id")[1]  # type: str
-            instance_name = "vyatta-{}-{}".format(intf_name, vrid)
+            instance_name = f"vyatta-{intf_name}-{vrid}"
 
             if instance_name in sync_group_instances:
-                group.append("sync_group {}".format(
-                    sync_group_instances[instance_name]
-                ))
+                group.append(f"sync_group {sync_group_instances[instance_name]}")
             vif_number = ""  # type: str
             if "." in intf_name:
                 vif_sep = intf_name.split(".")
