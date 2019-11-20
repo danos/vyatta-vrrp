@@ -21,7 +21,7 @@ import vyatta.keepalived.util as util
 class ProcessControl:
 
     def __init__(self):
-        self.keepalived_service_file: str = "vyatta-keepalived.service"
+        self.keepalived_service_file: str = "keepalived.service"
 
         self.log = logging.getLogger("vyatta-vrrp-vci")
         self.sysbus = pydbus.SystemBus()
