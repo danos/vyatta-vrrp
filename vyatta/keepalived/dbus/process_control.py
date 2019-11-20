@@ -14,14 +14,14 @@ process using dbus controls.
 import logging
 import pydbus
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List, Tuple
 import vyatta.keepalived.util as util
 
 
 class ProcessControl:
 
     def __init__(self):
-        self.keepalived_service_file = "vyatta-keepalived.service"
+        self.keepalived_service_file: str = "vyatta-keepalived.service"
 
         self.log = logging.getLogger("vyatta-vrrp-vci")
         self.sysbus = pydbus.SystemBus()
@@ -45,9 +45,9 @@ class ProcessControl:
                 self.keepalived_unit_file_intf
             )
         self.keepalived_process = None
-        self.running_state = "UNKNOWN"
-        self.systemd_default_file_path = "/etc/default/vyatta-keepalived"
-        self.snmpd_conf_file_path = "/etc/snmp/snmpd.conf"
+        self.running_state: str = "UNKNOWN"
+        self.systemd_default_file_path: str = "/etc/default/vyatta-keepalived"
+        self.snmpd_conf_file_path: str = "/etc/snmp/snmpd.conf"
 
     def unit_state(self) -> str:
         return self.running_state
@@ -67,22 +67,22 @@ class ProcessControl:
             self.keepalived_service_file, "replace")
 
     def set_default_daemon_arguments(self) -> None:
-        snmp_socket = self.get_agent_x_socket()  # type: str
+        snmp_socket: str = self.get_agent_x_socket()
         if snmp_socket != "":
             snmp_socket = f"--snmp-agent-socket {snmp_socket}"
-        default_string = f"""# Options to pass to keepalived
+        default_string: str = f"""# Options to pass to keepalived
 # DAEMON_ARGS are appended to the keepalived command-line
 DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc/keepalived/keepalived.conf --release-vips {snmp_socket}"
-"""  # noqa: E501  type: str
+"""  # noqa: E501
         with open(self.systemd_default_file_path, "w") as f_obj:
             f_obj.write(default_string)
 
     def get_agent_x_socket(self) -> str:
-        snmp_socket = "tcp:localhost:705:1"  # type: str
-        snmp_conf_file = Path(self.snmpd_conf_file_path)  # type: Path
+        snmp_socket: str = "tcp:localhost:705:1"
+        snmp_conf_file: Path = Path(self.snmpd_conf_file_path)
         if (snmp_conf_file.exists() and snmp_conf_file.is_file()):
             with open(str(snmp_conf_file), "r") as f_obj:
-                content = f_obj.readlines()
+                content: List[str] = f_obj.readlines()
                 content = [x.strip() for x in content]
                 for line in content:
                     if "agentXSocket" in line:
@@ -105,12 +105,12 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
             self.keepalived_service_file, "replace")
 
     def get_rfc_mapping(self, intf: str) -> Dict[str, str]:
-        dbus_path = util.VRRP_PROCESS_DBUS_INTF_PATH  # type: str
-        vrrp_process_proxy = self.sysbus.get(
+        dbus_path: str = util.VRRP_PROCESS_DBUS_INTF_PATH
+        vrrp_process_proxy: Any = self.sysbus.get(
             util.KEEPALIVED_DBUS_INTF_NAME,
             dbus_path
-        )  # type: Any
-        rfc_mapping = vrrp_process_proxy.GetRfcMapping(intf)  # noqa: E501 type: Tuple[str, str]
+        )
+        rfc_mapping: Tuple[str, str] = vrrp_process_proxy.GetRfcMapping(intf)  # noqa: E501
         return {
             "vyatta-vrrp-v1:receive":
             rfc_mapping[0],

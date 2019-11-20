@@ -9,7 +9,7 @@ Vyatta VCI component to configure keepalived to provide VRRP functionality
 
 import logging
 from functools import wraps
-from typing import Any, Dict
+from typing import Any, Dict, Union
 import vci
 import vyatta.keepalived.util as util
 
@@ -42,37 +42,38 @@ class VrrpConnection:
             notify_bgp: bool = None, notify_ipsec: bool = None,
             script_master: bool = None, script_backup: bool = None,
             script_fault: bool = None):
-        self.intf = intf
-        self.vrid = vrid
-        self.bus_object = bus_object
+        self.intf: str = intf
+        self.vrid: str = vrid
+        self.bus_object: Any = bus_object
         self.log = logging.getLogger("vyatta-vrrp-vci")
-        self.current_state = ""  # type: str
+        self.current_state: str
         self.client = vci.Client()
+        self.af_type_str: str
         if af_type == 4:
             self.af_type_str = "IPv4"
         else:
             self.af_type_str = "IPv6"
-        self.instance_name = f"vyatta-{self.intf}-{self.vrid}"
-        self.dbus_path = f"{util.VRRP_INSTANCE_DBUS_PATH}/{intf}/{vrid}/{self.af_type_str}"
+        self.instance_name: str = f"vyatta-{self.intf}-{self.vrid}"
+        self.dbus_path: str = f"{util.VRRP_INSTANCE_DBUS_PATH}/{intf}/{vrid}/{self.af_type_str}"
         self.bus_object.watch_name(
             util.KEEPALIVED_DBUS_INTF_NAME,
             name_appeared=activate_connection
         )
-        self._activated = False
-        self.vrrp_property_interface = None
-        self.vrrp_group_proxy = None
+        self._activated: bool = False
+        self.vrrp_property_interface: Any = None
+        self.vrrp_group_proxy: Any = None
 
     @activate_connection
-    def get_instance_state(self) -> Dict:
+    def get_instance_state(self) -> Dict[str, Union[str, Dict[str, str]]]:
         if self.vrrp_property_interface is None:
             return {}
-        group_state = self.vrrp_property_interface.GetAll(
+        group_state: Dict = self.vrrp_property_interface.GetAll(
             util.VRRP_INSTANCE_DBUS_INTF_NAME
         )
-        rfc_intf = ""
+        rfc_intf: str = ""
         if group_state["XmitIntf"][0] != self.intf:
             rfc_intf = group_state["XmitIntf"][0]
-        processed_state = \
+        processed_state: Dict[str, Union[str, Dict[str, str]]] = \
             {
                 "instance-state":
                 {
@@ -94,7 +95,7 @@ class VrrpConnection:
         return {}
 
     @staticmethod
-    def state_int_to_string(state):
+    def state_int_to_string(state: int) -> str:
         if state == 0:
             return "INIT"
         elif state == 1:
@@ -106,8 +107,8 @@ class VrrpConnection:
         else:
             return "TRANSIENT"
 
-    def state_change(self, status):
-        status_str = self.state_int_to_string(status)
+    def state_change(self, status: int) -> None:
+        status_str: str = self.state_int_to_string(status)
         # May need to also send 5 gARP replies on a master transition
         # there's a note about this in the legacy implementation
         if self.current_state == status_str:

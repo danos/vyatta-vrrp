@@ -7,13 +7,15 @@
 import vci
 import vyatta.vyatta_vrrp_vci as vrrp
 import vyatta.keepalived.config_file as impl_conf
+import vyatta.abstract_vrrp_classes as abstract_impl
 
 if __name__ == "__main__":
-    keepalived_implementation = impl_conf.KeepalivedConfig()
-    config_obj = vrrp.Config(keepalived_implementation)
-    state_obj = vrrp.State(keepalived_implementation)
-    url = "net.vyatta.vci.vrrp"
-    namespace_v1 = "vyatta-vrrp-v1"
+    keepalived_implementation: abstract_impl.ConfigFile \
+        = impl_conf.KeepalivedConfig()
+    config_obj: vci.Config = vrrp.Config(keepalived_implementation)
+    state_obj: vci.State = vrrp.State(keepalived_implementation)
+    url: str = "net.vyatta.vci.vrrp"
+    namespace_v1: str = "vyatta-vrrp-v1"
     (vci.Component(url)
         .model(vci.Model(f"{url}.v1")
                .config(config_obj)

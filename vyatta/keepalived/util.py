@@ -14,42 +14,42 @@ import ipaddress
 import socket
 import re
 from enum import Enum
-from typing import List, Union, Tuple, Any, Dict, Generator
+from typing import List, Union, Tuple, Any, Dict, Generator, Optional, Match
 
-INTERFACE_YANG_NAME = "vyatta-interfaces-v1:interfaces"  # type: str
-DATAPLANE_YANG_NAME = "vyatta-interfaces-dataplane-v1:dataplane"  # type: str
-BONDING_YANG_NAME = "vyatta-bonding-v1:bonding"  # type: str
-SWITCHPORT_YANG_NAME = "vyatta-switchport-v1:switchport"  # type: str
+INTERFACE_YANG_NAME: str = "vyatta-interfaces-v1:interfaces"
+DATAPLANE_YANG_NAME: str = "vyatta-interfaces-dataplane-v1:dataplane"
+BONDING_YANG_NAME: str = "vyatta-bonding-v1:bonding"
+SWITCHPORT_YANG_NAME: str = "vyatta-switchport-v1:switchport"
 
-intf_type = Enum("intf_type", "dataplane bonding switchport")
+intf_type: Enum = Enum("intf_type", "dataplane bonding switchport")
 
-VRRP_YANG_NAME = "vyatta-vrrp-v1:vrrp"  # type: str
-VIF_YANG_NAME = "vif"  # type: str
-PATHMON_DATAPLANE_YANG_NAME = \
+VRRP_YANG_NAME: str = "vyatta-vrrp-v1:vrrp"
+VIF_YANG_NAME: str = "vif"
+PATHMON_DATAPLANE_YANG_NAME: str = \
     "vyatta-vrrp-path-monitor-track-interfaces-dataplane-v1:path-monitor"
-PATHMON_BONDING_YANG_NAME = \
+PATHMON_BONDING_YANG_NAME: str = \
     "vyatta-vrrp-path-monitor-track-interfaces-bonding-v1:path-monitor"
-ROUTE_DATAPLANE_YANG_NAME = \
+ROUTE_DATAPLANE_YANG_NAME: str = \
     "vyatta-vrrp-route-to-track-interfaces-dataplane-v1:route-to"
-ROUTE_BONDING_YANG_NAME = \
+ROUTE_BONDING_YANG_NAME: str = \
     "vyatta-vrrp-route-to-track-interfaces-bonding-v1:route-to"
 
-PROPERTIES_DBUS_INTF_NAME = "org.freedesktop.DBus.Properties"  # type: str
-SYSTEMD_DBUS_INTF_NAME = "org.freedesktop.systemd1"  # type: str
-SYSTEMD_DBUS_PATH = f"/{SYSTEMD_DBUS_INTF_NAME.replace('.', '/')}"  # type: str
-SYSTEMD_MANAGER_DBUS_INTF_NAME = f"{SYSTEMD_DBUS_INTF_NAME}.Manager"  # type: str
-SYSTEMD_UNIT_DBUS_NAME = f"{SYSTEMD_DBUS_INTF_NAME}.Unit"  # type: str
+PROPERTIES_DBUS_INTF_NAME: str = "org.freedesktop.DBus.Properties"
+SYSTEMD_DBUS_INTF_NAME: str = "org.freedesktop.systemd1"
+SYSTEMD_DBUS_PATH: str = f"/{SYSTEMD_DBUS_INTF_NAME.replace('.', '/')}"
+SYSTEMD_MANAGER_DBUS_INTF_NAME: str = f"{SYSTEMD_DBUS_INTF_NAME}.Manager"
+SYSTEMD_UNIT_DBUS_NAME: str = f"{SYSTEMD_DBUS_INTF_NAME}.Unit"
 
-KEEPALIVED_DBUS_INTF_NAME = "org.keepalived.Vrrp1"  # type: str
-VRRP_PROCESS_DBUS_INTF_PATH = \
-    f"/{KEEPALIVED_DBUS_INTF_NAME.replace('.', '/')}/Vrrp"  # type: str
-VRRP_INSTANCE_DBUS_INTF_NAME = f"{KEEPALIVED_DBUS_INTF_NAME}.Instance"  # type: str
-VRRP_INSTANCE_DBUS_PATH = f"/{VRRP_INSTANCE_DBUS_INTF_NAME.replace('.', '/')}"  # type: str
+KEEPALIVED_DBUS_INTF_NAME: str = "org.keepalived.Vrrp1"
+VRRP_PROCESS_DBUS_INTF_PATH: str = \
+    f"/{KEEPALIVED_DBUS_INTF_NAME.replace('.', '/')}/Vrrp"
+VRRP_INSTANCE_DBUS_INTF_NAME: str = f"{KEEPALIVED_DBUS_INTF_NAME}.Instance"
+VRRP_INSTANCE_DBUS_PATH: str = f"/{VRRP_INSTANCE_DBUS_INTF_NAME.replace('.', '/')}"
 
 
-INSTANCE_STATE_YANG = "instance-state"
-TAGNODE_YANG = "tagnode"
-VRRP_GROUP_YANG = "vrrp-group"
+INSTANCE_STATE_YANG: str = "instance-state"
+TAGNODE_YANG: str = "tagnode"
+VRRP_GROUP_YANG: str = "vrrp-group"
 
 
 def get_specific_vrrp_config_from_yang(
@@ -78,10 +78,13 @@ def get_specific_vrrp_config_from_yang(
     groups two with the specific config and one with out only two values
     will be yielded to the caller
     """
+    intf_type: str
     for intf_type in conf[INTERFACE_YANG_NAME]:
+        intf: Dict
         for intf in conf[INTERFACE_YANG_NAME][intf_type]:
             if "vrrp-group" not in intf[VRRP_YANG_NAME]:
                 break  # start-delay default but no vrrp config
+            group: Dict
             for group in intf[VRRP_YANG_NAME]["vrrp-group"]:
                 if value in group:
                     yield group[value]
@@ -108,13 +111,16 @@ def get_hello_sources(conf: Dict) -> List[str]:
 
 
 def what_ip_version(address_string: str) -> int:
-    ipaddr = ipaddress.ip_address(address_string)
+    ipaddr: Union[ipaddress.IPv4Address, ipaddress.IPv6Address] = \
+        ipaddress.ip_address(address_string)
     return ipaddr.version
 
 
 def vrrp_ipv6_sort(ips: List[str]) -> List[str]:
-    link_locals = [ip for ip in ips if re.match(r"^(fe80).*", ip.lower())]
-    global_addr = [ip for ip in ips if re.match(r"^(?!fe80).*", ip.lower())]
+    link_locals: List[str] = \
+        [ip for ip in ips if re.match(r"^(fe80).*", ip.lower())]
+    global_addr: List[str] = \
+        [ip for ip in ips if re.match(r"^(?!fe80).*", ip.lower())]
     return link_locals + global_addr
 
 
@@ -135,8 +141,8 @@ def is_local_address(address_string: str) -> None:
     infrastructure will interpret as a validation error
     """
 
-    ipaddr_version = what_ip_version(address_string)
-    ipaddr_type = None
+    ipaddr_version: int = what_ip_version(address_string)
+    ipaddr_type: socket.AddressFamily
     if ipaddr_version == 4:
         ipaddr_type = socket.AF_INET
     elif ipaddr_version == 6:
@@ -192,20 +198,23 @@ def sanitize_vrrp_config(conf: Dict) -> Dict:
         }
     """
 
-    intf_dict = conf[INTERFACE_YANG_NAME]
-    new_dict = {}
-    vif_list = []
+    intf_dict: Dict = conf[INTERFACE_YANG_NAME]
+    new_dict: Dict = {}
+    vif_list: List = []
+    intf_type: str
     for intf_type in intf_dict:
-        new_list = []
-        count = 0
+        new_list: List = []
+        count: int = 0
+        intf: Dict
         for intf in intf_dict[intf_type]:
             if "vrrp-group" in intf[VRRP_YANG_NAME]:
                 new_list.append(intf_dict[intf_type][count])
             count += 1
             if "vif" in intf:
+                vif_intf: Dict
                 for vif_intf in intf["vif"]:
                     if "vrrp-group" in vif_intf[VRRP_YANG_NAME]:
-                        new_vif = vif_intf
+                        new_vif: Dict = vif_intf
                         new_vif["tagnode"] = \
                             f"{intf['tagnode']}.{vif_intf['tagnode']}"
                         vif_list.append(new_vif)
@@ -242,9 +251,9 @@ def get_config_indexes(
     in the config starts.
     """
 
-    stripped_lines = [x.strip() for x in config_lines]  # type: List[str]
-    config_start_indices = [i for i, x in enumerate(stripped_lines)
-                            if search_string in x]  # type: List[int]
+    stripped_lines: List[str] = [x.strip() for x in config_lines]
+    config_start_indices: List[int] = [i for i, x in enumerate(stripped_lines)
+                            if search_string in x]
     return config_start_indices
 
 
@@ -266,10 +275,12 @@ def get_config_blocks(
         config
     """
 
-    stripped_list = [x.strip() for x in config_list]  # type: List[str]
-    group_list = []  # type: List[List[str]]
+    stripped_list: List[str] = [x.strip() for x in config_list]
+    group_list: List[List[str]] = []
+    idx: int
+    start: int
     for idx, start in enumerate(indexes_list):
-        end = None  # type: Union[int, None]
+        end: Optional[int] = None
         if idx+1 < len(indexes_list):
             end = indexes_list[idx+1]
         group_list.append(stripped_list[start:end])
@@ -305,8 +316,10 @@ def find_config_value(
         _find_config_value(config_block, "priority")  # (True, "200")
     """
 
+    line: str
     for line in config_list:
-        regex_search = re.match(f"^{search_term}(\s+|$)", line)
+        regex_search: Optional[Match[str]] = \
+            re.match(f"^{search_term}(\s+|$)", line)
         if regex_search is not None:
             regex_search = re.match(f"{search_term}\s+(.*)", line)
             if regex_search is not None:
@@ -353,8 +366,8 @@ def find_interface_in_yang_repr(
         vrrp group
     """
 
-    interface_level = None  # type: Any
-    intf_dict = None  # type: Any
+    interface_level: Any = None
+    intf_dict: Any = None
 
     # TODO: This may be better split into two functions, one for interfaces
     # and another for vifs
@@ -367,6 +380,7 @@ def find_interface_in_yang_repr(
     else:
         # Interface list has entries so we need to loop through them and
         # see if the interface already exists
+        intf: Dict
         for intf in interface_list:
             if intf["tagnode"] == interface_name:
                 interface_level = intf
@@ -382,11 +396,12 @@ def find_interface_in_yang_repr(
     # Deal with vifs here now that we've found the interface it's on
     if vif_number != "":
         if VIF_YANG_NAME not in interface_level:
-            vif_dict = {"tagnode": vif_number}
+            vif_dict: Dict = {"tagnode": vif_number}
             interface_level[VIF_YANG_NAME] = [vif_dict]
             interface_level = vif_dict
         else:
-            vif_exists = False
+            vif_exists: bool = False
+            vif: Dict
             for vif in interface_level[VIF_YANG_NAME]:
                 if vif["tagnode"] == vif_number:
                     vif_exists = True
@@ -405,7 +420,7 @@ def find_interface_in_yang_repr(
     return interface_level
 
 
-def running_on_vmware():
+def running_on_vmware() -> bool:
     """
     rfc compatibility mode does not work on VMware kit, VSwitches don't like
     macs moving between boxes, so we need something to check if we're running
@@ -414,16 +429,17 @@ def running_on_vmware():
     """
 
     from vyatta import configd
-    client = configd.Client()
-    version = client.call_rpc_dict("vyatta-opd-v1", "command",
+    client: configd.Client = configd.Client()
+    version: Dict = client.call_rpc_dict("vyatta-opd-v1", "command",
                                    {"command": "show", "args": "version"})
-    search = re.match(r'Hypervisor:\s*(\w+)', version['output'])
+    search: Optional[Match[str]] = \
+        re.match(r'Hypervisor:\s*(\w+)', version['output'])
     if search is not None and search.group(1) == "VMware":
         return True
     return False
 
 
-def intf_name_to_type(name):
+def intf_name_to_type(name: str) -> Tuple[str, Enum]:
     if re.match(r"dp\d+bond\d+", name):
         return (BONDING_YANG_NAME, intf_type.bonding)
     elif re.match(r"sw\d+", name):
@@ -436,30 +452,30 @@ def intf_name_to_type(name):
         )
 
 
-def elapsed_time(time_delta: Any) -> str:
-    seconds = time_delta
-    time_str = ""  # type: str
-    sec_min = 60  # type: int
-    sec_hour = sec_min * 60  # type: int
-    sec_day = sec_hour * 24  # type: int
-    sec_week = sec_day * 7  # type: int
+def elapsed_time(time_delta: str) -> str:
+    seconds: int = int(time_delta)
+    time_str: str = ""
+    sec_min: int = 60
+    sec_hour: int = sec_min * 60
+    sec_day: int = sec_hour * 24
+    sec_week: int = sec_day * 7
 
-    weeks = int(seconds / sec_week)
+    weeks: int = int(seconds / sec_week)
     if weeks > 0:
         seconds = int(seconds % sec_week)
         time_str += str(weeks) + "w"
-    days = int(seconds / sec_day)
+    days: int = int(seconds / sec_day)
     if days > 0:
         seconds = int(seconds % sec_day)
         time_str += str(days) + "d"
-    hours = int(seconds / sec_hour)
+    hours: int = int(seconds / sec_hour)
     if hours > 0:
         seconds = int(seconds % sec_hour)
         time_str += str(hours) + "h"
-    min = int(seconds / sec_min)
-    if min > 0:
+    minutes: int = int(seconds / sec_min)
+    if minutes > 0:
         seconds = int(seconds % sec_min)
-        time_str += str(min) + "m"
+        time_str += str(minutes) + "m"
     time_str += str(seconds) + "s"
 
     return time_str

@@ -4,29 +4,29 @@
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 import calendar
 import time
 import vyatta.keepalived.util as util
 
 
-SHOW_SUMMARY_HEADER_LINE_1 = \
-    ["", "", "", "RFC", "Addr", "Last", "Sync"]  # type: List
-SHOW_SUMMARY_HEADER_LINE_2 = \
+SHOW_SUMMARY_HEADER_LINE_1: List[str] = \
+    ["", "", "", "RFC", "Addr", "Last", "Sync"]
+SHOW_SUMMARY_HEADER_LINE_2: List[str] = \
     ["Interface", "Group", "State", "Compliant", "Owner",
-     "Transition", "Group"]  # type: List
-SHOW_SUMMARY_HEADER_LINE_3 = \
+     "Transition", "Group"]
+SHOW_SUMMARY_HEADER_LINE_3: List[str] = \
     ["---------", "-----", "-----", "---------", "-----",
-     "----------", "-----"]  # type: List
+     "----------", "-----"]
 def show_summary_line_format(values: List[str]) -> str:
     return f"{values[0]:<18s}{values[1]:<7s}{values[2]:<8s}{values[3]:<11s}{values[4]:<7s}{values[5]:<12s}{values[6]}\n"
 
-SHOW_DETAIL_DIVIDER = \
-    "--------------------------------------------------\n"  # type: str
-SHOW_DETAIL_INTF_DIVIDER = "--------------\n"  # type: str
+SHOW_DETAIL_DIVIDER: str = \
+    "--------------------------------------------------\n"
+SHOW_DETAIL_INTF_DIVIDER: str=  "--------------\n"
 def show_detail_intf_name(intf: str) -> str:
     return f"Interface: {intf}\n"
-SHOW_DETAIL_GROUP_DIVIDER = "  ----------\n"  # type: str
+SHOW_DETAIL_GROUP_DIVIDER: str = "  ----------\n"
 def show_detail_group_name(group: str) -> str:
     return f"  Group: {group}\n"
 def show_detail_line_format(line: List[str]) -> str:
@@ -45,22 +45,26 @@ def show_sync_group_members_format(line: List[str]) -> str:
     return f"    Interface: {line[0]}, Group: {line[1]}\n"
 
 def show_vrrp_summary(state_dict: Dict) -> str:
-    output = "\n"  # type: str
+    output: str = "\n"
     output += show_summary_line_format(SHOW_SUMMARY_HEADER_LINE_1)
     output += show_summary_line_format(SHOW_SUMMARY_HEADER_LINE_2)
     output += show_summary_line_format(SHOW_SUMMARY_HEADER_LINE_3)
+    intf_type: str
     for intf_type in state_dict[util.INTERFACE_YANG_NAME]:
-        intf_list = \
-            state_dict[util.INTERFACE_YANG_NAME][intf_type]  # type: List
+        intf_list: List = \
+            state_dict[util.INTERFACE_YANG_NAME][intf_type]
+        intf: Dict
         for intf in intf_list:
-            intf_name = intf[util.TAGNODE_YANG]
-            vrrp_instances = intf[util.VRRP_YANG_NAME][util.VRRP_GROUP_YANG]
+            intf_name: str = intf[util.TAGNODE_YANG]
+            vrrp_instances: List = intf[util.VRRP_YANG_NAME][util.VRRP_GROUP_YANG]
+            vrrp_instance: Dict
             for vrrp_instance in vrrp_instances:
                 if util.INSTANCE_STATE_YANG not in vrrp_instance:
                     continue
-                group = vrrp_instance[util.TAGNODE_YANG]
-                state = vrrp_instance[util.INSTANCE_STATE_YANG]
-                state_name = state["state"]
+                group: str  = vrrp_instance[util.TAGNODE_YANG]
+                state: Dict  = vrrp_instance[util.INSTANCE_STATE_YANG]
+                state_name: str  = state["state"]
+                ipao: str 
                 if state['address-owner']:
                     ipao = "yes"
                 else:
@@ -69,13 +73,14 @@ def show_vrrp_summary(state_dict: Dict) -> str:
                     rfc = "no"
                 else:
                     rfc = state["rfc-interface"]
+                sync: str 
                 if state["sync-group"] == "":
                     sync = "<none>"
                 else:
                     sync = state["sync-group"]
-                now = calendar.timegm(time.localtime())
-                last = state["last-transition"]
-                diff = now - last
+                now: int = calendar.timegm(time.localtime())
+                last: int  = state["last-transition"]
+                diff: int = now - last
                 output += \
                     show_summary_line_format(
                         [intf_name, group, state_name, rfc, ipao,
@@ -85,28 +90,31 @@ def show_vrrp_summary(state_dict: Dict) -> str:
 
 
 def show_vrrp_detail(state_dict: Dict) -> str:
-    output = "\n"  # type: str
+    output: str = "\n"
     output += SHOW_DETAIL_DIVIDER
+    intf_type: str
     for intf_type in state_dict[util.INTERFACE_YANG_NAME]:
-        intf_list = \
-            state_dict[util.INTERFACE_YANG_NAME][intf_type]  # type: List
+        intf_list: List = \
+            state_dict[util.INTERFACE_YANG_NAME][intf_type]
+        intf: Dict
         for intf in intf_list:
-            intf_name = intf[util.TAGNODE_YANG]
+            intf_name: str = intf[util.TAGNODE_YANG]
             output += show_detail_intf_name(intf_name)
             output += SHOW_DETAIL_INTF_DIVIDER
-            vrrp_instances = intf[util.VRRP_YANG_NAME][util.VRRP_GROUP_YANG]
+            vrrp_instances: List = intf[util.VRRP_YANG_NAME][util.VRRP_GROUP_YANG]
+            vrrp_instance: Dict
             for vrrp_instance in vrrp_instances:
                 if util.INSTANCE_STATE_YANG not in vrrp_instance:
                     continue
-                group = vrrp_instance[util.TAGNODE_YANG]
+                group: str = vrrp_instance[util.TAGNODE_YANG]
                 output += show_detail_group_name(group)
                 output += SHOW_DETAIL_GROUP_DIVIDER
-                state = vrrp_instance[util.INSTANCE_STATE_YANG]
-                state_name = state["state"]
+                state: Dict = vrrp_instance[util.INSTANCE_STATE_YANG]
+                state_name: str = state["state"]
                 output += show_detail_line_format(["State:", state_name])
-                now = calendar.timegm(time.localtime())
-                last = state["last-transition"]
-                diff = now - last
+                now: int = calendar.timegm(time.localtime())
+                last: int = state["last-transition"]
+                diff: int = now - last
                 output += show_detail_line_format(
                     ["Last transition:", util.elapsed_time(diff)]
                 )
@@ -121,7 +129,7 @@ def show_vrrp_detail(state_dict: Dict) -> str:
                     )
 
                 output += "\n"
-                version = state["version"]
+                version: int = state["version"]
                 output += show_detail_line_format(
                     ["Version:", str(version)]
                 )
@@ -157,14 +165,14 @@ def show_vrrp_detail(state_dict: Dict) -> str:
                     ["Advertisement interval:", state["advert-interval"]]
                 )
                 if version == 2:
-                    auth_value = state["auth-type"]
+                    auth_value: Optional[str] = state["auth-type"]
                     if auth_value is None:
                         auth_value = "none"
                     output += show_detail_line_format(
                         ["Authentication type:", auth_value]
                     )
 
-                preempt = "disabled"
+                preempt: str = "disabled"
                 if state["preempt"]:
                     preempt = "enabled"
                 output += show_detail_line_format(
@@ -181,7 +189,7 @@ def show_vrrp_detail(state_dict: Dict) -> str:
                     )
 
                 if version == 3:
-                    accept = "disabled"
+                    accept: str = "disabled"
                     if state["accept"]:
                         accept = "enabled"
                     output += show_detail_line_format(
@@ -196,18 +204,19 @@ def show_vrrp_detail(state_dict: Dict) -> str:
 
                 output += "\n"
                 if "track" in state:
-                    track = state["track"]
+                    track: Dict = state["track"]
                     if "interface" in track:
                         output += show_detail_line_format(
                             ["Tracked Interfaces count:",
                             str(len(track["interface"]))]
                         )
-                        for intf in track["interface"]:
-                            intf_weight = ""  # type: str
-                            if "weight" in intf:
-                                intf_weight = f"weight {intf['weight']}"
+                        track_intf: Dict
+                        for track_intf in track["interface"]:
+                            intf_weight: str = ""
+                            if "weight" in track_intf:
+                                intf_weight = f"weight {track_intf['weight']}"
                             output += show_detail_tracked_format(
-                                [intf["name"], intf["state"],
+                                [track_intf["name"], track_intf["state"],
                                 intf_weight]
                             )
                     if "monitor" in track:
@@ -215,10 +224,12 @@ def show_vrrp_detail(state_dict: Dict) -> str:
                             ["Tracked Path Monitor count:",
                             str(len(track["monitor"]))]
                         )
+                        mont: Dict
                         for mont in track["monitor"]:
                             output += f"    {mont['name']}\n"
+                            pol: Dict
                             for pol in mont["policies"]:
-                                policy_weight = ""  # type: str
+                                policy_weight: str = ""
                                 if "weight" in pol:
                                     policy_weight = f"weight {pol['weight']}"
                                 output += \
@@ -231,8 +242,9 @@ def show_vrrp_detail(state_dict: Dict) -> str:
                             ["Tracked routes count:",
                             str(len(track["route"]))]
                         )
+                        route: Dict
                         for route in track["route"]:
-                            route_weight = ""  # type: str
+                            route_weight: str = ""
                             if "weight" in route:
                                 route_weight = f"weight {route['weight']}"
                             output += show_detail_tracked_format(
@@ -242,6 +254,7 @@ def show_vrrp_detail(state_dict: Dict) -> str:
                 output += show_detail_line_format(
                     ["VIP count:", str(len(state["virtual-ips"]))]
                 )
+                vip: str
                 for vip in state["virtual-ips"]:
                     output += f"    {vip}\n"
                 output += "\n"
@@ -251,6 +264,7 @@ def show_vrrp_detail(state_dict: Dict) -> str:
 def show_vrrp_sync(state_dict: Dict) -> str:
     output: str = "\n"+SHOW_DETAIL_DIVIDER
     if (util.VRRP_YANG_NAME in state_dict):
+        sync_group: Dict
         for sync_group in state_dict[util.VRRP_YANG_NAME]["sync-groups"]:
             output += show_sync_group_name(
                 sync_group["name"]
@@ -259,6 +273,7 @@ def show_vrrp_sync(state_dict: Dict) -> str:
             output += show_sync_group_state_format(
                 sync_group["state"]
             )
+            group: str
             for group in sorted(sync_group["members"]):
                 tokens: List[str] = group.split("-")
                 output += show_sync_group_members_format(

@@ -7,7 +7,7 @@
 import json
 import logging
 import pydbus
-from typing import Dict
+from typing import Dict, List, Any
 import vci  # pylint: disable=import-error
 import vyatta.abstract_vrrp_classes as AbstractVrrpConfig
 import vyatta.keepalived.util as util
@@ -17,8 +17,8 @@ import vyatta.keepalived.dbus.vrrp_group_connection as \
 
 
 def send_garp(rpc_input: Dict[str, str]) -> Dict:
-    intf = rpc_input["vyatta-vrrp-v1:interface"]  # type: str
-    group = str(rpc_input["vyatta-vrrp-v1:group"])  # type: str
+    intf:str = rpc_input["vyatta-vrrp-v1:interface"]
+    group:str = str(rpc_input["vyatta-vrrp-v1:group"])
     vrrp_conn = vrrp_dbus.VrrpConnection(
         intf, group, 4, pydbus.SystemBus()
     )
@@ -40,7 +40,7 @@ class Config(vci.Config):
         self.log = logging.getLogger("vyatta-vrrp-vci")
         self.pc = process_control.ProcessControl()
 
-    def set(self, conf):
+    def set(self, conf: Dict[str, Any]) -> None:
         conf = util.sanitize_vrrp_config(conf)
 
         # If all the default config has been removed and
@@ -68,18 +68,18 @@ class Config(vci.Config):
         )
         return
 
-    def get(self):
-        file_config = self._conf_obj.read_config()
-        yang_repr = self._conf_obj.convert_to_vci_format(file_config)
+    def get(self) -> Dict[str, Any]:
+        file_config: str = self._conf_obj.read_config()
+        yang_repr: Dict[str, Any] = self._conf_obj.convert_to_vci_format(file_config)
         self.log.info(
             "%s yang repr returned to vci infra",
             yang_repr
         )
         return yang_repr
 
-    def check(self, conf):
+    def check(self, conf: Dict[str, Any]) -> None:
         conf = util.sanitize_vrrp_config(conf)
-        hello_address = util.get_hello_sources(conf)
+        hello_address: List[str] = util.get_hello_sources(conf)
         for address in hello_address:
             util.is_local_address(address)
         if util.is_rfc_compat_configured(conf) and util.running_on_vmware():
@@ -87,7 +87,7 @@ class Config(vci.Config):
         return
 
     def rfc_intf_map(self, rpc_input: Dict[str, str]) -> Dict[str, str]:
-        xmit_intf = rpc_input["vyatta-vrrp-v1:transmit"]  # type: str
+        xmit_intf: str = rpc_input["vyatta-vrrp-v1:transmit"]
         return self.pc.get_rfc_mapping(xmit_intf)
 
 
@@ -104,31 +104,33 @@ class State(vci.State):
         self.log = logging.getLogger("vyatta-vrrp-vci")
         self.pc = process_control.ProcessControl()
 
-    def get(self):
+    def get(self) -> Dict[str, Any]:
         if not self.pc.is_running():
             return {}
-        file_config = self._conf_obj.read_config()
-        yang_repr = self._conf_obj.convert_to_vci_format_dict(
+        file_config: str = self._conf_obj.read_config()
+        yang_repr: Dict[str, Any] = self._conf_obj.convert_to_vci_format_dict(
             file_config)
         sysbus = pydbus.SystemBus()
         for intf_type in yang_repr[util.INTERFACE_YANG_NAME]:
-            intf_list = yang_repr[util.INTERFACE_YANG_NAME][intf_type]
+            intf_list: List = yang_repr[util.INTERFACE_YANG_NAME][intf_type]
             for intf in intf_list:
-                transmit_intf = intf["tagnode"]
+                transmit_intf: str = intf["tagnode"]
                 if "start-delay" in intf[util.VRRP_YANG_NAME]:
                     del intf[util.VRRP_YANG_NAME]["start-delay"]
-                vrrp_instances = intf[util.VRRP_YANG_NAME]["vrrp-group"]
+                vrrp_instances: List[Dict] = intf[util.VRRP_YANG_NAME]["vrrp-group"]
                 state_instances = []
                 for vrrp_instance in vrrp_instances:
-                    vrid = vrrp_instance["tagnode"]
-                    instance_name = f"vyatta-{transmit_intf}-{vrid}"
+                    vrid: str = vrrp_instance["tagnode"]
+                    instance_name: str = f"vyatta-{transmit_intf}-{vrid}"
+                    vrrp_conn: vrrp_dbus.VrrpConnection
                     if instance_name not in \
                             self._conf_obj.vrrp_connections:
-                        af_type = util.what_ip_version(
+                        af_type: str = util.what_ip_version(
                             vrrp_instance["virtual-address"][0].split("/")[0])
-                        vrrp_conn = vrrp_dbus.VrrpConnection(
-                            transmit_intf, vrid, af_type, sysbus
-                        )
+                        vrrp_conn = \
+                            vrrp_dbus.VrrpConnection(
+                                transmit_intf, vrid, af_type, sysbus
+                            )
                     else:
                         vrrp_conn = \
                             self._conf_obj.vrrp_connections[instance_name]

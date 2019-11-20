@@ -32,10 +32,10 @@ class VrrpGroup:
             group_config (Dict):
                 YANG Dictionary for the group's config
         """
-        self.log = logging.getLogger("vyatta-vrrp-vci")
+        self.log: logging.Logger = logging.getLogger("vyatta-vrrp-vci")
         # Default values from existing code required for minimal
         # config
-        self._group_config = group_config
+        self._group_config: Dict = group_config
         if "priority" not in self._group_config:
             self._group_config["priority"] = 100
         if "advertise-interval" not in self._group_config \
