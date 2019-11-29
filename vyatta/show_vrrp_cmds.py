@@ -199,7 +199,7 @@ def show_vrrp_detail(state_dict: Dict) -> str:
                 if state["sync-group"] != "":
                     output += "\n"
                     output += show_detail_line_format(
-                        ["Sync-group:", "TEST"]
+                        ["Sync-group:", state["sync-group"]]
                     )
 
                 output += "\n"
