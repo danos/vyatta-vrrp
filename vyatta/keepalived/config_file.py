@@ -652,6 +652,9 @@ vrrp_sync_group {sync_group} {{
             elif intf_type.name == "bonding":
                 config_dict["track"][util.PATHMON_BONDING_YANG_NAME] =\
                     pathmon_dict
+            elif intf_type.name == "switch":
+                config_dict["track"][util.PATHMON_SWITCH_YANG_NAME] =\
+                    pathmon_dict
 
     @staticmethod
     def _convert_route_to_tracking_config(
@@ -690,6 +693,9 @@ vrrp_sync_group {sync_group} {{
                     route_list
             elif intf_type.name == "bonding":
                 config_dict["track"][util.ROUTE_BONDING_YANG_NAME] = \
+                    route_list
+            elif intf_type.name == "switch":
+                config_dict["track"][util.ROUTE_SWITCH_YANG_NAME] = \
                     route_list
 
     def shutdown(self) -> None:

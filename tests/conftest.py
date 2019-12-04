@@ -263,6 +263,24 @@ def generic_group():
 
 
 @pytest.fixture
+def generic_rfc_group():
+    return \
+        {
+            "accept": False,
+            "preempt": True,
+            "priority": 200,
+            "rfc-compatibility": [
+                None
+            ],
+            "tagnode": 1,
+            "version": 2,
+            "virtual-address": [
+                "10.10.1.100/25"
+            ]
+        }
+
+
+@pytest.fixture
 def generic_group_state():
     return \
             {
@@ -314,6 +332,17 @@ def generic_group_rfc_ipao_show_summary():
 Interface         Group  State   Compliant  Owner  Transition  Group
 ---------         -----  -----   ---------  -----  ----------  -----
 dp0p1s1           1      MASTER  dp0vrrp1   yes    3s          <none>
+
+"""
+
+
+@pytest.fixture
+def generic_group_rfc_switch_show_summary():
+    return """
+                                 RFC        Addr   Last        Sync
+Interface         Group  State   Compliant  Owner  Transition  Group
+---------         -----  -----   ---------  -----  ----------  -----
+sw0.10            1      MASTER  sw0vrrp1   no     3s          <none>
 
 """
 
@@ -1738,6 +1767,22 @@ def instance_state_rfc():
 
 
 @pytest.fixture
+def instance_state_rfc_switch():
+    return \
+        {
+            "instance-state":
+            {
+                "address-owner": False,
+                "last-transition": 0,
+                "rfc-interface": "sw0vrrp1",
+                "state": "MASTER",
+                "sync-group": "",
+            },
+            "tagnode": "1"
+        }
+
+
+@pytest.fixture
 def instance_state_rfc_sync():
     return \
         {
@@ -2282,6 +2327,25 @@ vrrp_instance vyatta-dp0p1s1-1 {
 
 
 @pytest.fixture
+def switch_rfc_group_keepalived_config():
+    return """
+vrrp_instance vyatta-sw0.10-1 {
+    state BACKUP
+    interface sw0.10
+    virtual_router_id 1
+    version 2
+    start_delay 0
+    priority 200
+    advert_int 1
+    virtual_ipaddress {
+        10.10.1.100/25
+    }
+    use_vmac sw0vrrp1
+    vmac_xmit_base
+}"""
+
+
+@pytest.fixture
 def legacy_track_group_keepalived_config():
     return """
 vrrp_instance vyatta-dp0p1s1-1 {
@@ -2567,6 +2631,43 @@ def second_dataplane_interface():
 
 
 @pytest.fixture
+def switch_vif_interface():
+    return \
+        {
+            "tagnode": "sw0",
+            "vif": [
+                {
+                    "tagnode": "10",
+                    "vyatta-vrrp-v1:vrrp": {
+                        "start-delay": 0
+                    }
+                }
+            ],
+            "vyatta-vrrp-v1:vrrp": {
+                "start-delay": 0
+            }
+        }
+
+
+@pytest.fixture
+def vif_switch_list_sanitized(generic_group):
+    switch_intf = \
+        {
+            "tagnode": "sw0.10",
+            "vyatta-vrrp-v1:vrrp": {
+                "start-delay": 0,
+                "vrrp-group": [generic_group]
+            }
+        }
+    return [switch_intf]
+
+
+@pytest.fixture
+def switch_list(switch_vif_interface):
+    return [switch_vif_interface]
+
+
+@pytest.fixture
 def dataplane_list(dataplane_interface):
     return [dataplane_interface]
 
@@ -2577,8 +2678,8 @@ def interface_yang_name():
 
 
 @pytest.fixture
-def switchport_yang_name():
-    return "vyatta-switchport-v1:switchport"
+def switch_yang_name():
+    return "vyatta-interfaces-switch-v1:switch"
 
 
 @pytest.fixture
@@ -2675,6 +2776,22 @@ def simple_rfc_ipao_state(simple_config, instance_state_rfc_ipao,
         simple_yang_state[interface_yang_name][dataplane_yang_name]
     del(dataplane_list[0][vrrp_yang_name]["start-delay"])
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = [instance_state_rfc_ipao]
+    return simple_yang_state
+
+
+@pytest.fixture
+def simple_rfc_switch_state(simple_config, instance_state_rfc_switch,
+                            vrrp_yang_name, interface_yang_name,
+                            switch_yang_name, switch_list,
+                            dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    del(simple_yang_state[interface_yang_name][dataplane_yang_name])
+    del(switch_list[0]["vif"][0][vrrp_yang_name]["start-delay"])
+    switch_list[0]["vif"][0]["tagnode"] = "sw0.10"
+    switch_list[0]["vif"][0][vrrp_yang_name]["vrrp-group"] = \
+        [instance_state_rfc_switch]
+    simple_yang_state[interface_yang_name]["vif"] = \
+        switch_list[0]["vif"]
     return simple_yang_state
 
 
@@ -2928,6 +3045,16 @@ def simple_dataplane_vif_config(
         dataplane_list
     simple_yang_config[interface_yang_name][dataplane_yang_name][0]["vif"] = \
         vif_dataplane_list
+    return simple_yang_config
+
+
+@pytest.fixture
+def simple_switch_config(
+        top_level_dictionary, interface_yang_name, switch_yang_name,
+        switch_list):
+    simple_yang_config = top_level_dictionary
+    simple_yang_config[interface_yang_name][switch_yang_name] = \
+        switch_list
     return simple_yang_config
 
 

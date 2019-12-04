@@ -34,8 +34,13 @@ class TestVyattaShowVrrp:
                 pytest.lazy_fixture("generic_group_rfc_ipao_show_summary"),
                 pytest.lazy_fixture("simple_rfc_ipao_state")
             ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("generic_group_rfc_switch_show_summary"),
+                pytest.lazy_fixture("simple_rfc_switch_state")
+            ),
         ],
-        ids=["No rfc", "rfc", "rfc sync", "rfc IPAO"]
+        ids=["No rfc", "rfc", "rfc sync", "rfc IPAO", "Switch"]
     )
     def test_show_vrrp_summary(self, fakes, show, state):
         import vyatta.show_vrrp_cmds

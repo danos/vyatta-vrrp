@@ -95,6 +95,20 @@ class TestKeepalivedConfigFile:
             config_block)
         assert expected == result
 
+    @pytest.mark.sanity
+    def test_convert_switch_vrrp_keepalived_conf_to_yang(
+            self, switch_rfc_group_keepalived_config, generic_rfc_group,
+            keepalived_config):
+        expected = generic_rfc_group
+        config_split = switch_rfc_group_keepalived_config.splitlines()
+        indexes = util.get_config_indexes(
+            config_split, "vrrp_instance")
+        config_block = util.get_config_blocks(
+            config_split, indexes)[0]
+        result = keepalived_config._convert_keepalived_config_to_yang(
+            config_block)
+        assert expected == result
+
     def test_convert_vif_vrrp_keepalived_conf_to_yang(
             self, dataplane_vif_group_keepalived_config, generic_group,
             keepalived_config):
@@ -226,6 +240,30 @@ class TestKeepalivedConfigFile:
         vif_intf[vrrp_yang_name]["vrrp-group"] = [vif_group]
 
         result = json.dumps(simple_dataplane_vif_config)
+        expect = keepalived_config.convert_to_vci_format(config_string)
+        assert result == expect
+
+    @pytest.mark.sanity
+    def test_config_to_vci_format_switch_config(
+            self, autogeneration_string,
+            switch_rfc_group_keepalived_config,
+            keepalived_config, simple_switch_config,
+            interface_yang_name, switch_yang_name, vrrp_yang_name,
+            generic_rfc_group):
+
+        copy_string = copy.deepcopy(autogeneration_string)
+        config_string = copy_string
+        copy_string = copy.deepcopy(switch_rfc_group_keepalived_config)
+        config_string += copy_string
+
+        intf_level = simple_switch_config[interface_yang_name]
+        vif_intf = intf_level[switch_yang_name][0]["vif"][0]
+        del(intf_level[switch_yang_name][0][vrrp_yang_name])
+        vif_group = copy.deepcopy(generic_rfc_group)
+        vif_intf[vrrp_yang_name]["vrrp-group"] = [vif_group]
+
+        result = json.dumps(simple_switch_config)
+        print(result)
         expect = keepalived_config.convert_to_vci_format(config_string)
         assert result == expect
 

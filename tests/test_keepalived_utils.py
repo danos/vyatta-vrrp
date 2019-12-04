@@ -28,8 +28,8 @@ class TestKeepalivedUtils:
                 util.BONDING_YANG_NAME
             ),
             (
-                "vyatta-switchport-v1:switchport",
-                util.SWITCHPORT_YANG_NAME
+                "vyatta-interfaces-switch-v1:switch",
+                util.SWITCH_YANG_NAME
             ),
             (
                 "vif",
@@ -95,7 +95,7 @@ class TestKeepalivedUtils:
         ids=[
             "Interface yang name", "Dataplane yang name",
             "Vrrp yang name", "Bonding yang name",
-            "Switchport yang name", "Vif yang name",
+            "Switch yang name", "Vif yang name",
             "Path monitor dataplane yang name",
             "Path monitor bonding yang name",
             "Route to dataplane yang name",
@@ -336,6 +336,24 @@ class TestKeepalivedUtils:
         test_conf[interface_yang_name][bonding_yang_name][0]["vif"] =\
             vif_bonding_list
         first_intf = test_conf[interface_yang_name][bonding_yang_name][0]
+        first_intf["vif"][0]["vyatta-vrrp-v1:vrrp"]["vrrp-group"]\
+            = [generic_group]
+        result = util.sanitize_vrrp_config(test_conf)
+        assert expected == result
+
+    def test_sanitize_vrrp_config_move_switch_vif(
+            self, simple_config, interface_yang_name,
+            switch_yang_name, generic_group,
+            vif_switch_list_sanitized,
+            switch_list, dataplane_yang_name):
+        expected = copy.deepcopy(simple_config)
+        test_conf = copy.deepcopy(simple_config)
+        del(expected[interface_yang_name][dataplane_yang_name])
+        del(test_conf[interface_yang_name][dataplane_yang_name])
+        expected[interface_yang_name]["vif"] = \
+            vif_switch_list_sanitized
+        test_conf[interface_yang_name][switch_yang_name] = switch_list
+        first_intf = test_conf[interface_yang_name][switch_yang_name][0]
         first_intf["vif"][0]["vyatta-vrrp-v1:vrrp"]["vrrp-group"]\
             = [generic_group]
         result = util.sanitize_vrrp_config(test_conf)
@@ -765,9 +783,9 @@ class TestKeepalivedUtils:
         assert expected_yang == result[0]
         assert expected_string == result[1].name
 
-    def test_intf_name_to_type_switchport(self, switchport_yang_name):
-        expected_yang = switchport_yang_name
-        expected_string = "switchport"
+    def test_intf_name_to_type_switch(self, switch_yang_name):
+        expected_yang = switch_yang_name
+        expected_string = "switch"
         result = util.intf_name_to_type("sw0")
         assert expected_yang == result[0]
         assert expected_string == result[1].name

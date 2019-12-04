@@ -22,42 +22,46 @@ class TestKeepalivedVrrpGroup:
 
     @pytest.mark.sanity
     @pytest.mark.parametrize(
-        "keepalived_config,yang,rfc_num",
+        "keepalived_config,yang,rfc_num,intf",
         [(pytest.lazy_fixture("dataplane_group_keepalived_config"),
-         pytest.lazy_fixture("generic_group"), -1),
+         pytest.lazy_fixture("generic_group"), -1, "dp0p1s1"),
          (pytest.lazy_fixture("max_group_keepalived_config"),
-         pytest.lazy_fixture("max_config_group"), 1),
+         pytest.lazy_fixture("max_config_group"), 1, "dp0p1s1"),
          (pytest.lazy_fixture("generic_v3_group_keepalived_config"),
-         pytest.lazy_fixture("generic_v3_group"), -1),
+         pytest.lazy_fixture("generic_v3_group"), -1, "dp0p1s1"),
          (pytest.lazy_fixture("generic_ipv6_group_keepalived_config"),
-         pytest.lazy_fixture("generic_ipv6_group"), -1),
+         pytest.lazy_fixture("generic_ipv6_group"), -1, "dp0p1s1"),
          (pytest.lazy_fixture("pathmon_track_group_keepalived_config"),
-         pytest.lazy_fixture("pathmon_track_group"), -1),
+         pytest.lazy_fixture("pathmon_track_group"), -1, "dp0p1s1"),
          (pytest.lazy_fixture("legacy_track_group_keepalived_config"),
-         pytest.lazy_fixture("legacy_track_group"), -1),
+         pytest.lazy_fixture("legacy_track_group"), -1, "dp0p1s1"),
          (pytest.lazy_fixture(
              "legacy_and_enhanced_track_group_keepalived_config"),
-         pytest.lazy_fixture("legacy_and_enhanced_track_group"), -1),
+         pytest.lazy_fixture("legacy_and_enhanced_track_group"), -1,
+            "dp0p1s1"),
          (pytest.lazy_fixture(
              "legacy_and_pathmon_enhanced_track_group_keepalived_config"),
-         pytest.lazy_fixture("legacy_and_pathmon_enhanced_track_group"), -1),
+         pytest.lazy_fixture("legacy_and_pathmon_enhanced_track_group"), -1,
+            "dp0p1s1"),
          (pytest.lazy_fixture("accept_v3_group_keepalived_config"),
-         pytest.lazy_fixture("accept_v3_group"), -1),
+         pytest.lazy_fixture("accept_v3_group"), -1, "dp0p1s1"),
          (pytest.lazy_fixture("nopreempt_v3_group_keepalived_config"),
-         pytest.lazy_fixture("nopreempt_v3_group"), -1),
+         pytest.lazy_fixture("nopreempt_v3_group"), -1, "dp0p1s1"),
          (pytest.lazy_fixture("ah_auth_v3_group_keepalived_config"),
-         pytest.lazy_fixture("ah_auth_v3_group"), -1),
+         pytest.lazy_fixture("ah_auth_v3_group"), -1, "dp0p1s1"),
          (pytest.lazy_fixture("runtransition_v3_group_keepalived_config"),
-         pytest.lazy_fixture("runtransition_v3_group"), -1)],
+         pytest.lazy_fixture("runtransition_v3_group"), -1, "dp0p1s1"),
+         (pytest.lazy_fixture("switch_rfc_group_keepalived_config"),
+         pytest.lazy_fixture("generic_rfc_group"), 1, "sw0.10")],
         ids=["Simple", "Complex", "VRRPv3", "IPv6 group",
              "Pathmon tracking",
              "Legacy tracking", "Legacy & Enhanced Tracking",
              "Legacy Interface & Enhanced Pathmon Tracking", "Accept VRRPv3",
              "No Preempt VRRPv3", "AH Auth VRRPv3",
-             "Run transition scripts"])
+             "Run transition scripts", "Switch interface"])
     def test_vrrp_group_config_string(
-            self, keepalived_config, yang, rfc_num):
-        result = VrrpGroup("dp0p1s1", "0", yang, rfc_num)
+            self, keepalived_config, yang, rfc_num, intf):
+        result = VrrpGroup(intf, "0", yang, rfc_num)
         assert keepalived_config == str(result)
 
     def test_vrrp_group_preempt_delay_printed_warnings(

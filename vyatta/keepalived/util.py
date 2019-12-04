@@ -19,9 +19,9 @@ from typing import List, Union, Tuple, Any, Dict, Generator, Optional, Match
 INTERFACE_YANG_NAME: str = "vyatta-interfaces-v1:interfaces"
 DATAPLANE_YANG_NAME: str = "vyatta-interfaces-dataplane-v1:dataplane"
 BONDING_YANG_NAME: str = "vyatta-bonding-v1:bonding"
-SWITCHPORT_YANG_NAME: str = "vyatta-switchport-v1:switchport"
+SWITCH_YANG_NAME: str = "vyatta-interfaces-switch-v1:switch"
 
-intf_type: Enum = Enum("intf_type", "dataplane bonding switchport")
+intf_type: Enum = Enum("intf_type", "dataplane bonding switch")
 
 VRRP_YANG_NAME: str = "vyatta-vrrp-v1:vrrp"
 VIF_YANG_NAME: str = "vif"
@@ -29,10 +29,14 @@ PATHMON_DATAPLANE_YANG_NAME: str = \
     "vyatta-vrrp-path-monitor-track-interfaces-dataplane-v1:path-monitor"
 PATHMON_BONDING_YANG_NAME: str = \
     "vyatta-vrrp-path-monitor-track-interfaces-bonding-v1:path-monitor"
+PATHMON_SWITCH_YANG_NAME: str = \
+    "vyatta-vrrp-path-monitor-track-interfaces-switch-v1:path-monitor"
 ROUTE_DATAPLANE_YANG_NAME: str = \
     "vyatta-vrrp-route-to-track-interfaces-dataplane-v1:route-to"
 ROUTE_BONDING_YANG_NAME: str = \
     "vyatta-vrrp-route-to-track-interfaces-bonding-v1:route-to"
+ROUTE_SWITCH_YANG_NAME: str = \
+    "vyatta-vrrp-route-to-track-interfaces-switch-v1:route-to"
 
 PROPERTIES_DBUS_INTF_NAME: str = "org.freedesktop.DBus.Properties"
 SYSTEMD_DBUS_INTF_NAME: str = "org.freedesktop.systemd1"
@@ -83,7 +87,7 @@ def get_specific_vrrp_config_from_yang(
         intf: Dict
         for intf in conf[INTERFACE_YANG_NAME][intf_type]:
             if "vrrp-group" not in intf[VRRP_YANG_NAME]:
-                break  # start-delay default but no vrrp config
+                continue  # start-delay default but no vrrp config
             group: Dict
             for group in intf[VRRP_YANG_NAME]["vrrp-group"]:
                 if value in group:
@@ -443,7 +447,7 @@ def intf_name_to_type(name: str) -> Tuple[str, Enum]:
     if re.match(r"dp\d+bond\d+", name):
         return (BONDING_YANG_NAME, intf_type.bonding)
     elif re.match(r"sw\d+", name):
-        return (SWITCHPORT_YANG_NAME, intf_type.switchport)
+        return (SWITCH_YANG_NAME, intf_type.switch)
     elif re.match(r"dp\d+(.*)\d+", name):
         return (DATAPLANE_YANG_NAME, intf_type.dataplane)
     else:
