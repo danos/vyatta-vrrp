@@ -200,3 +200,68 @@ class TestVyattaShowVrrp:
         result = vyatta.show_vrrp_cmds.show_vrrp_sync(data, grp_filter)
         assert result == show
 
+    @pytest.mark.parametrize(
+        "fakes,show,data,intf_filter,grp_filter",
+        [
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("generic_group_show_detail"),
+                pytest.lazy_fixture("detailed_simple_state"),
+                "dp0p1s1",
+                ""
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                "VRRP is not running on dp0p1s2",
+                pytest.lazy_fixture("detailed_simple_state"),
+                "dp0p1s2",
+                ""
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                "No VRRP group 2 exists on dp0p1s1",
+                pytest.lazy_fixture("detailed_simple_state"),
+                "dp0p1s1",
+                "2"
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                "VRRP is not running on dp0p1s2",
+                pytest.lazy_fixture("detailed_simple_state"),
+                "dp0p1s2",
+                "2"
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "dp0p1s2_vrid_42_show_detail"
+                ),
+                pytest.lazy_fixture("multiple_interfaces_and_groups_state"),
+                "dp0p1s2",
+                "42"
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "dp0p1s2_full_show_detail"
+                ),
+                pytest.lazy_fixture("multiple_interfaces_and_groups_state"),
+                "dp0p1s2",
+                ""
+            )
+        ],
+        ids=[
+                "Get all groups on interface", "VRRP not running on interface",
+                "No Matching VRRP group",
+                "Looking for group when no VRRP is configured on interface",
+                "One group on an interface", "All groups on an interface"
+            ]
+    )
+    def test_show_vrrp_interface(
+            self, fakes, show, data, intf_filter, grp_filter):
+        import vyatta.show_vrrp_cmds
+        result = vyatta.show_vrrp_cmds.show_vrrp_interface(
+                                                           data,
+                                                           intf_filter,
+                                                           grp_filter)
+        assert result == show

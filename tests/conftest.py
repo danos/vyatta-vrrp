@@ -1756,6 +1756,191 @@ def multiple_sync_group_simple_keepalived_state():
         }
 
 
+""" Show vrrp interface fixtures """
+
+
+@pytest.fixture
+def multiple_interfaces_and_groups_state(
+        simple_config, instance_state, vrrp_yang_name,
+        interface_yang_name, dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = [instance_state]
+
+    dp0p1s2_state = {
+        "tagnode": "dp0p1s2",
+        vrrp_yang_name: {
+            "vrrp-group": [
+                {
+                    "instance-state":
+                    {
+                        "address-owner": False,
+                        "last-transition": 0,
+                        "rfc-interface": "",
+                        "state": "MASTER",
+                        "sync-group": "",
+                        "version": 2,
+                        "src-ip": "10.10.1.1",
+                        "base-priority": 100,
+                        "effective-priority": 100,
+                        "advert-interval": "2 sec",
+                        "accept": True,
+                        "preempt": True,
+                        "auth-type": None,
+                        "virtual-ips": [
+                            "1.1.1.100/32"
+                        ]
+                    },
+                    "tagnode": "2"
+                },
+                {
+                    "instance-state":
+                    {
+                        "address-owner": False,
+                        "last-transition": 0,
+                        "rfc-interface": "",
+                        "state": "MASTER",
+                        "sync-group": "",
+                        "version": 2,
+                        "src-ip": "10.10.1.1",
+                        "base-priority": 100,
+                        "effective-priority": 100,
+                        "advert-interval": "2 sec",
+                        "accept": True,
+                        "preempt": True,
+                        "auth-type": None,
+                        "virtual-ips": [
+                            "2.2.2.100/32"
+                        ]
+                    },
+                    "tagnode": "42"
+                },
+                {
+                    "instance-state":
+                    {
+                        "address-owner": False,
+                        "last-transition": 0,
+                        "rfc-interface": "dp0vrrp1",
+                        "state": "BACKUP",
+                        "sync-group": "",
+                        "version": 3,
+                        "master-router": "10.10.1.2",
+                        "master-priority": 100,
+                        "src-ip": "10.10.1.1",
+                        "base-priority": 50,
+                        "effective-priority": 50,
+                        "advert-interval": "2 sec",
+                        "accept": True,
+                        "preempt": True,
+                        "auth-type": None,
+                        "virtual-ips": [
+                            "3.3.3.100/32"
+                        ]
+                    },
+                    "tagnode": "200"
+                }
+            ]
+        }
+    }
+    dp0p1s3_state = {
+        "tagnode": "dp0p1s3",
+        vrrp_yang_name: {
+            "vrrp-group": [instance_state]
+        }
+    }
+    dataplane_list.append(dp0p1s2_state)
+    dataplane_list.append(dp0p1s3_state)
+    return simple_yang_state
+
+
+@pytest.fixture
+def dp0p1s2_vrid_42_show_detail():
+    return """
+--------------------------------------------------
+Interface: dp0p1s2
+--------------
+  Group: 42
+  ----------
+  State:                        MASTER
+  Last transition:              3s
+
+  Version:                      2
+  Configured Priority:          100
+  Effective Priority:           100
+  Advertisement interval:       2 sec
+  Authentication type:          none
+  Preempt:                      enabled
+
+  VIP count:                    1
+    2.2.2.100/32
+
+"""
+
+
+@pytest.fixture
+def dp0p1s2_full_show_detail():
+    return """
+--------------------------------------------------
+Interface: dp0p1s2
+--------------
+  Group: 2
+  ----------
+  State:                        MASTER
+  Last transition:              3s
+
+  Version:                      2
+  Configured Priority:          100
+  Effective Priority:           100
+  Advertisement interval:       2 sec
+  Authentication type:          none
+  Preempt:                      enabled
+
+  VIP count:                    1
+    1.1.1.100/32
+
+  Group: 42
+  ----------
+  State:                        MASTER
+  Last transition:              3s
+
+  Version:                      2
+  Configured Priority:          100
+  Effective Priority:           100
+  Advertisement interval:       2 sec
+  Authentication type:          none
+  Preempt:                      enabled
+
+  VIP count:                    1
+    2.2.2.100/32
+
+  Group: 200
+  ----------
+  State:                        BACKUP
+  Last transition:              3s
+
+  Master router:                10.10.1.2
+  Master priority:              100
+
+  Version:                      3
+  RFC Compliant                 
+  Virtual MAC interface:        dp0vrrp1
+  Address Owner:                no
+
+  Source Address:               10.10.1.1
+  Configured Priority:          50
+  Effective Priority:           50
+  Advertisement interval:       2 sec
+  Preempt:                      enabled
+  Accept:                       enabled
+
+  VIP count:                    1
+    3.3.3.100/32
+
+"""  # noqa: W291
+
+
 @pytest.fixture
 def instance_state():
     return \
