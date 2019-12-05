@@ -156,36 +156,47 @@ class TestVyattaShowVrrp:
         assert result == show
 
     @pytest.mark.parametrize(
-        "fakes,show,data",
+        "fakes,show,data,grp_filter",
         [
             (
                 pytest.lazy_fixture("calendar_fakes"),
                 pytest.lazy_fixture("generic_sync_group_show_sync"),
-                pytest.lazy_fixture("simple_sync_group_state")
+                pytest.lazy_fixture("simple_sync_group_state"),
+                ""
             ),
             (
                 pytest.lazy_fixture("calendar_fakes"),
                 pytest.lazy_fixture("no_sync_group_show_sync"),
-                pytest.lazy_fixture("detailed_v3_simple_state")
+                pytest.lazy_fixture("detailed_v3_simple_state"),
+                ""
             ),
             (
                 pytest.lazy_fixture("calendar_fakes"),
                 pytest.lazy_fixture("generic_sync_group_show_sync"),
-                pytest.lazy_fixture("detailed_simple_multi_sync_state")
+                pytest.lazy_fixture("detailed_simple_multi_sync_state"),
+                ""
             ),
             (
                 pytest.lazy_fixture("calendar_fakes"),
                 pytest.lazy_fixture("multiple_sync_group_show_sync"),
-                pytest.lazy_fixture("multiple_simple_sync_group_state")
+                pytest.lazy_fixture("multiple_simple_sync_group_state"),
+                ""
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("sync_group_show_sync_group_filter"),
+                pytest.lazy_fixture("multiple_simple_sync_group_state"),
+                "TESTV2"
             ),
         ],
         ids=[
                 "Simple sync group case", "Show vrrp sync without sync group",
                 "Simple sync group as part of a larger state dict",
-                "Multiple sync groups"
+                "Multiple sync groups", "show vrrp sync group <blah>"
             ]
     )
-    def test_show_vrrp_sync(self, fakes, show, data):
+    def test_show_vrrp_sync(self, fakes, show, data, grp_filter):
         import vyatta.show_vrrp_cmds
-        result = vyatta.show_vrrp_cmds.show_vrrp_sync(data)
+        result = vyatta.show_vrrp_cmds.show_vrrp_sync(data, grp_filter)
         assert result == show
+

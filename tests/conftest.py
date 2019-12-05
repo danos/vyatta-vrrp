@@ -1717,6 +1717,20 @@ Group: TESTV2
 
 
 @pytest.fixture
+def sync_group_show_sync_group_filter():
+    return """
+--------------------------------------------------
+Group: TESTV2
+---------
+  State: MASTER
+  Monitoring:
+    Interface: dp0p1s3, Group: 1
+    Interface: dp0p1s4, Group: 1
+
+"""
+
+
+@pytest.fixture
 def multiple_sync_group_simple_keepalived_state():
     return \
         {
