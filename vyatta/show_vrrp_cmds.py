@@ -261,11 +261,14 @@ def show_vrrp_detail(state_dict: Dict) -> str:
     return output
 
 
-def show_vrrp_sync(state_dict: Dict) -> str:
+
+def show_vrrp_sync(state_dict: Dict, specific: str = "") -> str:
     output: str = "\n"+SHOW_DETAIL_DIVIDER
     if (util.VRRP_YANG_NAME in state_dict):
         sync_group: Dict
         for sync_group in state_dict[util.VRRP_YANG_NAME]["sync-groups"]:
+            if specific != "" and sync_group["name"] != specific:
+                continue
             output += show_sync_group_name(
                 sync_group["name"]
             )
