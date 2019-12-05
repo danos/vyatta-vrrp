@@ -89,7 +89,10 @@ def show_vrrp_summary(state_dict: Dict) -> str:
     return output + "\n"
 
 
-def show_vrrp_detail(state_dict: Dict) -> str:
+def show_vrrp_detail(
+        state_dict: Dict,
+        filter_intf: str = "",
+        filter_grp: str = "") -> str:
     output: str = "\n"
     output += SHOW_DETAIL_DIVIDER
     intf_type: str
@@ -99,6 +102,8 @@ def show_vrrp_detail(state_dict: Dict) -> str:
         intf: Dict
         for intf in intf_list:
             intf_name: str = intf[util.TAGNODE_YANG]
+            if filter_intf != "" and intf_name != filter_intf:
+                continue
             output += show_detail_intf_name(intf_name)
             output += SHOW_DETAIL_INTF_DIVIDER
             vrrp_instances: List = intf[util.VRRP_YANG_NAME][util.VRRP_GROUP_YANG]
@@ -107,6 +112,8 @@ def show_vrrp_detail(state_dict: Dict) -> str:
                 if util.INSTANCE_STATE_YANG not in vrrp_instance:
                     continue
                 group: str = vrrp_instance[util.TAGNODE_YANG]
+                if filter_grp != "" and group != filter_grp:
+                    continue
                 output += show_detail_group_name(group)
                 output += SHOW_DETAIL_GROUP_DIVIDER
                 state: Dict = vrrp_instance[util.INSTANCE_STATE_YANG]
@@ -260,6 +267,19 @@ def show_vrrp_detail(state_dict: Dict) -> str:
                 output += "\n"
     return output
 
+
+def show_vrrp_interface(
+        state_dict: Dict,
+        filter_intf: str = "",
+        filter_grp: str = "") -> str:
+    output = show_vrrp_detail(state_dict, filter_intf, filter_grp)
+    if output == f"\n{SHOW_DETAIL_DIVIDER}":
+        output = f"VRRP is not running on {filter_intf}"
+    elif output == f"\n{SHOW_DETAIL_DIVIDER}" + \
+                   f"{show_detail_intf_name(filter_intf)}" + \
+                   f"{SHOW_DETAIL_INTF_DIVIDER}":
+        output = f"No VRRP group {filter_grp} exists on {filter_intf}"
+    return output
 
 
 def show_vrrp_sync(state_dict: Dict, specific: str = "") -> str:
