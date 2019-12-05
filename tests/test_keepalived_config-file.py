@@ -263,7 +263,6 @@ class TestKeepalivedConfigFile:
         vif_intf[vrrp_yang_name]["vrrp-group"] = [vif_group]
 
         result = json.dumps(simple_switch_config)
-        print(result)
         expect = keepalived_config.convert_to_vci_format(config_string)
         assert result == expect
 

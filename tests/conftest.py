@@ -247,6 +247,9 @@ def fuller_vrrp_group_object(max_config_group):
     return VrrpGroup("dp0p1s1", "0", new_group, 1)
 
 
+"""Show vrrp fixtures"""
+
+
 @pytest.fixture
 def generic_group():
     return \
@@ -345,6 +348,9 @@ Interface         Group  State   Compliant  Owner  Transition  Group
 sw0.10            1      MASTER  sw0vrrp1   no     3s          <none>
 
 """
+
+
+"""Show vrrp detail fixtures"""
 
 
 @pytest.fixture
@@ -1486,6 +1492,8 @@ Interface: dp0p1s1
     10.10.1.100/32
 
 """
+
+"""Show vrrp sync group fixtures"""
 
 
 @pytest.fixture
