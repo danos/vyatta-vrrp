@@ -2,9 +2,16 @@ Source: vyatta-vrrp
 Section: contrib/net
 Priority: optional
 Maintainer: Vyatta Package Maintainers <DL-vyatta-help@att.com>
-Build-Depends: debhelper (>= 9), debhelper (>= 9.20160709) | dh-systemd, dh-yang, libtest-class-perl,
-               libsort-versions-perl, libnet-dbus-perl, libtry-tiny-perl,
-               python, dh-python
+Build-Depends:
+ debhelper (>= 9),
+ debhelper (>= 9.20160709) | dh-systemd,
+ dh-python,
+ dh-yang,
+ libnet-dbus-perl,
+ libsort-versions-perl,
+ libtest-class-perl,
+ libtry-tiny-perl,
+ python
 Standards-Version: 3.9.6
 
 Package: vyatta-vrrp
@@ -14,19 +21,20 @@ Depends:
  dbus,
  iftop,
  iproute2 (>= 4.4.0),
+ keepalived (>= 1.2.24-git66c870aa+vyatta26),
+ libnet-dbus-perl,
+ libtry-tiny-perl,
+ python,
+ python-daemon,
+ python-dbus,
+ python-gi,
+ python-pydbus,
  vyatta-cfg (>= 0.99.83),
  vyatta-interfaces (>= 0.5),
  vyatta-op-network,
- keepalived (>= 1.2.24-git66c870aa+vyatta26),
  vyatta-system (>= 1.6.1),
  ${misc:Depends},
- ${perl:Depends},
- python,
- python-daemon,
- python-gi,
- python-dbus,
- libnet-dbus-perl,
- libtry-tiny-perl
+ ${perl:Depends}
 Breaks: vyatta-op (<< 1.0)
 Replaces: vyatta-op (<< 1.0)
 Description: Vyatta VRRP configuration/operational commands
@@ -34,24 +42,26 @@ Description: Vyatta VRRP configuration/operational commands
 
 Package: vyatta-op-show-interfaces-vrrp-v1-yang
 Architecture: all
-Depends: ${misc:Depends}, ${yang:Depends}, vyatta-interfaces-base
+Depends: vyatta-interfaces-base, ${misc:Depends}, ${yang:Depends}
 Description: vyatta-op-show-interfaces-vrrp-v1 module
  Operational mode integration for viewing VRRP interface configuration
 
 Package: vyatta-vrrp-dataplane
 Architecture: all
-Depends:  ${misc:Depends},
- keepalived (>= 1.2.24-git66c870aa+vyatta26),
+Depends:
+ keepalived (>= 1.2.24-git66c870aa+vyatta27),
  vplane-config,
- vyatta-cfg
+ vyatta-cfg,
+ ${misc:Depends}
 Description: vyatta-vrrp dataplane templates
  Vyatta configuration templates for VRRP use on dataplane devices
 
 Package: vyatta-vrrp-v1-yang
 Architecture: all
-Depends: ${misc:Depends},
+Depends:
  vyatta-vrrp (>= ${source:Version}),
  vyatta-vrrp-dataplane (>= ${source:Version}),
+ ${misc:Depends},
  ${yang:Depends}
 Section: contrib/admin
 Description: vyatta-vrrp-v1 yang module
@@ -59,8 +69,9 @@ Description: vyatta-vrrp-v1 yang module
 
 Package: vyatta-vrrp-interfaces-switch-v1-yang
 Architecture: all
-Depends: ${misc:Depends},
+Depends:
  vyatta-vrrp-v1-yang (>= ${source:Version}),
+ ${misc:Depends},
  ${yang:Depends}
 Section: contrib/admin
 Description: vyatta-vrrp-interfaces-switch-v1 yang module
@@ -68,9 +79,10 @@ Description: vyatta-vrrp-interfaces-switch-v1 yang module
 
 Package: vyatta-vrrp-path-monitor-track-v1-yang
 Architecture: all
-Depends: ${misc:Depends},
- vyatta-vrrp-v1-yang (>= ${source:Version}),
+Depends:
  monitord-feature-dbus,
+ vyatta-vrrp-v1-yang (>= ${source:Version}),
+ ${misc:Depends},
  ${yang:Depends}
 Section: contrib/admin
 Description: vyatta-vrrp-path-monitor-track-v1 yang module
@@ -79,8 +91,9 @@ Description: vyatta-vrrp-path-monitor-track-v1 yang module
 
 Package: vyatta-vrrp-path-monitor-track-interfaces-dataplane-v1-yang
 Architecture: all
-Depends: ${misc:Depends},
+Depends:
  vyatta-vrrp-path-monitor-track-v1-yang,
+ ${misc:Depends},
  ${yang:Depends}
 Section: contrib/admin
 Description: vyatta-vrrp-path-monitor-track-interfaces-dataplane-v1 yang module
@@ -88,8 +101,9 @@ Description: vyatta-vrrp-path-monitor-track-interfaces-dataplane-v1 yang module
 
 Package: vyatta-vrrp-path-monitor-track-interfaces-bonding-v1-yang
 Architecture: all
-Depends: ${misc:Depends},
+Depends:
  vyatta-vrrp-path-monitor-track-v1-yang,
+ ${misc:Depends},
  ${yang:Depends}
 Section: contrib/admin
 Description: vyatta-vrrp-path-monitor-track-interfaces-bonding-v1 yang module
@@ -97,9 +111,10 @@ Description: vyatta-vrrp-path-monitor-track-interfaces-bonding-v1 yang module
 
 Package: vyatta-vrrp-path-monitor-track-interfaces-switch-v1-yang
 Architecture: all
-Depends: ${misc:Depends},
+Depends:
  vyatta-vrrp-interfaces-switch-v1-yang,
  vyatta-vrrp-path-monitor-track-v1-yang,
+ ${misc:Depends},
  ${yang:Depends}
 Section: contrib/admin
 Description: vyatta-vrrp-path-monitor-track-interfaces-switch-v1 yang module
@@ -107,8 +122,9 @@ Description: vyatta-vrrp-path-monitor-track-interfaces-switch-v1 yang module
 
 Package: vyatta-vrrp-route-to-track-v1-yang
 Architecture: all
-Depends: ${misc:Depends},
+Depends:
  vyatta-vrrp-v1-yang (>= ${source:Version}),
+ ${misc:Depends},
  ${yang:Depends}
 Section: contrib/admin
 Description: vyatta-vrrp-route-to-track-v1 yang module
@@ -116,28 +132,56 @@ Description: vyatta-vrrp-route-to-track-v1 yang module
 
 Package: vyatta-vrrp-route-to-track-interfaces-dataplane-v1-yang
 Architecture: all
-Depends: ${misc:Depends},
- vyatta-vrrp-route-to-track-v1-yang,
- ${yang:Depends}
+Depends: vyatta-vrrp-route-to-track-v1-yang, ${misc:Depends}, ${yang:Depends}
 Section: contrib/admin
 Description: vyatta-vrrp-route-to-track-interfaces-dataplane-v1 yang module
  The YANG module that augments dataplane interfaces with route-to tracking.
 
 Package: vyatta-vrrp-route-to-track-interfaces-bonding-v1-yang
 Architecture: all
-Depends: ${misc:Depends},
- vyatta-vrrp-route-to-track-v1-yang,
- ${yang:Depends}
+Depends: vyatta-vrrp-route-to-track-v1-yang, ${misc:Depends}, ${yang:Depends}
 Section: contrib/admin
 Description: vyatta-vrrp-route-to-track-interfaces-bonding-v1 yang module
  The YANG module that augments bonding interfaces with route-to tracking.
 
 Package: vyatta-vrrp-route-to-track-interfaces-switch-v1-yang
 Architecture: all
-Depends: ${misc:Depends},
+Depends:
  vyatta-vrrp-interfaces-switch-v1-yang,
  vyatta-vrrp-route-to-track-v1-yang,
+ ${misc:Depends},
  ${yang:Depends}
 Section: contrib/admin
 Description: vyatta-vrrp-route-to-track-interfaces-switch-v1 yang module
  The YANG module that augments switch vif interfaces with route-to tracking.
+
+Package: vyatta-vrrp-state-v1-yang
+Architecture: all
+Depends:
+ vyatta-vrrp-v1-yang (>= ${source:Version}),
+ ${misc:Depends},
+ ${yang:Depends}
+Section: contrib/admin
+Description: vyatta-vrrp-state-v1 yang module
+ The YANG module that defines the state nodes for a VRRP instance.
+
+Package: vyatta-vrrp-state-interfaces-dataplane-v1-yang
+Architecture: all
+Depends: vyatta-vrrp-state-v1-yang, ${misc:Depends}, ${yang:Depends}
+Section: contrib/admin
+Description: vyatta-vrrp-state-interfaces-dataplane-v1 yang module
+ The YANG module that augments dataplane interfaces with state nodes.
+
+Package: vyatta-vrrp-state-interfaces-bonding-v1-yang
+Architecture: all
+Depends: vyatta-vrrp-state-v1-yang, ${misc:Depends}, ${yang:Depends}
+Section: contrib/admin
+Description: vyatta-vrrp-state-interfaces-bonding-v1 yang module
+ The YANG module that augments bonding interfaces with state nodes.
+
+Package: vyatta-vrrp-state-interfaces-switch-v1-yang
+Architecture: all
+Depends: vyatta-vrrp-state-v1-yang, ${misc:Depends}, ${yang:Depends}
+Section: contrib/admin
+Description: vyatta-vrrp-state-interfaces-switch-v1 yang module
+ The YANG module that augments switch vif interfaces with state nodes.

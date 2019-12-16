@@ -7,3 +7,4 @@ debian/vyatta-vrrp-v1-yang/
 __pycache__
 .coverage
 .vscode
+validation_*
