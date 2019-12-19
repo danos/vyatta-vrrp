@@ -34,9 +34,8 @@ use Vyatta::Keepalived;
 use Scalar::Util;
 use POSIX;
 
-if (Vyatta::Keepalived::is_running()) {
-    my $vrrp_group = $ARGV[0];
-    my $intf = $ARGV[1];
+sub vrrp_bgp_async_notify {
+    my ( $vrrp_group, $intf ) = @_;
 
     my $try = 0;
 
@@ -86,5 +85,14 @@ if (Vyatta::Keepalived::is_running()) {
     }
 }
 
-exit 0;
+if (Vyatta::Keepalived::is_running()) {
+    my @vrrp_intfs = list_vrrp_intf();
+    foreach my $vrrp_intf (@vrrp_intfs) {
+        my @vrrp_groups = list_vrrp_group($vrrp_intf);
+        foreach my $vrrp_group (@vrrp_groups) {
+            vrrp_bgp_async_notify ($vrrp_group, $vrrp_intf);
+        }
+   }
+}
 
+exit 0;
