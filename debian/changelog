@@ -1,3 +1,17 @@
+vyatta-vrrp (2.20) unstable; urgency=medium
+
+  [ Anthony Dempsey ]
+  * Feature/Add VRRP config to switchport vifs
+
+  [ Dewi Morgan ]
+  * vrrp: async notification for bgp
+
+  [ Anthony Dempsey ]
+  * Implement script to return VRRP state
+  * Add vrrp yang state files and packages
+
+ -- Anthony Dempsey <anthony.dempsey@intl.att.com>  Fri, 20 Dec 2019 14:08:09 +0000
+
 vyatta-vrrp (2.19) unstable; urgency=medium
 
   * DANOS Import Master
