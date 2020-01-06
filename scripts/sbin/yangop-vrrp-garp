@@ -4,7 +4,7 @@
 # 
 # **** License ****
 #
-# Copyright (c) 2019 AT&T Intellectual Property.
+# Copyright (c) 2019-2020 AT&T Intellectual Property.
 # All rights reserved.
 #
 # Copyright (c) 2016 by Brocade Communications Systems, Inc.
@@ -21,7 +21,7 @@
 import json, os, sys
 
 rpc = json.load(sys.stdin)
-interface = rpc["interface"] 
+interface = rpc["interface"].replace(".", "_") # replace vif separator with dbus legal character
 group = str(rpc["group"])
 os.system("/opt/vyatta/sbin/send-garp " + interface + " " + group)
 # Empty response required by RPC

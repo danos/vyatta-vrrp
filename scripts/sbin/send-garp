@@ -1,7 +1,9 @@
 #!/bin/bash
 
-# Copyright (c) 2019 AT&T Intellectual Property.
+# Copyright (c) 2019-2020 AT&T Intellectual Property.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
-dbus-send --system --dest=org.keepalived.Vrrp1 --type=method_call /org/keepalived/Vrrp1/Instance/$1/$2/IPv4 org.keepalived.Vrrp1.Instance.SendGarp
+intf=$1
+intf=${intf/./_}  # Replace vif seperator (.) with legal dbus path character (_)
+dbus-send --system --dest=org.keepalived.Vrrp1 --type=method_call /org/keepalived/Vrrp1/Instance/$intf/$2/IPv4 org.keepalived.Vrrp1.Instance.SendGarp
