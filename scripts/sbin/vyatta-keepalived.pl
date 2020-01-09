@@ -4,7 +4,7 @@
 #
 # **** License ****
 #
-# Copyright (c) 2018,2019 AT&T Intellectual Property. All rights reserved.
+# Copyright (c) 2018-2020 AT&T Intellectual Property. All rights reserved.
 # Copyright (c) 2014 by Brocade Communications Systems, Inc.
 # All rights reserved.
 #
@@ -163,6 +163,12 @@ sub keepalived_get_values {
 
     my $accept = $config->returnValue("accept");
 
+    if ( $version == 3 and $accept eq "false" and $on_off eq "on") {
+      my $v3_accept_warning = "VRRPv3 without accept configured on interface $intf group $group. ";
+      $v3_accept_warning .= "By RFC design packets to the VIP will be dropped, configure 'accept true' to receive these packets.";
+      vrrp_log($v3_accept_warning);
+    }
+
     my $preempt_delay = $config->returnValue("preempt-delay");
     if ( defined $preempt_delay and $preempt eq "false" ) {
       print "Warning: preempt delay is ignored when preempt=false\n";
@@ -195,6 +201,13 @@ sub keepalived_get_values {
     if ( $config->exists("notify ipsec") ) {
       $ipsec_transition_script = "/opt/vyatta/sbin/vyatta-ipsec-notify.sh";
       $notify_flag = 1;
+      if ( $version == 3 and $accept eq "false" and $on_off eq "on") {
+        my $v3_accept_warning = "VRRPv3 without accept configured on interface $intf group $group. ";
+        $v3_accept_warning .= "By default VRRPv3 ignores packets to the VIP. ";
+        $v3_accept_warning .= "This may affect your IPSEC setup. Add accept true to your configuration to mitigate this.\n";
+        print $v3_accept_warning;
+        vrrp_log($v3_accept_warning);
+      }
     }
     if ( $config->exists("notify bgp") ) {
       $bgp_transition_script = "/opt/vyatta/sbin/notify-bgp";

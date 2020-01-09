@@ -50,12 +50,23 @@ my $snmpd_conf           = '/etc/snmp/snmpd.conf';
 my $intf_mapping         = "$state_dir/vrrp_intf.map";
 my $systemd_default_file = '/etc/default/keepalived';
 
+sub sys_logger {
+    my ($msg) = @_;
+    my $FACILITY = "local7";
+    my $LEVEL = "debug";
+    my $TAG = "vyatta-vrrp";
+    my $LOGCMD = "logger -t $TAG -p $FACILITY.$LEVEL";
+    system("$LOGCMD $msg");
+    return;
+}
+
 sub vrrp_log {
     my $timestamp = strftime( "%Y%m%d-%H:%M.%S", localtime );
     open my $fh, '>>', $vrrp_log
       or die "Can't open $vrrp_log:$!";
     print $fh "$timestamp: ", @_, "\n";
     close $fh;
+    sys_logger(@_);
 }
 
 # Get the agentXSocket value stored in /etc/snmp/snmpd.conf
@@ -116,6 +127,7 @@ sub start_daemon {
     print $fh $default_file_string;
     close $fh;
     system("service keepalived start");
+    logger_prefix("vyatta-vrrp");
     vrrp_log("start_daemon");
 }
 
