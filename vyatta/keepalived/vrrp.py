@@ -7,6 +7,7 @@
 
 import logging
 from typing import Dict
+
 import vyatta.keepalived.util as util
 
 

@@ -3,6 +3,7 @@
 
 import pytest
 import copy
+
 import vyatta.keepalived.util as util
 
 

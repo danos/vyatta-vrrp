@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: GPL-2.0-only
 
 import pytest
+
 from vyatta.keepalived.vrrp import VrrpGroup
 
 

@@ -7,6 +7,7 @@
 import copy
 import json
 from pathlib import Path
+
 import vyatta.keepalived.util as util
 import pytest
 

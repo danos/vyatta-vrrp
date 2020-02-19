@@ -10,6 +10,7 @@ Vyatta VCI component to configure keepalived to provide VRRP functionality
 import logging
 from functools import wraps
 from typing import Any, Dict, Union
+
 import vci
 import vyatta.keepalived.util as util
 

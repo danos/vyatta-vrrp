@@ -13,7 +13,6 @@ import os
 import pydbus
 import contextlib
 from enum import Enum
-from pathlib import Path
 from typing import Any, Dict, List, Tuple, Union
 import vyatta.abstract_vrrp_classes as AbstractConfig
 import vyatta.keepalived.util as util

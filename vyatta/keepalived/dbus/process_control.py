@@ -15,6 +15,7 @@ import logging
 import pydbus
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
+
 import vyatta.keepalived.util as util
 
 

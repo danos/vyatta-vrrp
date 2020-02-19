@@ -8,6 +8,7 @@ import json
 import logging
 import pydbus
 from typing import Dict, List, Any
+
 import vci  # pylint: disable=import-error
 import vyatta.abstract_vrrp_classes as AbstractVrrpConfig
 import vyatta.keepalived.util as util
