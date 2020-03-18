@@ -173,7 +173,7 @@ def get_interface_name(path):
         intf_name = "{}.{}".format(intf_name, vif_name)
     return intf_name
 
-def get_vrrp_json_info(intf_name):
+def get_vrrp_json_info(intf_name, caller_config):
     """
     Return the state of all vrrp groups on intf_name in the JSON format
     """
@@ -197,7 +197,7 @@ def get_interface_vrrp_state(path, config):
         )
         return 0
     intf_name = get_interface_name(path)
-    info_json = get_vrrp_json_info(intf_name)
+    info_json = get_vrrp_json_info(intf_name, config)
     debug_log(
         "State dict for interface {} is {}\n".format(
             intf_name, info_json.encode("utf-8")
@@ -219,11 +219,15 @@ def get_interface_config(path):
     )
     return config
 
-
-if __name__ == "__main__":
+def main():
     config_path = os.environ["CONFIGD_PATH"]
     debug_log("VRRP get-state called at node {}\n".format(config_path))
-    caller_config = get_interface_config(config_path)
+    try:
+        caller_config = get_interface_config(config_path)
+    except configd.Exception as e:
+        error_log("Failed to get config at {}\n".format(config_path))
+        error_log("Traceback is {}\n".format(e))
+        return {}
     debug_log("The config at this node is {}\n".format(caller_config))
     if VRRP in caller_config:
         get_interface_vrrp_state(config_path, caller_config)
@@ -231,3 +235,6 @@ if __name__ == "__main__":
         error_log(
             "VRRP get-state called at node that doesn't have a vrrp subtree\n"
         )
+
+if __name__ == "__main__":
+    main()
