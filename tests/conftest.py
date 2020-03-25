@@ -109,6 +109,8 @@ def test_config(
             super().__init__()
             self.systemd_default_file_path = \
                 f"{str(tmp_path)}/vyatta-keepalived"
+            self.snmpd_conf_file_path = \
+                f"{str(tmp_path)}/snmpd.conf"
     monkeypatch.setitem(
         process_ctrl.__dict__,
         "ProcessControl",

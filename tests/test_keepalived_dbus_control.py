@@ -44,6 +44,7 @@ class TestKeepalivedDbusControl:
         import vyatta.keepalived.dbus.process_control as process_ctrl
         pc = process_ctrl.ProcessControl()
         pc.systemd_default_file_path = f"{tmp_path}/vyatta-keepalived"
+        pc.snmpd_conf_file_path = f"{tmp_path}/snmpd.conf"
         conf_path = Path(
             pc.systemd_default_file_path)
         expected = True
@@ -52,9 +53,10 @@ class TestKeepalivedDbusControl:
         assert expected == result
 
     def test_get_agent_x_socket_snmp_not_running(
-            self, mock_pydbus):
+            self, mock_pydbus, tmp_path):
         import vyatta.keepalived.dbus.process_control as process_ctrl
         pc = process_ctrl.ProcessControl()
+        pc.snmpd_conf_file_path = f"{tmp_path}/snmpd.conf"
         expected = "tcp:localhost:705:1"
         result = pc.get_agent_x_socket()
         assert expected == result
