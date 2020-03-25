@@ -188,11 +188,20 @@ class TestVyattaShowVrrp:
                 pytest.lazy_fixture("multiple_simple_sync_group_state"),
                 "TESTV2"
             ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "sync_group_show_sync_group_filter_no_group"
+                ),
+                pytest.lazy_fixture("multiple_simple_sync_group_state"),
+                "TEST1"
+            ),
         ],
         ids=[
                 "Simple sync group case", "Show vrrp sync without sync group",
                 "Simple sync group as part of a larger state dict",
-                "Multiple sync groups", "show vrrp sync group <blah>"
+                "Multiple sync groups", "show vrrp sync group <blah>",
+                "show vrrp sync group doesn't exist"
             ]
     )
     def test_show_vrrp_sync(self, fakes, show, data, grp_filter):

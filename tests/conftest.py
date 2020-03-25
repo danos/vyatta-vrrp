@@ -1733,6 +1733,13 @@ Group: TESTV2
 
 
 @pytest.fixture
+def sync_group_show_sync_group_filter_no_group():
+    return """
+Sync-group: TEST1 does not exist
+"""
+
+
+@pytest.fixture
 def multiple_sync_group_simple_keepalived_state():
     return \
         {
