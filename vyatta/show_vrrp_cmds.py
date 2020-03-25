@@ -304,4 +304,6 @@ def show_vrrp_sync(state_dict: Dict, specific: str = "") -> str:
                     tokens[1:]
                 )
             output += "\n"
+    if specific != "" and output == "\n"+SHOW_DETAIL_DIVIDER:
+        output = f"\nSync-group: {specific} does not exist\n"
     return output
