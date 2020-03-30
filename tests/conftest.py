@@ -1740,6 +1740,469 @@ Sync-group: TEST1 does not exist
 
 
 @pytest.fixture
+def generic_group_keepalived_stats():
+    return """
+VRRP Instance: vyatta-dp0p1s1-1
+  Advertisements:
+    Received: 0
+    Sent: 615
+  Became master: 1
+  Released master: 0
+  Packet Errors:
+    Length: 0
+    TTL: 0
+    Invalid Type: 0
+    Advertisement Interval: 0
+    Address List: 0
+  Authentication Errors:
+    Invalid Type: 0
+    Type Mismatch: 0
+    Failure: 0
+  Priority Zero:
+    Received: 0
+    Sent: 0
+"""
+
+
+@pytest.fixture
+def generic_group_keepalived_stats_dict():
+    return {
+        "tagnode": 1,
+        "stats": {
+            "Advertisements": {
+                "Received": "0",
+                "Sent": "615"
+            },
+            "Became master": "1",
+            "Released master": "0",
+            "Packet errors": {
+                "Length": "0",
+                "TTL": "0",
+                "Invalid type": "0",
+                "Advertisement interval": "0",
+                "Address list": "0"
+            },
+            "Authentication errors": {
+                "Invalid type": "0",
+                "Type mismatch": "0",
+                "Failure": "0"
+            },
+            "Priority zero advertisements": {
+                "Received": "0",
+                "Sent": "0"
+            }
+        }
+    }
+
+
+@pytest.fixture
+def generic_group_show_stats():
+    return """
+--------------------------------------------------
+Interface: dp0p1s1
+--------------
+  Group: 1
+  ----------
+  Advertisements:
+    Received:                   0
+    Sent:                       615
+
+  Became master:                1
+  Released master:              0
+
+  Packet errors:
+    Length:                     0
+    TTL:                        0
+    Invalid type:               0
+    Advertisement interval:     0
+    Address list:               0
+
+  Authentication errors:
+    Invalid type:               0
+    Type mismatch:              0
+    Failure:                    0
+
+  Priority zero advertisements:
+    Received:                   0
+    Sent:                       0
+
+"""
+
+
+@pytest.fixture
+def backup_group_keepalived_stats():
+    return """
+VRRP Instance: vyatta-dp0p1s1-42
+  Advertisements:
+    Received: 100
+    Sent: 0
+  Became master: 0
+  Released master: 0
+  Packet Errors:
+    Length: 0
+    TTL: 0
+    Invalid Type: 0
+    Advertisement Interval: 0
+    Address List: 0
+  Authentication Errors:
+    Invalid Type: 0
+    Type Mismatch: 0
+    Failure: 0
+  Priority Zero:
+    Received: 0
+    Sent: 0
+"""
+
+
+@pytest.fixture
+def backup_group_keepalived_stats_dict():
+    return {
+        "tagnode": 42,
+        "stats": {
+            "Advertisements": {
+                "Received": "100",
+                "Sent": "0"
+            },
+            "Became master": "0",
+            "Released master": "0",
+            "Packet errors": {
+                "Length": "0",
+                "TTL": "0",
+                "Invalid type": "0",
+                "Advertisement interval": "0",
+                "Address list": "0"
+            },
+            "Authentication errors": {
+                "Invalid type": "0",
+                "Type mismatch": "0",
+                "Failure": "0"
+            },
+            "Priority zero advertisements": {
+                "Received": "0",
+                "Sent": "0"
+            }
+        }
+    }
+
+
+@pytest.fixture
+def backup_group_show_stats():
+    return """
+--------------------------------------------------
+Interface: dp0p1s1
+--------------
+  Group: 42
+  ----------
+  Advertisements:
+    Received:                   100
+    Sent:                       0
+
+  Became master:                0
+  Released master:              0
+
+  Packet errors:
+    Length:                     0
+    TTL:                        0
+    Invalid type:               0
+    Advertisement interval:     0
+    Address list:               0
+
+  Authentication errors:
+    Invalid type:               0
+    Type mismatch:              0
+    Failure:                    0
+
+  Priority zero advertisements:
+    Received:                   0
+    Sent:                       0
+
+"""
+
+
+@pytest.fixture
+def master_and_backup_group_keepalived_stats():
+    return """
+VRRP Instance: vyatta-dp0p1s1-1
+  Advertisements:
+    Received: 0
+    Sent: 615
+  Became master: 1
+  Released master: 0
+  Packet Errors:
+    Length: 0
+    TTL: 0
+    Invalid Type: 0
+    Advertisement Interval: 0
+    Address List: 0
+  Authentication Errors:
+    Invalid Type: 0
+    Type Mismatch: 0
+    Failure: 0
+  Priority Zero:
+    Received: 0
+    Sent: 0
+VRRP Instance: vyatta-dp0p1s1-42
+  Advertisements:
+    Received: 100
+    Sent: 0
+  Became master: 0
+  Released master: 0
+  Packet Errors:
+    Length: 0
+    TTL: 0
+    Invalid Type: 0
+    Advertisement Interval: 0
+    Address List: 0
+  Authentication Errors:
+    Invalid Type: 0
+    Type Mismatch: 0
+    Failure: 0
+  Priority Zero:
+    Received: 0
+    Sent: 0
+"""
+
+
+@pytest.fixture
+def master_and_backup_group_show_stats():
+    return """
+--------------------------------------------------
+Interface: dp0p1s1
+--------------
+  Group: 1
+  ----------
+  Advertisements:
+    Received:                   0
+    Sent:                       615
+
+  Became master:                1
+  Released master:              0
+
+  Packet errors:
+    Length:                     0
+    TTL:                        0
+    Invalid type:               0
+    Advertisement interval:     0
+    Address list:               0
+
+  Authentication errors:
+    Invalid type:               0
+    Type mismatch:              0
+    Failure:                    0
+
+  Priority zero advertisements:
+    Received:                   0
+    Sent:                       0
+
+  Group: 42
+  ----------
+  Advertisements:
+    Received:                   100
+    Sent:                       0
+
+  Became master:                0
+  Released master:              0
+
+  Packet errors:
+    Length:                     0
+    TTL:                        0
+    Invalid type:               0
+    Advertisement interval:     0
+    Address list:               0
+
+  Authentication errors:
+    Invalid type:               0
+    Type mismatch:              0
+    Failure:                    0
+
+  Priority zero advertisements:
+    Received:                   0
+    Sent:                       0
+
+"""
+
+
+@pytest.fixture
+def second_intf_keepalived_stats_dict():
+    return {
+        "tagnode": 2,
+        "stats": {
+            "Advertisements": {
+                "Received": "50",
+                "Sent": "3305"
+            },
+            "Became master": "1",
+            "Released master": "1",
+            "Packet errors": {
+                "Length": "0",
+                "TTL": "0",
+                "Invalid type": "0",
+                "Advertisement interval": "0",
+                "Address list": "0"
+            },
+            "Authentication errors": {
+                "Invalid type": "0",
+                "Type mismatch": "0",
+                "Failure": "0"
+            },
+            "Priority zero advertisements": {
+                "Received": "0",
+                "Sent": "0"
+            }
+        }
+    }
+
+
+@pytest.fixture
+def multiple_intf_keepalived_stats():
+    return """
+VRRP Instance: vyatta-dp0p1s2-2
+  Advertisements:
+    Received: 50
+    Sent: 3305
+  Became master: 1
+  Released master: 1
+  Packet Errors:
+    Length: 0
+    TTL: 0
+    Invalid Type: 0
+    Advertisement Interval: 0
+    Address List: 0
+  Authentication Errors:
+    Invalid Type: 0
+    Type Mismatch: 0
+    Failure: 0
+  Priority Zero:
+    Received: 0
+    Sent: 0
+VRRP Instance: vyatta-dp0p1s1-1
+  Advertisements:
+    Received: 0
+    Sent: 615
+  Became master: 1
+  Released master: 0
+  Packet Errors:
+    Length: 0
+    TTL: 0
+    Invalid Type: 0
+    Advertisement Interval: 0
+    Address List: 0
+  Authentication Errors:
+    Invalid Type: 0
+    Type Mismatch: 0
+    Failure: 0
+  Priority Zero:
+    Received: 0
+    Sent: 0
+VRRP Instance: vyatta-dp0p1s1-42
+  Advertisements:
+    Received: 100
+    Sent: 0
+  Became master: 0
+  Released master: 0
+  Packet Errors:
+    Length: 0
+    TTL: 0
+    Invalid Type: 0
+    Advertisement Interval: 0
+    Address List: 0
+  Authentication Errors:
+    Invalid Type: 0
+    Type Mismatch: 0
+    Failure: 0
+  Priority Zero:
+    Received: 0
+    Sent: 0
+"""
+
+
+@pytest.fixture
+def multiple_intf_show_stats():
+    return """
+--------------------------------------------------
+Interface: dp0p1s1
+--------------
+  Group: 1
+  ----------
+  Advertisements:
+    Received:                   0
+    Sent:                       615
+
+  Became master:                1
+  Released master:              0
+
+  Packet errors:
+    Length:                     0
+    TTL:                        0
+    Invalid type:               0
+    Advertisement interval:     0
+    Address list:               0
+
+  Authentication errors:
+    Invalid type:               0
+    Type mismatch:              0
+    Failure:                    0
+
+  Priority zero advertisements:
+    Received:                   0
+    Sent:                       0
+
+  Group: 42
+  ----------
+  Advertisements:
+    Received:                   100
+    Sent:                       0
+
+  Became master:                0
+  Released master:              0
+
+  Packet errors:
+    Length:                     0
+    TTL:                        0
+    Invalid type:               0
+    Advertisement interval:     0
+    Address list:               0
+
+  Authentication errors:
+    Invalid type:               0
+    Type mismatch:              0
+    Failure:                    0
+
+  Priority zero advertisements:
+    Received:                   0
+    Sent:                       0
+
+Interface: dp0p1s2
+--------------
+  Group: 2
+  ----------
+  Advertisements:
+    Received:                   50
+    Sent:                       3305
+
+  Became master:                1
+  Released master:              1
+
+  Packet errors:
+    Length:                     0
+    TTL:                        0
+    Invalid type:               0
+    Advertisement interval:     0
+    Address list:               0
+
+  Authentication errors:
+    Invalid type:               0
+    Type mismatch:              0
+    Failure:                    0
+
+  Priority zero advertisements:
+    Received:                   0
+    Sent:                       0
+
+"""
+
+
+@pytest.fixture
 def multiple_sync_group_simple_keepalived_state():
     return \
         {
@@ -3215,6 +3678,72 @@ def multiple_simple_sync_group_state(
     del(simple_yang_state[interface_yang_name])
     simple_yang_state[vrrp_yang_name] = \
         multiple_sync_group_simple_keepalived_state
+    return simple_yang_state
+
+
+@pytest.fixture
+def generic_group_complete_stats_dict(
+        simple_config, generic_group_keepalived_stats_dict, vrrp_yang_name,
+        interface_yang_name, dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [generic_group_keepalived_stats_dict]
+    return simple_yang_state
+
+
+@pytest.fixture
+def backup_group_complete_stats_dict(
+        simple_config, backup_group_keepalived_stats_dict, vrrp_yang_name,
+        interface_yang_name, dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [backup_group_keepalived_stats_dict]
+    return simple_yang_state
+
+
+@pytest.fixture
+def intf_complete_stats_dict(
+        simple_config, generic_group_keepalived_stats_dict,
+        backup_group_keepalived_stats_dict,
+        vrrp_yang_name, interface_yang_name, dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [
+            generic_group_keepalived_stats_dict,
+            backup_group_keepalived_stats_dict
+        ]
+    return simple_yang_state
+
+
+@pytest.fixture
+def multi_intf_complete_stats_dict(
+        simple_config, generic_group_keepalived_stats_dict,
+        backup_group_keepalived_stats_dict,
+        second_intf_keepalived_stats_dict,
+        vrrp_yang_name, interface_yang_name, second_dataplane_interface,
+        dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    dataplane_list.append(second_dataplane_interface)
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del(dataplane_list[1][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [
+            generic_group_keepalived_stats_dict,
+            backup_group_keepalived_stats_dict
+        ]
+    dataplane_list[1][vrrp_yang_name]["vrrp-group"] = \
+        [second_intf_keepalived_stats_dict]
     return simple_yang_state
 
 

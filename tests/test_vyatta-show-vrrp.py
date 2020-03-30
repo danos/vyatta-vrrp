@@ -274,3 +274,73 @@ class TestVyattaShowVrrp:
                                                            intf_filter,
                                                            grp_filter)
         assert result == show
+
+    @pytest.mark.parametrize(
+        "fakes,show,data,intf_filter,grp_filter",
+        [
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("generic_group_show_stats"),
+                pytest.lazy_fixture("generic_group_complete_stats_dict"),
+                "",
+                ""
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("backup_group_show_stats"),
+                pytest.lazy_fixture("backup_group_complete_stats_dict"),
+                "",
+                ""
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("master_and_backup_group_show_stats"),
+                pytest.lazy_fixture("intf_complete_stats_dict"),
+                "",
+                ""
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("master_and_backup_group_show_stats"),
+                pytest.lazy_fixture("multi_intf_complete_stats_dict"),
+                "dp0p1s1",
+                ""
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                "VRRP is not running on dp0p1s2",
+                pytest.lazy_fixture("intf_complete_stats_dict"),
+                "dp0p1s2",
+                ""
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                "No VRRP group 2 exists on dp0p1s1",
+                pytest.lazy_fixture("intf_complete_stats_dict"),
+                "dp0p1s1",
+                "2"
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("multiple_intf_show_stats"),
+                pytest.lazy_fixture("multi_intf_complete_stats_dict"),
+                "",
+                ""
+            )
+        ],
+        ids=[
+                "Show stats", "Backup group", "Multi Groups",
+                "Full interface",
+                "VRRP not running on interface",
+                "No matching group on this interface",
+                "Multiple interfaces"
+            ]
+    )
+    def test_show_vrrp_statistics(
+            self, fakes, show, data, intf_filter, grp_filter):
+        import vyatta.show_vrrp_cmds
+        result = vyatta.show_vrrp_cmds.show_vrrp_statistics_filters(
+                                                           data,
+                                                           intf_filter,
+                                                           grp_filter)
+        assert result == show
