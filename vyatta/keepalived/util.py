@@ -54,6 +54,7 @@ VRRP_INSTANCE_DBUS_PATH: str = f"/{VRRP_INSTANCE_DBUS_INTF_NAME.replace('.', '/'
 INSTANCE_STATE_YANG: str = "instance-state"
 TAGNODE_YANG: str = "tagnode"
 VRRP_GROUP_YANG: str = "vrrp-group"
+INSTANCE_STATS_YANG: str = "stats"
 
 
 def get_specific_vrrp_config_from_yang(

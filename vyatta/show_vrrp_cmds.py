@@ -37,6 +37,13 @@ def show_detail_tracked_format(line: List[str]) -> str:
 def show_detail_tracked_pmon_format(line: List[str]) -> str:
     return f"      {line[0]}  {line[1]}  {line[2]}\n"
 
+def show_stats_header_format(line: List[str]) -> str:
+    return f"  {line[0]}\n"
+def show_stats_header_and_value_format(line: List[str]) -> str:
+    return f"  {line[0]:<30s}{line[1]:<s}\n"
+def show_stats_line_format(line: List[str]) -> str:
+    return f"    {line[0]:<28s}{line[1]:<s}\n"
+
 def show_sync_group_name(group: str) -> str:
     return f"Group: {group}\n"
 SHOW_SYNC_GROUP_DIVIDER: str = SHOW_DETAIL_GROUP_DIVIDER[3:]
@@ -306,4 +313,62 @@ def show_vrrp_sync(state_dict: Dict, specific: str = "") -> str:
             output += "\n"
     if specific != "" and output == "\n"+SHOW_DETAIL_DIVIDER:
         output = f"\nSync-group: {specific} does not exist\n"
+    return output
+
+def show_vrrp_statistics(
+        stats_dict: Dict,
+        filter_intf: str = "",
+        filter_grp: str = "") -> str:
+    output: str = "\n"
+    output += SHOW_DETAIL_DIVIDER
+    intf_type: str
+    for intf_type in stats_dict[util.INTERFACE_YANG_NAME]:
+        intf_list: List = \
+            stats_dict[util.INTERFACE_YANG_NAME][intf_type]
+        intf: Dict
+        for intf in intf_list:
+            intf_name: str = intf[util.TAGNODE_YANG]
+            if filter_intf != "" and intf_name != filter_intf:
+                continue
+            output += show_detail_intf_name(intf_name)
+            output += SHOW_DETAIL_INTF_DIVIDER
+            vrrp_instances: List = intf[util.VRRP_YANG_NAME][util.VRRP_GROUP_YANG]
+            vrrp_instance: Dict
+            for vrrp_instance in vrrp_instances:
+                if util.INSTANCE_STATS_YANG not in vrrp_instance:
+                    continue
+                group: str = vrrp_instance[util.TAGNODE_YANG]
+                if filter_grp != "" and group != filter_grp:
+                    continue
+                output += show_detail_group_name(group)
+                output += SHOW_DETAIL_GROUP_DIVIDER
+                stats: Dict = vrrp_instance[util.INSTANCE_STATS_YANG]
+                key: str
+                for key in stats:
+                    if type(stats[key]) is dict:
+                        subkey: str
+                        key_name = f"{key}:"
+                        output += show_stats_header_format([key_name, ""])
+                        for subkey in stats[key]:
+                            key_name = f"{subkey}:"
+                            output += show_stats_line_format([key_name, stats[key][subkey]])
+                        output += "\n"
+                    else:
+                        key_name = f"{key}:"
+                        output += show_stats_header_and_value_format([key_name, stats[key]])
+                        if key == "Released master":
+                            output += "\n"
+    return output
+
+def show_vrrp_statistics_filters(
+        stats_dict: Dict,
+        filter_intf: str = "",
+        filter_grp: str = "") -> str:
+    output = show_vrrp_statistics(stats_dict, filter_intf, filter_grp)
+    if output == f"\n{SHOW_DETAIL_DIVIDER}":
+        output = f"VRRP is not running on {filter_intf}"
+    elif output == f"\n{SHOW_DETAIL_DIVIDER}" + \
+                   f"{show_detail_intf_name(filter_intf)}" + \
+                   f"{SHOW_DETAIL_INTF_DIVIDER}":
+        output = f"No VRRP group {filter_grp} exists on {filter_intf}"
     return output
