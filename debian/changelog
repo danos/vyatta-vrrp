@@ -1,3 +1,11 @@
+vyatta-vrrp (2.21) unstable; urgency=medium
+
+  * Bugfix/use valid characters in vif DBus calls
+  * Refactor/Add VRRPv3 accept warning
+  * Bugfix/Add error checking to configd call
+
+ -- Anthony Dempsey <anthony.dempsey@intl.att.com>  Fri, 03 Apr 2020 12:36:24 +0100
+
 vyatta-vrrp (2.20) unstable; urgency=medium
 
   [ Anthony Dempsey ]
