@@ -127,7 +127,6 @@ sub start_daemon {
     print $fh $default_file_string;
     close $fh;
     system("service keepalived start");
-    logger_prefix("vyatta-vrrp");
     vrrp_log("start_daemon");
 }
 
