@@ -71,6 +71,10 @@ module vyatta-vrrp-v1 {
 			group. Useful for relating RFC interfaces to actual interfaces";
 	}
 
+	revision 2020-04-08 {
+		description "Mark run-transition subtree as deprecated";
+	}
+
 	revision 2019-04-01 {
 		description "Move validation into the yang away from scripts";
 	}
@@ -213,6 +217,7 @@ module vyatta-vrrp-v1 {
 			configd:help "VRRP group disabled";
 		}
 		container run-transition-scripts {
+			status "deprecated";
 			presence "true";
 			configd:help "Scripts for VRRP state-transitions";
 			leaf master {
