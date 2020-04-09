@@ -344,3 +344,140 @@ class TestVyattaShowVrrp:
                                                            intf_filter,
                                                            grp_filter)
         assert result == show
+
+    @pytest.mark.parametrize(
+        "fakes,json_data,file_content",
+        [
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("detailed_simple_state"),
+                pytest.lazy_fixture("generic_group_simple_keepalived_data")
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("detailed_simple_rfc_state"),
+                pytest.lazy_fixture("generic_group_rfc_simple_keepalived_data")
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "detailed_simple_rfc_sync_state"
+                ),
+                pytest.lazy_fixture("generic_group_rfc_sync_keepalived_data")
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "detailed_simple_rfc_ipao_state"
+                ),
+                pytest.lazy_fixture(
+                    "generic_group_ipao_rfc_simple_keepalived_data"
+                )
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("detailed_start_delay_simple_state"),
+                pytest.lazy_fixture(
+                    "generic_group_start_delay_simple_keepalived_data"
+                )
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("detailed_preempt_delay_simple_state"),
+                pytest.lazy_fixture(
+                    "generic_group_preempt_delay_simple_keepalived_data"
+                ),
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("detailed_v3_simple_state"),
+                pytest.lazy_fixture("generic_v3_group_simple_keepalived_data")
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "detailed_backup_simple_state"
+                ),
+                pytest.lazy_fixture(
+                    "backup_generic_group_simple_keepalived_data"
+                )
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "detailed_backup_track_intf_simple_state"
+                ),
+                pytest.lazy_fixture(
+                    "backup_generic_group_track_intf_simple_keepalived_data"
+                )
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "detailed_backup_track_intf_no_weight_simple_state"
+                ),
+                pytest.lazy_fixture(
+                    "backup_generic_group_track_intf_no_weight_simple" +
+                    "_keepalived_data"
+                )
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "detailed_backup_track_pathmon_simple_state"
+                ),
+                pytest.lazy_fixture(
+                    "backup_generic_group_track_pathmon_simple_keepalived_data"
+                )
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "detailed_backup_track_multiple_pathmon_simple_state"
+                ),
+                pytest.lazy_fixture(
+                    "backup_generic_group_multiple_track_pathmon_simple_" +
+                    "keepalived_data"
+                )
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "detailed_backup_track_route_simple_state"
+                ),
+                pytest.lazy_fixture(
+                    "backup_generic_group_track_route_simple_keepalived_data"
+                )
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "detailed_track_multiple_simple_state"
+                ),
+                pytest.lazy_fixture(
+                    "generic_group_track_multiple_simple_keepalived_data"
+                )
+            ),
+        ],
+        ids=[
+                "Simple keepalived data", "simple keepalived rfc data",
+                "Simple keepalived rfc sync data",
+                "Simple keepalived rfc ipao data",
+                "Simple keepalived backup data",
+                "Simple keepalived with start delay data",
+                "Simple keepalived with preempt delay data",
+                "Simple keepalived version 3 data",
+                "Complex keepalived backup track intf data",
+                "Complex keepalived backup track intf data no weight",
+                "Complex keepalived backup track pathmon data",
+                "Complex keepalived backup track multiple pathmon data",
+                "Complex keepalived backup track route data",
+                "Complex keepalived multiple tracked objects data"
+            ]
+    )
+    def test_convert_data_to_json(
+            self, fakes, json_data, file_content):
+        import vyatta.show_vrrp_cmds
+        result = vyatta.show_vrrp_cmds.convert_data_file_to_dict(
+                                                            file_content)
+        assert result == json_data
