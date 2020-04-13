@@ -56,7 +56,7 @@ sub sys_logger {
     my $LEVEL = "debug";
     my $TAG = "vyatta-vrrp";
     my $LOGCMD = "logger -t $TAG -p $FACILITY.$LEVEL";
-    system("$LOGCMD $msg");
+    system("$LOGCMD '$msg'.");
     return;
 }
 
