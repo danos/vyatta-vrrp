@@ -324,7 +324,7 @@ def find_config_value(
     line: str
     for line in config_list:
         regex_search: Optional[Match[str]] = \
-            re.match(f"^{search_term}(\s+|$)", line)
+            re.match(f"^{search_term}(\s+|$|:)", line)
         if regex_search is not None:
             regex_search = re.match(f"{search_term}\s+(.*)", line)
             if regex_search is not None:

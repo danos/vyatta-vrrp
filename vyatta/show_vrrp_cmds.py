@@ -457,7 +457,7 @@ def _convert_keepalived_data_to_yang(
     """
     """
 
-    instance_dict: Dict
+    instance_dict: Dict = {}
     key: str
     intf: str
     vrid: str
@@ -655,6 +655,144 @@ def convert_data_file_to_dict(data_string: str):
         else:
             sync = ""
         instance_dict = _convert_keepalived_data_to_yang(block, sync)
+
+        intf_name: str = instance_name.split("-")[1]
+        vif_number: str = ""
+        if "." in intf_name:
+            vif_sep: List[str] = intf_name.split(".")
+            intf_name = vif_sep[0]
+            vif_number = vif_sep[1]
+        interface_list: Dict[Any, Any] = yang_representation[util.INTERFACE_YANG_NAME]
+        # Find the interface type for the interface name, right now this
+        # is just a guess, there might be a better method of doing this
+        # than regexes
+        intf_type: str = util.intf_name_to_type(intf_name)[0]
+        if intf_type not in interface_list:
+            interface_list[intf_type] = []
+        interface_list = interface_list[intf_type]
+
+        # Hackery to find the reference to the interface this vrrp
+        # group should be added to.
+        insertion_reference: List[Dict] = util.find_interface_in_yang_repr(
+            intf_name, vif_number, interface_list)
+
+        insertion_reference[util.VRRP_YANG_NAME]["vrrp-group"].append(instance_dict)
+        del(insertion_reference[util.VRRP_YANG_NAME]["start-delay"])
+
+    return yang_representation
+
+def _convert_keepalived_stats_to_yang(
+        config_block: List[str]) -> Dict:
+    """
+    """
+
+    instance_dict: Dict = {}
+    key: str
+    intf: str
+    vrid: str
+
+    if config_block == []:
+        return instance_dict
+
+    instance_name = config_block[0].split("-")
+    intf = instance_name[1]
+    vrid = instance_name[2]
+    ADVERT_KEY: str = "Advertisements"
+    RECV_KEY: str = "Received"
+    SENT_KEY: str = "Sent"
+    BECOME_KEY: str = "Became master"
+    RELEASE_KEY: str = "Released master"
+    PACKET_KEY: str = "Packet errors"
+    LENGTH_KEY: str = "Length"
+    TTL_KEY: str = "TTL"
+    INVALID_TYPE_KEY: str = "Invalid type"
+    ADVERT_INTERVAL_KEY: str = "Advertisement interval"
+    ADDRESS_LIST_KEY: str = "Address list"
+    AUTH_ERROR_KEY: str = "Authentication errors"
+    TYPE_MISMATCH_KEY: str = "Type mismatch"
+    FAILURE_KEY: str = "Failure"
+    PZERO_SEARCH_STR: str = "Priority zero"
+    PZERO_KEY: str = f"{PZERO_SEARCH_STR} {ADVERT_KEY.casefold()}"
+
+    instance_dict = \
+        {
+            ADVERT_KEY: {
+                RECV_KEY: "",
+                SENT_KEY: ""
+            },
+            BECOME_KEY: "",
+            RELEASE_KEY: "",
+            PACKET_KEY: {
+                LENGTH_KEY: "",
+                TTL_KEY: "",
+                INVALID_TYPE_KEY: "",
+                ADVERT_INTERVAL_KEY: "",
+                ADDRESS_LIST_KEY: ""
+            },
+            AUTH_ERROR_KEY: {
+                INVALID_TYPE_KEY: "",
+                TYPE_MISMATCH_KEY: "",
+                FAILURE_KEY: 0
+            },
+            PZERO_KEY: {
+                RECV_KEY: "",
+                SENT_KEY: ""
+            }
+        }
+
+    # Single line config code
+    config_index: int = 0
+    value: List[str]
+    while config_index < len(config_block):
+        line: str = config_block[config_index].casefold()
+        if ADVERT_KEY.casefold() in line:
+            for key in instance_dict[ADVERT_KEY]:
+                config_index += 1
+                value = config_block[config_index].split()
+                instance_dict[ADVERT_KEY][key] = value[-1]
+        elif BECOME_KEY.casefold() in line:
+            value = config_block[config_index].split()
+            instance_dict[BECOME_KEY] = value[-1]
+        elif RELEASE_KEY.casefold() in line:
+            value = config_block[config_index].split()
+            instance_dict[RELEASE_KEY] = value[-1]
+        elif PACKET_KEY.casefold() in line:
+            for key in instance_dict[PACKET_KEY]:
+                config_index += 1
+                value = config_block[config_index].split()
+                instance_dict[PACKET_KEY][key] = value[-1]
+        elif AUTH_ERROR_KEY.casefold() in line:
+            for key in instance_dict[AUTH_ERROR_KEY]:
+                config_index += 1
+                value = config_block[config_index].split()
+                instance_dict[AUTH_ERROR_KEY][key] = value[-1]
+        elif PZERO_SEARCH_STR.casefold() in line:
+            for key in instance_dict[PZERO_KEY]:
+                config_index += 1
+                value = config_block[config_index].split()
+                instance_dict[PZERO_KEY][key] = value[-1]
+        config_index += 1
+
+    return {"stats": instance_dict, "tagnode": int(vrid)}
+
+def convert_stats_file_to_dict(data_string: str):
+    data_dict: dict
+    config_indexes: List[int]
+    config_blocks: List[List[str]]
+    data_list: List[str]
+
+    yang_representation: Dict[str, Dict] = {
+        util.INTERFACE_YANG_NAME: {}
+    }
+    data_list = data_string.split("\n")
+    config_indexes = util.get_config_indexes(data_list, "VRRP Instance")
+    config_blocks = util.get_config_blocks(data_list, config_indexes)
+
+    for block in config_blocks:
+        instance_tokens: List[str] = block[0].split()
+        instance_name: str = instance_tokens[-1]
+
+        instance_dict = _convert_keepalived_stats_to_yang(block)
 
         intf_name: str = instance_name.split("-")[1]
         vif_number: str = ""
