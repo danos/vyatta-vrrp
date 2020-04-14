@@ -481,3 +481,23 @@ class TestVyattaShowVrrp:
         result = vyatta.show_vrrp_cmds.convert_data_file_to_dict(
                                                             file_content)
         assert result == json_data
+
+    @pytest.mark.parametrize(
+        "fakes,json_data,file_content",
+        [
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("generic_group_complete_stats_dict"),
+                pytest.lazy_fixture("generic_group_keepalived_stats")
+            ),
+        ],
+        ids=[
+                "Simple keepalived data"
+            ]
+    )
+    def test_convert_stats_to_json(
+            self, fakes, json_data, file_content):
+        import vyatta.show_vrrp_cmds
+        result = vyatta.show_vrrp_cmds.convert_stats_file_to_dict(
+                                                            file_content)
+        assert result == json_data
