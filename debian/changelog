@@ -1,3 +1,9 @@
+vyatta-vrrp (2.23) unstable; urgency=medium
+
+  * Deprecate run-transition-scripts subtree
+
+ -- Anthony Dempsey <anthony.dempsey@intl.att.com>  Wed, 15 Apr 2020 10:36:34 +0100
+
 vyatta-vrrp (2.22) unstable; urgency=medium
 
   * Bugfix/Remove undefined subroutine call
