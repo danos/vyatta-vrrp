@@ -10,7 +10,7 @@ import time
 
 import vyatta.keepalived.util as util
 
-""" Show vrrp summary helpers """
+""" Show VRRP summary helpers. """
 SHOW_SUMMARY_HEADER_LINE_1: List[str] = \
     ["", "", "", "RFC", "Addr", "Last", "Sync"]
 SHOW_SUMMARY_HEADER_LINE_2: List[str] = \
@@ -22,7 +22,7 @@ SHOW_SUMMARY_HEADER_LINE_3: List[str] = \
 def show_summary_line_format(values: List[str]) -> str:
     return f"{values[0]:<18s}{values[1]:<7s}{values[2]:<8s}{values[3]:<11s}{values[4]:<7s}{values[5]:<12s}{values[6]}\n"
 
-""" Show vrrp detail helpers """
+""" Show VRRP detail helpers. """
 SHOW_DETAIL_DIVIDER: str = \
     "--------------------------------------------------\n"
 SHOW_DETAIL_INTF_DIVIDER: str=  "--------------\n"
@@ -38,7 +38,7 @@ def show_detail_tracked_format(line: List[str]) -> str:
 def show_detail_tracked_pmon_format(line: List[str]) -> str:
     return f"      {line[0]}  {line[1]}  {line[2]}\n"
 
-""" Show vrrp statistics helpers """
+""" Show VRRP statistics helpers. """
 def show_stats_header_format(line: List[str]) -> str:
     return f"  {line[0]}\n"
 def show_stats_header_and_value_format(line: List[str]) -> str:
@@ -46,7 +46,7 @@ def show_stats_header_and_value_format(line: List[str]) -> str:
 def show_stats_line_format(line: List[str]) -> str:
     return f"    {line[0]:<28s}{line[1]:<s}\n"
 
-""" Show vrrp sync helpers """
+""" Show VRRP sync helpers """
 def show_sync_group_name(group: str) -> str:
     return f"Group: {group}\n"
 SHOW_SYNC_GROUP_DIVIDER: str = SHOW_DETAIL_GROUP_DIVIDER[3:]
@@ -55,9 +55,60 @@ def show_sync_group_state_format(state: str) -> str:
 def show_sync_group_members_format(line: List[str]) -> str:
     return f"    Interface: {line[0]}, Group: {line[1]}\n"
 
-""" Functions to convert JSON/yang into show output"""
+""" Functions to convert JSON/yang into show output. """
 
 def show_vrrp_summary(state_dict: Dict) -> str:
+    """
+    Convert a YANG like python dictionary into the "show vrrp" string representation.
+    This is done by running over the state_dict and for every VRRP group calling
+    show_summary_line_format() with a list of the values in the group's instance-state
+    dictionary.
+
+    Arguments:
+        state_dict a python dictionary of the following format:
+        {
+            "vyatta-interfaces-v1:interfaces":{
+                "vyatta-interfaces-dataplane-v1:dataplane":
+                    [
+                        {
+                            "tagnode":"dp0p1s1",
+                            "vyatta-vrrp-v1:vrrp": {
+                                "start-delay": 0,
+                                "vrrp-group":[
+                                    {
+                                        "tagnode":1,
+                                        "instance-state":
+                                            {
+                                                "address-owner": False,
+                                                "last-transition": 0,
+                                                "rfc-interface": "",
+                                                "state": "MASTER",
+                                                "sync-group": "",
+                                            },
+                                        "accept":false,
+                                        "preempt":true,
+                                        "version":2,
+                                        "virtual-address":["10.10.1.100/25"]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+        }
+    Returns:
+        A string representing the show output:
+                                         RFC        Addr   Last        Sync
+        Interface         Group  State   Compliant  Owner  Transition  Group
+        ---------         -----  -----   ---------  -----  ----------  -----
+        dp0p1s1           1      MASTER  no         no     3s          <none>
+
+    N.B.
+    The yang format passed to this function is taken directly from the state calls 
+    from the VCI component, not from the keepalived.data file conversion (both should
+    hold the same data).
+    """
+
     output: str = "\n"
     output += show_summary_line_format(SHOW_SUMMARY_HEADER_LINE_1)
     output += show_summary_line_format(SHOW_SUMMARY_HEADER_LINE_2)
@@ -106,6 +157,82 @@ def show_vrrp_detail(
         state_dict: Dict,
         filter_intf: str = "",
         filter_grp: str = "") -> str:
+    """
+    Convert a YANG like python dictionary into the "show vrrp detail" string
+    representation.
+    This is done by running over the state_dict, and for every VRRP group calling
+    the show_detail_*() functions on the relevant value in the group's instance-state
+    dictionary.
+
+    Arguments:
+        state_dict: a python dictionary containing full state information.
+        {
+            "vyatta-interfaces-v1:interfaces":{
+                "vyatta-interfaces-dataplane-v1:dataplane":
+                    [
+                        {
+                            "tagnode":"dp0p1s1",
+                            "vyatta-vrrp-v1:vrrp": {
+                                "vrrp-group":[
+                                    {
+                                        "tagnode":1,
+                                        "instance-state":
+                                            {
+                                                "address-owner": False,
+                                                "last-transition": 0,
+                                                "rfc-interface": "",
+                                                "state": "MASTER",
+                                                "sync-group": "",
+                                                "version": 2,
+                                                "src-ip": "10.10.1.1",
+                                                "base-priority": 100,
+                                                "effective-priority": 100,
+                                                "advert-interval": "2 sec",
+                                                "accept": True,
+                                                "preempt": True,
+                                                "auth-type": None,
+                                                "virtual-ips": [
+                                                    "10.10.1.100/32"
+                                                ]
+                                            }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+        }
+        filter_intf: A string to filter the output down to.
+        filter_grp:
+            A string to filter the output down to
+            (must also be called with a filter_intf).
+    Returns:
+        A string for the "show vrrp detail" call of similar format to:
+        --------------------------------------------------
+        Interface: dp0p1s1
+        --------------
+          Group: 1
+          ----------
+          State:                        MASTER
+          Last transition:              3s
+
+          Version:                      2
+          Configured Priority:          100
+          Effective Priority:           100
+          Advertisement interval:       2 sec
+          Authentication type:          none
+          Preempt:                      enabled
+
+          VIP count:                    1
+            10.10.1.100/32
+
+    N.B.
+    The yang format passed to this function is converted from the keepalived.data
+    file by other functions and passed here to generate the show output.
+    If an interface or an interface and a group are passed to this function
+    then the output is filtered to just the requested information.
+    """
+
     output: str = "\n"
     output += SHOW_DETAIL_DIVIDER
     intf_type: str
@@ -285,6 +412,21 @@ def show_vrrp_interface(
         state_dict: Dict,
         filter_intf: str = "",
         filter_grp: str = "") -> str:
+    """
+    Function to be called from vyatta-show-vrrp.py to match the existing
+    "show vrrp interface" output. The output of "show vrrp interface" is the same
+    as "show vrrp detail" with filters applied.
+
+    Arguments:
+        state_dict: a python dictionary containing full state information.
+        filter_intf: A string to filter the output down to.
+        filter_grp:
+            A string to filter the output down to
+            (must also be called with a filter_intf).
+    Returns:
+        A string for the "show vrrp interface <intf> group <vrid>" call.
+    """
+
     output = show_vrrp_detail(state_dict, filter_intf, filter_grp)
     if output == f"\n{SHOW_DETAIL_DIVIDER}":
         output = f"VRRP is not running on {filter_intf}"
@@ -296,6 +438,76 @@ def show_vrrp_interface(
 
 
 def show_vrrp_sync(state_dict: Dict, specific: str = "") -> str:
+    """
+    Convert a YANG like python dictionary into the "show vrrp sync-group" string
+    representation.
+    This is done by running over the vyatta-vrrp-v1:vrrp/sync-groups list in the
+    state_dict and for every sync_group calling the show_sync_group_*() functions
+    on the relevant value in the sync-group's dictionary.
+
+    Arguments:
+        state_dict: a python dictionary containing full state information and sync
+                    group information.
+        {
+            "vyatta-interfaces-v1:interfaces":{
+                "vyatta-interfaces-dataplane-v1:dataplane":
+                    [
+                        {
+                            "tagnode":"dp0p1s1",
+                            "vyatta-vrrp-v1:vrrp": {
+                                "vrrp-group":[
+                                    {
+                                        "tagnode":1,
+                                        "instance-state":
+                                            {
+                                                "address-owner": False,
+                                                "last-transition": 0,
+                                                "rfc-interface": "",
+                                                "state": "MASTER",
+                                                "sync-group": "",
+                                            },
+                                        "accept":false,
+                                        "preempt":true,
+                                        "version":2,
+                                        "virtual-address":["10.10.1.100/25"]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+            "vyatta-vrrp-v1:vrrp":
+                {
+                    "sync-groups":
+                    [
+                        {
+                            "name": "TEST",
+                            "state": "MASTER",
+                            "members": [
+                                "vyatta-dp0p1s2-1",
+                                "vyatta-dp0p1s1-1"
+                            ]
+                        }
+                    ]
+                }
+        }
+        specific: The name of a specific sync-group, used to filter the output to that
+                  group
+    Returns:
+        A string for the "show vrrp sync" call of similar format to:
+        --------------------------------------------------
+        Group: TEST
+        ---------
+          State: MASTER
+          Monitoring:
+            Interface: dp0p1s1, Group: 1
+            Interface: dp0p1s2, Group: 1
+
+    N.B.
+    The yang format passed to this function is created from the same function that
+    reads the keepalived.data file as that's where the syncgroup information is held.
+    """
+
     output: str = "\n"+SHOW_DETAIL_DIVIDER
     if (util.VRRP_YANG_NAME in state_dict):
         sync_group: Dict
@@ -324,6 +536,99 @@ def show_vrrp_statistics(
         stats_dict: Dict,
         filter_intf: str = "",
         filter_grp: str = "") -> str:
+    """
+    Convert a YANG like python dictionary into the "show vrrp statistics" string
+    representation.
+    This is done by running over the stats_dict, and for every VRRP group calling
+    the show_stats_*() functions on the relevant value in the group's stats
+    dictionary.
+
+    Arguments:
+        stats_dict: a python dictionary containing full statistics information.
+        {
+            "vyatta-interfaces-v1:interfaces":{
+                "vyatta-interfaces-dataplane-v1:dataplane":
+                    [
+                        {
+                            "tagnode":"dp0p1s1",
+                            "vyatta-vrrp-v1:vrrp": {
+                                "vrrp-group":[
+                                    {
+                                        "tagnode":1,
+                                        "stats": {
+                                            "Advertisements": {
+                                                "Received": "0",
+                                                "Sent": "615"
+                                            },
+                                            "Became master": "1",
+                                            "Released master": "0",
+                                            "Packet errors": {
+                                                "Length": "0",
+                                                "TTL": "0",
+                                                "Invalid type": "0",
+                                                "Advertisement interval": "0",
+                                                "Address list": "0"
+                                            },
+                                            "Authentication errors": {
+                                                "Invalid type": "0",
+                                                "Type mismatch": "0",
+                                                "Failure": "0"
+                                            },
+                                            "Priority zero advertisements": {
+                                                "Received": "0",
+                                                "Sent": "0"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+        }
+        filter_intf: A string to filter the output down to.
+        filter_grp:
+            A string to filter the output down to
+            (must also be called with a filter_intf).
+    Returns:
+        A string for the "show vrrp statistics" call of similar format to:
+        --------------------------------------------------
+        Interface: dp0p1s1
+            --------------
+              Group: 1
+              ----------
+              Advertisements:
+                Received:                   0
+                Sent:                       615
+
+              Became master:                1
+              Released master:              0
+
+              Packet errors:
+                Length:                     0
+                TTL:                        0
+                Invalid type:               0
+                Advertisement interval:     0
+                Address list:               0
+
+              Authentication errors:
+                Invalid type:               0
+                Type mismatch:              0
+                Failure:                    0
+
+              Priority zero advertisements:
+                Received:                   0
+                Sent:                       0
+
+    N.B.
+    The yang format passed to this function is created from the keepalived.stats file
+    The show output has been tidied up to be more consistent, some entries from the
+    legacy implementation would have all first letters capitalised some would have
+    only the first.
+    The stats can be filtered in a similar way to show vrrp detail, on interface
+    or on interface and group.
+    """
+
     output: str = "\n"
     output += SHOW_DETAIL_DIVIDER
     intf_type: str
@@ -369,6 +674,20 @@ def show_vrrp_statistics_filters(
         stats_dict: Dict,
         filter_intf: str = "",
         filter_grp: str = "") -> str:
+    """
+    Filter function to keep the same output for stats filtering as the legacy
+    implementation.
+
+    Arguments:
+        stats_dict: a python dictionary containing full statistics information.
+        filter_intf: A string to filter the output down to.
+        filter_grp:
+            A string to filter the output down to
+            (must also be called with a filter_intf).
+    Returns:
+        A string for the "show vrrp statistics interface <intf> group <vrid>" call.
+    """
+
     output = show_vrrp_statistics(stats_dict, filter_intf, filter_grp)
     if output == f"\n{SHOW_DETAIL_DIVIDER}":
         output = f"VRRP is not running on {filter_intf}"
@@ -384,6 +703,85 @@ def _get_end_of_tracking_config(
         config_block: List[str],
         last_config_index: int,
         interface_block: bool) -> int:
+    """
+    Find the last index of the current tracked object type so we know where to stop
+    processing this type of tracked object
+
+    Arguments:
+        config_block: A list of strings denoting a block of tracking config
+        last_config_index:
+            The index of the start of the last object in the config_block
+        interface_block: Is this block of config a for a tracked interface
+
+    Returns:
+        last_config_index:
+            The index of the last line of config for this tracked object
+
+    N.B.
+    Tracked object blocks are mostly similar information but not completely
+
+    Tracked interfaces have a config block as follows (white space is correct):
+        ------< NIC >------
+    Name = dp0s2
+    index = 5
+    IPv4 address = 192.168.252.107
+    IPv6 address = fe80::4060:2ff:fe00:2
+    MAC = 42:60:02:00:00:02
+    is UP
+    is RUNNING
+    weight = -10
+    MTU = 1500
+    HW Type = ETHERNET
+    Enabling NIC ioctl refresh polling
+     - or -
+        ------< NIC >------
+    Name = dp0s2
+    index = 5
+    IPv4 address = 192.168.252.107
+    IPv6 address = fe80::4060:2ff:fe00:2
+    MAC = 42:60:02:00:00:02
+    is UP
+    is RUNNING
+    MTU = 1500
+    HW Type = ETHERNET
+    Enabling NIC ioctl refresh polling
+
+    Tracked path monitor objects can have the following format:
+       Monitor = test_monitor
+       Policy = test_policy
+       Weight = 10
+       Status = COMPLIANT
+     - or -
+       Monitor = test_monitor
+       Policy = test_policy
+       Status = COMPLIANT
+
+    Tracked route objects can have the following format:
+       Network = 10.10.10.0
+       Prefix = 24
+       Status = DOWN
+       Weight = 10
+     - or -
+       Network = 10.10.10.0
+       Prefix = 24
+       Status = DOWN
+
+    This lack of conformity between outputs can be frustrating when trying to figure
+    out where one tracked object starts and another finishes.
+    Each block of config for a tracked object starts with a guaranteed string,
+    finding every index in a list of strings that match this start line and then
+    walking forward from the last of these indexes gives us where each set of configs
+    for a tracked object type ends.
+    This function is used to get around the complexity by returning the last line in
+    the tracking config of the overall config.
+    It does this by counting from the index where the last
+    tracked object config starts until it finds either "Status", "Weight", or
+    "Enabling" and returning this index to the caller.
+
+    This layout of tracked data should be looked at as a future bugfix to make sure all
+    objects have the same data layout. (See VRVDR-50678)
+    """
+
     while True:
         last_config_index += 1
         line = config_block[last_config_index]
@@ -401,6 +799,27 @@ def _get_end_of_tracking_config(
     return last_config_index
 
 def _convert_track_block_to_yang(config_block: List[str]) -> Dict[str, str]:
+    """
+    Given a list of strings that maps to a single tracked object convert it from
+    the list of strings into a yang like dictionary containing only the relevant
+    information.
+
+    Arguments:
+        config_block: A list of strings denoting a block of tracking config e.g.
+            ["------< NIC >------", "Name = dp0p1s1 "index = 7",
+             "IPv4 address = 10.10.1.2", "IPv6 address = fe80::40a0:2ff:fee8:101",
+             "MAC = 42:a0:02:e8:01:01", "is UP",
+             "is RUNNING", "weight = 10", "MTU = 1500", "HW Type = ETHERNET",
+             "Enabling NIC ioctl refresh polling"]
+    Returns:
+        tracked_obj:
+            A Dictionary containing the relevant tracked object information e.g.
+            {
+                "name": "dp0p1s1", "state": "UP",
+                "weight": "10"
+            }
+    """
+
     tracked_obj: Dict[str, str] = {}
     for line in config_block:
         config_value = line.split()[-1]
@@ -420,6 +839,69 @@ def _convert_tracked_type_to_yang(
         end_of_config: int,
         offset: int,
         tracked_monitor_list: List[Any] = []) -> List[Any]:
+    """
+    Generic function for converting tracked object config strings into YANG like
+    dictionaries for further processing.
+
+    Arguments:
+        config_block: List of strings for the VRRP group (contains all information).
+        block_indexes:
+            List of indexes that denotes the start of a tracked object of the
+            current type.
+        end_of_config:
+            The index in config_block that is the last line of the last tracked
+            object of the current type.
+        offset:
+            How far from the specific block_indexes value to start converting from
+            (see N.B.).
+        tracked_monitor_list:
+            List of dictionaries containing the preprocessed monitor values (see N.B.).
+
+    Returns:
+        tracked_object_list:
+            A list of dictionary objects containing the useful tracked object
+            information relevant to the show commands.
+
+    N.B.
+    All of the tracked objects have similar data dictionaries, with some very slight
+    differences. The layout of interface and route objects are the same.
+    interface:
+        {
+            "name": "dp0p1s1", "state": "UP",
+            "weight": "10"
+        }
+    route:
+        {
+            "name": "10.10.10.0/24", "state": "DOWN",
+            "weight": "10"
+        }
+    Path monitor is slightly different as the a monitor and a policy are intrinsically
+    linked as a monitor can have many policies. The following is two tracked objects
+        {
+            "name": "test_monitor",
+            "policies": [
+                {
+                    "name": "test_policy",
+                    "state": "COMPLIANT",
+                    "weight": "10"
+                },
+                {
+                    "name": "test_nonpolicy",
+                    "state": "COMPLIANT",
+                }
+            ]
+        }
+    But the inner dictionaries match the other two object types, so the same
+    functionality can be used for those objects.
+
+    The offset argument is required because interface objects config block starts with
+    "------< NIC >------", path monitor config blocks start with the monitor name
+    but this has already been processed and we're interested only in policy names,
+    and the route objects config starts with the Network which we are interested in.
+
+    Again, this should be improved in another ticket.
+    """
+
     tracked_object_list: List[Any] = []
     for tracked_index in block_indexes:
         if tracked_monitor_list != []:
@@ -442,6 +924,21 @@ def _convert_tracked_type_to_yang(
 
 def _prepopulate_pmon_tracking_list(config_block: List[str],
         block_indexes: List[int]) -> List[Dict[Any, Any]]:
+    """
+    Preprocess the monitor dictionaries with empty policy lists.
+    This is used in _convert_tracked_type_to_yang
+
+    Arguments:
+        config_block: A list of strings denoting a block of tracking config.
+        block_indexes:
+            List of indexes that denotes the start of a tracked path monitor object.
+
+    Returns:
+        monitor_list:
+            A list of dictionaries containing the monitor name and an empty list
+            of policies.
+    """
+
     monitor_names: List[str] = []
     monitor_list: List[Dict[Any, Any]] = []
     for tracked_index in block_indexes:
@@ -455,6 +952,23 @@ def _prepopulate_pmon_tracking_list(config_block: List[str],
 def _convert_keepalived_data_to_yang(
         config_block: List[str], sync: str) -> Dict:
     """
+    Given a list of strings representing the state of a VRRP group convert this
+    information into a dictionary to be added to a yang representation.
+
+    Arguments:
+        config_block: A list of strings denoting the data for a single VRRP group.
+        sync: The empty string of the name of the sync-group this VRRP is part of.
+
+    Returns:
+        instance_dict:
+            Formatted values from the data file for a single VRRP group.
+
+    N.B.
+    Mapping between data string and dictionary key is done using
+    util.find_config_value() that takes the current dictionary value for the key
+    and attempts to find that in the list of strings. If it's found the value of
+    that data item overwrites the value in the dictionary for that key. Tracked
+    objects are their own special cases that are dealt with elsewhere in this file.
     """
 
     instance_dict: Dict = {}
@@ -464,7 +978,7 @@ def _convert_keepalived_data_to_yang(
     instance_name: List[str]
 
     if config_block == []:
-            return instance_dict
+        return instance_dict
 
     instance_name = config_block[0].split("-")
     intf = instance_name[1]
@@ -593,11 +1107,166 @@ def _convert_keepalived_data_to_yang(
     instance_dict = \
             {key: val for key, val in instance_dict.items() if val != "NOTFOUND"}
 
-    #instance_dict = \
-    #    {key: instance_dict[key] for key in sorted(instance_dict.keys())}
     return {"instance-state": instance_dict, "tagnode": vrid}
 
 def convert_data_file_to_dict(data_string: str):
+    """
+    Convert a string from the data file into the full yang representation required
+    for show outputs of "show vrrp detail", "show vrrp interfaces", and
+    "show vrrp sync"
+
+    Arguments:
+        data_string: A string obtained from /tmp/keepalived.data
+    Returns:
+        A python dictionary in a similar format to the YANG representation of VRRP
+        groups.
+
+    Detailed conversion notes and process.
+    From:
+    ------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s1-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:00 1970)
+   Listening device = dp0p1s1
+   Transmitting device = dp0p1s1
+   Using src_ip = 10.10.1.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 50
+   Effective priority = 70
+   Address owner = no
+   Advert interval = 2 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Tracked interfaces = 1
+------< NIC >------
+ Name = dp0p1s1
+ index = 7
+ IPv4 address = 10.10.1.2
+ IPv6 address = fe80::40a0:2ff:fee8:101
+ MAC = 42:a0:02:e8:01:01
+ is UP
+ is RUNNING
+ weight = 10
+ MTU = 1500
+ HW Type = ETHERNET
+ Enabling NIC ioctl refresh polling
+   Tracked path-monitors = 2
+   Monitor = test_monitor
+   Policy = test_policy
+   Weight = 10
+   Status = COMPLIANT
+   Monitor = test_monitor
+   Policy = test_nonpolicy
+   Status = COMPLIANT
+   Tracked routes = 1
+   Network = 10.10.10.0
+   Prefix = 24
+   Status = DOWN
+   Weight = 10
+   Virtual IP = 1
+     10.10.1.100/24 dev dp0p1s1 scope global
+
+    To:
+        {
+        "vyatta-interfaces-v1:interfaces":{
+            "vyatta-interfaces-dataplane-v1:dataplane":
+                [
+                    {
+                        "tagnode":"dp0p1s1",
+                        "vyatta-vrrp-v1:vrrp": {
+                            "start-delay": 0,
+                            "vrrp-group":[
+                                {
+                                    "instance-state":
+                                    {
+                                        "address-owner": False,
+                                        "last-transition": 0,
+                                        "rfc-interface": "",
+                                        "state": "MASTER",
+                                        "sync-group": "",
+                                        "version": 2,
+                                        "src-ip": "10.10.1.1",
+                                        "base-priority": 50,
+                                        "effective-priority": 70,
+                                        "advert-interval": "2 sec",
+                                        "accept": True,
+                                        "preempt": True,
+                                        "auth-type": None,
+                                        "track": {
+                                            "interface": [
+                                                {
+                                                    "name": "dp0p1s1", "state": "UP",
+                                                    "weight": "10"
+                                                }
+                                            ],
+                                            "monitor": [
+                                                {
+                                                    "name": "test_monitor",
+                                                    "policies": [
+                                                        {
+                                                            "name": "test_policy",
+                                                            "state": "COMPLIANT",
+                                                            "weight": "10"
+                                                        },
+                                                        {
+                                                            "name": "test_nonpolicy",
+                                                            "state": "COMPLIANT",
+                                                        }
+                                                    ]
+                                                }
+                                            ],
+                                            "route": [
+                                                {
+                                                    "name": "10.10.10.0/24",
+                                                    "state": "DOWN",
+                                                    "weight": "10"
+                                                }
+                                            ]
+                                        },
+                                        "virtual-ips": [
+                                            "10.10.1.100/24"
+                                        ]
+                                    },
+                                    "tagnode": "1"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+
+    This function follows a similar flow as convert_to_vci_format_dict() from
+    vyatta/keepalived/config_file.py. Builds up a python dictionary from a text file
+    by:
+        1) Create a list of strings by splitting the file string on newlines (data_list).
+        2) Finds every index of "VRRP Instance" in the list of strings (config_indexes).
+        3) Using these indexes creates List of strings that logically relate to a 
+           single VRRP group (config_blocks).
+        4) Determines if there are any sync-groups in the config by:
+            a) Searches for instances of "VRRP Sync Group" in the data_list.
+            b) Processes any of these groups adding a dictionary of them to the
+               representation for the "show vrrp sync" output.
+            c) Stores the name of sync-group in a dictionary with the VRRP instance
+               name as the key.
+        5) Processes individual blocks of config from config_blocks converting them
+           from a list of strings to a dictionary format. If the name of the VRRP
+           instance in the config block is found in the sync-group dictionary this is
+           passed to the conversion function as well.
+        6) Inserts the data dictionary into the yang representation.
+        7) Returns the full representation.
+    """
+
     data_dict: dict
     config_indexes: List[int]
     config_blocks: List[List[str]]
@@ -671,7 +1340,7 @@ def convert_data_file_to_dict(data_string: str):
             interface_list[intf_type] = []
         interface_list = interface_list[intf_type]
 
-        # Hackery to find the reference to the interface this vrrp
+        # Hackery to find the reference to the interface this VRRP
         # group should be added to.
         insertion_reference: List[Dict] = util.find_interface_in_yang_repr(
             intf_name, vif_number, interface_list)
@@ -684,6 +1353,15 @@ def convert_data_file_to_dict(data_string: str):
 def _convert_keepalived_stats_to_yang(
         config_block: List[str]) -> Dict:
     """
+    Given a list of strings representing the statistics of a VRRP group convert this
+    information into a dictionary to be added to a yang representation.
+
+    Arguments:
+        config_block: A list of strings denoting the stats for a single VRRP group.
+
+    Returns:
+        instance_dict:
+            Formatted values from the stats file for a single VRRP group.
     """
 
     instance_dict: Dict = {}
@@ -776,6 +1454,95 @@ def _convert_keepalived_stats_to_yang(
     return {"stats": instance_dict, "tagnode": int(vrid)}
 
 def convert_stats_file_to_dict(data_string: str):
+    """
+    Convert a string from the data file into the full yang representation required
+    for show outputs of "show vrrp detail", "show vrrp interfaces", and
+    "show vrrp sync"
+
+    Arguments:
+        data_string: A string obtained from /tmp/keepalived.data
+    Returns:
+        A python dictionary in a similar format to the YANG representation of VRRP
+        groups.
+
+    Detailed conversion notes and process.
+    From:
+VRRP Instance: vyatta-dp0p1s1-1
+  Advertisements:
+    Received: 0
+    Sent: 615
+  Became master: 1
+  Released master: 0
+  Packet Errors:
+    Length: 0
+    TTL: 0
+    Invalid Type: 0
+    Advertisement Interval: 0
+    Address List: 0
+  Authentication Errors:
+    Invalid Type: 0
+    Type Mismatch: 0
+    Failure: 0
+  Priority Zero:
+    Received: 0
+    Sent: 0
+
+    To:
+        {
+        "vyatta-interfaces-v1:interfaces":{
+            "vyatta-interfaces-dataplane-v1:dataplane":
+                [
+                    {
+                        "tagnode":"dp0p1s1",
+                        "vyatta-vrrp-v1:vrrp": {
+                            "vrrp-group":[
+                                {
+                                    "tagnode": 1,
+                                    "stats": {
+                                        "Advertisements": {
+                                            "Received": "0",
+                                            "Sent": "615"
+                                        },
+                                        "Became master": "1",
+                                        "Released master": "0",
+                                        "Packet errors": {
+                                            "Length": "0",
+                                            "TTL": "0",
+                                            "Invalid type": "0",
+                                            "Advertisement interval": "0",
+                                            "Address list": "0"
+                                        },
+                                        "Authentication errors": {
+                                            "Invalid type": "0",
+                                            "Type mismatch": "0",
+                                            "Failure": "0"
+                                        },
+                                        "Priority zero advertisements": {
+                                            "Received": "0",
+                                            "Sent": "0"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+
+    This function follows a similar flow as convert_to_vci_format_dict() from
+    vyatta/keepalived/config_file.py. Builds up a python dictionary from a text file
+    by:
+        1) Create a list of strings by splitting the file string on newlines (data_list).
+        2) Finds every index of "VRRP Instance" in the list of strings (config_indexes).
+        3) Using these indexes creates List of strings that logically relate to a
+           single VRRP group (config_blocks).
+        4) Processes individual blocks of stats from config_blocks converting them
+           from a list of strings to a dictionary format.
+        5) Inserts the data dictionary into the yang representation.
+        6) Returns the full representation.
+    """
+
     data_dict: dict
     config_indexes: List[int]
     config_blocks: List[List[str]]
@@ -809,7 +1576,7 @@ def convert_stats_file_to_dict(data_string: str):
             interface_list[intf_type] = []
         interface_list = interface_list[intf_type]
 
-        # Hackery to find the reference to the interface this vrrp
+        # Hackery to find the reference to the interface this VRRP
         # group should be added to.
         insertion_reference: List[Dict] = util.find_interface_in_yang_repr(
             intf_name, vif_number, interface_list)
