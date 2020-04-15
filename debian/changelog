@@ -1,3 +1,10 @@
+vyatta-vrrp (2.24) unstable; urgency=medium
+
+  * Bugfix/Logging syntax error with () in strings
+  * Bugfix/Add dependency on vyatta python2 package
+
+ -- Anthony Dempsey <anthony.dempsey@intl.att.com>  Wed, 15 Apr 2020 15:42:15 +0100
+
 vyatta-vrrp (2.23) unstable; urgency=medium
 
   * Deprecate run-transition-scripts subtree
