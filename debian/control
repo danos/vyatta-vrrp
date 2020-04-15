@@ -29,6 +29,7 @@ Depends:
  python-dbus,
  python-gi,
  python-pydbus,
+ python-vyatta-cfgclient,
  vyatta-cfg (>= 0.99.83),
  vyatta-interfaces (>= 0.5),
  vyatta-op-network,
