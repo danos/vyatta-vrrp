@@ -745,6 +745,63 @@ def backup_generic_group_simple_keepalived_data():
 
 
 @pytest.fixture
+def multiple_group_simple_keepalived_data():
+    return """
+------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s2-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:00 1970)
+   Listening device = dp0p1s2
+   Transmitting device = dp0vrrp1
+   Using src_ip = 10.10.1.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 100
+   Effective priority = 255
+   Address owner = yes
+   Advert interval = 2 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.1.100/32 dev dp0vrrp1 scope global
+ VRRP Instance = vyatta-dp0p1s2-42
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:00 1970)
+   Listening device = dp0p1s2
+   Transmitting device = dp0p1s2
+   Using src_ip = 10.10.1.2
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 42
+   Base priority = 100
+   Effective priority = 100
+   Address owner = no
+   Advert interval = 2 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     2.2.2.100/32 dev dp0p1s2 scope global
+    """
+
+
+@pytest.fixture
 def detailed_backup_generic_group_show_detail():
     return """
 --------------------------------------------------
@@ -981,7 +1038,7 @@ Interface: dp0p1s1
   Preempt:                      enabled
 
   Tracked Interfaces count:     1
-    dp0s2   state UP      
+    dp0s2   state UP
   VIP count:                    1
     10.10.1.100/24
 
@@ -1389,7 +1446,7 @@ def generic_group_track_multiple_simple_keepalived_data():
    Preempt = enabled
    Promote_secondaries = disabled
    Authentication type = none
-   Tracked interfaces = 1
+   Tracked interfaces = 2
 ------< NIC >------
  Name = dp0p1s1
  index = 7
@@ -1402,6 +1459,17 @@ def generic_group_track_multiple_simple_keepalived_data():
  MTU = 1500
  HW Type = ETHERNET
  Enabling NIC ioctl refresh polling
+------< NIC >------
+ Name = dp0s2
+ index = 5
+ IPv4 address = 192.168.252.107
+ IPv6 address = fe80::4060:2ff:fe00:2
+ MAC = 42:60:02:00:00:02
+ is UP
+ is RUNNING
+ MTU = 1500
+ HW Type = ETHERNET
+ Enabling NIC ioctl refresh polling
    Tracked path-monitors = 2
    Monitor = test_monitor
    Policy = test_policy
@@ -1410,11 +1478,14 @@ def generic_group_track_multiple_simple_keepalived_data():
    Monitor = test_monitor
    Policy = test_nonpolicy
    Status = COMPLIANT
-   Tracked routes = 1
+   Tracked routes = 2
    Network = 10.10.10.0
    Prefix = 24
    Status = DOWN
    Weight = 10
+   Network = 11.11.11.0
+   Prefix = 24
+   Status = UP
    Virtual IP = 1
      10.10.1.100/24 dev dp0p1s1 scope global
     """
@@ -1438,14 +1509,16 @@ Interface: dp0p1s1
   Authentication type:          none
   Preempt:                      enabled
 
-  Tracked Interfaces count:     1
+  Tracked Interfaces count:     2
     dp0p1s1   state UP      weight 10
+    dp0s2   state UP
   Tracked Path Monitor count:   2
     test_monitor
       test_nonpolicy  COMPLIANT
       test_policy  COMPLIANT  weight 10
-  Tracked routes count:         1
+  Tracked routes count:         2
     10.10.10.0/24   state DOWN      weight 10
+    11.11.11.0/24   state UP
   VIP count:                    1
     10.10.1.100/24
 
@@ -1476,6 +1549,9 @@ def detailed_track_multiple_simple_keepalived_state():
                         {
                             "name": "dp0p1s1", "state": "UP",
                             "weight": "10"
+                        },
+                        {
+                            "name": "dp0s2", "state": "UP"
                         }
                     ],
                     "monitor": [
@@ -1499,6 +1575,10 @@ def detailed_track_multiple_simple_keepalived_state():
                             "name": "10.10.10.0/24",
                             "state": "DOWN",
                             "weight": "10"
+                        },
+                        {
+                            "name": "11.11.11.0/24",
+                            "state": "UP"
                         }
                     ]
                 },
@@ -1771,6 +1851,31 @@ Interface: dp0p1s1
 def sync_group_simple_keepalived_data():
     return """
 ------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s1-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:03 1970)
+   Listening device = dp0p1s1
+   Transmitting device = dp0p1s1
+   Using src_ip = 10.10.1.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 200
+   Effective priority = 200
+   Address owner = no
+   Advert interval = 1 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.1.100/32 dev dp0p1s1 scope global
  VRRP Instance = vyatta-dp0p1s2-1
  VRRP Version = 2
    State = MASTER
@@ -1796,31 +1901,6 @@ def sync_group_simple_keepalived_data():
    Authentication type = none
    Virtual IP = 1
      10.10.2.100/32 dev dp0p1s2 scope global
- VRRP Instance = vyatta-dp0p1s3-1
- VRRP Version = 2
-   State = MASTER
-   Last transition = 0 (Thur Jan 1 00:00:03 1970)
-   Listening device = dp0p1s3
-   Transmitting device = dp0p1s3
-   Using src_ip = 10.10.3.1
-   Gratuitous ARP delay = 5
-   Gratuitous ARP repeat = 5
-   Gratuitous ARP refresh = 0
-   Gratuitous ARP refresh repeat = 1
-   Gratuitous ARP lower priority delay = 5
-   Gratuitous ARP lower priority repeat = 5
-   Send advert after receive lower priority advert = true
-   Virtual Router ID = 1
-   Base priority = 200
-   Effective priority = 200
-   Address owner = no
-   Advert interval = 1 sec
-   Accept = enabled
-   Preempt = enabled
-   Promote_secondaries = disabled
-   Authentication type = none
-   Virtual IP = 1
-     10.10.3.100/32 dev dp0p1s3 scope global
 ------< VRRP Sync groups >------
  VRRP Sync Group = TEST, MASTER
    monitor = vyatta-dp0p1s2-1
@@ -1955,6 +2035,121 @@ Interface: dp0p1s2
 
   VIP count:                    1
     10.10.2.100/32
+
+"""
+
+
+@pytest.fixture
+def multiple_sync_groups_simple_keepalived_data():
+    return """
+------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s1-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:03 1970)
+   Listening device = dp0p1s1
+   Transmitting device = dp0p1s1
+   Using src_ip = 10.10.1.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 200
+   Effective priority = 200
+   Address owner = no
+   Advert interval = 1 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.1.100/32 dev dp0p1s1 scope global
+ VRRP Instance = vyatta-dp0p1s2-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:03 1970)
+   Listening device = dp0p1s2
+   Transmitting device = dp0p1s2
+   Using src_ip = 10.10.2.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 200
+   Effective priority = 200
+   Address owner = no
+   Advert interval = 1 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.2.100/32 dev dp0p1s2 scope global
+ VRRP Instance = vyatta-dp0p1s3-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:03 1970)
+   Listening device = dp0p1s3
+   Transmitting device = dp0p1s3
+   Using src_ip = 10.10.3.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 200
+   Effective priority = 200
+   Address owner = no
+   Advert interval = 1 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.1.100/32 dev dp0p1s3 scope global
+ VRRP Instance = vyatta-dp0p1s4-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:03 1970)
+   Listening device = dp0p1s4
+   Transmitting device = dp0p1s4
+   Using src_ip = 10.10.4.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 200
+   Effective priority = 200
+   Address owner = no
+   Advert interval = 1 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.2.100/32 dev dp0p1s4 scope global
+------< VRRP Sync groups >------
+ VRRP Sync Group = TEST, MASTER
+   monitor = vyatta-dp0p1s2-1
+   monitor = vyatta-dp0p1s1-1
+ VRRP Sync Group = TESTV2, MASTER
+   monitor = vyatta-dp0p1s3-1
+   monitor = vyatta-dp0p1s4-1
 
 """
 
@@ -2325,25 +2520,6 @@ def second_intf_keepalived_stats_dict():
 @pytest.fixture
 def multiple_intf_keepalived_stats():
     return """
-VRRP Instance: vyatta-dp0p1s2-2
-  Advertisements:
-    Received: 50
-    Sent: 3305
-  Became master: 1
-  Released master: 1
-  Packet Errors:
-    Length: 0
-    TTL: 0
-    Invalid Type: 0
-    Advertisement Interval: 0
-    Address List: 0
-  Authentication Errors:
-    Invalid Type: 0
-    Type Mismatch: 0
-    Failure: 0
-  Priority Zero:
-    Received: 0
-    Sent: 0
 VRRP Instance: vyatta-dp0p1s1-1
   Advertisements:
     Received: 0
@@ -2369,6 +2545,25 @@ VRRP Instance: vyatta-dp0p1s1-42
     Sent: 0
   Became master: 0
   Released master: 0
+  Packet Errors:
+    Length: 0
+    TTL: 0
+    Invalid Type: 0
+    Advertisement Interval: 0
+    Address List: 0
+  Authentication Errors:
+    Invalid Type: 0
+    Type Mismatch: 0
+    Failure: 0
+  Priority Zero:
+    Received: 0
+    Sent: 0
+VRRP Instance: vyatta-dp0p1s2-2
+  Advertisements:
+    Received: 50
+    Sent: 3305
+  Became master: 1
+  Released master: 1
   Packet Errors:
     Length: 0
     TTL: 0
@@ -2451,6 +2646,40 @@ Interface: dp0p1s2
 
   Became master:                1
   Released master:              1
+
+  Packet errors:
+    Length:                     0
+    TTL:                        0
+    Invalid type:               0
+    Advertisement interval:     0
+    Address list:               0
+
+  Authentication errors:
+    Invalid type:               0
+    Type mismatch:              0
+    Failure:                    0
+
+  Priority zero advertisements:
+    Received:                   0
+    Sent:                       0
+
+"""
+
+
+@pytest.fixture
+def filtered_interface_and_group_show_stats():
+    return """
+--------------------------------------------------
+Interface: dp0p1s1
+--------------
+  Group: 42
+  ----------
+  Advertisements:
+    Received:                   100
+    Sent:                       0
+
+  Became master:                0
+  Released master:              0
 
   Packet errors:
     Length:                     0
