@@ -35,8 +35,12 @@ def show_detail_line_format(line: List[str]) -> str:
     return f"  {line[0]:<30s}{line[1]:<s}\n"
 def show_detail_tracked_format(line: List[str]) -> str:
     return f"    {line[0]}   state {line[1]}      {line[2]}\n"
+def show_detail_tracked_format_without_weight(line: List[str]) -> str:
+    return f"    {line[0]}   state {line[1]}\n"
 def show_detail_tracked_pmon_format(line: List[str]) -> str:
     return f"      {line[0]}  {line[1]}  {line[2]}\n"
+def show_detail_tracked_pmon_format_without_weight(line: List[str]) -> str:
+    return f"      {line[0]}  {line[1]}\n"
 
 """ Show VRRP statistics helpers. """
 def show_stats_header_format(line: List[str]) -> str:
@@ -252,7 +256,7 @@ def show_vrrp_detail(
                 if util.INSTANCE_STATE_YANG not in vrrp_instance:
                     continue
                 group: str = vrrp_instance[util.TAGNODE_YANG]
-                if filter_grp != "" and group != filter_grp:
+                if filter_grp != "" and int(group) != int(filter_grp):
                     continue
                 output += show_detail_group_name(group)
                 output += SHOW_DETAIL_GROUP_DIVIDER
@@ -358,46 +362,63 @@ def show_vrrp_detail(
                             str(len(track["interface"]))]
                         )
                         track_intf: Dict
-                        for track_intf in track["interface"]:
+                        for track_intf in sorted(track["interface"], key=lambda k: k["name"]):
                             intf_weight: str = ""
                             if "weight" in track_intf:
                                 intf_weight = f"weight {track_intf['weight']}"
-                            output += show_detail_tracked_format(
-                                [track_intf["name"], track_intf["state"],
-                                intf_weight]
-                            )
+                                output += show_detail_tracked_format(
+                                    [track_intf["name"], track_intf["state"],
+                                    intf_weight]
+                                )
+                            else:
+                                output += show_detail_tracked_format_without_weight(
+                                    [track_intf["name"], track_intf["state"]]
+                                )
                     if "monitor" in track:
-                        output += show_detail_line_format(
-                            ["Tracked Path Monitor count:",
-                            str(len(track["monitor"]))]
-                        )
+                        track_output: str = ""
+                        tracked_count: int = 0
                         mont: Dict
                         for mont in track["monitor"]:
-                            output += f"    {mont['name']}\n"
+                            track_output += f"    {mont['name']}\n"
                             pol: Dict
-                            for pol in mont["policies"]:
+                            for pol in sorted(mont["policies"], key=lambda k: k["name"]):
+                                tracked_count += 1
                                 policy_weight: str = ""
                                 if "weight" in pol:
                                     policy_weight = f"weight {pol['weight']}"
-                                output += \
-                                    show_detail_tracked_pmon_format(
-                                        [pol["name"], pol["state"],
-                                        policy_weight]
-                                    )
+                                    track_output += \
+                                        show_detail_tracked_pmon_format(
+                                            [pol["name"], pol["state"],
+                                            policy_weight]
+                                        )
+                                else:
+                                    track_output += \
+                                        show_detail_tracked_pmon_format_without_weight(
+                                            [pol["name"], pol["state"],
+                                            policy_weight]
+                                        )
+                        output += show_detail_line_format(
+                            ["Tracked Path Monitor count:",
+                            str(tracked_count)]
+                        )
+                        output += track_output
                     if "route" in track:
                         output += show_detail_line_format(
                             ["Tracked routes count:",
                             str(len(track["route"]))]
                         )
                         route: Dict
-                        for route in track["route"]:
+                        for route in sorted(track["route"], key=lambda k: k["name"]):
                             route_weight: str = ""
                             if "weight" in route:
                                 route_weight = f"weight {route['weight']}"
-                            output += show_detail_tracked_format(
-                                [route["name"], route["state"],
-                                route_weight]
-                            )
+                                output += show_detail_tracked_format(
+                                    [route["name"], route["state"],
+                                    route_weight]
+                                )
+                            else:
+                                output += show_detail_tracked_format_without_weight(
+                                    [route["name"], route["state"]])
                 output += show_detail_line_format(
                     ["VIP count:", str(len(state["virtual-ips"]))]
                 )
@@ -648,7 +669,7 @@ def show_vrrp_statistics(
                 if util.INSTANCE_STATS_YANG not in vrrp_instance:
                     continue
                 group: str = vrrp_instance[util.TAGNODE_YANG]
-                if filter_grp != "" and group != filter_grp:
+                if filter_grp != "" and int(group) != int(filter_grp):
                     continue
                 output += show_detail_group_name(group)
                 output += SHOW_DETAIL_GROUP_DIVIDER
@@ -1346,7 +1367,8 @@ def convert_data_file_to_dict(data_string: str):
             intf_name, vif_number, interface_list)
 
         insertion_reference[util.VRRP_YANG_NAME]["vrrp-group"].append(instance_dict)
-        del(insertion_reference[util.VRRP_YANG_NAME]["start-delay"])
+        if "start-delay" in insertion_reference[util.VRRP_YANG_NAME]:
+            del(insertion_reference[util.VRRP_YANG_NAME]["start-delay"])
 
     return yang_representation
 
@@ -1582,6 +1604,7 @@ VRRP Instance: vyatta-dp0p1s1-1
             intf_name, vif_number, interface_list)
 
         insertion_reference[util.VRRP_YANG_NAME]["vrrp-group"].append(instance_dict)
-        del(insertion_reference[util.VRRP_YANG_NAME]["start-delay"])
+        if "start-delay" in insertion_reference[util.VRRP_YANG_NAME]:
+            del(insertion_reference[util.VRRP_YANG_NAME]["start-delay"])
 
     return yang_representation
