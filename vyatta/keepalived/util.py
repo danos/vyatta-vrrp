@@ -56,6 +56,8 @@ TAGNODE_YANG: str = "tagnode"
 VRRP_GROUP_YANG: str = "vrrp-group"
 INSTANCE_STATS_YANG: str = "stats"
 
+KEEPALIVED_DATA_FILE_PATH = "/tmp/keepalived.data"
+KEEPALIVED_STATS_FILE_PATH = "/tmp/keepalived.stats"
 
 def get_specific_vrrp_config_from_yang(
         conf: Dict, value: str) -> Generator:

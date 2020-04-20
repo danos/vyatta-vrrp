@@ -12,6 +12,7 @@ process using dbus controls.
 
 
 import logging
+import time
 import pydbus
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
@@ -120,3 +121,42 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
 
     def subscribe_process_signals(self) -> None:
         self.log.debug("Keepalived instance subscribing to signals")
+
+    def dump_keepalived_data(self) -> bool:
+        dbus_path: str = util.VRRP_PROCESS_DBUS_INTF_PATH
+        vrrp_process_proxy: Any = self.sysbus.get(
+            util.KEEPALIVED_DBUS_INTF_NAME,
+            dbus_path
+        )
+        data_file = Path(util.KEEPALIVED_DATA_FILE_PATH)
+        if data_file.exists():
+            data_file.unlink()
+        vrrp_process_proxy.PrintData()
+        data_file = Path(util.KEEPALIVED_DATA_FILE_PATH)
+        wait_for_write: int = 0
+        while wait_for_write < 3:
+            if data_file.exists():
+                break
+            time.sleep(1)
+            wait_for_write += 1
+        return data_file.exists()
+
+    def dump_keepalived_stats(self) -> bool:
+        dbus_path: str = util.VRRP_PROCESS_DBUS_INTF_PATH
+        vrrp_process_proxy: Any = self.sysbus.get(
+            util.KEEPALIVED_DBUS_INTF_NAME,
+            dbus_path
+        )
+        stats_file = Path(util.KEEPALIVED_STATS_FILE_PATH)
+        if stats_file.exists():
+            stats_file.unlink()
+        vrrp_process_proxy.PrintStats()
+        stats_file = Path(util.KEEPALIVED_STATS_FILE_PATH)
+        wait_for_write: int = 0
+        while wait_for_write < 3:
+            if stats_file.exists():
+                break
+            time.sleep(1)
+            wait_for_write += 1
+        return stats_file.exists()
+
