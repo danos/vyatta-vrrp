@@ -1,3 +1,11 @@
+vyatta-vrrp (2.19.1) unstable; urgency=medium
+
+  * Refactor/Add VRRPv3 accept warning
+  * Bugfix/Remove undefined subroutine call
+  * Bugfix/Logging syntax error with () in strings
+
+ -- Anthony Dempsey <anthony.dempsey@intl.att.com>  Mon, 20 Apr 2020 10:14:18 +0100
+
 vyatta-vrrp (2.19) unstable; urgency=medium
 
   * DANOS Import Master
