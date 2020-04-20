@@ -4570,7 +4570,7 @@ def mock_show_version_rpc_no_hypervisor(monkeypatch):
 
 
 @pytest.fixture
-def mock_pydbus(monkeypatch, pydbus_fakes):
+def mock_pydbus(monkeypatch, pydbus_fakes, tmp_path):
     import pydbus
 
     class SystemdProxyObject:
@@ -4643,6 +4643,16 @@ def mock_pydbus(monkeypatch, pydbus_fakes):
             if "vrrp" in intf:
                 return ("dp0p1s1", 1)
             return ("", 0)
+
+        def PrintData(self):
+            with open(f"{tmp_path}/keepalived.data", "w") as file_obj:
+                file_obj.write("test")
+            return
+
+        def PrintStats(self):
+            with open(f"{tmp_path}/keepalived.stats", "w") as file_obj:
+                file_obj.write("test")
+            return
 
         def __getitem__(self, name):
             return PropertyInterface()

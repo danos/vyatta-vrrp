@@ -87,3 +87,23 @@ class TestKeepalivedDbusControl:
                     "vyatta-vrrp-v1:group": 1}
         result = pc.get_rfc_mapping("dp0vrrp1")
         assert expected == result
+
+    def test_dump_keepalived_data(
+            self, mock_pydbus, tmp_path):
+        import vyatta.keepalived.dbus.process_control as process_ctrl
+        import vyatta.keepalived.util as util
+        util.KEEPALIVED_DATA_FILE_PATH = f"{tmp_path}/keepalived.data"
+        pc = process_ctrl.ProcessControl()
+        result = pc.dump_keepalived_data()
+        expected = True
+        assert result == expected
+
+    def test_dump_keepalived_stats(
+            self, mock_pydbus, tmp_path):
+        import vyatta.keepalived.dbus.process_control as process_ctrl
+        import vyatta.keepalived.util as util
+        util.KEEPALIVED_STATS_FILE_PATH = f"{tmp_path}/keepalived.stats"
+        pc = process_ctrl.ProcessControl()
+        result = pc.dump_keepalived_stats()
+        expected = True
+        assert result == expected
