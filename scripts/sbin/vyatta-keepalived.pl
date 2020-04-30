@@ -320,9 +320,7 @@ sub keepalived_get_values {
     # generate the config.
 
     $output .= "vrrp_instance $vrrp_instance \{\n";
-    my $init_state;
-    $init_state = vrrp_get_init_state( $intf, $group, $vips[0], $preempt );
-    $output .= "\tstate $init_state\n";
+    $output .= "\tstate BACKUP\n";
     $output .= "\tinterface $intf\n";
     $output .= "\tvirtual_router_id $group\n";
     my ($ip, $len) = Net::IP::ip_splitprefix($vips[0]);
