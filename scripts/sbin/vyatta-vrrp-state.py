@@ -1,7 +1,8 @@
 #! /usr/bin/env python
 
 # **** License ****
-# Copyright (c) 2019 AT&T Intellectual Property.
+# Copyright (c) 2019-2020
+# AT&T Intellectual Property.
 # All rights reserved.
 # 
 # SPDX-License-Identifier: GPL-2.0-only
@@ -219,8 +220,21 @@ def get_interface_config(path):
     )
     return config
 
+def path_exist(config_path):
+    tokens = config_path.split("/")
+    valid_config_path = ""
+    client_session = configd.Client()
+    for token in tokens:
+        valid_config_path += "{} ".format(token)
+        if not client_session.node_exists(
+                configd.Client.RUNNING, valid_config_path):
+            return False
+    return True
+
 def main():
     config_path = os.environ["CONFIGD_PATH"]
+    if not path_exist(config_path):
+        return {}
     debug_log("VRRP get-state called at node {}\n".format(config_path))
     try:
         caller_config = get_interface_config(config_path)
