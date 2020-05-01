@@ -137,3 +137,12 @@ class VrrpConnection:
         self.vrrp_group_proxy.VrrpStatusChange.connect(
             self.state_change
         )
+
+    @activate_connection
+    def reset_group_state(self) -> None:
+        self.log.info("Resetting state of %s to BACKUP", self.instance_name)
+        if self.vrrp_group_proxy is None:
+            self.log.warn("Failed to reset state of %s, DBus connection not initialised?",
+                self.instance_name)
+            return
+        self.vrrp_group_proxy.ResetMaster()

@@ -160,3 +160,12 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
             wait_for_write += 1
         return stats_file.exists()
 
+    @get_vrrp_proxy
+    def reload_config(self) -> None:
+        """
+        Separate from the systemd config reload above, this function
+        uses the keepalived DBus interface to re-read the processes'
+        config file.
+        """
+        self.vrrp_proxy_process.ReloadConfig()
+        return
