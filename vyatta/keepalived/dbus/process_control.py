@@ -11,6 +11,7 @@ process using dbus controls.
 # SPDX-License-Identifier: GPL-2.0-only
 
 
+from functools import wraps
 import logging
 import time
 import pydbus
@@ -19,6 +20,16 @@ from typing import Any, Dict, List, Tuple
 
 import vyatta.keepalived.util as util
 
+def get_vrrp_proxy(func):
+    @wraps(func)
+    def wrapper(inst, *args, **kwargs):
+        if inst.vrrp_proxy_process == None:
+            inst.vrrp_proxy_process: Any = inst.sysbus.get(
+                util.KEEPALIVED_DBUS_INTF_NAME,
+                util.VRRP_PROCESS_DBUS_INTF_PATH
+            )
+        return func(inst, *args, **kwargs)
+    return wrapper
 
 class ProcessControl:
 
@@ -46,6 +57,7 @@ class ProcessControl:
                 util.SYSTEMD_DBUS_INTF_NAME,
                 self.keepalived_unit_file_intf
             )
+        self.vrrp_proxy_process = None
         self.keepalived_process = None
         self.running_state: str = "UNKNOWN"
         self.systemd_default_file_path: str = "/etc/default/vyatta-keepalived"
@@ -106,13 +118,9 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
         self.systemd_manager_intf.RestartUnit(
             self.keepalived_service_file, "replace")
 
+    @get_vrrp_proxy
     def get_rfc_mapping(self, intf: str) -> Dict[str, str]:
-        dbus_path: str = util.VRRP_PROCESS_DBUS_INTF_PATH
-        vrrp_process_proxy: Any = self.sysbus.get(
-            util.KEEPALIVED_DBUS_INTF_NAME,
-            dbus_path
-        )
-        rfc_mapping: Tuple[str, str] = vrrp_process_proxy.GetRfcMapping(intf)  # noqa: E501
+        rfc_mapping: Tuple[str, str] = self.vrrp_proxy_process.GetRfcMapping(intf)  # noqa: E501
         return {
             "vyatta-vrrp-v1:receive":
             rfc_mapping[0],
@@ -122,16 +130,12 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
     def subscribe_process_signals(self) -> None:
         self.log.debug("Keepalived instance subscribing to signals")
 
+    @get_vrrp_proxy
     def dump_keepalived_data(self) -> bool:
-        dbus_path: str = util.VRRP_PROCESS_DBUS_INTF_PATH
-        vrrp_process_proxy: Any = self.sysbus.get(
-            util.KEEPALIVED_DBUS_INTF_NAME,
-            dbus_path
-        )
         data_file = Path(util.KEEPALIVED_DATA_FILE_PATH)
         if data_file.exists():
             data_file.unlink()
-        vrrp_process_proxy.PrintData()
+        self.vrrp_proxy_process.PrintData()
         data_file = Path(util.KEEPALIVED_DATA_FILE_PATH)
         wait_for_write: int = 0
         while wait_for_write < 3:
@@ -141,16 +145,12 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
             wait_for_write += 1
         return data_file.exists()
 
+    @get_vrrp_proxy
     def dump_keepalived_stats(self) -> bool:
-        dbus_path: str = util.VRRP_PROCESS_DBUS_INTF_PATH
-        vrrp_process_proxy: Any = self.sysbus.get(
-            util.KEEPALIVED_DBUS_INTF_NAME,
-            dbus_path
-        )
         stats_file = Path(util.KEEPALIVED_STATS_FILE_PATH)
         if stats_file.exists():
             stats_file.unlink()
-        vrrp_process_proxy.PrintStats()
+        self.vrrp_proxy_process.PrintStats()
         stats_file = Path(util.KEEPALIVED_STATS_FILE_PATH)
         wait_for_write: int = 0
         while wait_for_write < 3:
