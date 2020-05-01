@@ -56,6 +56,7 @@ TAGNODE_YANG: str = "tagnode"
 VRRP_GROUP_YANG: str = "vrrp-group"
 INSTANCE_STATS_YANG: str = "stats"
 
+PER_PACKET_DEBUG_FLAG = 1
 KEEPALIVED_DATA_FILE_PATH = "/tmp/keepalived.data"
 KEEPALIVED_STATS_FILE_PATH = "/tmp/keepalived.stats"
 

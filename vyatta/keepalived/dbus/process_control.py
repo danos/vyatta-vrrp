@@ -169,3 +169,11 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
         """
         self.vrrp_proxy_process.ReloadConfig()
         return
+
+    @get_vrrp_proxy
+    def turn_on_debugs(self, debug_value: int) -> None:
+        self.vrrp_proxy_process.AddDebug(debug_value)
+
+    @get_vrrp_proxy
+    def turn_off_debugs(self, debug_value: int) -> None:
+        self.vrrp_proxy_process.RemoveDebug(debug_value)
