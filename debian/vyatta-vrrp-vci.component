@@ -14,6 +14,10 @@ Modules=vyatta-vrrp-v1, \
   vyatta-vrrp-route-to-track-v1, \
   vyatta-vrrp-route-to-track-interfaces-dataplane-v1, \
   vyatta-vrrp-route-to-track-interfaces-bonding-v1, \
-  vyatta-vrrp-route-to-track-interfaces-switch-v1
+  vyatta-vrrp-route-to-track-interfaces-switch-v1, \
+  vyatta-vrrp-state-v1, \
+  vyatta-vrrp-state-interfaces-dataplane-v1, \
+  vyatta-vrrp-state-interfaces-bonding-v1, \
+  vyatta-vrrp-state-interfaces-switch-v
 
 ModelSets=vyatta-v1
