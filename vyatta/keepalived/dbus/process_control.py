@@ -60,7 +60,7 @@ class ProcessControl:
         self.vrrp_proxy_process = None
         self.keepalived_process = None
         self.running_state: str = "UNKNOWN"
-        self.systemd_default_file_path: str = "/etc/default/vyatta-keepalived"
+        self.systemd_default_file_path: str = "/etc/default/keepalived"
         self.snmpd_conf_file_path: str = "/etc/snmp/snmpd.conf"
 
     def unit_state(self) -> str:

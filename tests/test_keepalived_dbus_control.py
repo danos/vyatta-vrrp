@@ -43,7 +43,7 @@ class TestKeepalivedDbusControl:
             self, mock_pydbus, tmp_path):
         import vyatta.keepalived.dbus.process_control as process_ctrl
         pc = process_ctrl.ProcessControl()
-        pc.systemd_default_file_path = f"{tmp_path}/vyatta-keepalived"
+        pc.systemd_default_file_path = f"{tmp_path}/keepalived"
         pc.snmpd_conf_file_path = f"{tmp_path}/snmpd.conf"
         conf_path = Path(
             pc.systemd_default_file_path)

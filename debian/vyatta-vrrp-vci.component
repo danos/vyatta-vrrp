@@ -2,7 +2,7 @@
 Name=net.vyatta.vci.vrrp
 Description=Vyatta VRRP Component
 ExecName=/opt/vyatta/sbin/vyatta-vrrp
-ConfigFile=/etc/vyatta-keepalived/keepalived.conf
+ConfigFile=/etc/keepalived/keepalived.conf
 
 [Model net.vyatta.vci.vrrp.v1]
 Modules=vyatta-vrrp-v1, \
