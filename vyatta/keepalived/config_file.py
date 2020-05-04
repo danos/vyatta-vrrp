@@ -209,6 +209,7 @@ global_defs {
         self._rfc_interfaces = 0
         self.vrrp_instances = []
         self._vrrp_connections = {}
+        self._sync_instances = {}
         if util.INTERFACE_YANG_NAME not in new_config:
             return
         intf_types: Dict = new_config[util.INTERFACE_YANG_NAME]
