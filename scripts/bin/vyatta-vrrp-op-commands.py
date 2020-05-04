@@ -17,24 +17,21 @@ import vyatta.keepalived.dbus.process_control as process_control
 import vyatta.abstract_vrrp_classes as abstract_impl
 
 
-def process_arguments(command: str, intf: str, vrid: str) -> str:
-    show_output: str = "VRRP is not running"
+def process_arguments(command: str, intf: str, vrid: str) -> None:
     pc = process_control.ProcessControl()
     if not pc.is_running():
-        return show_output
+        return
     if command == "reload":
         pc.reload_config()
     elif command == "reset":
         if intf == "" or vrid == "":
-            return show_output
+            return
         keepalived_implementation: abstract_impl.ConfigFile \
             = impl_conf.KeepalivedConfig()
         file_config: str = keepalived_implementation.read_config()
-        print(file_config)
         yang_repr: Dict[str, Any] = keepalived_implementation.convert_to_vci_format_dict(
             file_config
         )
-        print(yang_repr)
         yang_repr = util.sanitize_vrrp_config(yang_repr)
         keepalived_implementation.update(yang_repr)
         instance_name = f"vyatta-{intf}-{vrid}"
@@ -44,7 +41,7 @@ def process_arguments(command: str, intf: str, vrid: str) -> str:
         pc.turn_on_debugs(util.PER_PACKET_DEBUG_FLAG)
     elif command == "remove-debug":
         pc.turn_off_debugs(util.PER_PACKET_DEBUG_FLAG)
-    return show_output
+    return
 
 
 def main() -> str:

@@ -25,18 +25,22 @@ def process_arguments(command: str, intf: str, vrid: str, sync: str) -> str:
         current_state = State(keepalived_implementation)
         state_dict = current_state.get()
         if state_dict == {}:
+            print(show_output)
             return show_output
         show_output = vrrp_show.show_vrrp_summary(current_state.get())
     else:
         pc = process_control.ProcessControl()
         if not pc.is_running():
+            print(show_output)
             return show_output
         file_contents: str
         json_repr: Dict
         if command == "detail" or command == "interface" or command == "sync":
             keepalived_responding = pc.dump_keepalived_data()
             if not keepalived_responding:
-                return "Keepalived is not responding"
+                show_output = "Keepalived is not responding"
+                print(show_output)
+                return show_output
             with open(util.KEEPALIVED_DATA_FILE_PATH, "r") as file_obj:
                 file_contents = file_obj.read()
             json_repr = vrrp_show.convert_data_file_to_dict(file_contents)
@@ -51,13 +55,16 @@ def process_arguments(command: str, intf: str, vrid: str, sync: str) -> str:
         else:
             keepalived_responding = pc.dump_keepalived_stats()
             if not keepalived_responding:
-                return "Keepalived is not responding"
+                show_output = "Keepalived is not responding"
+                print(show_output)
+                return show_output
             with open(util.KEEPALIVED_STATS_FILE_PATH, "r") as file_obj:
                 file_contents = file_obj.read()
             json_repr= vrrp_show.convert_stats_file_to_dict(file_contents)
             show_output = vrrp_show.show_vrrp_statistics_filters(
                 json_repr, intf, vrid
             )
+    print(show_output)
     return show_output
 
 

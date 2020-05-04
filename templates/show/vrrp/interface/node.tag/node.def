@@ -1,3 +1,3 @@
 help: Show VRRP information for specified interface
 allowed: vyatta-show-vrrp.pl --show=interfaces --quiet
-run: vyatta-show-vrrp.pl --show=detail --intf=$4
+run: vyatta-show-vrrp.py interface --intf=$4

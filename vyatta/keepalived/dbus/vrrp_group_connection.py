@@ -19,8 +19,9 @@ def activate_connection(func):
     @wraps(func)
     def wrapper(inst, *args, **kwargs):
         if not inst._activated:
-            inst.log.info("Activating object because %s became active",
-                          util.KEEPALIVED_DBUS_INTF_NAME)
+            # Prints to console when using template scripts, hiding just now
+            #inst.log.info("Activating object because %s became active",
+            #              util.KEEPALIVED_DBUS_INTF_NAME)
             inst.vrrp_group_proxy = inst.bus_object.get(
                 util.KEEPALIVED_DBUS_INTF_NAME,
                 inst.dbus_path
