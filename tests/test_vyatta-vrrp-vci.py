@@ -8,6 +8,8 @@ import json
 from pathlib import Path
 import pytest
 
+import vyatta.keepalived.util as util
+
 
 class TestVyattaVrrpVci:
 
@@ -32,7 +34,20 @@ class TestVyattaVrrpVci:
         expected = complete_state_yang
         test_state._conf_obj = tmp_file_keepalived_config
         test_state.pc.keepalived_proxy_obj.SubState = "running"
+        util.VRRP_INSTANCE_DBUS_INTF_NAME = "dp0p1s1"
         result = test_state.get()
+        assert expected == result
+
+    @pytest.mark.sanity
+    def test_vci_state_get_with_vif(
+            self, complete_state_vif_yang,
+            mock_pydbus, test_state_vif,
+            tmp_file_keepalived_vif_config):
+        expected = complete_state_vif_yang
+        test_state_vif._conf_obj = tmp_file_keepalived_vif_config
+        test_state_vif.pc.keepalived_proxy_obj.SubState = "running"
+        util.VRRP_INSTANCE_DBUS_INTF_NAME = "dp0p1s1.10"
+        result = test_state_vif.get()
         assert expected == result
 
     @pytest.mark.sanity

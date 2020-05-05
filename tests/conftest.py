@@ -141,6 +141,27 @@ def test_state(tmp_file_keepalived_config_no_write):
 
 
 @pytest.fixture
+def test_state_vif(tmp_file_keepalived_config_no_write):
+    class FakeVci:
+
+        class Config:
+            def set(self, conf):
+                pass
+
+        class State:
+            def get(self):
+                pass
+
+        class Client:
+            def emit(self):
+                pass
+
+    sys.modules['vci'] = FakeVci
+    from vyatta.vyatta_vrrp_vci import State
+    return State(tmp_file_keepalived_config_no_write)
+
+
+@pytest.fixture
 def keepalived_config(pydbus_fakes):
     class FakeVci:
 
@@ -184,6 +205,34 @@ def tmp_file_keepalived_config(tmp_path, autogeneration_string,
     with open(file_path, "w") as file_handle:
         contents = autogeneration_string
         contents += dataplane_group_keepalived_config
+        file_handle.write(contents)
+    return KeepalivedConfig(file_path)
+
+
+@pytest.fixture
+def tmp_file_keepalived_vif_config(
+        tmp_path, autogeneration_string,
+        dataplane_vif_group_keepalived_config):
+    class FakeVci:
+
+        class Config:
+            def set(self, conf):
+                pass
+
+        class State:
+            def get(self):
+                pass
+
+        class Client:
+            def emit(self):
+                pass
+
+    sys.modules['vci'] = FakeVci
+    from vyatta.keepalived.config_file import KeepalivedConfig
+    file_path = f"{tmp_path}/keepalived.conf"
+    with open(file_path, "w") as file_handle:
+        contents = autogeneration_string
+        contents += dataplane_vif_group_keepalived_config
         file_handle.write(contents)
     return KeepalivedConfig(file_path)
 
@@ -5124,6 +5173,34 @@ def complete_state_yang(top_level_dictionary, interface_yang_name,
 
 
 @pytest.fixture
+def complete_state_vif_yang(
+        top_level_dictionary, interface_yang_name,
+        dataplane_yang_name, generic_group_state,
+        vrrp_yang_name):
+    state_config = top_level_dictionary
+    intf = \
+        {
+            "tagnode": "dp0p1s1",
+            "vif": [
+                {
+                    "tagnode": "10",
+                    vrrp_yang_name:
+                        {
+                            "vrrp-group":
+                            [
+                                {"instance-state": generic_group_state,
+                                 "tagnode": "2"}
+                            ]
+                        }
+                }
+            ]
+        }
+    state_config[interface_yang_name][dataplane_yang_name] =\
+        [intf]
+    return state_config
+
+
+@pytest.fixture
 def mock_show_version_rpc_kvm(monkeypatch):
     import vyatta
 
@@ -5200,13 +5277,22 @@ def mock_pydbus(monkeypatch, pydbus_fakes, tmp_path):
             pass
 
         def GetAll(self, interface_name):  # noqa: N802
-            return {'Name': ("vyatta-dp0p1s1-1",),
-                    "SyncGroup": ("",),
-                    "XmitIntf": ("dp0p1s1",),
-                    "State": (2, "Master"),
-                    "LastTransition": (0,),
-                    "AddressOwner": (False,)
-                    }
+            if interface_name == "dp0p1s1":
+                return {'Name': ("vyatta-dp0p1s1-1",),
+                        "SyncGroup": ("",),
+                        "XmitIntf": ("dp0p1s1",),
+                        "State": (2, "Master"),
+                        "LastTransition": (0,),
+                        "AddressOwner": (False,)
+                        }
+            if interface_name == "dp0p1s1.10":
+                return {'Name': ("vyatta-dp0p1s1.10-1",),
+                        "SyncGroup": ("",),
+                        "XmitIntf": ("dp0p1s1.10",),
+                        "State": (2, "Master"),
+                        "LastTransition": (0,),
+                        "AddressOwner": (False,)
+                        }
 
     class ManagerProxyObject:
 

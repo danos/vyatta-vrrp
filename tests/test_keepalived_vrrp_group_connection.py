@@ -3,6 +3,8 @@
 
 import pytest  # noqa: F401
 
+import vyatta.keepalived.util as util
+
 
 class TestKeepalivedVrrpGroupControl:
 
@@ -16,6 +18,7 @@ class TestKeepalivedVrrpGroupControl:
         conn = group_conn.VrrpConnection(
             "dp0p1s1", "1", 4, sysbus
         )
+        util.VRRP_INSTANCE_DBUS_INTF_NAME = "dp0p1s1"
         result = conn.get_instance_state()
         assert expected == result
 
@@ -30,6 +33,7 @@ class TestKeepalivedVrrpGroupControl:
         conn = group_conn.VrrpConnection(
             "dp0p1s1", "1", 4, sysbus
         )
+        util.VRRP_INSTANCE_DBUS_INTF_NAME = "dp0p1s1"
         result = conn.get_instance_state()
         assert expected == result
 
