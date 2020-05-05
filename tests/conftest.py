@@ -352,6 +352,17 @@ sw0.10            1      MASTER  sw0vrrp1   no     3s          <none>
 """
 
 
+@pytest.fixture
+def generic_group_vif_show_summary():
+    return """
+                                 RFC        Addr   Last        Sync
+Interface         Group  State   Compliant  Owner  Transition  Group
+---------         -----  -----   ---------  -----  ----------  -----
+dp0p1s1.10        1      MASTER  no         no     3s          <none>
+
+"""
+
+
 """Show vrrp detail fixtures"""
 
 
@@ -1844,6 +1855,147 @@ Interface: dp0p1s1
 
 """
 
+
+@pytest.fixture
+def generic_group_vif_simple_keepalived_data():
+    return """
+------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s1.10-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:00 1970)
+   Listening device = dp0p1s1.10
+   Transmitting device = dp0p1s1.10
+   Using src_ip = 10.10.1.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 100
+   Effective priority = 100
+   Address owner = no
+   Advert interval = 2 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.1.100/32 dev dp0p1s1.10 scope global
+"""
+
+
+@pytest.fixture
+def detailed_simple_vif_keepalived_state():
+    return \
+        {
+            "instance-state":
+            {
+                "address-owner": False,
+                "last-transition": 0,
+                "rfc-interface": "",
+                "state": "MASTER",
+                "sync-group": "",
+                "version": 2,
+                "src-ip": "10.10.1.1",
+                "base-priority": 100,
+                "effective-priority": 100,
+                "advert-interval": "2 sec",
+                "accept": True,
+                "preempt": True,
+                "auth-type": None,
+                "virtual-ips": [
+                    "10.10.1.100/32"
+                ]
+            },
+            "tagnode": "1"
+        }
+
+
+@pytest.fixture
+def generic_group_vif_show_detail():
+    return """
+--------------------------------------------------
+Interface: dp0p1s1.10
+--------------
+  Group: 1
+  ----------
+  State:                        MASTER
+  Last transition:              3s
+
+  Version:                      2
+  Configured Priority:          100
+  Effective Priority:           100
+  Advertisement interval:       2 sec
+  Authentication type:          none
+  Preempt:                      enabled
+
+  VIP count:                    1
+    10.10.1.100/32
+
+"""
+
+
+@pytest.fixture
+def generic_group_vif_and_parent_simple_keepalived_data():
+    return """
+------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s1-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:00 1970)
+   Listening device = dp0p1s1
+   Transmitting device = dp0p1s1
+   Using src_ip = 10.10.1.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 100
+   Effective priority = 100
+   Address owner = no
+   Advert interval = 2 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.1.100/32 dev dp0p1s1 scope global
+ VRRP Instance = vyatta-dp0p1s1.10-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:00 1970)
+   Listening device = dp0p1s1.10
+   Transmitting device = dp0p1s1.10
+   Using src_ip = 10.10.1.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 100
+   Effective priority = 100
+   Address owner = no
+   Advert interval = 2 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.1.100/32 dev dp0p1s1.10 scope global
+"""
+
+
 """Show vrrp sync group fixtures"""
 
 
@@ -2201,6 +2353,204 @@ def sync_group_show_sync_group_filter_no_group():
     return """
 Sync-group: TEST1 does not exist
 """
+
+
+@pytest.fixture
+def sync_group_simple_vif_keepalived_data():
+    return """
+------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s1.10-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:03 1970)
+   Listening device = dp0p1s1.10
+   Transmitting device = dp0p1s1.10
+   Using src_ip = 10.10.1.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 200
+   Effective priority = 200
+   Address owner = no
+   Advert interval = 1 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.1.100/32 dev dp0p1s1 scope global
+ VRRP Instance = vyatta-dp0p1s2.20-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:03 1970)
+   Listening device = dp0p1s2.20
+   Transmitting device = dp0p1s2.20
+   Using src_ip = 10.10.2.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 200
+   Effective priority = 200
+   Address owner = no
+   Advert interval = 1 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.2.100/32 dev dp0p1s2 scope global
+------< VRRP Sync groups >------
+ VRRP Sync Group = TEST, MASTER
+   monitor = vyatta-dp0p1s2.20-1
+   monitor = vyatta-dp0p1s1.10-1
+"""
+
+
+@pytest.fixture
+def sync_group_simple_vif_keepalived_state():
+    return \
+        {
+            "sync-groups":
+            [
+                {
+                    "name": "TEST",
+                    "state": "MASTER",
+                    "members": [
+                        "vyatta-dp0p1s2.20-1",
+                        "vyatta-dp0p1s1.10-1"
+                    ]
+                }
+            ]
+        }
+
+
+@pytest.fixture
+def generic_sync_group_vif_show_sync():
+    return """
+--------------------------------------------------
+Group: TEST
+---------
+  State: MASTER
+  Monitoring:
+    Interface: dp0p1s1.10, Group: 1
+    Interface: dp0p1s2.20, Group: 1
+
+"""
+
+
+@pytest.fixture
+def sync_group_simple_vif_and_nonvif_keepalived_data():
+    return """
+------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s1.10-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:03 1970)
+   Listening device = dp0p1s1.10
+   Transmitting device = dp0p1s1.10
+   Using src_ip = 10.10.1.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 200
+   Effective priority = 200
+   Address owner = no
+   Advert interval = 1 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.1.100/32 dev dp0p1s1.10 scope global
+ VRRP Instance = vyatta-dp0p1s2.20-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:03 1970)
+   Listening device = dp0p1s2.20
+   Transmitting device = dp0p1s2.20
+   Using src_ip = 10.10.2.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 200
+   Effective priority = 200
+   Address owner = no
+   Advert interval = 1 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.2.100/32 dev dp0p1s2.20 scope global
+ VRRP Instance = vyatta-dp0p1s3-42
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:03 1970)
+   Listening device = dp0p1s3
+   Transmitting device = dp0p1s3
+   Using src_ip = 10.10.3.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 42
+   Base priority = 200
+   Effective priority = 200
+   Address owner = no
+   Advert interval = 1 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.3.100/32 dev dp0p1s3 scope global
+------< VRRP Sync groups >------
+ VRRP Sync Group = TEST, MASTER
+   monitor = vyatta-dp0p1s2.20-1
+   monitor = vyatta-dp0p1s1.10-1
+   monitor = vyatta-dp0p1s3-42
+"""
+
+
+@pytest.fixture
+def generic_sync_group_vif_and_nonvif_show_sync():
+    return """
+--------------------------------------------------
+Group: TEST
+---------
+  State: MASTER
+  Monitoring:
+    Interface: dp0p1s1.10, Group: 1
+    Interface: dp0p1s2.20, Group: 1
+    Interface: dp0p1s3, Group: 42
+
+"""
+
+
+"""Show vrrp statistics fixtures"""
 
 
 @pytest.fixture
@@ -2679,6 +3029,157 @@ Interface: dp0p1s1
     Sent:                       0
 
   Became master:                0
+  Released master:              0
+
+  Packet errors:
+    Length:                     0
+    TTL:                        0
+    Invalid type:               0
+    Advertisement interval:     0
+    Address list:               0
+
+  Authentication errors:
+    Invalid type:               0
+    Type mismatch:              0
+    Failure:                    0
+
+  Priority zero advertisements:
+    Received:                   0
+    Sent:                       0
+
+"""
+
+
+@pytest.fixture
+def generic_group_vif_keepalived_stats():
+    return """
+VRRP Instance: vyatta-dp0p1s1.10-1
+  Advertisements:
+    Received: 0
+    Sent: 615
+  Became master: 1
+  Released master: 0
+  Packet Errors:
+    Length: 0
+    TTL: 0
+    Invalid Type: 0
+    Advertisement Interval: 0
+    Address List: 0
+  Authentication Errors:
+    Invalid Type: 0
+    Type Mismatch: 0
+    Failure: 0
+  Priority Zero:
+    Received: 0
+    Sent: 0
+"""
+
+
+@pytest.fixture
+def generic_group_vif_keepalived_stats_dict():
+    return {
+        "tagnode": 1,
+        "stats": {
+            "Advertisements": {
+                "Received": "0",
+                "Sent": "615"
+            },
+            "Became master": "1",
+            "Released master": "0",
+            "Packet errors": {
+                "Length": "0",
+                "TTL": "0",
+                "Invalid type": "0",
+                "Advertisement interval": "0",
+                "Address list": "0"
+            },
+            "Authentication errors": {
+                "Invalid type": "0",
+                "Type mismatch": "0",
+                "Failure": "0"
+            },
+            "Priority zero advertisements": {
+                "Received": "0",
+                "Sent": "0"
+            }
+        }
+    }
+
+
+@pytest.fixture
+def generic_group_vif_show_stats():
+    return """
+--------------------------------------------------
+Interface: dp0p1s1.10
+--------------
+  Group: 1
+  ----------
+  Advertisements:
+    Received:                   0
+    Sent:                       615
+
+  Became master:                1
+  Released master:              0
+
+  Packet errors:
+    Length:                     0
+    TTL:                        0
+    Invalid type:               0
+    Advertisement interval:     0
+    Address list:               0
+
+  Authentication errors:
+    Invalid type:               0
+    Type mismatch:              0
+    Failure:                    0
+
+  Priority zero advertisements:
+    Received:                   0
+    Sent:                       0
+
+"""
+
+
+@pytest.fixture
+def generic_group_vif_and_parent_show_stats():
+    return """
+--------------------------------------------------
+Interface: dp0p1s1
+--------------
+  Group: 1
+  ----------
+  Advertisements:
+    Received:                   0
+    Sent:                       615
+
+  Became master:                1
+  Released master:              0
+
+  Packet errors:
+    Length:                     0
+    TTL:                        0
+    Invalid type:               0
+    Advertisement interval:     0
+    Address list:               0
+
+  Authentication errors:
+    Invalid type:               0
+    Type mismatch:              0
+    Failure:                    0
+
+  Priority zero advertisements:
+    Received:                   0
+    Sent:                       0
+
+Interface: dp0p1s1.10
+--------------
+  Group: 1
+  ----------
+  Advertisements:
+    Received:                   0
+    Sent:                       615
+
+  Became master:                1
   Released master:              0
 
   Packet errors:
@@ -3973,6 +4474,22 @@ def simple_rfc_switch_state(simple_config, instance_state_rfc_switch,
 
 
 @pytest.fixture
+def simple_vif_state(simple_config, instance_state,
+                     vrrp_yang_name, interface_yang_name,
+                     vif_dataplane_list,
+                     dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    simple_yang_state[interface_yang_name][dataplane_yang_name][0]["vif"] = \
+        vif_dataplane_list
+    vif_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name][0]["vif"]
+    vif_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [instance_state]
+    del(vif_list[0][vrrp_yang_name]["start-delay"])
+    return simple_yang_state
+
+
+@pytest.fixture
 def detailed_simple_state(simple_config, detailed_simple_keepalived_state,
                           vrrp_yang_name, interface_yang_name,
                           dataplane_yang_name):
@@ -4188,6 +4705,48 @@ def detailed_simple_multi_sync_state(
 
 
 @pytest.fixture
+def detailed_vif_simple_state(simple_config,
+                              detailed_simple_vif_keepalived_state,
+                              vrrp_yang_name, interface_yang_name,
+                              vif_dataplane_list,
+                              dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name])
+    dataplane_list[0]["vif"] = \
+        vif_dataplane_list
+    vif_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name][0]["vif"]
+    vif_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [detailed_simple_vif_keepalived_state]
+    del(vif_list[0][vrrp_yang_name]["start-delay"])
+    return simple_yang_state
+
+
+@pytest.fixture
+def detailed_vif_simple_state_multiple_intf(
+        simple_config, detailed_simple_vif_keepalived_state,
+        detailed_simple_keepalived_state,
+        vrrp_yang_name, interface_yang_name,
+        vif_dataplane_list, dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [detailed_simple_keepalived_state]
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    dataplane_list[0]["vif"] = \
+        vif_dataplane_list
+    vif_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name][0]["vif"]
+    vif_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [detailed_simple_vif_keepalived_state]
+    del(vif_list[0][vrrp_yang_name]["start-delay"])
+    return simple_yang_state
+
+
+@pytest.fixture
 def simple_sync_group_state(
         simple_config, vrrp_yang_name, interface_yang_name,
         sync_group_simple_keepalived_state):
@@ -4205,6 +4764,16 @@ def multiple_simple_sync_group_state(
     del(simple_yang_state[interface_yang_name])
     simple_yang_state[vrrp_yang_name] = \
         multiple_sync_group_simple_keepalived_state
+    return simple_yang_state
+
+
+@pytest.fixture
+def simple_vif_sync_group_state(
+        simple_config, vrrp_yang_name, interface_yang_name,
+        sync_group_simple_vif_keepalived_state):
+    simple_yang_state = copy.deepcopy(simple_config)
+    del(simple_yang_state[interface_yang_name])
+    simple_yang_state[vrrp_yang_name] = sync_group_simple_vif_keepalived_state
     return simple_yang_state
 
 
@@ -4271,6 +4840,42 @@ def multi_intf_complete_stats_dict(
         ]
     dataplane_list[1][vrrp_yang_name]["vrrp-group"] = \
         [second_intf_keepalived_stats_dict]
+    return simple_yang_state
+
+
+@pytest.fixture
+def generic_group_vif_complete_stats_dict(
+        simple_config, generic_group_vif_keepalived_stats_dict, vrrp_yang_name,
+        interface_yang_name, dataplane_yang_name, vif_dataplane_list):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name])
+    dataplane_list[0]["vif"] = vif_dataplane_list
+    vif_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name][0]["vif"]
+    vif_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [generic_group_vif_keepalived_stats_dict]
+    del(vif_list[0][vrrp_yang_name]["start-delay"])
+    return simple_yang_state
+
+
+@pytest.fixture
+def generic_group_vif_and_parent_complete_stats_dict(
+        simple_config, generic_group_vif_keepalived_stats_dict,
+        generic_group_keepalived_stats_dict, vrrp_yang_name,
+        interface_yang_name, dataplane_yang_name, vif_dataplane_list):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [generic_group_keepalived_stats_dict]
+    dataplane_list[0]["vif"] = vif_dataplane_list
+    vif_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name][0]["vif"]
+    vif_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [generic_group_vif_keepalived_stats_dict]
+    del(vif_list[0][vrrp_yang_name]["start-delay"])
     return simple_yang_state
 
 

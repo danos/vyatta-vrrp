@@ -39,8 +39,13 @@ class TestVyattaShowVrrp:
                 pytest.lazy_fixture("generic_group_rfc_switch_show_summary"),
                 pytest.lazy_fixture("simple_rfc_switch_state")
             ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("generic_group_vif_show_summary"),
+                pytest.lazy_fixture("simple_vif_state")
+            ),
         ],
-        ids=["No rfc", "rfc", "rfc sync", "rfc IPAO", "Switch"]
+        ids=["No rfc", "rfc", "rfc sync", "rfc IPAO", "Switch", "vif"]
     )
     def test_show_vrrp_summary(self, fakes, show, state):
         import vyatta.show_vrrp_cmds
@@ -141,13 +146,18 @@ class TestVyattaShowVrrp:
                 pytest.lazy_fixture("multi_group_sync_group_show_detailed"),
                 pytest.lazy_fixture("detailed_simple_multi_sync_state")
             ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("generic_group_vif_show_detail"),
+                pytest.lazy_fixture("detailed_vif_simple_state")
+            ),
         ],
         ids=[
             "No rfc", "rfc", "rfc sync", "rfc IPAO", "Backup show",
             "Backup track interface", "Backup track interface no weight",
             "Backup track pathmon", "Backup track route",
             "No rfc v3", "Start delay",
-            "Preempt delay", "Multiple groups in sync-group"
+            "Preempt delay", "Multiple groups in sync-group", "Vif"
         ]
     )
     def test_show_vrrp_detail(self, fakes, show, data):
@@ -196,12 +206,18 @@ class TestVyattaShowVrrp:
                 pytest.lazy_fixture("multiple_simple_sync_group_state"),
                 "TEST1"
             ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("generic_sync_group_vif_show_sync"),
+                pytest.lazy_fixture("simple_vif_sync_group_state"),
+                ""
+            ),
         ],
         ids=[
                 "Simple sync group case", "Show vrrp sync without sync group",
                 "Simple sync group as part of a larger state dict",
                 "Multiple sync groups", "show vrrp sync group <blah>",
-                "show vrrp sync group doesn't exist"
+                "show vrrp sync group doesn't exist", "Vif sync groups"
             ]
     )
     def test_show_vrrp_sync(self, fakes, show, data, grp_filter):
@@ -257,13 +273,29 @@ class TestVyattaShowVrrp:
                 pytest.lazy_fixture("multiple_interfaces_and_groups_state"),
                 "dp0p1s2",
                 ""
-            )
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("generic_group_vif_show_detail"),
+                pytest.lazy_fixture("detailed_vif_simple_state_multiple_intf"),
+                "dp0p1s1.10",
+                ""
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("generic_group_show_detail"),
+                pytest.lazy_fixture("detailed_vif_simple_state_multiple_intf"),
+                "dp0p1s1",
+                ""
+            ),
         ],
         ids=[
                 "Get all groups on interface", "VRRP not running on interface",
                 "No Matching VRRP group",
                 "Looking for group when no VRRP is configured on interface",
-                "One group on an interface", "All groups on an interface"
+                "One group on an interface", "All groups on an interface",
+                "All groups on a VIF interface",
+                "Filter on parent interface group with VIF groups configured"
             ]
     )
     def test_show_vrrp_interface(
@@ -326,14 +358,56 @@ class TestVyattaShowVrrp:
                 pytest.lazy_fixture("multi_intf_complete_stats_dict"),
                 "",
                 ""
-            )
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("generic_group_vif_show_stats"),
+                pytest.lazy_fixture("generic_group_vif_complete_stats_dict"),
+                "",
+                ""
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "generic_group_vif_and_parent_show_stats"
+                ),
+                pytest.lazy_fixture(
+                    "generic_group_vif_and_parent_complete_stats_dict"
+                ),
+                "",
+                ""
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "generic_group_vif_show_stats"
+                ),
+                pytest.lazy_fixture(
+                    "generic_group_vif_and_parent_complete_stats_dict"
+                ),
+                "dp0p1s1.10",
+                ""
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "generic_group_show_stats"
+                ),
+                pytest.lazy_fixture(
+                    "generic_group_vif_and_parent_complete_stats_dict"
+                ),
+                "dp0p1s1",
+                ""
+            ),
         ],
         ids=[
                 "Show stats", "Backup group", "Multi Groups",
                 "Full interface",
                 "VRRP not running on interface",
                 "No matching group on this interface",
-                "Multiple interfaces"
+                "Multiple interfaces",
+                "Vif interface", "Vif and Parent interface",
+                "Filter on vif interface", "Filter on parent interface"
             ]
     )
     def test_show_vrrp_statistics(
@@ -392,6 +466,11 @@ class TestVyattaShowVrrp:
                 pytest.lazy_fixture("calendar_fakes"),
                 pytest.lazy_fixture("detailed_v3_simple_state"),
                 pytest.lazy_fixture("generic_v3_group_simple_keepalived_data")
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("detailed_vif_simple_state"),
+                pytest.lazy_fixture("generic_group_vif_simple_keepalived_data")
             ),
             (
                 pytest.lazy_fixture("calendar_fakes"),
@@ -467,6 +546,7 @@ class TestVyattaShowVrrp:
                 "Simple keepalived with start delay data",
                 "Simple keepalived with preempt delay data",
                 "Simple keepalived version 3 data",
+                "Simple keepalived with vif interface",
                 "Complex keepalived backup track intf data",
                 "Complex keepalived backup track intf data no weight",
                 "Complex keepalived backup track pathmon data",
@@ -506,11 +586,19 @@ class TestVyattaShowVrrp:
                 pytest.lazy_fixture("calendar_fakes"),
                 pytest.lazy_fixture("multi_intf_complete_stats_dict"),
                 pytest.lazy_fixture("multiple_intf_keepalived_stats"),
-            )
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "generic_group_vif_complete_stats_dict"
+                ),
+                pytest.lazy_fixture("generic_group_vif_keepalived_stats")
+            ),
         ],
         ids=[
                 "Simple keepalived data", "Backup group stats",
-                "Multiple group stats", "Multiple interface stats"
+                "Multiple group stats", "Multiple interface stats",
+                "Vif stats"
             ]
     )
     def test_convert_stats_to_json(
@@ -629,6 +717,11 @@ class TestVyattaShowVrrp:
                     "generic_group_track_multiple_simple_keepalived_data"
                 )
             ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("generic_group_vif_show_detail"),
+                pytest.lazy_fixture("generic_group_vif_simple_keepalived_data")
+            ),
         ],
         ids=[
             "No rfc", "rfc", "rfc sync", "rfc IPAO", "Backup group",
@@ -640,7 +733,8 @@ class TestVyattaShowVrrp:
             "Simple group with start delay",
             "Simple group with preempt delay",
             "Multiple groups with sync groups",
-            "Complex group with multiple tracked objects"
+            "Complex group with multiple tracked objects",
+            "Vif group"
         ]
     )
     def test_complete_show_vrrp_detail(self, fakes, show, file_content):
@@ -691,13 +785,32 @@ class TestVyattaShowVrrp:
                 ),
                 "dp0p1s2",
                 "42"
-            )
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("generic_group_vif_show_detail"),
+                pytest.lazy_fixture(
+                    "generic_group_vif_and_parent_simple_keepalived_data"
+                ),
+                "dp0p1s1.10",
+                ""
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("generic_group_show_detail"),
+                pytest.lazy_fixture(
+                    "generic_group_vif_and_parent_simple_keepalived_data"
+                ),
+                "dp0p1s1",
+                ""
+            ),
         ],
         ids=[
                 "Get all groups on interface", "VRRP not running on interface",
                 "No Matching VRRP group",
                 "Looking for group when no VRRP is configured on interface",
-                "One group on an interface"
+                "One group on an interface", "Vif interface filter",
+                "Parent interface filter"
             ]
     )
     def test_show_vrrp_interface_full_process(
@@ -744,10 +857,28 @@ class TestVyattaShowVrrp:
                 ),
                 "TESTV2"
             ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("generic_sync_group_vif_show_sync"),
+                pytest.lazy_fixture("sync_group_simple_vif_keepalived_data"),
+                ""
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "generic_sync_group_vif_and_nonvif_show_sync"
+                ),
+                pytest.lazy_fixture(
+                    "sync_group_simple_vif_and_nonvif_keepalived_data"
+                ),
+                ""
+            ),
         ],
         ids=[
                 "Simple sync group case", "No sync groups",
-                "Multiple sync groups", "Filter multiple sync groups"
+                "Multiple sync groups", "Filter multiple sync groups",
+                "Vif interface sync group",
+                "Vif and nonvif interface sync group"
             ]
     )
     def test_show_vrrp_sync_full_process(
@@ -804,13 +935,21 @@ class TestVyattaShowVrrp:
                 pytest.lazy_fixture("multiple_intf_keepalived_stats"),
                 "dp0p1s1",
                 "42"
-            )
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("generic_group_vif_show_stats"),
+                pytest.lazy_fixture("generic_group_vif_keepalived_stats"),
+                "",
+                ""
+            ),
         ],
         ids=[
                 "Simple keepalived data", "Backup group stats",
                 "Multiple group stats", "Multiple interface stats",
                 "Filtered stats interface",
-                "Filtered stats interface and group"
+                "Filtered stats interface and group",
+                "Vif and parent interface stats"
             ]
     )
     def test_show_vrrp_statistics_full_process(
