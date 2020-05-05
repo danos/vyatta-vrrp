@@ -40,10 +40,12 @@ def activate_connection(func):
 class VrrpConnection:
 
     def __init__(
-            self, intf: str, vrid: str, af_type: str, bus_object: Any,
+            self, intf: str, vrid: str, af_type: int, bus_object: Any,
             notify_bgp: bool = None, notify_ipsec: bool = None,
             script_master: bool = None, script_backup: bool = None,
             script_fault: bool = None):
+        if "." in intf:
+            intf = intf.replace(".", "_")
         self.intf: str = intf
         self.vrid: str = vrid
         self.bus_object: Any = bus_object
@@ -72,9 +74,9 @@ class VrrpConnection:
         group_state: Dict = self.vrrp_property_interface.GetAll(
             util.VRRP_INSTANCE_DBUS_INTF_NAME
         )
-        rfc_intf: str = ""
-        if group_state["XmitIntf"][0] != self.intf:
-            rfc_intf = group_state["XmitIntf"][0]
+        rfc_intf: str = group_state["XmitIntf"][0]
+        if rfc_intf.replace(".", "_") == self.intf:
+            rfc_intf = ""
         processed_state: Dict[str, Union[str, Dict[str, str]]] = \
             {
                 "instance-state":

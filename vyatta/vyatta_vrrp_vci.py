@@ -151,7 +151,7 @@ class State(vci.State):
         vrrp_conn: vrrp_dbus.VrrpConnection
         if instance_name not in \
                 self._conf_obj.vrrp_connections:
-            af_type: str = util.what_ip_version(
+            af_type: int = util.what_ip_version(
                 vrrp_instance["virtual-address"][0].split("/")[0])
             vrrp_conn = \
                 vrrp_dbus.VrrpConnection(
