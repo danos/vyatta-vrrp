@@ -116,6 +116,8 @@ class State(vci.State):
             intf_list: List = yang_repr[util.INTERFACE_YANG_NAME][intf_type]
             for intf in intf_list:
                 transmit_intf: str = intf["tagnode"]
+                if util.VRRP_YANG_NAME not in intf:
+                    continue
                 if "start-delay" in intf[util.VRRP_YANG_NAME]:
                     del intf[util.VRRP_YANG_NAME]["start-delay"]
                 vrrp_instances: List[Dict] = intf[util.VRRP_YANG_NAME]["vrrp-group"]

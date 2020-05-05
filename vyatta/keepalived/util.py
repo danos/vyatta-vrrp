@@ -215,12 +215,15 @@ def sanitize_vrrp_config(conf: Dict) -> Dict:
         count: int = 0
         intf: Dict
         for intf in intf_dict[intf_type]:
-            if "vrrp-group" in intf[VRRP_YANG_NAME]:
-                new_list.append(intf_dict[intf_type][count])
-            count += 1
+            if VRRP_YANG_NAME in intf:
+                if "vrrp-group" in intf[VRRP_YANG_NAME]:
+                    new_list.append(intf_dict[intf_type][count])
+                    count += 1
             if "vif" in intf:
                 vif_intf: Dict
                 for vif_intf in intf["vif"]:
+                    if VRRP_YANG_NAME not in vif_intf:
+                        continue
                     if "vrrp-group" in vif_intf[VRRP_YANG_NAME]:
                         new_vif: Dict = vif_intf
                         new_vif["tagnode"] = \

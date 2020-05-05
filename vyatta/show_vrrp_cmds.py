@@ -113,6 +113,8 @@ def show_vrrp_summary(state_dict: Dict) -> str:
     hold the same data).
     """
 
+    state_dict = util.sanitize_vrrp_config(state_dict)
+
     output: str = "\n"
     output += show_summary_line_format(SHOW_SUMMARY_HEADER_LINE_1)
     output += show_summary_line_format(SHOW_SUMMARY_HEADER_LINE_2)
@@ -124,6 +126,8 @@ def show_vrrp_summary(state_dict: Dict) -> str:
         intf: Dict
         for intf in intf_list:
             intf_name: str = intf[util.TAGNODE_YANG]
+            if util.VRRP_YANG_NAME not in intf:
+                continue
             vrrp_instances: List = intf[util.VRRP_YANG_NAME][util.VRRP_GROUP_YANG]
             vrrp_instance: Dict
             for vrrp_instance in vrrp_instances:
@@ -237,6 +241,8 @@ def show_vrrp_detail(
     then the output is filtered to just the requested information.
     """
 
+    state_dict = util.sanitize_vrrp_config(state_dict)
+
     output: str = "\n"
     output += SHOW_DETAIL_DIVIDER
     intf_type: str
@@ -250,6 +256,8 @@ def show_vrrp_detail(
                 continue
             output += show_detail_intf_name(intf_name)
             output += SHOW_DETAIL_INTF_DIVIDER
+            if util.VRRP_YANG_NAME not in intf:
+                continue
             vrrp_instances: List = intf[util.VRRP_YANG_NAME][util.VRRP_GROUP_YANG]
             vrrp_instance: Dict
             for vrrp_instance in vrrp_instances:
@@ -650,6 +658,8 @@ def show_vrrp_statistics(
     or on interface and group.
     """
 
+    stats_dict = util.sanitize_vrrp_config(stats_dict)
+
     output: str = "\n"
     output += SHOW_DETAIL_DIVIDER
     intf_type: str
@@ -663,6 +673,8 @@ def show_vrrp_statistics(
                 continue
             output += show_detail_intf_name(intf_name)
             output += SHOW_DETAIL_INTF_DIVIDER
+            if util.VRRP_YANG_NAME not in intf:
+                continue
             vrrp_instances: List = intf[util.VRRP_YANG_NAME][util.VRRP_GROUP_YANG]
             vrrp_instance: Dict
             for vrrp_instance in vrrp_instances:
