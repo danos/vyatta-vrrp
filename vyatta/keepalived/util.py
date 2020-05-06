@@ -212,13 +212,11 @@ def sanitize_vrrp_config(conf: Dict) -> Dict:
     intf_type: str
     for intf_type in intf_dict:
         new_list: List = []
-        count: int = 0
         intf: Dict
-        for intf in intf_dict[intf_type]:
+        for count, intf in enumerate(intf_dict[intf_type]):
             if VRRP_YANG_NAME in intf:
                 if "vrrp-group" in intf[VRRP_YANG_NAME]:
                     new_list.append(intf_dict[intf_type][count])
-                    count += 1
             if "vif" in intf:
                 vif_intf: Dict
                 for vif_intf in intf["vif"]:
@@ -444,7 +442,7 @@ def running_on_vmware() -> bool:
     version: Dict = client.call_rpc_dict("vyatta-opd-v1", "command",
                                    {"command": "show", "args": "version"})
     search: Optional[Match[str]] = \
-        re.match(r'Hypervisor:\s*(\w+)', version['output'])
+        re.search(r'Hypervisor:\s*(\w+)', version['output'])
     if search is not None and search.group(1) == "VMware":
         return True
     return False
