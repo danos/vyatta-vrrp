@@ -1,3 +1,10 @@
+vyatta-vrrp (2.25) unstable; urgency=medium
+
+  * Bugfix/Always start groups in BACKUP state
+  * Bugfix/Don't get state for invalid paths
+
+ -- Anthony Dempsey <anthony.dempsey@intl.att.com>  Tue, 12 May 2020 17:27:47 +0100
+
 vyatta-vrrp (2.24) unstable; urgency=medium
 
   * Bugfix/Logging syntax error with () in strings
