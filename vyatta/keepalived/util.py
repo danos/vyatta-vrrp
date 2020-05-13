@@ -383,22 +383,18 @@ def find_interface_in_yang_repr(
     interface_level: Any = None
     intf_dict: Dict
 
-    # TODO: This may be better split into two functions, one for interfaces
-    # and another for vifs
-    if interface_list == []:
+    for intf in interface_list:
+        # Interface list has entries so we need to loop through them and
+        # see if the interface already exists
+        if intf["tagnode"] == interface_name:
+            interface_level = intf
+            break
+    else:
         # Interface list is empty so create the interface and add it to the
         # list and then return the reference
         intf_dict = {"tagnode": interface_name}
         interface_level = intf_dict
         interface_list.append(intf_dict)
-    else:
-        # Interface list has entries so we need to loop through them and
-        # see if the interface already exists
-        intf: Dict
-        for intf in interface_list:
-            if intf["tagnode"] == interface_name:
-                interface_level = intf
-                break
 
     if interface_level is None:
         # Interface doesn't exists yet but there are interfaces in the list
@@ -409,22 +405,18 @@ def find_interface_in_yang_repr(
 
     # Deal with vifs here now that we've found the interface it's on
     if vif_number != "":
+        vif_dict: Dict
         if VIF_YANG_NAME not in interface_level:
-            vif_dict: Dict = {"tagnode": vif_number}
+            vif_dict = {"tagnode": vif_number}
             interface_level[VIF_YANG_NAME] = [vif_dict]
-            interface_level = vif_dict
         else:
-            vif_exists: bool = False
-            vif: Dict
-            for vif in interface_level[VIF_YANG_NAME]:
-                if vif["tagnode"] == vif_number:
-                    vif_exists = True
-                    interface_level = vif
+            for vif_dict in interface_level[VIF_YANG_NAME]:
+                if vif_dict["tagnode"] == vif_number:
                     break
-            if not vif_exists:
+            else:
                 vif_dict = {"tagnode": vif_number}
                 interface_level[VIF_YANG_NAME].append(vif_dict)
-                interface_level = vif_dict
+        interface_level = vif_dict
 
     if VRRP_YANG_NAME not in interface_level:
         # If there is no vrrp config in the interface yet add the top level
