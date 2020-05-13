@@ -344,9 +344,6 @@ vrrp_sync_group {sync_group} {{
         group_config: List[List[str]] = util.get_config_blocks(
             config_lines, vrrp_group_start_indexes)
 
-        # config_without_groups = \
-        #    config_lines[:vrrp_group_start_indexes[0]]  # type: List[str]
-
         yang_representation: Dict[str, Dict] = {
             util.INTERFACE_YANG_NAME: {}
         }

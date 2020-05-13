@@ -1076,8 +1076,7 @@ def _convert_keepalived_data_to_yang(
             else:
                 instance_dict[key] = "NOTFOUND"
 
-    tracked_dict: Any
-    tracked_dict = {}
+    tracked_dict: Dict = {}
 
     # Multi line config code
     track_intf_tuple: Tuple[bool, Union[List[None], str]] = \

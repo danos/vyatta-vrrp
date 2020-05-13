@@ -376,7 +376,7 @@ def find_interface_in_yang_repr(
     """
 
     interface_level: Any = None
-    intf_dict: Any = None
+    intf_dict: Dict
 
     # TODO: This may be better split into two functions, one for interfaces
     # and another for vifs

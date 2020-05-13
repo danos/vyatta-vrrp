@@ -49,7 +49,7 @@ class TestVyattaShowVrrp:
     )
     def test_show_vrrp_summary(self, fakes, show, state):
         import vyatta.show_vrrp_cmds
-        result = vyatta.show_vrrp_cmds.show_vrrp_summary(state)  # type: str
+        result = vyatta.show_vrrp_cmds.show_vrrp_summary(state)
         assert result == show
 
     @pytest.mark.parametrize(
