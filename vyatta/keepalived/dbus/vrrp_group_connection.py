@@ -8,16 +8,17 @@ Vyatta VCI component to configure keepalived to provide VRRP functionality
 # All rights reserved.
 
 import logging
+import pydbus
 from functools import wraps
-from typing import Any, Dict, Union
+from typing import Any, Dict, Union, Callable
 
 import vci
 import vyatta.keepalived.util as util
 
 
-def activate_connection(func):
+def activate_connection(func) -> Callable:
     @wraps(func)
-    def wrapper(inst, *args, **kwargs):
+    def wrapper(inst: "VrrpConnection", *args, **kwargs) -> Callable:
         if not inst._activated:
             # Prints to console when using template scripts, hiding just now
             #inst.log.info("Activating object because %s became active",
@@ -40,18 +41,21 @@ def activate_connection(func):
 class VrrpConnection:
 
     def __init__(
-            self, intf: str, vrid: str, af_type: int, bus_object: Any,
-            notify_bgp: bool = None, notify_ipsec: bool = None,
-            script_master: bool = None, script_backup: bool = None,
-            script_fault: bool = None):
+            self, intf: str, vrid: str, af_type: int,
+            bus_object: Any
+        ) -> None:
+        """
+        This object represents the DBus interface/object to a VRRP group.
+        """
+
         if "." in intf:
             intf = intf.replace(".", "_")
         self.intf: str = intf
         self.vrid: str = vrid
-        self.bus_object: Any = bus_object
-        self.log = logging.getLogger("vyatta-vrrp-vci")
+        self.bus_object: pydbus.Bus = bus_object
+        self.log: logging.Logger = logging.getLogger("vyatta-vrrp-vci")
         self.current_state: str
-        self.client = vci.Client()
+        self.client: vci.Client = vci.Client()
         self.af_type_str: str
         if af_type == 4:
             self.af_type_str = "IPv4"
@@ -64,11 +68,16 @@ class VrrpConnection:
             name_appeared=activate_connection
         )
         self._activated: bool = False
-        self.vrrp_property_interface: Any = None
-        self.vrrp_group_proxy: Any = None
+        self.vrrp_property_interface: pydbus.interface = None
+        self.vrrp_group_proxy: pydbus.ProxyObject = None
 
     @activate_connection
     def get_instance_state(self) -> Dict[str, Union[str, Dict[str, str]]]:
+        """
+        Query the group for the values of it's properties, as defined in the Dbus
+        interface and represented in the VRRP State yang.
+        """
+
         if self.vrrp_property_interface is None:
             return {}
         group_state: Dict = self.vrrp_property_interface.GetAll(
@@ -93,6 +102,10 @@ class VrrpConnection:
 
     @activate_connection
     def garp(self) -> Dict:
+        """
+        Trigger the group to send a gARP packet to refresh L2 ARP tables.
+        """
+
         if self.vrrp_group_proxy is None:
             return {}
         self.vrrp_group_proxy.SendGarp()
@@ -100,6 +113,10 @@ class VrrpConnection:
 
     @staticmethod
     def state_int_to_string(state: int) -> str:
+        """
+        Convert from integer states values to human readable states
+        """
+
         if state == 0:
             return "INIT"
         elif state == 1:
@@ -112,6 +129,12 @@ class VrrpConnection:
             return "TRANSIENT"
 
     def state_change(self, status: int) -> None:
+        """
+        Call back for when the state change signal fires from the
+        DBus object.
+        (An event loop is needed to run this?)
+        """
+
         status_str: str = self.state_int_to_string(status)
         # May need to also send 5 gARP replies on a master transition
         # there's a note about this in the legacy implementation
@@ -134,6 +157,10 @@ class VrrpConnection:
 
     @activate_connection
     def subscribe_instance_signals(self) -> None:
+        """
+        Register the state change call back
+        """
+
         self.log.debug("%s subscribing to signals", self.dbus_path)
         if self.vrrp_group_proxy is None:
             return
@@ -143,6 +170,10 @@ class VrrpConnection:
 
     @activate_connection
     def reset_group_state(self) -> None:
+        """
+        Reset the VRRP group state to BACKUP
+        """
+
         self.log.info("Resetting state of %s to BACKUP", self.instance_name)
         if self.vrrp_group_proxy is None:
             self.log.warn("Failed to reset state of %s, DBus connection not initialised?",

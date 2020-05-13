@@ -21,7 +21,8 @@ class VrrpGroup:
 
     def __init__(
             self, name: str, delay: str, group_config: Dict,
-            rfc_num: int = -1):
+            rfc_num: int = -1
+        ) -> None:
         """
         Constructor for the class
 
@@ -100,7 +101,7 @@ vrrp_instance {instance} {{
         if "rfc-compatibility" in self._group_config:
             self._group_config["vmac"] = f"{name[:3]}vrrp{rfc_num}"
             if len(self._group_config["vmac"]) > 15:
-                print("Warning: generated interface name is longer than 15 " +
+                print("Warning: generated interface name is longer than 15 "
                       "characters\n")
             else:
                 self._template += """
@@ -193,11 +194,11 @@ vrrp_instance {instance} {{
         self._template += "\n}}"
 
     @property
-    def instance_name(self):
+    def instance_name(self)  -> str:
         """Name of this group in the config file"""
         return self._instance
 
-    def _generate_track_string(self, track_dict):
+    def _generate_track_string(self, track_dict)  -> None:
         self._template += """
     track {{"""
         if "interface" in track_dict:
@@ -217,7 +218,7 @@ vrrp_instance {instance} {{
         self._template += """
     }}"""
 
-    def _generate_track_interfaces(self, intf_dict):
+    def _generate_track_interfaces(self, intf_dict)  -> None:
         self._template += """
         interface {{"""
         for interface in intf_dict:
@@ -238,7 +239,7 @@ vrrp_instance {instance} {{
         self._template += """
         }}"""  # Close interface brace
 
-    def _generate_track_pathmon(self, pathmon_dict):
+    def _generate_track_pathmon(self, pathmon_dict)  -> None:
         self._template += """
         pathmon {{"""
         for monitor in pathmon_dict["monitor"]:
@@ -257,7 +258,7 @@ vrrp_instance {instance} {{
         self._template += """
         }}"""  # Close pathmon brace
 
-    def _generate_track_route_to(self, route_dict):
+    def _generate_track_route_to(self, route_dict)  -> None:
         self._template += """
         route_to {{"""
         for route in route_dict:
@@ -275,7 +276,7 @@ vrrp_instance {instance} {{
         self._template += """
         }}"""  # Close route brace
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         completed_config = self._template.format(
             **self._group_config
         )

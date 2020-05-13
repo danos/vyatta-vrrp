@@ -16,15 +16,15 @@ import logging
 import time
 import pydbus
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Callable
 
 import vyatta.keepalived.util as util
 
-def get_vrrp_proxy(func):
+def get_vrrp_proxy(func) -> Callable:
     @wraps(func)
-    def wrapper(inst, *args, **kwargs):
+    def wrapper(inst: 'ProcessControl', *args, **kwargs) -> Callable:
         if inst.vrrp_proxy_process == None:
-            inst.vrrp_proxy_process: Any = inst.sysbus.get(
+            inst.vrrp_proxy_process = inst.sysbus.get(
                 util.KEEPALIVED_DBUS_INTF_NAME,
                 util.VRRP_PROCESS_DBUS_INTF_PATH
             )
@@ -33,32 +33,36 @@ def get_vrrp_proxy(func):
 
 class ProcessControl:
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """
+        This object models controlling the parent Keepalived process using DBus
+        and systemd commands.
+        """
+
         self.keepalived_service_file: str = "keepalived.service"
 
-        self.log = logging.getLogger("vyatta-vrrp-vci")
-        self.sysbus = pydbus.SystemBus()
+        self.log: logging.Logger = logging.getLogger("vyatta-vrrp-vci")
+        self.sysbus: pydbus.Bus = pydbus.SystemBus()
 
-        self.systemd_proxy = self.sysbus.get(
+        self.systemd_proxy: pydbus.ProxyObject = self.sysbus.get(
             util.SYSTEMD_DBUS_INTF_NAME,
             util.SYSTEMD_DBUS_PATH
         )
 
-        self.systemd_manager_intf = self.systemd_proxy[
+        self.systemd_manager_intf: pydbus.interface = self.systemd_proxy[
             util.SYSTEMD_MANAGER_DBUS_INTF_NAME
         ]
-        self.keepalived_unit_file_intf = \
+        self.keepalived_unit_file_intf: pydbus.ProxyMethod = \
             self.systemd_proxy.LoadUnit(
                 self.keepalived_service_file
             )
 
-        self.keepalived_proxy_obj = \
+        self.keepalived_proxy_obj: pydbus.ProxyObject = \
             self.sysbus.get(
                 util.SYSTEMD_DBUS_INTF_NAME,
                 self.keepalived_unit_file_intf
             )
-        self.vrrp_proxy_process = None
-        self.keepalived_process = None
+        self.vrrp_proxy_process: pydbus.ProxyObject = None
         self.running_state: str = "UNKNOWN"
         self.systemd_default_file_path: str = "/etc/default/keepalived"
         self.snmpd_conf_file_path: str = "/etc/snmp/snmpd.conf"
@@ -81,6 +85,10 @@ class ProcessControl:
             self.keepalived_service_file, "replace")
 
     def set_default_daemon_arguments(self) -> None:
+        """
+        Generate the default commands that Keepalived is passed on start up
+        """
+
         snmp_socket: str = self.get_agent_x_socket()
         if snmp_socket != "":
             snmp_socket = f"--snmp-agent-socket {snmp_socket}"
@@ -92,6 +100,13 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
             f_obj.write(default_string)
 
     def get_agent_x_socket(self) -> str:
+        """
+        Find how we should connect to the SNMP AgentX protocol.
+        This can be changed but it is usually 'tcp:localhost:705:1'
+        The 1 at the end of the connection string is the Global VRF, this is
+        required so Keepalived connects to AgentX correctly.
+        """
+
         snmp_socket: str = "tcp:localhost:705:1"
         snmp_conf_file: Path = Path(self.snmpd_conf_file_path)
         if (snmp_conf_file.exists() and snmp_conf_file.is_file()):
@@ -120,7 +135,13 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
 
     @get_vrrp_proxy
     def get_rfc_mapping(self, intf: str) -> Dict[str, str]:
-        rfc_mapping: Tuple[str, str] = self.vrrp_proxy_process.GetRfcMapping(intf)  # noqa: E501
+        """
+        Given an RFC interface return the receiving interface and group that
+        relate to that RFC interface. Used in RPC calls.
+        """
+
+        rfc_mapping: Tuple[str, str] = \
+            self.vrrp_proxy_process.GetRfcMapping(intf)
         return {
             "vyatta-vrrp-v1:receive":
             rfc_mapping[0],
@@ -132,6 +153,12 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
 
     @get_vrrp_proxy
     def dump_keepalived_data(self) -> bool:
+        """
+        Signal keepalived to write it's running data file.
+        We wait up to 3 seconds for it to be written, if the file isn't
+        written in this time keepalived isn't responding.
+        """
+
         data_file = Path(util.KEEPALIVED_DATA_FILE_PATH)
         if data_file.exists():
             data_file.unlink()
@@ -147,6 +174,12 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
 
     @get_vrrp_proxy
     def dump_keepalived_stats(self) -> bool:
+        """
+        Signal keepalived to write it's running stats file.
+        We wait up to 3 seconds for it to be written, if the file isn't
+        written in this time keepalived isn't responding.
+        """
+
         stats_file = Path(util.KEEPALIVED_STATS_FILE_PATH)
         if stats_file.exists():
             stats_file.unlink()
@@ -168,7 +201,6 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
         config file.
         """
         self.vrrp_proxy_process.ReloadConfig()
-        return
 
     @get_vrrp_proxy
     def turn_on_debugs(self, debug_value: int) -> None:

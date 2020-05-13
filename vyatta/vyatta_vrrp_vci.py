@@ -30,7 +30,7 @@ def send_garp(rpc_input: Dict[str, str]) -> Dict:
 class Config(vci.Config):
 
     # Class attributes that will be the same across all instances
-    def __init__(self, config_impl):
+    def __init__(self, config_impl) -> None:
         super().__init__()
         self._conf_obj = config_impl
         if not isinstance(self._conf_obj, AbstractVrrpConfig.ConfigFile):
@@ -94,7 +94,7 @@ class Config(vci.Config):
 
 class State(vci.State):
 
-    def __init__(self, config_impl):
+    def __init__(self, config_impl) -> None:
         super().__init__()
         self._conf_obj = config_impl
         if not isinstance(self._conf_obj, AbstractVrrpConfig.ConfigFile):

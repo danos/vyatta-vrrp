@@ -164,7 +164,8 @@ def show_vrrp_summary(state_dict: Dict) -> str:
 def show_vrrp_detail(
         state_dict: Dict,
         filter_intf: str = "",
-        filter_grp: str = "") -> str:
+        filter_grp: str = ""
+    ) -> str:
     """
     Convert a YANG like python dictionary into the "show vrrp detail" string
     representation.
@@ -440,7 +441,8 @@ def show_vrrp_detail(
 def show_vrrp_interface(
         state_dict: Dict,
         filter_intf: str = "",
-        filter_grp: str = "") -> str:
+        filter_grp: str = ""
+    ) -> str:
     """
     Function to be called from vyatta-show-vrrp.py to match the existing
     "show vrrp interface" output. The output of "show vrrp interface" is the same
@@ -564,7 +566,8 @@ def show_vrrp_sync(state_dict: Dict, specific: str = "") -> str:
 def show_vrrp_statistics(
         stats_dict: Dict,
         filter_intf: str = "",
-        filter_grp: str = "") -> str:
+        filter_grp: str = ""
+    ) -> str:
     """
     Convert a YANG like python dictionary into the "show vrrp statistics" string
     representation.
@@ -1141,7 +1144,7 @@ def _convert_keepalived_data_to_yang(
 
     return {"instance-state": instance_dict, "tagnode": vrid}
 
-def convert_data_file_to_dict(data_string: str):
+def convert_data_file_to_dict(data_string: str) -> Dict:
     """
     Convert a string from the data file into the full yang representation required
     for show outputs of "show vrrp detail", "show vrrp interfaces", and
@@ -1486,7 +1489,7 @@ def _convert_keepalived_stats_to_yang(
 
     return {"stats": instance_dict, "tagnode": int(vrid)}
 
-def convert_stats_file_to_dict(data_string: str):
+def convert_stats_file_to_dict(data_string: str) -> Dict:
     """
     Convert a string from the data file into the full yang representation required
     for show outputs of "show vrrp detail", "show vrrp interfaces", and

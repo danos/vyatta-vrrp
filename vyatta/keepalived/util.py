@@ -61,7 +61,8 @@ KEEPALIVED_DATA_FILE_PATH = "/tmp/keepalived.data"
 KEEPALIVED_STATS_FILE_PATH = "/tmp/keepalived.stats"
 
 def get_specific_vrrp_config_from_yang(
-        conf: Dict, value: str) -> Generator:
+        conf: Dict, value: str
+    ) -> Generator:
     """
     Generator to return the specific config entry from every VRRP group
 
@@ -237,7 +238,8 @@ def sanitize_vrrp_config(conf: Dict) -> Dict:
 
 def get_config_indexes(
         config_lines: List[str],
-        search_string: str) -> List[int]:
+        search_string: str
+    ) -> List[int]:
     """
     Get index for every list entry that matches the provided search string
 
@@ -268,7 +270,8 @@ def get_config_indexes(
 
 def get_config_blocks(
         config_list: List[str],
-        indexes_list: List[int]) -> List[List[str]]:
+        indexes_list: List[int]
+    ) -> List[List[str]]:
     """
         Group lines of vrrp config into logical blocks for easier processing
 
@@ -298,7 +301,8 @@ def get_config_blocks(
 
 def find_config_value(
         config_list: List[str],
-        search_term: str) -> Tuple[bool, Union[List[None], str]]:
+        search_term: str
+    ) -> Tuple[bool, Union[List[None], str]]:
     """
     Find a config line in a block of config
 
@@ -342,7 +346,8 @@ def find_config_value(
 def find_interface_in_yang_repr(
         interface_name: str,
         vif_number: str,
-        interface_list: List[Any]) -> Dict:
+        interface_list: List[Any]
+    ) -> Dict:
     """
     Find the interface that a vrrp group is to be added to based on
     name of interface and any vif number

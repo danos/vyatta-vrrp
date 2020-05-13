@@ -125,7 +125,8 @@ class KeepalivedConfig(AbstractConfig.ConfigFile):
 
     def __init__(
             self,
-            config_file_path: str = "/etc/keepalived/keepalived.conf"):
+            config_file_path: str = "/etc/keepalived/keepalived.conf"
+        ) -> None:
         """
         KeepalivedConfig constructor
 
@@ -145,8 +146,7 @@ class KeepalivedConfig(AbstractConfig.ConfigFile):
             vrrp_instances:
                 A list of VRRP group Objects that have been found in the
                 config passed to this object
-                Currently this is modified in the update call, there must
-                be a better way to do this
+                Currently this is modified in the update call.
             vif_yang_name, vrrp_yang_name (str):
                 Name of the YANG paths that are used for dictionary keys to
                 avoid magic strings
@@ -186,11 +186,11 @@ global_defs {
         return self._vrrp_connections
 
     def config_file_path(self) -> str:
-        """Path to the keepalived config file returns string"""
+        """Path to the keepalived config file"""
         return self.config_file
 
     def impl_name(self) -> str:
-        """Name of the VRRP implementation returns string"""
+        """Name of the VRRP implementation"""
         return self.implementation_name
 
     def update(self, new_config: Dict) -> None:
@@ -411,7 +411,8 @@ vrrp_sync_group {sync_group} {{
 
     def _convert_keepalived_config_to_yang(
             self,
-            config_block: List[str]) -> dict:
+            config_block: List[str]
+        ) -> dict:
         """
         Converts a Keepalived VRRP block of config into YANG
 
@@ -515,7 +516,14 @@ vrrp_sync_group {sync_group} {{
 
     @staticmethod
     def _convert_authentication_config(
-            block: List[str], config_dict: Dict) -> None:
+            block: List[str], config_dict: Dict
+        ) -> None:
+        """
+        Convert the authentication block into key:value pairs in the
+        config dictionary, do nothing if the config isn't in the
+        string.
+        """
+
         try:
             block.index('authentication {')
         except ValueError:
@@ -537,7 +545,14 @@ vrrp_sync_group {sync_group} {{
 
     @staticmethod
     def _convert_notify_proto_config(
-            block: List[str], config_dict: Dict) -> None:
+            block: List[str], config_dict: Dict
+        ) -> None:
+        """
+        Convert notify block into key:value pairs in the
+        config dictionary, do nothing if the config isn't in the
+        string.
+        """
+
         try:
             config_start: int = block.index('notify {')
         except ValueError:
@@ -554,7 +569,17 @@ vrrp_sync_group {sync_group} {{
                 config_dict["notify"]["ipsec"] = [None]
 
     def _convert_tracking_config(
-            self, block: List[str], config_dict: Dict, intf_type: str) -> None:
+            self, block: List[str], config_dict: Dict, intf_type: str
+        ) -> None:
+        """
+        Convert tracking config blocks into key:value pairs in the
+        config dictionary, do nothing if the config isn't in the
+        string.
+
+        Because there's several types of tracking available we need
+        to call each track helper function to generate the final entry
+        into the config_dict['track'] value.
+        """
         try:
             config_start: int = block.index('track {')
         except ValueError:
@@ -572,7 +597,14 @@ vrrp_sync_group {sync_group} {{
 
     @staticmethod
     def _convert_interface_tracking_config(
-            block: List[str], config_dict: Dict, start: int) -> None:
+            block: List[str], config_dict: Dict, start: int
+        ) -> None:
+        """
+        Convert track interface block into key:value pairs in the
+        config dictionary, do nothing if the config isn't in the
+        string.
+        """
+
         try:
             config_start: int = block.index('interface {', start)
         except ValueError:
@@ -604,7 +636,14 @@ vrrp_sync_group {sync_group} {{
     @staticmethod
     def _convert_pathmon_tracking_config(
             block: List[str], config_dict: Dict, start: int,
-            intf_type: Enum) -> None:
+            intf_type: Enum
+        ) -> None:
+        """
+        Convert track pathmon block into key:value pairs in the
+        config dictionary, do nothing if the config isn't in the
+        string.
+        """
+
         try:
             config_start: int = block.index('pathmon {', start)
         except ValueError:
@@ -656,7 +695,14 @@ vrrp_sync_group {sync_group} {{
     @staticmethod
     def _convert_route_to_tracking_config(
             block: List[str], config_dict: Dict, start: int,
-            intf_type: Enum) -> None:
+            intf_type: Enum
+        ) -> None:
+        """
+        Convert track route block into key:value pairs in the
+        config dictionary, do nothing if the config isn't in the
+        string.
+        """
+
         try:
             config_start: int = block.index('route_to {', start)
         except ValueError:
