@@ -6,7 +6,7 @@
 
 
 import logging
-from typing import Dict
+from typing import Dict, Union
 
 import vyatta.keepalived.util as util
 
@@ -48,8 +48,11 @@ class VrrpGroup:
                 group_config["advertise-interval"]
             del self._group_config["advertise-interval"]
         elif "fast-advertise-interval" in self._group_config:
-            self._group_config["adv"] = \
-                int(float(group_config["fast-advertise-interval"]) / 1000)
+            fast_advertise: Union[int, float] = \
+                float(group_config["fast-advertise-interval"]) / 1000
+            if not (group_config["fast-advertise-interval"] % 1000):
+                fast_advertise = int(fast_advertise)
+            self._group_config["adv"] = fast_advertise
             del self._group_config["fast-advertise-interval"]
 
         # Values outwith the dictionary
