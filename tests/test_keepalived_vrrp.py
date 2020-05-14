@@ -53,13 +53,18 @@ class TestKeepalivedVrrpGroup:
          (pytest.lazy_fixture("runtransition_v3_group_keepalived_config"),
          pytest.lazy_fixture("runtransition_v3_group"), -1, "dp0p1s1"),
          (pytest.lazy_fixture("switch_rfc_group_keepalived_config"),
-         pytest.lazy_fixture("generic_rfc_group"), 1, "sw0.10")],
+         pytest.lazy_fixture("generic_rfc_group"), 1, "sw0.10"),
+         (pytest.lazy_fixture(
+             "generic_v3_fast_advert_group_keepalived_config"
+            ),
+         pytest.lazy_fixture("generic_v3_fast_advert_group"), -1, "dp0p1s1")],
         ids=["Simple", "Complex", "VRRPv3", "IPv6 group",
              "Pathmon tracking",
              "Legacy tracking", "Legacy & Enhanced Tracking",
              "Legacy Interface & Enhanced Pathmon Tracking", "Accept VRRPv3",
              "No Preempt VRRPv3", "AH Auth VRRPv3",
-             "Run transition scripts", "Switch interface"])
+             "Run transition scripts", "Switch interface",
+             "VRRPv3 fast-advert"])
     def test_vrrp_group_config_string(
             self, keepalived_config, yang, rfc_num, intf):
         result = VrrpGroup(intf, "0", yang, rfc_num)

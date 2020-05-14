@@ -151,13 +151,21 @@ class TestVyattaShowVrrp:
                 pytest.lazy_fixture("generic_group_vif_show_detail"),
                 pytest.lazy_fixture("detailed_vif_simple_state")
             ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "generic_v3_rfc_group_fast_advert_show_detail"
+                ),
+                pytest.lazy_fixture("detailed_v3_rfc_fast_advert_simple_state")
+            ),
         ],
         ids=[
             "No rfc", "rfc", "rfc sync", "rfc IPAO", "Backup show",
             "Backup track interface", "Backup track interface no weight",
             "Backup track pathmon", "Backup track route",
             "No rfc v3", "Start delay",
-            "Preempt delay", "Multiple groups in sync-group", "Vif"
+            "Preempt delay", "Multiple groups in sync-group", "Vif",
+            "RFC v3 with fast advert",
         ]
     )
     def test_show_vrrp_detail(self, fakes, show, data):
@@ -722,6 +730,15 @@ class TestVyattaShowVrrp:
                 pytest.lazy_fixture("generic_group_vif_show_detail"),
                 pytest.lazy_fixture("generic_group_vif_simple_keepalived_data")
             ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "generic_v3_rfc_group_fast_advert_show_detail"
+                ),
+                pytest.lazy_fixture(
+                    "generic_v3_rfc_group_fast_advert_simple_keepalived_data"
+                )
+            ),
         ],
         ids=[
             "No rfc", "rfc", "rfc sync", "rfc IPAO", "Backup group",
@@ -734,7 +751,7 @@ class TestVyattaShowVrrp:
             "Simple group with preempt delay",
             "Multiple groups with sync groups",
             "Complex group with multiple tracked objects",
-            "Vif group"
+            "Vif group", "Version 3 fast-advert"
         ]
     )
     def test_complete_show_vrrp_detail(self, fakes, show, file_content):

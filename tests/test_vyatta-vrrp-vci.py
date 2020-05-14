@@ -231,3 +231,23 @@ class TestVyattaVrrpVci:
         with open(file_path, "r") as file_handle:
             file_contents = file_handle.read()
         assert file_contents == autogeneration_string
+
+    def test_vci_config_set_writes_correct_v3_config(
+            self, mock_pydbus, test_config,
+            generic_v3_fast_advert_config,
+            simple_v3_keepalived_config):
+        import vyatta.keepalived.dbus.process_control as process_ctrl
+        pc = process_ctrl.ProcessControl()
+        pc.keepalived_proxy_obj.SubState = "running"
+        result = True
+        file_path = \
+            test_config._conf_obj.config_file_path()
+        test_config.set(generic_v3_fast_advert_config)
+        conf_path = Path(
+            test_config._conf_obj.config_file_path())
+        expected = conf_path.exists()
+        assert result == expected
+        file_contents = ""
+        with open(file_path, "r") as file_handle:
+            file_contents = file_handle.read()
+        assert file_contents == simple_v3_keepalived_config

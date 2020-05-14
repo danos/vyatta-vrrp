@@ -1734,6 +1734,94 @@ Interface: dp0p1s1
 
 
 @pytest.fixture
+def generic_v3_rfc_group_fast_advert_simple_keepalived_data():
+    return """
+------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s1-1
+ VRRP Version = 3
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:00 1970)
+   Listening device = dp0p1s1
+   Transmitting device = dp0vrrp1
+   Using src_ip = 10.10.1.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Base priority = 100
+   Effective priority = 100
+   Address owner = no
+   Advert interval = 500 milli-sec
+   Accept = disabled
+   Preempt = enabled
+   Promote_secondaries = enabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.1.100/32 dev dp0vrrp1 scope global
+"""
+
+
+@pytest.fixture
+def detailed_v3_rfc_fast_advert_simple_keepalived_state():
+    return \
+        {
+            "instance-state":
+            {
+                "address-owner": False,
+                "last-transition": 0,
+                "rfc-interface": "dp0vrrp1",
+                "state": "MASTER",
+                "sync-group": "",
+                "version": 3,
+                "src-ip": "10.10.1.1",
+                "base-priority": 100,
+                "effective-priority": 100,
+                "advert-interval": "500 milli-sec",
+                "accept": False,
+                "preempt": True,
+                "auth-type": None,
+                "virtual-ips": [
+                    "10.10.1.100/32"
+                ]
+            },
+            "tagnode": "1"
+        }
+
+
+@pytest.fixture
+def generic_v3_rfc_group_fast_advert_show_detail():
+    return """
+--------------------------------------------------
+Interface: dp0p1s1
+--------------
+  Group: 1
+  ----------
+  State:                        MASTER
+  Last transition:              3s
+
+  Version:                      3
+  RFC Compliant                 
+  Virtual MAC interface:        dp0vrrp1
+  Address Owner:                no
+
+  Source Address:               10.10.1.1
+  Configured Priority:          100
+  Effective Priority:           100
+  Advertisement interval:       500 milli-sec
+  Preempt:                      enabled
+  Accept:                       disabled
+
+  VIP count:                    1
+    10.10.1.100/32
+
+"""  # noqa: W291
+
+
+@pytest.fixture
 def generic_group_start_delay_simple_keepalived_data():
     return """
 ------< VRRP Topology >------
@@ -3622,6 +3710,22 @@ def ah_auth_v3_group():
 
 
 @pytest.fixture
+def generic_v3_fast_advert_group():
+    return \
+        {
+            "accept": False,
+            "fast-advertise-interval": 500,
+            "preempt": True,
+            "tagnode": 1,
+            "version": 3,
+            "virtual-address": [
+                "2001::2/64",
+                "fe80::1/64"
+            ]
+        }
+
+
+@pytest.fixture
 def runtransition_v3_group():
     return \
         {
@@ -4181,6 +4285,25 @@ vrrp_instance vyatta-dp0p1s1-1 {
 
 
 @pytest.fixture
+def generic_v3_fast_advert_group_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0p1s1-1 {
+    state BACKUP
+    interface dp0p1s1
+    virtual_router_id 1
+    version 3
+    start_delay 0
+    priority 100
+    advert_int 0.5
+    virtual_ipaddress {
+        fe80::1/64
+        2001::2/64
+    }
+    native_ipv6
+}"""
+
+
+@pytest.fixture
 def accept_v3_group_keepalived_config():
     return """
 vrrp_instance vyatta-dp0p1s1-1 {
@@ -4343,6 +4466,25 @@ vrrp_instance vyatta-dp0p1s1-1 {
             0.0.0.0/0
         }
     }
+}"""
+
+
+@pytest.fixture
+def generic_ipv6_fast_advert_group_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0p1s1-1 {
+    state BACKUP
+    interface dp0p1s1
+    virtual_router_id 1
+    version 3
+    start_delay 0
+    priority 100
+    advert_int 0.5
+    virtual_ipaddress {
+        fe80::1/64
+        2001::2/64
+    }
+    native_ipv6
 }"""
 
 
@@ -4704,6 +4846,21 @@ def detailed_v3_simple_state(simple_config,
 
 
 @pytest.fixture
+def detailed_v3_rfc_fast_advert_simple_state(
+        simple_config,
+        detailed_v3_rfc_fast_advert_simple_keepalived_state,
+        vrrp_yang_name, interface_yang_name,
+        dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [detailed_v3_rfc_fast_advert_simple_keepalived_state]
+    return simple_yang_state
+
+
+@pytest.fixture
 def detailed_start_delay_simple_state(
         simple_config, detailed_start_delay_simple_keepalived_state,
         vrrp_yang_name, interface_yang_name,
@@ -4942,6 +5099,20 @@ def generic_v3_config(top_level_dictionary, interface_yang_name,
 
 
 @pytest.fixture
+def generic_v3_fast_advert_config(
+        top_level_dictionary, interface_yang_name,
+        dataplane_yang_name, dataplane_list,
+        dataplane_interface, generic_v3_fast_advert_group,
+        vrrp_yang_name):
+    dataplane_interface[vrrp_yang_name]["vrrp-group"] = \
+        [generic_v3_fast_advert_group]
+    complex_yang_config = top_level_dictionary
+    complex_yang_config[interface_yang_name][dataplane_yang_name] =\
+        dataplane_list
+    return complex_yang_config
+
+
+@pytest.fixture
 def complex_config(top_level_dictionary, interface_yang_name,
                    dataplane_yang_name, dataplane_list,
                    dataplane_interface, max_config_group,
@@ -5140,6 +5311,14 @@ global_defs {
 def simple_keepalived_config(autogeneration_string,
                              dataplane_group_keepalived_config):
     return f"{autogeneration_string}{dataplane_group_keepalived_config}"
+
+
+@pytest.fixture
+def simple_v3_keepalived_config(
+        autogeneration_string,
+        generic_ipv6_fast_advert_group_keepalived_config):
+    return f"{autogeneration_string}" +\
+        f"{generic_ipv6_fast_advert_group_keepalived_config}"
 
 
 @pytest.fixture
