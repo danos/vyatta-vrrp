@@ -184,4 +184,13 @@ class VrrpConnection:
                 "DBus connection not initialised?",
                 self.instance_name)
             return
-        self.vrrp_group_proxy.ResetMaster()
+        group_state: Dict = self.vrrp_property_interface.GetAll(
+            util.VRRP_INSTANCE_DBUS_INTF_NAME
+        )
+        state: str = group_state["State"][1].upper()
+        if state == "MASTER":
+            self.vrrp_group_proxy.ResetMaster()
+        else:
+            print(
+                f"VRRP group {self.vrid} on {self.intf} is already in BACKUP"
+            )
