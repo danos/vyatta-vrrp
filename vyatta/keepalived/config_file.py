@@ -494,8 +494,9 @@ vrrp_sync_group {sync_group} {{
                 config_block, config_dict)
         else:
             if "advertise-interval" in config_dict:
-                config_dict["fast-advertise-interval"] = \
-                    config_dict["advertise-interval"] * 1000
+                fast_advertise: Union[int, float] = \
+                    float(config_dict["advertise-interval"]) * 1000
+                config_dict["fast-advertise-interval"] = int(fast_advertise)
                 del config_dict["advertise-interval"]
 
         # Find interface so we know which yang name to use for tracking
