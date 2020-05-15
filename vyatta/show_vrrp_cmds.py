@@ -925,12 +925,14 @@ def _convert_track_block_to_yang(config_block: List[str]) -> Dict[str, str]:
         config_value = line.split()[-1]
         if "Name" in line or "Policy" in line or "Network" in line:
             tracked_obj["name"] = config_value
-        elif "is UP" in line or "is Down" in line or "Status" in line:
+        elif "is UP" in line or "is DOWN" in line or "Status" in line:
             tracked_obj["state"] = config_value
         elif "weight" in line or "Weight" in line:
             tracked_obj["weight"] = config_value
         elif "Prefix" in line and "name" in tracked_obj:
             tracked_obj["name"] = tracked_obj["name"] + f"/{config_value}"
+        if "state" not in tracked_obj:
+            tracked_obj["state"] = "DOWN"
     return tracked_obj
 
 
