@@ -1,3 +1,3 @@
 help: Send GARP through specified network interface and group 
 allowed: vyatta-show-vrrp.pl --show=groups --intf=$5
-run: callrpc vyatta-vrrp-v1 garp json {"vyatta-vrrp-v1:interface": $5, "vyatta-vrrp-v1:group": $7}
+run: callrpc vyatta-vrrp-v1 garp json \{\"interface\":\"$5\",\"group\":$7\}
