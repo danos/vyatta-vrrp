@@ -1,2 +1,2 @@
 help: Show Virtual Router Redundancy Protocol (VRRP) information
-run: vyatta-show-vrrp.py summary
+run: vyatta_show_vrrp.py summary

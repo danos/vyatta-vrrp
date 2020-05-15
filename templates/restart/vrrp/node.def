@@ -1,6 +1,6 @@
 help: Restart VRRP
 run: if [ -e /etc/keepalived/keepalived.conf ] && [ -n  "`grep vyatta /etc/keepalived/keepalived.conf `" ] ; then
-        vyatta-vrrp-op-commands.py reload
+        vyatta_vrrp_op_commands.py reload
      else
         echo VRRP not configured
      fi

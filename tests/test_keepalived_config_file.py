@@ -8,8 +8,9 @@ import copy
 import json
 from pathlib import Path
 
-import vyatta.keepalived.util as util
 import pytest
+
+import vyatta.keepalived.util as util
 
 
 class TestKeepalivedConfigFile:
@@ -259,7 +260,7 @@ class TestKeepalivedConfigFile:
 
         intf_level = simple_switch_config[interface_yang_name]
         vif_intf = intf_level[switch_yang_name][0]["vif"][0]
-        del(intf_level[switch_yang_name][0][vrrp_yang_name])
+        del intf_level[switch_yang_name][0][vrrp_yang_name]
         vif_group = copy.deepcopy(generic_rfc_group)
         vif_intf[vrrp_yang_name]["vrrp-group"] = [vif_group]
 
@@ -444,7 +445,8 @@ class TestKeepalivedConfigFile:
     @pytest.mark.parametrize(
         "expected,config_block,result",
         [
-            ({"track":
+            ({
+                "track":
                 {
                     "vyatta-vrrp-path-monitor" +
                     "-track-interfaces-dataplane-v1:" +
@@ -461,10 +463,11 @@ class TestKeepalivedConfigFile:
                         ]
                     }
                 }
-              },
-             ["track {", "pathmon {",
-              "monitor test_monitor policy test_policy", "}"],
-             {"track": {}}),
+            },
+                ["track {", "pathmon {",
+                 "monitor test_monitor policy test_policy", "}"],
+                {"track": {}}
+            ),
             ({}, ['virtual_ipaddress {', "10.10.10.100/25", "}"], {})
         ],
         ids=["Config exists", "Config doesn't exist"])
@@ -477,7 +480,8 @@ class TestKeepalivedConfigFile:
     @pytest.mark.parametrize(
         "expected,config_block,result",
         [
-            ({"track":
+            ({
+                "track":
                 {
                     "vyatta-vrrp-route-to" +
                     "-track-interfaces-dataplane-v1:" +
@@ -485,11 +489,11 @@ class TestKeepalivedConfigFile:
                         "route": "10.10.10.0/24",
                     }]
                 }
-              },
-             ["track {", "route_to {",
-              "10.10.10.0/24", "}"],
-             {"track": {}}
-             ),
+            },
+                ["track {", "route_to {",
+                 "10.10.10.0/24", "}"],
+                {"track": {}}
+            ),
             ({}, ['virtual_ipaddress {', "10.10.10.100/25", "}"], {})
         ],
         ids=["Config exists", "Config doesn't exist"])

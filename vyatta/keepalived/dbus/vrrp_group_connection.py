@@ -8,11 +8,13 @@ Vyatta VCI component to configure keepalived to provide VRRP functionality
 # All rights reserved.
 
 import logging
-import pydbus
 from functools import wraps
-from typing import Any, Dict, Union, Callable
+from typing import Any, Callable, Dict, Union
+
+import pydbus
 
 import vci
+
 import vyatta.keepalived.util as util
 
 
@@ -21,7 +23,7 @@ def activate_connection(func) -> Callable:
     def wrapper(inst: "VrrpConnection", *args, **kwargs) -> Callable:
         if not inst._activated:
             # Prints to console when using template scripts, hiding just now
-            #inst.log.info("Activating object because %s became active",
+            # inst.log.info("Activating object because %s became active",
             #              util.KEEPALIVED_DBUS_INTF_NAME)
             inst.vrrp_group_proxy = inst.bus_object.get(
                 util.KEEPALIVED_DBUS_INTF_NAME,
@@ -43,7 +45,7 @@ class VrrpConnection:
     def __init__(
             self, intf: str, vrid: str, af_type: int,
             bus_object: Any
-        ) -> None:
+    ) -> None:
         """
         This object represents the DBus interface/object to a VRRP group.
         """
@@ -62,7 +64,8 @@ class VrrpConnection:
         else:
             self.af_type_str = "IPv6"
         self.instance_name: str = f"vyatta-{self.intf}-{self.vrid}"
-        self.dbus_path: str = f"{util.VRRP_INSTANCE_DBUS_PATH}/{intf}/{vrid}/{self.af_type_str}"
+        self.dbus_path: str = \
+            f"{util.VRRP_INSTANCE_DBUS_PATH}/{intf}/{vrid}/{self.af_type_str}"
         self.bus_object.watch_name(
             util.KEEPALIVED_DBUS_INTF_NAME,
             name_appeared=activate_connection
@@ -74,8 +77,8 @@ class VrrpConnection:
     @activate_connection
     def get_instance_state(self) -> Dict[str, Union[str, Dict[str, str]]]:
         """
-        Query the group for the values of it's properties, as defined in the Dbus
-        interface and represented in the VRRP State yang.
+        Query the group for the values of it's properties, as defined in the
+        Dbus interface and represented in the VRRP State yang.
         """
 
         if self.vrrp_property_interface is None:
@@ -97,7 +100,7 @@ class VrrpConnection:
                     "sync-group": group_state["SyncGroup"][0]
                 },
                 "tagnode": f"{self.vrid}"
-            }
+        }
         return processed_state
 
     @activate_connection
@@ -176,7 +179,9 @@ class VrrpConnection:
 
         self.log.info("Resetting state of %s to BACKUP", self.instance_name)
         if self.vrrp_group_proxy is None:
-            self.log.warn("Failed to reset state of %s, DBus connection not initialised?",
+            self.log.warn(
+                "Failed to reset state of %s, " +
+                "DBus connection not initialised?",
                 self.instance_name)
             return
         self.vrrp_group_proxy.ResetMaster()

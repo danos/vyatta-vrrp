@@ -40,7 +40,7 @@ class TestKeepalivedVrrpGroupControl:
     def test_garp(
             self, mock_pydbus):
         import vyatta.keepalived.dbus.vrrp_group_connection \
-             as group_conn
+            as group_conn
         import pydbus
         sysbus = pydbus.SystemBus()
         expected = {}
@@ -53,7 +53,7 @@ class TestKeepalivedVrrpGroupControl:
     def test_vif_sanitizing(
             self, mock_pydbus):
         import vyatta.keepalived.dbus.vrrp_group_connection \
-             as group_conn
+            as group_conn
         import pydbus
         sysbus = pydbus.SystemBus()
         expected = \

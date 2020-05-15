@@ -8,13 +8,12 @@
 import argparse
 from typing import Dict
 
-import vci
+import vyatta.abstract_vrrp_classes as abstract_impl
+import vyatta.keepalived.config_file as impl_conf
+import vyatta.keepalived.dbus.process_control as process_control
+import vyatta.keepalived.util as util
 import vyatta.show_vrrp_cmds as vrrp_show
 from vyatta.vyatta_vrrp_vci import State
-import vyatta.keepalived.config_file as impl_conf
-import vyatta.keepalived.util as util
-import vyatta.keepalived.dbus.process_control as process_control
-import vyatta.abstract_vrrp_classes as abstract_impl
 
 
 def process_arguments(command: str, intf: str, vrid: str, sync: str) -> str:
@@ -47,7 +46,8 @@ def process_arguments(command: str, intf: str, vrid: str, sync: str) -> str:
             if command == "detail":
                 show_output = vrrp_show.show_vrrp_detail(json_repr)
             elif command == "interface":
-                show_output = vrrp_show.show_vrrp_interface(json_repr, intf, vrid)
+                show_output = \
+                    vrrp_show.show_vrrp_interface(json_repr, intf, vrid)
             elif command == "sync":
                 show_output = vrrp_show.show_vrrp_sync(json_repr, sync)
             else:
@@ -60,7 +60,7 @@ def process_arguments(command: str, intf: str, vrid: str, sync: str) -> str:
                 return show_output
             with open(util.KEEPALIVED_STATS_FILE_PATH, "r") as file_obj:
                 file_contents = file_obj.read()
-            json_repr= vrrp_show.convert_stats_file_to_dict(file_contents)
+            json_repr = vrrp_show.convert_stats_file_to_dict(file_contents)
             show_output = vrrp_show.show_vrrp_statistics_filters(
                 json_repr, intf, vrid
             )
@@ -70,16 +70,17 @@ def process_arguments(command: str, intf: str, vrid: str, sync: str) -> str:
 
 def main() -> str:
     parser = argparse.ArgumentParser(description="Show output for VRRP")
-    parser.add_argument("show" , 
-        help="""The show command to display\n
+    parser.add_argument("show",
+                        help="""The show command to display\n
         summary - show vrrp\n
         detail - show vrrp detail\n
         interface - show vrrp interface\n
         stats - show vrrp statistics\n
         sync - show vrrp sync-group\n
         """,
-        choices=["summary", "detail", "interface", "stats", "sync"]
-    )
+                        choices=["summary", "detail", "interface", "stats",
+                                 "sync"]
+                        )
     parser.add_argument(
         "--intf", help="Filter on interface", default=""
     )

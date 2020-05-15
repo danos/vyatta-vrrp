@@ -7,17 +7,19 @@
 Vyatta VCI component to configure keepalived to provide VRRP functionality
 """
 
-import logging
-import json
-import os
-import pydbus
 import contextlib
+import json
+import logging
+import os
 from enum import Enum
 from typing import Any, Dict, List, Tuple, Union
+
+import pydbus
+
 import vyatta.abstract_vrrp_classes as AbstractConfig
+import vyatta.keepalived.dbus.vrrp_group_connection as vrrp_dbus
 import vyatta.keepalived.util as util
 import vyatta.keepalived.vrrp as vrrp
-import vyatta.keepalived.dbus.vrrp_group_connection as vrrp_dbus
 
 
 class KeepalivedConfig(AbstractConfig.ConfigFile):
@@ -126,7 +128,7 @@ class KeepalivedConfig(AbstractConfig.ConfigFile):
     def __init__(
             self,
             config_file_path: str = "/etc/keepalived/keepalived.conf"
-        ) -> None:
+    ) -> None:
         """
         KeepalivedConfig constructor
 
@@ -256,7 +258,8 @@ global_defs {
                             intf_name, group["tagnode"],
                             af_type, pydbus.SystemBus()
                         )
-                    instance_name: str = f"vyatta-{intf_name}-{group['tagnode']}"
+                    instance_name: str = \
+                        f"vyatta-{intf_name}-{group['tagnode']}"
                     self._vrrp_connections[instance_name] = \
                         connection
                     if "sync-group" in group:
@@ -338,7 +341,7 @@ vrrp_sync_group {sync_group} {{
                 group_name: str = group_name_exists[1].split()[0]
                 instance_start: int = sync_group.index("group {")
                 instance_end: int = sync_group.index("}", instance_start)
-                for instance in sync_group[instance_start+1:instance_end]:
+                for instance in sync_group[instance_start + 1:instance_end]:
                     sync_group_instances[instance] = group_name
 
         group_config: List[List[str]] = util.get_config_blocks(
@@ -357,14 +360,17 @@ vrrp_sync_group {sync_group} {{
             instance_name: str = f"vyatta-{intf_name}-{vrid}"
 
             if instance_name in sync_group_instances:
-                group.append(f"sync_group {sync_group_instances[instance_name]}")
+                group.append(
+                    f"sync_group {sync_group_instances[instance_name]}"
+                )
             vif_number: str = ""
             if "." in intf_name:
                 vif_sep: List[str] = intf_name.split(".")
                 intf_name = vif_sep[0]
                 vif_number = vif_sep[1]
 
-            interface_list: Dict[Any, Any] = yang_representation[util.INTERFACE_YANG_NAME]
+            interface_list: Dict[Any, Any] = \
+                yang_representation[util.INTERFACE_YANG_NAME]
             # Find the interface type for the interface name, right now this
             # is just a guess, there might be a better method of doing this
             # than regexes
@@ -388,7 +394,7 @@ vrrp_sync_group {sync_group} {{
             if new_group_start_delay != current_start_delay and \
                int(current_start_delay) < int(new_group_start_delay):
                 insertion_reference[util.VRRP_YANG_NAME]["start-delay"] = \
-                        new_group_start_delay
+                    new_group_start_delay
 
             insertion_reference[util.VRRP_YANG_NAME]["vrrp-group"].append(
                 self._convert_keepalived_config_to_yang(group))
@@ -412,7 +418,7 @@ vrrp_sync_group {sync_group} {{
     def _convert_keepalived_config_to_yang(
             self,
             config_block: List[str]
-        ) -> dict:
+    ) -> dict:
         """
         Converts a Keepalived VRRP block of config into YANG
 
@@ -480,12 +486,12 @@ vrrp_sync_group {sync_group} {{
         # Multi line config code, look for the block start and then the next }
         vips_start: int = config_block.index('virtual_ipaddress {')
         vips_end: int = config_block.index('}', vips_start)
-        config_dict["virtual-address"] = config_block[vips_start+1:vips_end]
+        config_dict["virtual-address"] = config_block[vips_start + 1:vips_end]
 
         # Version specific code
         if config_dict["version"] == 2:
             self._convert_authentication_config(
-                    config_block, config_dict)
+                config_block, config_dict)
         else:
             if "advertise-interval" in config_dict:
                 config_dict["fast-advertise-interval"] = \
@@ -517,7 +523,7 @@ vrrp_sync_group {sync_group} {{
     @staticmethod
     def _convert_authentication_config(
             block: List[str], config_dict: Dict
-        ) -> None:
+    ) -> None:
         """
         Convert the authentication block into key:value pairs in the
         config dictionary, do nothing if the config isn't in the
@@ -533,7 +539,7 @@ vrrp_sync_group {sync_group} {{
         auth_type: Tuple[bool, Union[List[None], str]] = \
             util.find_config_value(block, "auth_type")
         auth_pass: Tuple[bool, Union[List[None], str]] = \
-            util.find_config_value(block,"auth_pass")
+            util.find_config_value(block, "auth_pass")
         if auth_type[0] and auth_pass[0]:
             if auth_type[1] == "PASS":
                 auth_type = (auth_type[0], "plaintext-password")
@@ -546,7 +552,7 @@ vrrp_sync_group {sync_group} {{
     @staticmethod
     def _convert_notify_proto_config(
             block: List[str], config_dict: Dict
-        ) -> None:
+    ) -> None:
         """
         Convert notify block into key:value pairs in the
         config dictionary, do nothing if the config isn't in the
@@ -560,7 +566,7 @@ vrrp_sync_group {sync_group} {{
             return
         else:
             config_end: int = block.index("}", config_start)
-            notify_config: List[str] = block[config_start+1:config_end]
+            notify_config: List[str] = block[config_start + 1:config_end]
             config_dict["notify"] = {}
             if "/opt/vyatta/sbin/notify-bgp" in notify_config:
                 config_dict["notify"]["bgp"] = [None]
@@ -570,7 +576,7 @@ vrrp_sync_group {sync_group} {{
 
     def _convert_tracking_config(
             self, block: List[str], config_dict: Dict, intf_type: str
-        ) -> None:
+    ) -> None:
         """
         Convert tracking config blocks into key:value pairs in the
         config dictionary, do nothing if the config isn't in the
@@ -598,7 +604,7 @@ vrrp_sync_group {sync_group} {{
     @staticmethod
     def _convert_interface_tracking_config(
             block: List[str], config_dict: Dict, start: int
-        ) -> None:
+    ) -> None:
         """
         Convert track interface block into key:value pairs in the
         config dictionary, do nothing if the config isn't in the
@@ -614,7 +620,7 @@ vrrp_sync_group {sync_group} {{
             interface_list: List[Dict] = []
             config_end: int = block.index("}", config_start)
             track_intf_config: List[str] = \
-                block[config_start+1:config_end]
+                block[config_start + 1:config_end]
             for line in track_intf_config:
                 if "weight" not in line:
                     interface_list.append({"name": line})
@@ -637,7 +643,7 @@ vrrp_sync_group {sync_group} {{
     def _convert_pathmon_tracking_config(
             block: List[str], config_dict: Dict, start: int,
             intf_type: Enum
-        ) -> None:
+    ) -> None:
         """
         Convert track pathmon block into key:value pairs in the
         config dictionary, do nothing if the config isn't in the
@@ -652,7 +658,7 @@ vrrp_sync_group {sync_group} {{
         else:
             config_end: int = block.index("}", config_start)
             track_pathmon_config: List[str] = \
-                block[config_start+1: config_end]
+                block[config_start + 1: config_end]
             pathmon_dict: Dict = {"monitor": []}
             line: str
             for line in track_pathmon_config:
@@ -696,7 +702,7 @@ vrrp_sync_group {sync_group} {{
     def _convert_route_to_tracking_config(
             block: List[str], config_dict: Dict, start: int,
             intf_type: Enum
-        ) -> None:
+    ) -> None:
         """
         Convert track route block into key:value pairs in the
         config dictionary, do nothing if the config isn't in the
@@ -712,13 +718,13 @@ vrrp_sync_group {sync_group} {{
             route_list: List[Dict] = []
             config_end: int = block.index("}", config_start)
             track_route_config: List[str] = \
-                block[config_start+1:config_end]
+                block[config_start + 1:config_end]
             line: str
             for line in track_route_config:
                 if "weight" not in line:
                     route_list.append({"route": line})
                     continue
-                tokens: List [str] = line.split()
+                tokens: List[str] = line.split()
                 weight: int = int(tokens[-1])
                 weight_type: str
                 if weight < 0:

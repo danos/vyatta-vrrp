@@ -22,7 +22,7 @@ class VrrpGroup:
     def __init__(
             self, name: str, delay: str, group_config: Dict,
             rfc_num: int = -1
-        ) -> None:
+    ) -> None:
         """
         Constructor for the class
 
@@ -50,7 +50,7 @@ class VrrpGroup:
         elif "fast-advertise-interval" in self._group_config:
             fast_advertise: Union[int, float] = \
                 float(group_config["fast-advertise-interval"]) / 1000
-            if not (group_config["fast-advertise-interval"] % 1000):
+            if not group_config["fast-advertise-interval"] % 1000:
                 fast_advertise = int(fast_advertise)
             self._group_config["adv"] = fast_advertise
             del self._group_config["fast-advertise-interval"]
@@ -181,27 +181,29 @@ vrrp_instance {instance} {{
         if "run-transition-scripts" in self._group_config:
             transition_scripts = self._group_config["run-transition-scripts"]
             if "master" in transition_scripts:
-                self._template += f"""
-    notify_master \"{transition_scripts['master']} master {name} {self._group_config['vrid']}\""""
+                self._template += \
+                    f"\n    notify_master \"{transition_scripts['master']} " +\
+                    f"master {name} {self._group_config['vrid']}\""
             if "backup" in transition_scripts:
-                self._template += f"""
-    notify_backup \"{transition_scripts['backup']} backup {name} {self._group_config['vrid']}\""""
+                self._template += \
+                    f"\n    notify_backup \"{transition_scripts['backup']} " +\
+                    f"backup {name} {self._group_config['vrid']}\""
             if "fault" in transition_scripts:
-                self._template += f"""
-    notify_fault \"{transition_scripts['fault']} fault {name} {self._group_config['vrid']}\""""
+                self._template += \
+                    f"\n    notify_fault \"{transition_scripts['fault']} " +\
+                    f"fault {name} {self._group_config['vrid']}\""
 
-        # Generate instance name (TODO change to f-string with python 3.7)
         self._instance = f"vyatta-{name}-{group_config['tagnode']}"
         self._group_config["instance"] = self._instance
 
         self._template += "\n}}"
 
     @property
-    def instance_name(self)  -> str:
+    def instance_name(self) -> str:
         """Name of this group in the config file"""
         return self._instance
 
-    def _generate_track_string(self, track_dict)  -> None:
+    def _generate_track_string(self, track_dict) -> None:
         self._template += """
     track {{"""
         if "interface" in track_dict:
@@ -221,7 +223,7 @@ vrrp_instance {instance} {{
         self._template += """
     }}"""
 
-    def _generate_track_interfaces(self, intf_dict)  -> None:
+    def _generate_track_interfaces(self, intf_dict) -> None:
         self._template += """
         interface {{"""
         for interface in intf_dict:
@@ -242,7 +244,7 @@ vrrp_instance {instance} {{
         self._template += """
         }}"""  # Close interface brace
 
-    def _generate_track_pathmon(self, pathmon_dict)  -> None:
+    def _generate_track_pathmon(self, pathmon_dict) -> None:
         self._template += """
         pathmon {{"""
         for monitor in pathmon_dict["monitor"]:
@@ -261,7 +263,7 @@ vrrp_instance {instance} {{
         self._template += """
         }}"""  # Close pathmon brace
 
-    def _generate_track_route_to(self, route_dict)  -> None:
+    def _generate_track_route_to(self, route_dict) -> None:
         self._template += """
         route_to {{"""
         for route in route_dict:

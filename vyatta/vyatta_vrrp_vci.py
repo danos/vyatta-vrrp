@@ -6,20 +6,22 @@
 
 import json
 import logging
+from typing import Any, Dict, List
+
 import pydbus
-from typing import Dict, List, Any
 
 import vci  # pylint: disable=import-error
+
 import vyatta.abstract_vrrp_classes as AbstractVrrpConfig
-import vyatta.keepalived.util as util
 import vyatta.keepalived.dbus.process_control as process_control
 import vyatta.keepalived.dbus.vrrp_group_connection as \
     vrrp_dbus
+import vyatta.keepalived.util as util
 
 
 def send_garp(rpc_input: Dict[str, str]) -> Dict:
-    intf:str = rpc_input["vyatta-vrrp-v1:interface"]
-    group:str = str(rpc_input["vyatta-vrrp-v1:group"])
+    intf: str = rpc_input["vyatta-vrrp-v1:interface"]
+    group: str = str(rpc_input["vyatta-vrrp-v1:group"])
     vrrp_conn = vrrp_dbus.VrrpConnection(
         intf, group, 4, pydbus.SystemBus()
     )
@@ -71,7 +73,8 @@ class Config(vci.Config):
 
     def get(self) -> Dict[str, Any]:
         file_config: str = self._conf_obj.read_config()
-        yang_repr: Dict[str, Any] = self._conf_obj.convert_to_vci_format(file_config)
+        yang_repr: Dict[str, Any] = \
+            self._conf_obj.convert_to_vci_format(file_config)
         self.log.info(
             "%s yang repr returned to vci infra",
             yang_repr
@@ -127,12 +130,13 @@ class State(vci.State):
         return yang_repr
 
     def _generate_interfaces_vrrp_connection_list(
-            self, intf: Dict, transmit_intf: str, sysbus
-        ) -> None:
+        self, intf: Dict, transmit_intf: str, sysbus
+    ) -> None:
         if util.VRRP_YANG_NAME in intf:
             if "start-delay" in intf[util.VRRP_YANG_NAME]:
                 del intf[util.VRRP_YANG_NAME]["start-delay"]
-            vrrp_instances: List[Dict] = intf[util.VRRP_YANG_NAME]["vrrp-group"]
+            vrrp_instances: List[Dict] = \
+                intf[util.VRRP_YANG_NAME]["vrrp-group"]
             state_instances = []
             for vrrp_instance in vrrp_instances:
                 vrrp_conn: vrrp_dbus.VrrpConnection
@@ -144,8 +148,8 @@ class State(vci.State):
             intf[util.VRRP_YANG_NAME]["vrrp-group"] = state_instances
 
     def _generate_vrrp_connection(
-            self, vrrp_instance, transmit_intf, sysbus
-        ) -> vrrp_dbus.VrrpConnection:
+        self, vrrp_instance, transmit_intf, sysbus
+    ) -> vrrp_dbus.VrrpConnection:
         vrid: str = vrrp_instance["tagnode"]
         instance_name: str = f"vyatta-{transmit_intf}-{vrid}"
         vrrp_conn: vrrp_dbus.VrrpConnection

@@ -10,26 +10,28 @@ process using dbus controls.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
-
-from functools import wraps
 import logging
 import time
-import pydbus
+from functools import wraps
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Callable
+from typing import Callable, Dict, List, Tuple
+
+import pydbus
 
 import vyatta.keepalived.util as util
+
 
 def get_vrrp_proxy(func) -> Callable:
     @wraps(func)
     def wrapper(inst: 'ProcessControl', *args, **kwargs) -> Callable:
-        if inst.vrrp_proxy_process == None:
+        if inst.vrrp_proxy_process is None:
             inst.vrrp_proxy_process = inst.sysbus.get(
                 util.KEEPALIVED_DBUS_INTF_NAME,
                 util.VRRP_PROCESS_DBUS_INTF_PATH
             )
         return func(inst, *args, **kwargs)
     return wrapper
+
 
 class ProcessControl:
 

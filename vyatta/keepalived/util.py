@@ -11,10 +11,10 @@ but never actually used anything relating to the class.
 
 
 import ipaddress
-import socket
 import re
+import socket
 from enum import Enum
-from typing import List, Union, Tuple, Any, Dict, Generator, Optional, Match
+from typing import Any, Dict, Generator, List, Match, Optional, Tuple, Union
 
 INTERFACE_YANG_NAME: str = "vyatta-interfaces-v1:interfaces"
 DATAPLANE_YANG_NAME: str = "vyatta-interfaces-dataplane-v1:dataplane"
@@ -48,7 +48,8 @@ KEEPALIVED_DBUS_INTF_NAME: str = "org.keepalived.Vrrp1"
 VRRP_PROCESS_DBUS_INTF_PATH: str = \
     f"/{KEEPALIVED_DBUS_INTF_NAME.replace('.', '/')}/Vrrp"
 VRRP_INSTANCE_DBUS_INTF_NAME: str = f"{KEEPALIVED_DBUS_INTF_NAME}.Instance"
-VRRP_INSTANCE_DBUS_PATH: str = f"/{VRRP_INSTANCE_DBUS_INTF_NAME.replace('.', '/')}"
+VRRP_INSTANCE_DBUS_PATH: str = \
+    f"/{VRRP_INSTANCE_DBUS_INTF_NAME.replace('.', '/')}"
 
 
 INSTANCE_STATE_YANG: str = "instance-state"
@@ -60,9 +61,10 @@ PER_PACKET_DEBUG_FLAG = 1
 KEEPALIVED_DATA_FILE_PATH = "/tmp/keepalived.data"
 KEEPALIVED_STATS_FILE_PATH = "/tmp/keepalived.stats"
 
+
 def get_specific_vrrp_config_from_yang(
-        conf: Dict, value: str
-    ) -> Generator:
+    conf: Dict, value: str
+) -> Generator:
     """
     Generator to return the specific config entry from every VRRP group
 
@@ -101,8 +103,8 @@ def get_specific_vrrp_config_from_yang(
 
 def is_rfc_compat_configured(conf: Dict) -> bool:
     conf_exists = list(
-                        get_specific_vrrp_config_from_yang(
-                            conf, "rfc-compatibility"))
+        get_specific_vrrp_config_from_yang(
+            conf, "rfc-compatibility"))
     if conf_exists != []:
         return True
     return False
@@ -116,7 +118,7 @@ def get_hello_sources(conf: Dict) -> List[str]:
     "hello-source-address" as the target
     """
     return list(get_specific_vrrp_config_from_yang(
-                    conf, "hello-source-address"))
+        conf, "hello-source-address"))
 
 
 def what_ip_version(address_string: str) -> int:
@@ -239,7 +241,7 @@ def sanitize_vrrp_config(conf: Dict) -> Dict:
 def get_config_indexes(
         config_lines: List[str],
         search_string: str
-    ) -> List[int]:
+) -> List[int]:
     """
     Get index for every list entry that matches the provided search string
 
@@ -264,14 +266,14 @@ def get_config_indexes(
 
     stripped_lines: List[str] = [x.strip() for x in config_lines]
     config_start_indices: List[int] = [i for i, x in enumerate(stripped_lines)
-                            if search_string in x]
+                                       if search_string in x]
     return config_start_indices
 
 
 def get_config_blocks(
         config_list: List[str],
         indexes_list: List[int]
-    ) -> List[List[str]]:
+) -> List[List[str]]:
     """
         Group lines of vrrp config into logical blocks for easier processing
 
@@ -293,8 +295,8 @@ def get_config_blocks(
     start: int
     for idx, start in enumerate(indexes_list):
         end: Optional[int] = None
-        if idx+1 < len(indexes_list):
-            end = indexes_list[idx+1]
+        if idx + 1 < len(indexes_list):
+            end = indexes_list[idx + 1]
         group_list.append(stripped_list[start:end])
     return group_list
 
@@ -302,7 +304,7 @@ def get_config_blocks(
 def find_config_value(
         config_list: List[str],
         search_term: str
-    ) -> Tuple[bool, Union[List[None], str]]:
+) -> Tuple[bool, Union[List[None], str]]:
     """
     Find a config line in a block of config
 
@@ -332,9 +334,9 @@ def find_config_value(
     line: str
     for line in config_list:
         regex_search: Optional[Match[str]] = \
-            re.match(f"^{search_term}(\s+|$|:)", line)
+            re.match(fr"^{search_term}(\s+|$|:)", line)
         if regex_search is not None:
-            regex_search = re.match(f"{search_term}\s+(.*)", line)
+            regex_search = re.match(fr"{search_term}\s+(.*)", line)
             if regex_search is not None:
                 return (True, regex_search.group(1))
             # Yang JSON representation has single key with no value as
@@ -347,7 +349,7 @@ def find_interface_in_yang_repr(
         interface_name: str,
         vif_number: str,
         interface_list: List[Any]
-    ) -> Dict:
+) -> Dict:
     """
     Find the interface that a vrrp group is to be added to based on
     name of interface and any vif number
@@ -437,7 +439,8 @@ def running_on_vmware() -> bool:
     from vyatta import configd
     client: configd.Client = configd.Client()
     version: Dict = client.call_rpc_dict("vyatta-opd-v1", "command",
-                                   {"command": "show", "args": "version"})
+                                         {"command": "show",
+                                          "args": "version"})
     search: Optional[Match[str]] = \
         re.search(r'Hypervisor:\s*(\w+)', version['output'])
     if search is not None and search.group(1) == "VMware":

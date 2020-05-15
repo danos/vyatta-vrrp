@@ -79,8 +79,8 @@ def tmp_file_keepalived_config_no_write(tmp_path):
 
 @pytest.fixture
 def test_config(
-    pydbus_fakes, monkeypatch, tmp_path,
-    tmp_file_keepalived_config_no_write
+        pydbus_fakes, monkeypatch, tmp_path,
+        tmp_file_keepalived_config_no_write
 ):
 
     class FakeVci:
@@ -337,13 +337,13 @@ def generic_rfc_group():
 @pytest.fixture
 def generic_group_state():
     return \
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "",
-                "state": "MASTER",
-                "sync-group": "",
-            }
+        {
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "",
+            "state": "MASTER",
+            "sync-group": "",
+        }
 
 
 @pytest.fixture
@@ -3374,7 +3374,7 @@ def multiple_interfaces_and_groups_state(
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = [instance_state]
 
     dp0p1s2_state = {
@@ -3785,18 +3785,18 @@ def legacy_and_pathmon_enhanced_track_group(pathmon_yang_name):
                 "10.10.1.100/25"
             ],
             "track": {
-                 pathmon_yang_name: {
-                     "monitor": [
-                         {
-                             "name": "test_monitor",
-                             "policy": [
-                                 {
-                                     "name": "test_policy",
-                                 }
-                             ]
-                         }
-                     ]
-                 }
+                pathmon_yang_name: {
+                    "monitor": [
+                        {
+                            "name": "test_monitor",
+                            "policy": [
+                                {
+                                    "name": "test_policy",
+                                }
+                            ]
+                        }
+                    ]
+                }
             },
             "track-interface": [
                 {
@@ -4608,7 +4608,7 @@ def simple_state(simple_config, instance_state, vrrp_yang_name,
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = [instance_state]
     return simple_yang_state
 
@@ -4619,7 +4619,7 @@ def simple_rfc_state(simple_config, instance_state_rfc, vrrp_yang_name,
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = [instance_state_rfc]
     return simple_yang_state
 
@@ -4631,7 +4631,7 @@ def simple_rfc_sync_state(simple_config, instance_state_rfc_sync,
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = [instance_state_rfc_sync]
     return simple_yang_state
 
@@ -4643,7 +4643,7 @@ def simple_rfc_ipao_state(simple_config, instance_state_rfc_ipao,
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = [instance_state_rfc_ipao]
     return simple_yang_state
 
@@ -4651,11 +4651,11 @@ def simple_rfc_ipao_state(simple_config, instance_state_rfc_ipao,
 @pytest.fixture
 def simple_rfc_switch_state(simple_config, instance_state_rfc_switch,
                             vrrp_yang_name, interface_yang_name,
-                            switch_yang_name, switch_list,
+                            switch_list,
                             dataplane_yang_name):
     simple_yang_state = copy.deepcopy(simple_config)
-    del(simple_yang_state[interface_yang_name][dataplane_yang_name])
-    del(switch_list[0]["vif"][0][vrrp_yang_name]["start-delay"])
+    del simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del switch_list[0]["vif"][0][vrrp_yang_name]["start-delay"]
     switch_list[0]["vif"][0]["tagnode"] = "sw0.10"
     switch_list[0]["vif"][0][vrrp_yang_name]["vrrp-group"] = \
         [instance_state_rfc_switch]
@@ -4676,7 +4676,7 @@ def simple_vif_state(simple_config, instance_state,
         simple_yang_state[interface_yang_name][dataplane_yang_name][0]["vif"]
     vif_list[0][vrrp_yang_name]["vrrp-group"] = \
         [instance_state]
-    del(vif_list[0][vrrp_yang_name]["start-delay"])
+    del vif_list[0][vrrp_yang_name]["start-delay"]
     return simple_yang_state
 
 
@@ -4687,7 +4687,7 @@ def detailed_simple_state(simple_config, detailed_simple_keepalived_state,
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_simple_keepalived_state]
     return simple_yang_state
@@ -4701,7 +4701,7 @@ def detailed_simple_rfc_state(simple_config,
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_rfc_simple_keepalived_state]
     return simple_yang_state
@@ -4716,7 +4716,7 @@ def detailed_simple_rfc_sync_state(simple_config,
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_rfc_sync_simple_keepalived_state]
     simple_yang_state[vrrp_yang_name] = sync_group_simple_keepalived_state
@@ -4731,7 +4731,7 @@ def detailed_simple_rfc_ipao_state(simple_config,
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_rfc_ipao_simple_keepalived_state]
     return simple_yang_state
@@ -4744,7 +4744,7 @@ def detailed_backup_simple_state(
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_backup_simple_keepalived_state]
     return simple_yang_state
@@ -4757,7 +4757,7 @@ def detailed_backup_track_intf_simple_state(
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_backup_track_intf_simple_keepalived_state]
     return simple_yang_state
@@ -4771,7 +4771,7 @@ def detailed_backup_track_intf_no_weight_simple_state(
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_backup_track_intf_no_weight_simple_keepalived_state]
     return simple_yang_state
@@ -4785,7 +4785,7 @@ def detailed_backup_track_pathmon_simple_state(
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_backup_track_pathmon_simple_keepalived_state]
     return simple_yang_state
@@ -4799,7 +4799,7 @@ def detailed_backup_track_multiple_pathmon_simple_state(
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_backup_multiple_track_pathmon_simple_keepalived_state]
     return simple_yang_state
@@ -4812,7 +4812,7 @@ def detailed_backup_track_route_simple_state(
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_backup_track_route_simple_keepalived_state]
     return simple_yang_state
@@ -4825,7 +4825,7 @@ def detailed_track_multiple_simple_state(
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_track_multiple_simple_keepalived_state]
     return simple_yang_state
@@ -4839,7 +4839,7 @@ def detailed_v3_simple_state(simple_config,
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_v3_simple_keepalived_state]
     return simple_yang_state
@@ -4854,7 +4854,7 @@ def detailed_v3_rfc_fast_advert_simple_state(
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_v3_rfc_fast_advert_simple_keepalived_state]
     return simple_yang_state
@@ -4868,7 +4868,7 @@ def detailed_start_delay_simple_state(
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_start_delay_simple_keepalived_state]
     return simple_yang_state
@@ -4882,7 +4882,7 @@ def detailed_preempt_delay_simple_state(
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_preempt_delay_simple_keepalived_state]
     return simple_yang_state
@@ -4900,8 +4900,8 @@ def detailed_simple_multi_sync_state(
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
     dataplane_list.append(second_dataplane_interface)
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
-    del(dataplane_list[1][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
+    del dataplane_list[1][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_multi_group_first_simple_keepalived_state]
     dataplane_list[1][vrrp_yang_name]["vrrp-group"] = \
@@ -4919,14 +4919,14 @@ def detailed_vif_simple_state(simple_config,
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name])
+    del dataplane_list[0][vrrp_yang_name]
     dataplane_list[0]["vif"] = \
         vif_dataplane_list
     vif_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name][0]["vif"]
     vif_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_simple_vif_keepalived_state]
-    del(vif_list[0][vrrp_yang_name]["start-delay"])
+    del vif_list[0][vrrp_yang_name]["start-delay"]
     return simple_yang_state
 
 
@@ -4941,14 +4941,14 @@ def detailed_vif_simple_state_multiple_intf(
         simple_yang_state[interface_yang_name][dataplane_yang_name]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_simple_keepalived_state]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0]["vif"] = \
         vif_dataplane_list
     vif_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name][0]["vif"]
     vif_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_simple_vif_keepalived_state]
-    del(vif_list[0][vrrp_yang_name]["start-delay"])
+    del vif_list[0][vrrp_yang_name]["start-delay"]
     return simple_yang_state
 
 
@@ -4957,7 +4957,7 @@ def simple_sync_group_state(
         simple_config, vrrp_yang_name, interface_yang_name,
         sync_group_simple_keepalived_state):
     simple_yang_state = copy.deepcopy(simple_config)
-    del(simple_yang_state[interface_yang_name])
+    del simple_yang_state[interface_yang_name]
     simple_yang_state[vrrp_yang_name] = sync_group_simple_keepalived_state
     return simple_yang_state
 
@@ -4967,7 +4967,7 @@ def multiple_simple_sync_group_state(
         simple_config, vrrp_yang_name, interface_yang_name,
         multiple_sync_group_simple_keepalived_state):
     simple_yang_state = copy.deepcopy(simple_config)
-    del(simple_yang_state[interface_yang_name])
+    del simple_yang_state[interface_yang_name]
     simple_yang_state[vrrp_yang_name] = \
         multiple_sync_group_simple_keepalived_state
     return simple_yang_state
@@ -4978,7 +4978,7 @@ def simple_vif_sync_group_state(
         simple_config, vrrp_yang_name, interface_yang_name,
         sync_group_simple_vif_keepalived_state):
     simple_yang_state = copy.deepcopy(simple_config)
-    del(simple_yang_state[interface_yang_name])
+    del simple_yang_state[interface_yang_name]
     simple_yang_state[vrrp_yang_name] = sync_group_simple_vif_keepalived_state
     return simple_yang_state
 
@@ -4990,7 +4990,7 @@ def generic_group_complete_stats_dict(
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [generic_group_keepalived_stats_dict]
     return simple_yang_state
@@ -5003,7 +5003,7 @@ def backup_group_complete_stats_dict(
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [backup_group_keepalived_stats_dict]
     return simple_yang_state
@@ -5017,12 +5017,10 @@ def intf_complete_stats_dict(
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
-        [
-            generic_group_keepalived_stats_dict,
-            backup_group_keepalived_stats_dict
-        ]
+        [generic_group_keepalived_stats_dict,
+            backup_group_keepalived_stats_dict]
     return simple_yang_state
 
 
@@ -5037,13 +5035,11 @@ def multi_intf_complete_stats_dict(
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
     dataplane_list.append(second_dataplane_interface)
-    del(dataplane_list[0][vrrp_yang_name]["start-delay"])
-    del(dataplane_list[1][vrrp_yang_name]["start-delay"])
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
+    del dataplane_list[1][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
-        [
-            generic_group_keepalived_stats_dict,
-            backup_group_keepalived_stats_dict
-        ]
+        [generic_group_keepalived_stats_dict,
+            backup_group_keepalived_stats_dict]
     dataplane_list[1][vrrp_yang_name]["vrrp-group"] = \
         [second_intf_keepalived_stats_dict]
     return simple_yang_state
@@ -5056,13 +5052,13 @@ def generic_group_vif_complete_stats_dict(
     simple_yang_state = copy.deepcopy(simple_config)
     dataplane_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del(dataplane_list[0][vrrp_yang_name])
+    del dataplane_list[0][vrrp_yang_name]
     dataplane_list[0]["vif"] = vif_dataplane_list
     vif_list = \
         simple_yang_state[interface_yang_name][dataplane_yang_name][0]["vif"]
     vif_list[0][vrrp_yang_name]["vrrp-group"] = \
         [generic_group_vif_keepalived_stats_dict]
-    del(vif_list[0][vrrp_yang_name]["start-delay"])
+    del vif_list[0][vrrp_yang_name]["start-delay"]
     return simple_yang_state
 
 
@@ -5081,7 +5077,7 @@ def generic_group_vif_and_parent_complete_stats_dict(
         simple_yang_state[interface_yang_name][dataplane_yang_name][0]["vif"]
     vif_list[0][vrrp_yang_name]["vrrp-group"] = \
         [generic_group_vif_keepalived_stats_dict]
-    del(vif_list[0][vrrp_yang_name]["start-delay"])
+    del vif_list[0][vrrp_yang_name]["start-delay"]
     return simple_yang_state
 
 
@@ -5448,7 +5444,7 @@ def mock_pydbus(monkeypatch, pydbus_fakes, tmp_path):
 
         def LoadUnit(self, servicefile):  # noqa: N802
             return "/org/freedesktop/systemd1/" + \
-                        "unit/vyatta_2dkeepalived_2eservice"
+                "unit/vyatta_2dkeepalived_2eservice"
 
     class PropertyInterface:
 

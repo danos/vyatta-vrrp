@@ -6,6 +6,7 @@
 
 import json
 from pathlib import Path
+
 import pytest
 
 import vyatta.keepalived.util as util
@@ -84,8 +85,8 @@ class TestVyattaVrrpVci:
             self, mock_pydbus, test_config,
             simple_config):
         import vyatta.keepalived.dbus.process_control as process_ctrl
-        pc = process_ctrl.ProcessControl()
-        pc.keepalived_proxy_obj.SubState = "running"
+        process_control = process_ctrl.ProcessControl()
+        process_control.keepalived_proxy_obj.SubState = "running"
         result = True
         test_config.set(simple_config)
         conf_path = Path(
@@ -98,8 +99,8 @@ class TestVyattaVrrpVci:
             self, mock_pydbus, test_config,
             simple_config, simple_keepalived_config):
         import vyatta.keepalived.dbus.process_control as process_ctrl
-        pc = process_ctrl.ProcessControl()
-        pc.keepalived_proxy_obj.SubState = "running"
+        process_control = process_ctrl.ProcessControl()
+        process_control.keepalived_proxy_obj.SubState = "running"
         result = True
         file_path = \
             test_config._conf_obj.config_file_path()
@@ -118,8 +119,8 @@ class TestVyattaVrrpVci:
             self, mock_pydbus, test_config,
             syncgroup_config, syncgroup_keepalived_config):
         import vyatta.keepalived.dbus.process_control as process_ctrl
-        pc = process_ctrl.ProcessControl()
-        pc.keepalived_proxy_obj.SubState = "running"
+        process_control = process_ctrl.ProcessControl()
+        process_control.keepalived_proxy_obj.SubState = "running"
         result = True
         file_path = \
             test_config._conf_obj.config_file_path()
@@ -161,8 +162,8 @@ class TestVyattaVrrpVci:
             self, mock_pydbus, test_config,
             simple_config, top_level_dictionary):
         import vyatta.keepalived.dbus.process_control as process_ctrl
-        pc = process_ctrl.ProcessControl()
-        pc.keepalived_proxy_obj.SubState = "running"
+        process_control = process_ctrl.ProcessControl()
+        process_control.keepalived_proxy_obj.SubState = "running"
         result = True
         test_config.set(simple_config)
         conf_path = Path(
@@ -208,8 +209,8 @@ class TestVyattaVrrpVci:
             dataplane_yang_name, disabled_group,
             dataplane_interface):
         import vyatta.keepalived.dbus.process_control as process_ctrl
-        pc = process_ctrl.ProcessControl()
-        pc.keepalived_proxy_obj.SubState = "running"
+        process_control = process_ctrl.ProcessControl()
+        process_control.keepalived_proxy_obj.SubState = "running"
         file_path = \
             test_config._conf_obj.config_file_path()
         disabled_interface = dataplane_interface
@@ -237,8 +238,8 @@ class TestVyattaVrrpVci:
             generic_v3_fast_advert_config,
             simple_v3_keepalived_config):
         import vyatta.keepalived.dbus.process_control as process_ctrl
-        pc = process_ctrl.ProcessControl()
-        pc.keepalived_proxy_obj.SubState = "running"
+        process_control = process_ctrl.ProcessControl()
+        process_control.keepalived_proxy_obj.SubState = "running"
         result = True
         file_path = \
             test_config._conf_obj.config_file_path()

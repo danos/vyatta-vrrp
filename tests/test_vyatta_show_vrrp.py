@@ -222,11 +222,11 @@ class TestVyattaShowVrrp:
             ),
         ],
         ids=[
-                "Simple sync group case", "Show vrrp sync without sync group",
-                "Simple sync group as part of a larger state dict",
-                "Multiple sync groups", "show vrrp sync group <blah>",
-                "show vrrp sync group doesn't exist", "Vif sync groups"
-            ]
+            "Simple sync group case", "Show vrrp sync without sync group",
+            "Simple sync group as part of a larger state dict",
+            "Multiple sync groups", "show vrrp sync group <blah>",
+            "show vrrp sync group doesn't exist", "Vif sync groups"
+        ]
     )
     def test_show_vrrp_sync(self, fakes, show, data, grp_filter):
         import vyatta.show_vrrp_cmds
@@ -298,21 +298,21 @@ class TestVyattaShowVrrp:
             ),
         ],
         ids=[
-                "Get all groups on interface", "VRRP not running on interface",
-                "No Matching VRRP group",
-                "Looking for group when no VRRP is configured on interface",
-                "One group on an interface", "All groups on an interface",
-                "All groups on a VIF interface",
-                "Filter on parent interface group with VIF groups configured"
-            ]
+            "Get all groups on interface", "VRRP not running on interface",
+            "No Matching VRRP group",
+            "Looking for group when no VRRP is configured on interface",
+            "One group on an interface", "All groups on an interface",
+            "All groups on a VIF interface",
+            "Filter on parent interface group with VIF groups configured"
+        ]
     )
     def test_show_vrrp_interface(
             self, fakes, show, data, intf_filter, grp_filter):
         import vyatta.show_vrrp_cmds
         result = vyatta.show_vrrp_cmds.show_vrrp_interface(
-                                                           data,
-                                                           intf_filter,
-                                                           grp_filter)
+            data,
+            intf_filter,
+            grp_filter)
         assert result == show
 
     @pytest.mark.parametrize(
@@ -409,22 +409,22 @@ class TestVyattaShowVrrp:
             ),
         ],
         ids=[
-                "Show stats", "Backup group", "Multi Groups",
-                "Full interface",
-                "VRRP not running on interface",
-                "No matching group on this interface",
-                "Multiple interfaces",
-                "Vif interface", "Vif and Parent interface",
-                "Filter on vif interface", "Filter on parent interface"
-            ]
+            "Show stats", "Backup group", "Multi Groups",
+            "Full interface",
+            "VRRP not running on interface",
+            "No matching group on this interface",
+            "Multiple interfaces",
+            "Vif interface", "Vif and Parent interface",
+            "Filter on vif interface", "Filter on parent interface"
+        ]
     )
     def test_show_vrrp_statistics(
             self, fakes, show, data, intf_filter, grp_filter):
         import vyatta.show_vrrp_cmds
         result = vyatta.show_vrrp_cmds.show_vrrp_statistics_filters(
-                                                           data,
-                                                           intf_filter,
-                                                           grp_filter)
+            data,
+            intf_filter,
+            grp_filter)
         assert result == show
 
     @pytest.mark.parametrize(
@@ -547,27 +547,27 @@ class TestVyattaShowVrrp:
             ),
         ],
         ids=[
-                "Simple keepalived data", "simple keepalived rfc data",
-                "Simple keepalived rfc sync data",
-                "Simple keepalived rfc ipao data",
-                "Simple keepalived backup data",
-                "Simple keepalived with start delay data",
-                "Simple keepalived with preempt delay data",
-                "Simple keepalived version 3 data",
-                "Simple keepalived with vif interface",
-                "Complex keepalived backup track intf data",
-                "Complex keepalived backup track intf data no weight",
-                "Complex keepalived backup track pathmon data",
-                "Complex keepalived backup track multiple pathmon data",
-                "Complex keepalived backup track route data",
-                "Complex keepalived multiple tracked objects data"
-            ]
+            "Simple keepalived data", "simple keepalived rfc data",
+            "Simple keepalived rfc sync data",
+            "Simple keepalived rfc ipao data",
+            "Simple keepalived backup data",
+            "Simple keepalived with start delay data",
+            "Simple keepalived with preempt delay data",
+            "Simple keepalived version 3 data",
+            "Simple keepalived with vif interface",
+            "Complex keepalived backup track intf data",
+            "Complex keepalived backup track intf data no weight",
+            "Complex keepalived backup track pathmon data",
+            "Complex keepalived backup track multiple pathmon data",
+            "Complex keepalived backup track route data",
+            "Complex keepalived multiple tracked objects data"
+        ]
     )
     def test_convert_data_to_json(
             self, fakes, json_data, file_content):
         import vyatta.show_vrrp_cmds
         result = vyatta.show_vrrp_cmds.convert_data_file_to_dict(
-                                                            file_content)
+            file_content)
         assert result == json_data
 
     @pytest.mark.parametrize(
@@ -604,16 +604,16 @@ class TestVyattaShowVrrp:
             ),
         ],
         ids=[
-                "Simple keepalived data", "Backup group stats",
-                "Multiple group stats", "Multiple interface stats",
-                "Vif stats"
-            ]
+            "Simple keepalived data", "Backup group stats",
+            "Multiple group stats", "Multiple interface stats",
+            "Vif stats"
+        ]
     )
     def test_convert_stats_to_json(
             self, fakes, json_data, file_content):
         import vyatta.show_vrrp_cmds
         result = vyatta.show_vrrp_cmds.convert_stats_file_to_dict(
-                                                            file_content)
+            file_content)
         assert result == json_data
 
     @pytest.mark.parametrize(
@@ -757,7 +757,7 @@ class TestVyattaShowVrrp:
     def test_complete_show_vrrp_detail(self, fakes, show, file_content):
         import vyatta.show_vrrp_cmds
         json_data = vyatta.show_vrrp_cmds.convert_data_file_to_dict(
-                                                            file_content)
+            file_content)
         result = vyatta.show_vrrp_cmds.show_vrrp_detail(json_data)
         assert result == show
 
@@ -823,22 +823,22 @@ class TestVyattaShowVrrp:
             ),
         ],
         ids=[
-                "Get all groups on interface", "VRRP not running on interface",
-                "No Matching VRRP group",
-                "Looking for group when no VRRP is configured on interface",
-                "One group on an interface", "Vif interface filter",
-                "Parent interface filter"
-            ]
+            "Get all groups on interface", "VRRP not running on interface",
+            "No Matching VRRP group",
+            "Looking for group when no VRRP is configured on interface",
+            "One group on an interface", "Vif interface filter",
+            "Parent interface filter"
+        ]
     )
     def test_show_vrrp_interface_full_process(
             self, fakes, show, file_contents, intf_filter, grp_filter):
         import vyatta.show_vrrp_cmds
         json_data = vyatta.show_vrrp_cmds.convert_data_file_to_dict(
-                                                            file_contents)
+            file_contents)
         result = vyatta.show_vrrp_cmds.show_vrrp_interface(
-                                                           json_data,
-                                                           intf_filter,
-                                                           grp_filter)
+            json_data,
+            intf_filter,
+            grp_filter)
         assert result == show
 
     @pytest.mark.parametrize(
@@ -892,17 +892,17 @@ class TestVyattaShowVrrp:
             ),
         ],
         ids=[
-                "Simple sync group case", "No sync groups",
-                "Multiple sync groups", "Filter multiple sync groups",
-                "Vif interface sync group",
-                "Vif and nonvif interface sync group"
-            ]
+            "Simple sync group case", "No sync groups",
+            "Multiple sync groups", "Filter multiple sync groups",
+            "Vif interface sync group",
+            "Vif and nonvif interface sync group"
+        ]
     )
     def test_show_vrrp_sync_full_process(
             self, fakes, show, file_content, grp_filter):
         import vyatta.show_vrrp_cmds
         json_data = vyatta.show_vrrp_cmds.convert_data_file_to_dict(
-                                                            file_content)
+            file_content)
         result = vyatta.show_vrrp_cmds.show_vrrp_sync(json_data, grp_filter)
         assert result == show
 
@@ -962,20 +962,20 @@ class TestVyattaShowVrrp:
             ),
         ],
         ids=[
-                "Simple keepalived data", "Backup group stats",
-                "Multiple group stats", "Multiple interface stats",
-                "Filtered stats interface",
-                "Filtered stats interface and group",
-                "Vif and parent interface stats"
-            ]
+            "Simple keepalived data", "Backup group stats",
+            "Multiple group stats", "Multiple interface stats",
+            "Filtered stats interface",
+            "Filtered stats interface and group",
+            "Vif and parent interface stats"
+        ]
     )
     def test_show_vrrp_statistics_full_process(
             self, fakes, show, file_contents, intf_filter, grp_filter):
         import vyatta.show_vrrp_cmds
         json_data = vyatta.show_vrrp_cmds.convert_stats_file_to_dict(
-                                                            file_contents)
+            file_contents)
         result = vyatta.show_vrrp_cmds.show_vrrp_statistics_filters(
-                                                           json_data,
-                                                           intf_filter,
-                                                           grp_filter)
+            json_data,
+            intf_filter,
+            grp_filter)
         assert result == show

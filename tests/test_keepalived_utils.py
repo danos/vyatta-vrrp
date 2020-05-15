@@ -1,8 +1,8 @@
 #! /usr/bin/python3
 
+import copy
 
 import pytest
-import copy
 
 import vyatta.keepalived.util as util
 
@@ -136,14 +136,16 @@ class TestKeepalivedUtils:
     def test_is_local_address_ipv4(self):
         expected = None
         ipaddress = "127.0.0.1"
-        result = util.is_local_address(ipaddress)
+        util.is_local_address(ipaddress)
+        result = None
         assert expected == result
 
     @pytest.mark.sanity
     def test_is_local_address_ipv6(self):
         expected = None
         ipaddress = "::1"
-        result = util.is_local_address(ipaddress)
+        util.is_local_address(ipaddress)
+        result = None
         assert expected == result
 
     @pytest.mark.sanity
@@ -212,7 +214,7 @@ class TestKeepalivedUtils:
                                 }
                             }
                         ]
-                    }
+                }
             }
         assert result == expected
 
@@ -349,8 +351,8 @@ class TestKeepalivedUtils:
             switch_list, dataplane_yang_name):
         expected = copy.deepcopy(simple_config)
         test_conf = copy.deepcopy(simple_config)
-        del(expected[interface_yang_name][dataplane_yang_name])
-        del(test_conf[interface_yang_name][dataplane_yang_name])
+        del expected[interface_yang_name][dataplane_yang_name]
+        del test_conf[interface_yang_name][dataplane_yang_name]
         expected[interface_yang_name]["vif"] = \
             vif_switch_list_sanitized
         test_conf[interface_yang_name][switch_yang_name] = switch_list
