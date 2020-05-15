@@ -664,6 +664,16 @@ class TestVyattaShowVrrp:
             (
                 pytest.lazy_fixture("calendar_fakes"),
                 pytest.lazy_fixture(
+                    "detailed_backup_generic_group_track_intf_down_show_detail"
+                ),
+                pytest.lazy_fixture(
+                    "backup_generic_group_track_intf_down_simple_" +
+                    "keepalived_data"
+                )
+            ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
                     "detailed_backup_generic_group_track_intf_no_weight"
                     "_show_detail"
                 ),
@@ -743,6 +753,7 @@ class TestVyattaShowVrrp:
         ids=[
             "No rfc", "rfc", "rfc sync", "rfc IPAO", "Backup group",
             "Backup group tracked interface",
+            "Backup group tracked interface down",
             "Backup group tracked interface no weight",
             "Backup group tracked path monitor",
             "Backup group tracked route",
