@@ -1,3 +1,10 @@
+vyatta-vrrp (2.23.1) unstable; urgency=medium
+
+  * Bugfix/Always start groups in BACKUP state
+  * Bugfix/Logging syntax error with () in strings
+
+ -- Anthony Dempsey <anthony.dempsey@intl.att.com>  Mon, 18 May 2020 12:05:14 +0100
+
 vyatta-vrrp (2.23) unstable; urgency=medium
 
   * Deprecate run-transition-scripts subtree
