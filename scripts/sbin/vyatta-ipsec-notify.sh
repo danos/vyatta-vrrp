@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/vcli -f
 
 # Script to reload (stop/restart) ipsec daemon upon
 # VRRP state change
 
 # **** License ****
-# Copyright (c) 2019 AT&T Intellectual Property.
+# Copyright (c) 2019-2020 AT&T Intellectual Property.
 # All rights reserved.
 #
 # Copyright (c) 2014,2016 by Brocade Communications Systems, Inc.
@@ -24,15 +24,15 @@ case $STATE in
                   if [ -f /opt/vyatta/sbin/vpn-config.pl ]; then
                           ipsec stop || true
                   fi
-                  systemctl restart strongswan | logger -p info -t $(/usr/bin/basename $0)
+                  run restart vpn | logger -p info -t $(/usr/bin/basename $0)
                   exit 0
                   ;;
         "BACKUP")
-                  systemctl stop strongswan | logger -p info -t $(/usr/bin/basename $0)
+                  systemctl kill -s TERM strongswan | logger -p info -t $(/usr/bin/basename $0)
                   exit 0
                   ;;
         "FAULT")
-                  systemctl stop strongswan | logger -p info -t $(/usr/bin/basename $0)
+                  systemctl kill -s TERM strongswan | logger -p info -t $(/usr/bin/basename $0)
                   exit 0
                   ;;
         *)        echo "unknown state"
