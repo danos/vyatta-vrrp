@@ -37,7 +37,7 @@ def send_garp(rpc_input: Dict[str, str]) -> Dict:
             f"Error trying to send GARP for VRRP group "
             f"{group} on {intf}, does the group/intf combination exist?"
         )
-        log.debug(f"{e.with_traceback()}")
+        log.debug(f"Error from the DBus call was: {e}")
     return
 
 
