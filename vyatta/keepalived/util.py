@@ -23,7 +23,8 @@ SWITCH_YANG_NAME: str = "vyatta-interfaces-switch-v1:switch"
 
 intf_type: Enum = Enum("intf_type", "dataplane bonding switch")
 
-VRRP_YANG_NAME: str = "vyatta-vrrp-v1:vrrp"
+VRRP_NAMESPACE: str = "vyatta-vrrp-v1"
+VRRP_YANG_NAME: str = f"{VRRP_NAMESPACE}:vrrp"
 VIF_YANG_NAME: str = "vif"
 PATHMON_DATAPLANE_YANG_NAME: str = \
     "vyatta-vrrp-path-monitor-track-interfaces-dataplane-v1:path-monitor"
@@ -76,41 +77,48 @@ def get_specific_vrrp_config_from_yang(
             The value key to search each group for
     Example:
         As this is a generator code that uses it should iterate over it
-        or create an iterator of the values.
+        or create an iterator of the values. What's returned from the
+        Generator is a list containing two items:
+            1) The value at the specific node
+            2) The full path to that node
 
         list(get_specific_vrrp_config_from_yang(new_config, "priority"))
 
         for value in get_specific_vrrp_config_from_yang(new_config, "advert"):
-            if value < 0:
+            if value[0] < 0:
+                print(f"Value at {value[1]} not as expected")
                 return False
 
     Useful if you're checking all of the specific values for something.
-    No indication of which group the config comes from. If there's three
-    groups two with the specific config and one with out only two values
-    will be yielded to the caller
+    Builds up a path to the node being returned to give useful information
+    during the checking phase of commit.
     """
     intf_type: str
     for intf_type in conf[INTERFACE_YANG_NAME]:
         intf: Dict
+        yang_root: str = f"interfaces {intf_type[intf_type.index(':')+1:]} "
         for intf in conf[INTERFACE_YANG_NAME][intf_type]:
             if "vrrp-group" not in intf[VRRP_YANG_NAME]:
                 continue  # start-delay default but no vrrp config
             group: Dict
             for group in intf[VRRP_YANG_NAME]["vrrp-group"]:
                 if value in group:
-                    yield group[value]
+                    yang_path: str = \
+                        yang_root + f"{intf['tagnode']} vrrp vrrp-group " +\
+                        f"{group['tagnode']} {value} {group[value]}"
+                    yield [group[value], yang_path]
 
 
-def is_rfc_compat_configured(conf: Dict) -> bool:
+def is_rfc_compat_configured(conf: Dict) -> Tuple[bool, List[List[str]]]:
     conf_exists = list(
         get_specific_vrrp_config_from_yang(
             conf, "rfc-compatibility"))
     if conf_exists != []:
-        return True
-    return False
+        return (True, conf_exists)
+    return (False, [])
 
 
-def get_hello_sources(conf: Dict) -> List[str]:
+def get_hello_sources(conf: Dict) -> List[List[str]]:
     """
     Get every hello address source instance in the config
 

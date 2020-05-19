@@ -100,6 +100,18 @@ def test_config(
             def emit(self):
                 pass
 
+    class VciException(Exception):
+        def __init__(self, namespace, message, path, *args):
+            self.name = namespace
+            self.message = message
+            self.path = path
+            self.arg = args
+            super().__init__(message)
+
+    setattr(
+        FakeVci, "Exception", VciException
+    )
+
     sys.modules['vci'] = FakeVci
     import vyatta.keepalived.dbus.process_control as process_ctrl
 

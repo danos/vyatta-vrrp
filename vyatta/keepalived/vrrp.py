@@ -38,8 +38,8 @@ class VrrpGroup:
         # Default values from existing code required for minimal
         # config
         self._group_config: Dict = group_config
-        if "priority" not in self._group_config:
-            self._group_config["priority"] = 100
+        self._group_config["priority"] = \
+            self._group_config.get("priority", 100)
         if "advertise-interval" not in self._group_config \
                 and "fast-advertise-interval" not in self._group_config:
             self._group_config["adv"] = 1

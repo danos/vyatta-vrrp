@@ -6,7 +6,7 @@
 
 import json
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 import pydbus
 
@@ -83,15 +83,41 @@ class Config(vci.Config):
 
     def check(self, conf: Dict[str, Any]) -> None:
         conf = util.sanitize_vrrp_config(conf)
-        hello_address: List[str] = util.get_hello_sources(conf)
+        hello_address: List[List[str]] = util.get_hello_sources(conf)
         for address in hello_address:
-            util.is_local_address(address)
-        if util.is_rfc_compat_configured(conf) and util.running_on_vmware():
-            print("RFC compatibility is not supported on VMware\n")
+            try:
+                util.is_local_address(address[0])
+            except TypeError:
+                vci_error = vci.Exception(
+                    util.VRRP_NAMESPACE,
+                    f"Misconfigured Hello-source-address [{address[0]}] " +
+                    f"must be IPv4 or IPv6 address",
+                    f"/{address[1].replace(' ', '/')}"
+                )
+                raise vci_error
+            except OSError:
+                vci_error = vci.Exception(
+                    util.VRRP_NAMESPACE,
+                    f"Hello-source-address [{address[0]}] must be configured" +
+                    f" on the interface",
+                    f"/{address[1].replace(' ', '/')}"
+                )
+                raise vci_error
+        rfc_compat: Tuple[bool, List[List[str]]] = \
+            util.is_rfc_compat_configured(conf)
+        if rfc_compat[0] and util.running_on_vmware():
+            for rfc_config in rfc_compat[1]:
+                rfc_path: str = rfc_config[1]
+                rfc_path = rfc_path[:rfc_path.index("[") - 1]
+                raise vci.Exception(
+                    util.VRRP_NAMESPACE,
+                    "RFC compatibility is not supported on VMWare",
+                    f"/{rfc_path.replace(' ', '/')}"
+                )
         return
 
     def rfc_intf_map(self, rpc_input: Dict[str, str]) -> Dict[str, str]:
-        xmit_intf: str = rpc_input["vyatta-vrrp-v1:transmit"]
+        xmit_intf: str = rpc_input[f"{util.VRRP_NAMESPACE}:transmit"]
         return self.pc.get_rfc_mapping(xmit_intf)
 
 

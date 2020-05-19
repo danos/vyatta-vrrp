@@ -138,7 +138,8 @@ class TestVyattaVrrpVci:
     def test_vci_config_check_local_address(
             self, mock_pydbus, test_config, simple_config,
             interface_yang_name,
-            dataplane_yang_name, vrrp_yang_name):
+            dataplane_yang_name, vrrp_yang_name,
+            mock_show_version_rpc_kvm):
         intf = simple_config[interface_yang_name][dataplane_yang_name][0]
         intf[vrrp_yang_name]["vrrp-group"][0]["hello-source-address"] =\
             "127.0.0.1"
@@ -151,11 +152,23 @@ class TestVyattaVrrpVci:
             self, mock_pydbus, test_config, simple_config,
             interface_yang_name,
             dataplane_yang_name, vrrp_yang_name):
+        import vci  # noqa: F401
+        expected_message = \
+            "Hello-source-address [10.0.0.1] must be configured on " +\
+            "the interface"
+        expected_namespace = \
+            "vyatta-vrrp-v1"
+        expected_path = \
+            "/interfaces/dataplane/dp0p1s1/vrrp/vrrp-group" + \
+            "/1/hello-source-address/10.0.0.1"
         intf = simple_config[interface_yang_name][dataplane_yang_name][0]
         intf[vrrp_yang_name]["vrrp-group"][0]["hello-source-address"] =\
             "10.0.0.1"
-        with pytest.raises(OSError):
+        with pytest.raises(Exception) as error:
             test_config.check(simple_config)
+        assert str(error.value) == expected_message
+        assert error.value.name == expected_namespace
+        assert error.value.path == expected_path
 
     @pytest.mark.sanity
     def test_vci_config_set_cleans_up_file(
@@ -179,7 +192,8 @@ class TestVyattaVrrpVci:
         assert result == expected
 
     def test_vci_config_check_simple_config(
-            self, mock_pydbus, test_config, simple_config):
+            self, mock_pydbus, test_config, simple_config,
+            mock_show_version_rpc_kvm):
         result = None
         expect = test_config.check(simple_config)
         assert result == expect
@@ -194,13 +208,20 @@ class TestVyattaVrrpVci:
     @pytest.mark.sanity
     def test_vci_config_check_fuller_config_printed_warnings(
             self, mock_pydbus, test_config, complex_config,
-            mock_show_version_rpc_vmware, capsys):
-        result = None
-        print_result = "RFC compatibility is not supported on VMware\n\n"
-        expect = test_config.check(complex_config)
-        captured = capsys.readouterr()
-        assert result == expect
-        assert print_result == captured.out
+            mock_show_version_rpc_vmware):
+        import vci  # noqa: F401
+        expected_message = \
+            "RFC compatibility is not supported on VMWare"
+        expected_namespace = \
+            "vyatta-vrrp-v1"
+        expected_path = \
+            "/interfaces/dataplane/dp0p1s1/vrrp/vrrp-group" + \
+            "/1/rfc-compatibility"
+        with pytest.raises(Exception) as error:
+            test_config.check(complex_config)
+        assert str(error.value) == expected_message
+        assert error.value.name == expected_namespace
+        assert error.value.path == expected_path
 
     @pytest.mark.sanity
     def test_vci_config_set_writes_disabled_group(

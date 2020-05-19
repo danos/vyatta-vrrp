@@ -125,7 +125,13 @@ class TestKeepalivedUtils:
     def test_get_hello_sources(
             self, simple_config, interface_yang_name,
             dataplane_yang_name, vrrp_yang_name):
-        expected = ["10.1.1.1"]
+        expected = [
+            [
+                "10.1.1.1",
+                "interfaces dataplane dp0p1s1 vrrp vrrp-group 1" +
+                " hello-source-address 10.1.1.1"
+            ]
+        ]
         intf = simple_config[interface_yang_name][dataplane_yang_name][0]
         intf[vrrp_yang_name]["vrrp-group"][0]["hello-source-address"] = \
             "10.1.1.1"
@@ -157,14 +163,23 @@ class TestKeepalivedUtils:
     @pytest.mark.sanity
     def test_is_rfc_compat_configured_no(
             self, simple_config):
-        expected = False
+        expected = (False, [])
         result = util.is_rfc_compat_configured(simple_config)
         assert expected == result
 
     @pytest.mark.sanity
     def test_is_rfc_compat_configured_yes(
             self, complex_config):
-        expected = True
+        expected = (
+            True,
+            [
+                [
+                    [None],
+                    'interfaces dataplane dp0p1s1 vrrp vrrp-group 1 ' +
+                    'rfc-compatibility [None]'
+                ]
+            ]
+        )
         result = util.is_rfc_compat_configured(complex_config)
         assert expected == result
 
