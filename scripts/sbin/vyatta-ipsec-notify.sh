@@ -20,8 +20,10 @@ STATE=$3
 case $STATE in
         "MASTER")
                   # in case charon was started via stroke earlier. To prevent service file failure.
-                  ipsec stop || true
-
+                  # only needed when the script using IPsec stroke is present.
+                  if [ -f /opt/vyatta/sbin/vpn-config.pl ]; then
+                          ipsec stop || true
+                  fi
                   systemctl restart strongswan | logger -p info -t $(/usr/bin/basename $0)
                   exit 0
                   ;;
