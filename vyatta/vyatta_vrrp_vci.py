@@ -20,13 +20,25 @@ import vyatta.keepalived.util as util
 
 
 def send_garp(rpc_input: Dict[str, str]) -> Dict:
-    intf: str = rpc_input["vyatta-vrrp-v1:interface"]
-    group: str = str(rpc_input["vyatta-vrrp-v1:group"])
-    vrrp_conn = vrrp_dbus.VrrpConnection(
-        intf, group, 4, pydbus.SystemBus()
-    )
-    vrrp_conn.garp()
-    return {}
+    intf: str = rpc_input[f"{util.VRRP_NAMESPACE}:interface"]
+    group: str = str(rpc_input[f"{util.VRRP_NAMESPACE}:group"])
+    pc = process_control.ProcessControl()
+    if not pc.is_running():
+        return
+    try:
+        vrrp_conn = vrrp_dbus.VrrpConnection(
+            intf, group, 4, pydbus.SystemBus()
+        )
+        vrrp_conn.garp()
+    except Exception as e:
+        # Horrible but pydbus doesn't actually export any Exceptions
+        log = logging.getLogger("vyatta-vrrp-vci")
+        log.info(
+            f"Error trying to send GARP for VRRP group "
+            f"{group} on {intf}, does the group/intf combination exist?"
+        )
+        log.debug(f"{e.with_traceback()}")
+    return
 
 
 class Config(vci.Config):

@@ -142,12 +142,17 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
         relate to that RFC interface. Used in RPC calls.
         """
 
+        if not self.is_running():
+            return {
+                f"{util.VRRP_NAMESPACE}:receive": "",
+                f"{util.VRRP_NAMESPACE}:group": 0
+            }
         rfc_mapping: Tuple[str, str] = \
             self.vrrp_proxy_process.GetRfcMapping(intf)
         return {
-            "vyatta-vrrp-v1:receive":
+            f"{util.VRRP_NAMESPACE}:receive":
             rfc_mapping[0],
-            "vyatta-vrrp-v1:group":
+            f"{util.VRRP_NAMESPACE}:group":
             rfc_mapping[1]}
 
     def subscribe_process_signals(self) -> None:
@@ -161,6 +166,8 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
         written in this time keepalived isn't responding.
         """
 
+        if not self.is_running():
+            return
         data_file = Path(util.KEEPALIVED_DATA_FILE_PATH)
         if data_file.exists():
             data_file.unlink()
@@ -182,6 +189,8 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
         written in this time keepalived isn't responding.
         """
 
+        if not self.is_running():
+            return
         stats_file = Path(util.KEEPALIVED_STATS_FILE_PATH)
         if stats_file.exists():
             stats_file.unlink()
@@ -202,12 +211,18 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
         uses the keepalived DBus interface to re-read the processes'
         config file.
         """
+        if not self.is_running():
+            return
         self.vrrp_proxy_process.ReloadConfig()
 
     @get_vrrp_proxy
     def turn_on_debugs(self, debug_value: int) -> None:
+        if not self.is_running():
+            return
         self.vrrp_proxy_process.AddDebug(debug_value)
 
     @get_vrrp_proxy
     def turn_off_debugs(self, debug_value: int) -> None:
+        if not self.is_running():
+            return
         self.vrrp_proxy_process.RemoveDebug(debug_value)

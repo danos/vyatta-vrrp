@@ -74,6 +74,7 @@ class TestKeepalivedDbusControl:
             self, mock_pydbus):
         import vyatta.keepalived.dbus.process_control as process_ctrl
         process_control = process_ctrl.ProcessControl()
+        process_control.keepalived_proxy_obj.SubState = "running"
         expected = {"vyatta-vrrp-v1:receive": "",
                     "vyatta-vrrp-v1:group": 0}
         result = process_control.get_rfc_mapping("dp0p1s1")
@@ -83,6 +84,7 @@ class TestKeepalivedDbusControl:
             self, mock_pydbus):
         import vyatta.keepalived.dbus.process_control as process_ctrl
         process_control = process_ctrl.ProcessControl()
+        process_control.keepalived_proxy_obj.SubState = "running"
         expected = {"vyatta-vrrp-v1:receive": "dp0p1s1",
                     "vyatta-vrrp-v1:group": 1}
         result = process_control.get_rfc_mapping("dp0vrrp1")
@@ -94,6 +96,7 @@ class TestKeepalivedDbusControl:
         import vyatta.keepalived.util as util
         util.KEEPALIVED_DATA_FILE_PATH = f"{tmp_path}/keepalived.data"
         process_control = process_ctrl.ProcessControl()
+        process_control.keepalived_proxy_obj.SubState = "running"
         result = process_control.dump_keepalived_data()
         expected = True
         assert result == expected
@@ -104,6 +107,7 @@ class TestKeepalivedDbusControl:
         import vyatta.keepalived.util as util
         util.KEEPALIVED_STATS_FILE_PATH = f"{tmp_path}/keepalived.stats"
         process_control = process_ctrl.ProcessControl()
+        process_control.keepalived_proxy_obj.SubState = "running"
         result = process_control.dump_keepalived_stats()
         expected = True
         assert result == expected
