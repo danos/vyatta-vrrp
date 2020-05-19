@@ -21,6 +21,6 @@ if __name__ == "__main__":
                .config(config_obj)
                .state(state_obj)
                .rpc(namespace_v1, "garp", vrrp.send_garp)
-               .rpc(namespace_v1, "rfc-intf-map", config_obj.rfc_intf_map))
+               .rpc(namespace_v1, "rfc-intf-map", vrrp.rfc_intf_map))
         .run()
         .wait())

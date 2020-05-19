@@ -41,6 +41,12 @@ def send_garp(rpc_input: Dict[str, str]) -> Dict:
     return
 
 
+def rfc_intf_map(rpc_input: Dict[str, str]) -> Dict[str, str]:
+    pc = process_control.ProcessControl()
+    xmit_intf: str = rpc_input[f"{util.VRRP_NAMESPACE}:transmit"]
+    return pc.get_rfc_mapping(xmit_intf)
+
+
 class Config(vci.Config):
 
     # Class attributes that will be the same across all instances
@@ -127,10 +133,6 @@ class Config(vci.Config):
                     f"/{rfc_path.replace(' ', '/')}"
                 )
         return
-
-    def rfc_intf_map(self, rpc_input: Dict[str, str]) -> Dict[str, str]:
-        xmit_intf: str = rpc_input[f"{util.VRRP_NAMESPACE}:transmit"]
-        return self.pc.get_rfc_mapping(xmit_intf)
 
 
 class State(vci.State):
