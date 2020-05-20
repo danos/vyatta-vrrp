@@ -73,8 +73,9 @@ class Config(vci.Config):
                 self._conf_obj.shutdown()
             return
         self.log.debug(
-            "Got following config from VCI infra:%s",
-            json.dumps(conf, indent=4, sort_keys=True))
+            f"Got following config from VCI infra:" +
+            f"{json.dumps(conf, indent=4, sort_keys=True)}"
+        )
 
         self._conf_obj.update(conf)
         self._conf_obj.write_config()
@@ -83,9 +84,8 @@ class Config(vci.Config):
         else:
             self.pc.start_process()
         self.log.info(
-            "%s config written to %s",
-            self._conf_obj.impl_name(),
-            self._conf_obj.config_file_path()
+            f"{self._conf_obj.impl_name()} config written to " +
+            f"{self._conf_obj.config_file_path()}"
         )
         return
 
@@ -94,8 +94,7 @@ class Config(vci.Config):
         yang_repr: Dict[str, Any] = \
             self._conf_obj.convert_to_vci_format(file_config)
         self.log.info(
-            "%s yang repr returned to vci infra",
-            yang_repr
+            f"{yang_repr} yang repr returned to vci infra"
         )
         return yang_repr
 
@@ -141,8 +140,8 @@ class State(vci.State):
         super().__init__()
         self._conf_obj = config_impl
         if not isinstance(self._conf_obj, AbstractVrrpConfig.ConfigFile):
-            raise TypeError("Implementation of config object does not " +
-                            "inherit from abstract class, developer needs " +
+            raise TypeError("Implementation of config object does not "
+                            "inherit from abstract class, developer needs "
                             "to fix this ")
         logging.basicConfig(level=logging.DEBUG, format="%(message)s")
         self.log = logging.getLogger("vyatta-vrrp-vci")

@@ -23,8 +23,9 @@ def activate_connection(func) -> Callable:
     def wrapper(inst: "VrrpConnection", *args, **kwargs) -> Callable:
         if not inst._activated:
             # Prints to console when using template scripts, hiding just now
-            # inst.log.info("Activating object because %s became active",
-            #              util.KEEPALIVED_DBUS_INTF_NAME)
+            # inst.log.info(
+            #       "Activating object because " +\
+            #       f"{util.KEEPALIVED_DBUS_INTF_NAME} became active")
             inst.vrrp_group_proxy = inst.bus_object.get(
                 util.KEEPALIVED_DBUS_INTF_NAME,
                 inst.dbus_path
@@ -146,8 +147,7 @@ class VrrpConnection:
             return
         self.current_state = status_str
         self.log.debug(
-            "%s changed state to %s",
-            self.instance_name, status_str
+            f"{self.instance_name} changed state to {status_str}"
         )
         self.client.emit(
             "vyatta-vrrp-v1",
@@ -164,7 +164,7 @@ class VrrpConnection:
         Register the state change call back
         """
 
-        self.log.debug("%s subscribing to signals", self.dbus_path)
+        self.log.debug(f"{self.dbus_path} subscribing to signals")
         if self.vrrp_group_proxy is None:
             return
         self.vrrp_group_proxy.VrrpStatusChange.connect(
@@ -177,12 +177,11 @@ class VrrpConnection:
         Reset the VRRP group state to BACKUP
         """
 
-        self.log.info("Resetting state of %s to BACKUP", self.instance_name)
+        self.log.info(f"Resetting state of {self.instance_name} to BACKUP", )
         if self.vrrp_group_proxy is None:
             self.log.warn(
-                "Failed to reset state of %s, " +
-                "DBus connection not initialised?",
-                self.instance_name)
+                f"Failed to reset state of {self.instance_name}, " +
+                f"DBus connection not initialised?")
             return
         group_state: Dict = self.vrrp_property_interface.GetAll(
             util.VRRP_INSTANCE_DBUS_INTF_NAME
