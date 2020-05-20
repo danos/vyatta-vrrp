@@ -375,20 +375,20 @@ class TestKeepalivedConfigFile:
         "expected,config_block",
         [
             ({}, []),
-            ({}, ['virtual_ipaddress {', "10.10.10.100/25", "}"]),
+            ({}, ["virtual_ipaddress {", "10.10.10.100/25", "}"]),
             (
                 {
                     "authentication":
                         {"password": "test", "type": "plaintext-password"}
                 },
-                ['authentication {', "auth_type PASS", "auth_pass test", "}"]
+                ["authentication {", "auth_type PASS", "auth_pass test", "}"]
             ),
             (
                 {
                     "authentication":
                         {"password": "test", "type": "ah"}
                 },
-                ['authentication {', "auth_type AH", "auth_pass test", "}"]
+                ["authentication {", "auth_type AH", "auth_pass test", "}"]
             )
         ],
         ids=["No Config", "No Notify Config",
@@ -405,7 +405,7 @@ class TestKeepalivedConfigFile:
         "expected,config_block",
         [
             ({}, []),
-            ({}, ['virtual_ipaddress {', "10.10.10.100/25", "}"]),
+            ({}, ["virtual_ipaddress {", "10.10.10.100/25", "}"]),
             (
                 {"notify": {"bgp": [None], "ipsec": [None]}},
                 [
@@ -433,7 +433,7 @@ class TestKeepalivedConfigFile:
                                                          "value": 10}}]}},
              ["track {", "interface {", "lo1", "dp0p2 weight -10", "}"],
              {"track": {}}),
-            ({}, ['virtual_ipaddress {', "10.10.10.100/25", "}"], {})
+            ({}, ["virtual_ipaddress {", "10.10.10.100/25", "}"], {})
         ],
         ids=["Config exists", "Config doesn't exist"])
     def test_convert_interface_tracking_config(self, expected, config_block,
@@ -468,7 +468,7 @@ class TestKeepalivedConfigFile:
                  "monitor test_monitor policy test_policy", "}"],
                 {"track": {}}
             ),
-            ({}, ['virtual_ipaddress {', "10.10.10.100/25", "}"], {})
+            ({}, ["virtual_ipaddress {", "10.10.10.100/25", "}"], {})
         ],
         ids=["Config exists", "Config doesn't exist"])
     def test_convert_pathmon_tracking_config(self, expected, config_block,
@@ -494,7 +494,7 @@ class TestKeepalivedConfigFile:
                  "10.10.10.0/24", "}"],
                 {"track": {}}
             ),
-            ({}, ['virtual_ipaddress {', "10.10.10.100/25", "}"], {})
+            ({}, ["virtual_ipaddress {", "10.10.10.100/25", "}"], {})
         ],
         ids=["Config exists", "Config doesn't exist"])
     def test_convert_route_to_config(self, expected, config_block,

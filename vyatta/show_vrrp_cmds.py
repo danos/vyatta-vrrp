@@ -178,7 +178,7 @@ def show_vrrp_summary(state_dict: Dict) -> str:
                 state: Dict = vrrp_instance[util.INSTANCE_STATE_YANG]
                 state_name: str = state["state"]
                 ipao: str
-                if state['address-owner']:
+                if state["address-owner"]:
                     ipao = "yes"
                 else:
                     ipao = "no"

@@ -450,7 +450,7 @@ def running_on_vmware() -> bool:
                                          {"command": "show",
                                           "args": "version"})
     search: Optional[Match[str]] = \
-        re.search(r'Hypervisor:\s*(\w+)', version['output'])
+        re.search(r"Hypervisor:\s*(\w+)", version["output"])
     if search is not None and search.group(1) == "VMware":
         return True
     return False

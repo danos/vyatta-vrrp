@@ -23,7 +23,7 @@ import vyatta.keepalived.util as util
 
 def get_vrrp_proxy(func) -> Callable:
     @wraps(func)
-    def wrapper(inst: 'ProcessControl', *args, **kwargs) -> Callable:
+    def wrapper(inst: "ProcessControl", *args, **kwargs) -> Callable:
         if inst.vrrp_proxy_process is None:
             inst.vrrp_proxy_process = inst.sysbus.get(
                 util.KEEPALIVED_DBUS_INTF_NAME,

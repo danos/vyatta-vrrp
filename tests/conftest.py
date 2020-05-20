@@ -41,8 +41,8 @@ def pydbus_fakes():
         class NameOwner():
             pass
 
-    sys.modules['gi.repository'] = FakeGi
-    sys.modules['gi.repository.GLib'] = FakeGi.GLib
+    sys.modules["gi.repository"] = FakeGi
+    sys.modules["gi.repository.GLib"] = FakeGi.GLib
 
 
 @pytest.fixture
@@ -52,7 +52,7 @@ def calendar_fakes():
         def timegm(self):
             return 3
 
-    sys.modules['calendar'] = Calendar
+    sys.modules["calendar"] = Calendar
 
 
 @pytest.fixture
@@ -71,9 +71,9 @@ def tmp_file_keepalived_config_no_write(tmp_path):
             def emit(self):
                 pass
 
-    sys.modules['vci'] = FakeVci
+    sys.modules["vci"] = FakeVci
     from vyatta.keepalived.config_file import KeepalivedConfig
-    file_path = f"{str(tmp_path)}/keepalived.conf"
+    file_path = f"{tmp_path}/keepalived.conf"
     return KeepalivedConfig(file_path)
 
 
@@ -112,7 +112,7 @@ def test_config(
         FakeVci, "Exception", VciException
     )
 
-    sys.modules['vci'] = FakeVci
+    sys.modules["vci"] = FakeVci
     import vyatta.keepalived.dbus.process_control as process_ctrl
 
     class MockProcess(process_ctrl.ProcessControl):
@@ -120,9 +120,9 @@ def test_config(
         def __init__(self):
             super().__init__()
             self.systemd_default_file_path = \
-                f"{str(tmp_path)}/vyatta-keepalived"
+                f"{tmp_path}/vyatta-keepalived"
             self.snmpd_conf_file_path = \
-                f"{str(tmp_path)}/snmpd.conf"
+                f"{tmp_path}/snmpd.conf"
     monkeypatch.setitem(
         process_ctrl.__dict__,
         "ProcessControl",
@@ -147,7 +147,7 @@ def test_state(tmp_file_keepalived_config_no_write):
             def emit(self):
                 pass
 
-    sys.modules['vci'] = FakeVci
+    sys.modules["vci"] = FakeVci
     from vyatta.vyatta_vrrp_vci import State
     return State(tmp_file_keepalived_config_no_write)
 
@@ -168,7 +168,7 @@ def test_state_vif(tmp_file_keepalived_config_no_write):
             def emit(self):
                 pass
 
-    sys.modules['vci'] = FakeVci
+    sys.modules["vci"] = FakeVci
     from vyatta.vyatta_vrrp_vci import State
     return State(tmp_file_keepalived_config_no_write)
 
@@ -189,7 +189,7 @@ def keepalived_config(pydbus_fakes):
             def emit(self):
                 pass
 
-    sys.modules['vci'] = FakeVci
+    sys.modules["vci"] = FakeVci
     from vyatta.keepalived.config_file import KeepalivedConfig
     return KeepalivedConfig()
 
@@ -211,7 +211,7 @@ def tmp_file_keepalived_config(tmp_path, autogeneration_string,
             def emit(self):
                 pass
 
-    sys.modules['vci'] = FakeVci
+    sys.modules["vci"] = FakeVci
     from vyatta.keepalived.config_file import KeepalivedConfig
     file_path = f"{tmp_path}/keepalived.conf"
     with open(file_path, "w") as file_handle:
@@ -239,7 +239,7 @@ def tmp_file_keepalived_vif_config(
             def emit(self):
                 pass
 
-    sys.modules['vci'] = FakeVci
+    sys.modules["vci"] = FakeVci
     from vyatta.keepalived.config_file import KeepalivedConfig
     file_path = f"{tmp_path}/keepalived.conf"
     with open(file_path, "w") as file_handle:
@@ -266,7 +266,7 @@ def tmp_file_syncgroup_keepalived_config(
             def emit(self):
                 pass
 
-    sys.modules['vci'] = FakeVci
+    sys.modules["vci"] = FakeVci
     from vyatta.keepalived.config_file import KeepalivedConfig
     file_path = f"{tmp_path}/keepalived.conf"
     with open(file_path, "w") as file_handle:
@@ -291,7 +291,7 @@ def non_default_keepalived_config():
             def emit(self):
                 pass
 
-    sys.modules['vci'] = FakeVci
+    sys.modules["vci"] = FakeVci
     from vyatta.keepalived.config_file import KeepalivedConfig
     return KeepalivedConfig("/test/file/path.conf")
 
@@ -5590,7 +5590,7 @@ def mock_pydbus(monkeypatch, pydbus_fakes, tmp_path):
 
         def GetAll(self, interface_name):  # noqa: N802
             if interface_name == "dp0p1s1":
-                return {'Name': ("vyatta-dp0p1s1-1",),
+                return {"Name": ("vyatta-dp0p1s1-1",),
                         "SyncGroup": ("",),
                         "XmitIntf": ("dp0p1s1",),
                         "State": (2, "Master"),
@@ -5598,7 +5598,7 @@ def mock_pydbus(monkeypatch, pydbus_fakes, tmp_path):
                         "AddressOwner": (False,)
                         }
             if interface_name == "dp0p1s1.10":
-                return {'Name': ("vyatta-dp0p1s1.10-1",),
+                return {"Name": ("vyatta-dp0p1s1.10-1",),
                         "SyncGroup": ("",),
                         "XmitIntf": ("dp0p1s1.10",),
                         "State": (2, "Master"),
@@ -5687,7 +5687,7 @@ def mock_pydbus(monkeypatch, pydbus_fakes, tmp_path):
 @pytest.fixture
 def mock_pydbus_rfc(mock_pydbus):
     def GetAllRfc(self, interface_name):  # noqa: N802
-        return {'Name': ("vyatta-dp0p1s1-1",),
+        return {"Name": ("vyatta-dp0p1s1-1",),
                 "SyncGroup": ("",),
                 "XmitIntf": ("dp0vrrp1",),
                 "State": (2, "Master"),

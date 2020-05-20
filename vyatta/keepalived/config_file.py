@@ -484,8 +484,8 @@ vrrp_sync_group {sync_group} {{
             del config_dict["priority"]
 
         # Multi line config code, look for the block start and then the next }
-        vips_start: int = config_block.index('virtual_ipaddress {')
-        vips_end: int = config_block.index('}', vips_start)
+        vips_start: int = config_block.index("virtual_ipaddress {")
+        vips_end: int = config_block.index("}", vips_start)
         config_dict["virtual-address"] = config_block[vips_start + 1:vips_end]
 
         # Version specific code
@@ -532,7 +532,7 @@ vrrp_sync_group {sync_group} {{
         """
 
         try:
-            block.index('authentication {')
+            block.index("authentication {")
         except ValueError:
             # Authentication doesn't exist in this group
             return
@@ -561,7 +561,7 @@ vrrp_sync_group {sync_group} {{
         """
 
         try:
-            config_start: int = block.index('notify {')
+            config_start: int = block.index("notify {")
         except ValueError:
             # Notify doesn't exist in this group
             return
@@ -585,10 +585,10 @@ vrrp_sync_group {sync_group} {{
 
         Because there's several types of tracking available we need
         to call each track helper function to generate the final entry
-        into the config_dict['track'] value.
+        into the config_dict["track"] value.
         """
         try:
-            config_start: int = block.index('track {')
+            config_start: int = block.index("track {")
         except ValueError:
             # No tracking config in this group
             return
@@ -613,7 +613,7 @@ vrrp_sync_group {sync_group} {{
         """
 
         try:
-            config_start: int = block.index('interface {', start)
+            config_start: int = block.index("interface {", start)
         except ValueError:
             # Interface tracking doesn't exist in this group
             return
@@ -652,7 +652,7 @@ vrrp_sync_group {sync_group} {{
         """
 
         try:
-            config_start: int = block.index('pathmon {', start)
+            config_start: int = block.index("pathmon {", start)
         except ValueError:
             # Pathmon tracking doesn't exist in this group
             return
@@ -711,7 +711,7 @@ vrrp_sync_group {sync_group} {{
         """
 
         try:
-            config_start: int = block.index('route_to {', start)
+            config_start: int = block.index("route_to {", start)
         except ValueError:
             # Interface tracking doesn't exist in this group
             return
