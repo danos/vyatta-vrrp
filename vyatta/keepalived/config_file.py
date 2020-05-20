@@ -235,39 +235,40 @@ global_defs {
                 start_delay: str = vrrp_conf["start-delay"]
                 group: Dict
                 for group in vrrp_conf["vrrp-group"]:
-                    first_vip: str = group["virtual-address"][0]
-                    if "/" in first_vip:
-                        first_vip = first_vip.split("/")[0]
-                    if "disable" in group:
-                        continue
-                    if "rfc-compatibility" in group:
-                        self._rfc_interfaces += 1
-                        self.vrrp_instances.append(
-                            vrrp.VrrpGroup(
-                                intf_name, start_delay, group,
-                                self._rfc_interfaces))
-                    else:
-                        self.vrrp_instances.append(
-                            vrrp.VrrpGroup(
-                                intf_name, start_delay, group))
-                    af_type: int = util.what_ip_version(
-                        first_vip
-                    )
-                    connection: vrrp_dbus.VrrpConnection = \
-                        vrrp_dbus.VrrpConnection(
-                            intf_name, group["tagnode"],
-                            af_type, pydbus.SystemBus()
+                    if "disable" not in group:
+                        first_vip: str = group["virtual-address"][0]
+                        if "/" in first_vip:
+                            first_vip = first_vip.split("/")[0]
+                        if "rfc-compatibility" in group:
+                            self._rfc_interfaces += 1
+                            self.vrrp_instances.append(
+                                vrrp.VrrpGroup(
+                                    intf_name, start_delay, group,
+                                    self._rfc_interfaces))
+                        else:
+                            self.vrrp_instances.append(
+                                vrrp.VrrpGroup(
+                                    intf_name, start_delay, group))
+
+                        af_type: int = util.what_ip_version(
+                            first_vip
                         )
-                    instance_name: str = \
-                        f"vyatta-{intf_name}-{group['tagnode']}"
-                    self._vrrp_connections[instance_name] = \
-                        connection
-                    if "sync-group" in group:
-                        sync_group_name: str = group["sync-group"]
-                        if sync_group_name not in self._sync_instances:
-                            self._sync_instances[sync_group_name] = []
-                        self._sync_instances[sync_group_name].append(
-                            self._vrrp_instances[-1].instance_name)
+                        connection: vrrp_dbus.VrrpConnection = \
+                            vrrp_dbus.VrrpConnection(
+                                intf_name, group["tagnode"],
+                                af_type, pydbus.SystemBus()
+                            )
+                        instance_name: str = \
+                            f"vyatta-{intf_name}-{group['tagnode']}"
+                        self._vrrp_connections[instance_name] = \
+                            connection
+
+                        if "sync-group" in group:
+                            sync_group_name: str = group["sync-group"]
+                            if sync_group_name not in self._sync_instances:
+                                self._sync_instances[sync_group_name] = []
+                            self._sync_instances[sync_group_name].append(
+                                self._vrrp_instances[-1].instance_name)
 
     def write_config(self) -> None:
         """
