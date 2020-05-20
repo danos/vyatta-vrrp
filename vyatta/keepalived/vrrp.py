@@ -282,7 +282,6 @@ vrrp_instance {instance} {{
         }}"""  # Close route brace
 
     def __repr__(self) -> str:
-        completed_config = self._template.format(
+        return self._template.format(
             **self._group_config
         )
-        return completed_config
