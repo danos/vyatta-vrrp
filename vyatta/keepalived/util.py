@@ -16,16 +16,23 @@ import socket
 from enum import Enum
 from typing import Any, Dict, Generator, List, Match, Optional, Tuple, Union
 
+# YANG strings for interfaces types, and short names
 INTERFACE_YANG_NAME: str = "vyatta-interfaces-v1:interfaces"
-DATAPLANE_YANG_NAME: str = "vyatta-interfaces-dataplane-v1:dataplane"
-BONDING_YANG_NAME: str = "vyatta-bonding-v1:bonding"
-SWITCH_YANG_NAME: str = "vyatta-interfaces-switch-v1:switch"
+DATAPLANE_SHORT_NAME: str = "dataplane"
+DATAPLANE_YANG_NAME: str = f"vyatta-interfaces-dataplane-v1:" +\
+    f"{DATAPLANE_SHORT_NAME}"
+BONDING_SHORT_NAME: str = "bonding"
+BONDING_YANG_NAME: str = f"vyatta-bonding-v1:{BONDING_SHORT_NAME}"
+SWITCH_SHORT_NAME: str = "switch"
+SWITCH_YANG_NAME: str = f"vyatta-interfaces-switch-v1:{SWITCH_SHORT_NAME}"
+VIF_YANG_NAME: str = "vif"
 
 intf_type: Enum = Enum("intf_type", "dataplane bonding switch")
 
+# VRRP YANG keys and namespaces
 VRRP_NAMESPACE: str = "vyatta-vrrp-v1"
-VRRP_YANG_NAME: str = f"{VRRP_NAMESPACE}:vrrp"
-VIF_YANG_NAME: str = "vif"
+VRRP: str = "vrrp"
+VRRP_YANG_NAME: str = f"{VRRP_NAMESPACE}:{VRRP}"
 PATHMON_DATAPLANE_YANG_NAME: str = \
     "vyatta-vrrp-path-monitor-track-interfaces-dataplane-v1:path-monitor"
 PATHMON_BONDING_YANG_NAME: str = \
@@ -39,12 +46,15 @@ ROUTE_BONDING_YANG_NAME: str = \
 ROUTE_SWITCH_YANG_NAME: str = \
     "vyatta-vrrp-route-to-track-interfaces-switch-v1:route-to"
 
+# DBus paths and interfaces for Systemd controls
 PROPERTIES_DBUS_INTF_NAME: str = "org.freedesktop.DBus.Properties"
 SYSTEMD_DBUS_INTF_NAME: str = "org.freedesktop.systemd1"
 SYSTEMD_DBUS_PATH: str = f"/{SYSTEMD_DBUS_INTF_NAME.replace('.', '/')}"
 SYSTEMD_MANAGER_DBUS_INTF_NAME: str = f"{SYSTEMD_DBUS_INTF_NAME}.Manager"
 SYSTEMD_UNIT_DBUS_NAME: str = f"{SYSTEMD_DBUS_INTF_NAME}.Unit"
+SYSTEMD_REPLACE: str = "replace"
 
+# DBus paths and interfaces for VRRP group instance and Keepalived process
 KEEPALIVED_DBUS_INTF_NAME: str = "org.keepalived.Vrrp1"
 VRRP_PROCESS_DBUS_INTF_PATH: str = \
     f"/{KEEPALIVED_DBUS_INTF_NAME.replace('.', '/')}/Vrrp"
@@ -52,15 +62,194 @@ VRRP_INSTANCE_DBUS_INTF_NAME: str = f"{KEEPALIVED_DBUS_INTF_NAME}.Instance"
 VRRP_INSTANCE_DBUS_PATH: str = \
     f"/{VRRP_INSTANCE_DBUS_INTF_NAME.replace('.', '/')}"
 
+# Address family string constants
+IPV4_AF: str = "IPv4"
+IPV6_AF: str = "IPv6"
 
-INSTANCE_STATE_YANG: str = "instance-state"
-TAGNODE_YANG: str = "tagnode"
-VRRP_GROUP_YANG: str = "vrrp-group"
-INSTANCE_STATS_YANG: str = "stats"
+# DBus property keys
+DBUS_IPAO_NAME: str = "AddressOwner"
+DBUS_LAST_TRANSITION_NAME: str = "LastTransition"
+DBUS_SYNC_GROUP_NAME: str = "SyncGroup"
+DBUS_XMIT_INTF_NAME: str = "XmitIntf"
 
-PER_PACKET_DEBUG_FLAG = 1
-KEEPALIVED_DATA_FILE_PATH = "/tmp/keepalived.data"
-KEEPALIVED_STATS_FILE_PATH = "/tmp/keepalived.stats"
+# YANG keys and constants
+YANG_INSTANCE_STATE: str = "instance-state"
+YANG_TAGNODE: str = "tagnode"
+YANG_VRRP_GROUP: str = "vrrp-group"
+YANG_INSTANCE_STATS: str = "stats"
+YANG_START_DELAY: str = "start-delay"
+YANG_VIP: str = "virtual-address"
+YANG_RFC: str = "rfc-compatibility"
+YANG_RFC_INTF: str = "rfc-interface"
+YANG_IPAO: str = "address-owner"
+YANG_LAST_TRANSITION: str = "last-transition"
+YANG_STATE: str = "state"
+YANG_BASE_PRIO: str = "base-priority"
+YANG_EFFECTIVE_PRIO: str = "effective-priority"
+YANG_HELLO_SOURCE_ADDR: str = "hello-source-address"
+YANG_ACCEPT: str = "accept"
+YANG_PRIORITY: str = "priority"
+YANG_PREEMPT: str = "preempt"
+YANG_VERSION: str = "version"
+YANG_V2_ADVERT_INT: str = "advertise-interval"
+YANG_V3_ADVERT_INT: str = "fast-advertise-interval"
+YANG_PREEMPT_DELAY: str = "preempt-delay"
+YANG_SYNC_GROUP: str = "sync-group"
+YANG_SG_MEMBER: str = "members"
+YANG_AUTH: str = "authentication"
+YANG_TYPE: str = "type"
+YANG_AUTH_TYPE: str = "auth-type"
+YANG_AUTH_PASSWORD: str = "password"
+YANG_AUTH_PLAINTXT_PASSWORD: str = "plaintext-password"
+YANG_AUTH_TYPE_PLAIN: str = "PASS"
+YANG_AUTH_TYPE_AH: str = "AH"
+YANG_RUN_SCRIPT: str = "run-transition-scripts"
+YANG_INTERFACE_CONST: str = "interface"
+YANG_TRACK: str = "track"
+YANG_TRACK_VALUE: str = "value"
+YANG_TRACK_INTERFACE: str = f"{YANG_TRACK}-{YANG_INTERFACE_CONST}"
+YANG_TRACK_ROUTE: str = "route"
+YANG_TRACK_MONITOR: str = "monitor"
+YANG_TRACK_POLICY: str = "policy"
+YANG_TRACK_WEIGHT: str = "weight"
+YANG_TRACK_INC: str = "increment"
+YANG_TRACK_DEC: str = "decrement"
+YANG_NAME: str = "name"
+YANG_NOTIFY: str = "notify"
+YANG_BGP: str = "bgp"
+YANG_IPSEC: str = "ipsec"
+YANG_INSTANCE: str = "instance"
+YANG_DISABLED_GROUP: str = "disable"
+
+# Keys for state dictionaries that don't match config keys
+YANG_SRC_IP_STATE: str = "src-ip"
+YANG_ADVERT_INT_STATE: str = "advert-interval"
+YANG_MASTER_PRIO_STATE: str = "master-priority"
+YANG_MASTER_ROUTER_STATE: str = "master-router"
+YANG_VIP_STATE: str = "virtual-ips"
+
+# VRRP state strings
+STATE_TRANSIENT: str = "TRANSIENT"
+STATE_MASTER: str = "MASTER"
+STATE_BACKUP: str = "BACKUP"
+STATE_FAULT: str = "FAULT"
+STATE_INIT: str = "INIT"
+
+# RPC keys
+RPC_RFC_MAPPING_RECEIVE: str = f"{VRRP_NAMESPACE}:receive"
+RPC_RFC_MAPPING_GROUP: str = f"{VRRP_NAMESPACE}:group"
+RPC_GARP_INTERFACE: str = f"{VRRP_NAMESPACE}:{YANG_INTERFACE_CONST}"
+RPC_GARP_GROUP: str = f"{VRRP_NAMESPACE}:group"
+RPC_RFC_INTERFACE: str = f"{VRRP_NAMESPACE}:transmit"
+
+# Notification name and keys
+NOTIFICATION_NAME_YANG: str = "group-state-change"
+NOTIFICATION_INSTANCE_NAME: str = f"{VRRP_NAMESPACE}:instance"
+NOTIFICATION_NEW_STATE: str = f"{VRRP_NAMESPACE}:new-state"
+
+# Keepalived config keys
+CONFIG_ADVERT: str = "adv"
+CONFIG_INTF: str = "intf"
+CONFIG_DELAY: str = "delay"
+CONFIG_VRID: str = "vrid"
+CONFIG_VIP: str = "vips"
+CONFIG_VMAC: str = "vmac"
+CONFIG_PREEMPT_DELAY: str = "preempt_delay"
+CONFIG_HELLO_SOURCE_ADDR: str = "mcast_src_ip"
+CONFIG_AUTH_PASSWORD: str = "auth_pass"
+CONFIG_AUTH_TYPE: str = "auth_type"
+CONFIG_VRRP_INSTANCE: str = "vrrp_instance"
+CONFIG_VRRP_SYNC_GROUP: str = "vrrp_sync_group"
+CONFIG_VRID_FILE: str = "virtual_router_id"
+CONFIG_START_DELAY: str = "start_delay"
+CONFIG_VRRP_SANITIZED_SYNC_GROUP: str = "sync_group"
+CONFIG_VRRP_XMIT_BASE: str = "vmac_xmit_base"
+CONFIG_VRRP_ADVERT_INT: str = "advert_int"
+
+# Show detail output constants
+SHOW_IPAO_YES: str = "yes"
+SHOW_IPAO_NO: str = "no"
+SHOW_SG_VALUE: str = "none"
+SHOW_PREEMPT_ENABLED: str = "enabled"
+SHOW_PREEMPT_DISABLED: str = "disabled"
+SHOW_POLICIES: str = "policies"
+SHOW_LAST_TRANSITION: str = "Last transition"
+SHOW_MASTER_ROUTER: str = "Master router"
+SHOW_MASTER_PRIORITY: str = "Master priority"
+SHOW_VERSION: str = "Version"
+SHOW_RFC_COMPAT: str = "RFC Compliant"
+SHOW_VMAC_INTF: str = "Virtual MAC interface"
+SHOW_IPAO: str = "Address Owner"
+SHOW_SOURCE_ADDR: str = "Source Address"
+SHOW_CONFIG_PRIORITY: str = "Configured Priority"
+SHOW_EFFECTIVE_PRIORITY: str = "Effective Priority"
+SHOW_ADVERT_INT: str = "Advertisement interval"
+SHOW_AUTH_TYPE: str = "Authentication type"
+SHOW_PREEMPT: str = f"{YANG_PREEMPT.capitalize()}"
+SHOW_PREEMPT_DELAY: str = f"{YANG_PREEMPT.capitalize()} delay"
+SHOW_START_DELAY: str = "Start delay"
+SHOW_ACCEPT: str = f"{YANG_ACCEPT.capitalize()}"
+SHOW_SYNC_GROUP: str = f"{YANG_SYNC_GROUP.capitalize()}"
+SHOW_TRACK_INTF_COUNT: str = "Tracked Interfaces count"
+SHOW_TRACK_PMON_COUNT: str = "Tracked Path Monitor count"
+SHOW_TRACK_ROUTES_COUNT: str = "Tracked routes count"
+SHOW_VIP_COUNT: str = "VIP count"
+
+# Keepalived data file constants
+DATA_XMIT_DEV: str = "Transmitting device"
+DATA_VERSION: str = "VRRP Version"
+DATA_SRC_IP: str = "Using src_ip"
+DATA_BASE_PRIORITY: str = "Base priority"
+DATA_EFFECTIVE_PRIORITY: str = "Effective priority"
+DATA_ADVERT_INT: str = "Advert interval"
+DATA_TRACK_INTF_COUNT: str = "Tracked interfaces ="
+DATA_TRACK_PMON_COUNT: str = "Tracked path-monitors ="
+DATA_TRACK_ROUTES_COUNT: str = "Tracked routes ="
+DATA_TRACK_INTF_DELIMINATOR: str = "------< NIC >------"
+DATA_TRACK_ROUTE_NETWORK: str = "Network"
+DATA_TRACK_ROUTE_PREFIX: str = "Prefix"
+DATA_TRACK_DOWN: str = "DOWN"
+DATA_TRACK_IS_UP: str = "is UP"
+DATA_TRACK_IS_DOWN: str = f" is {DATA_TRACK_DOWN}"
+DATA_TRACK_STATUS: str = "Status"
+DATA_TRACK_WEIGHT: str = "Weight"
+DATA_TRACK_ENABLE: str = "Enabling"
+DATA_VIP_COUNT: str = "Virtual IP"
+DATA_INSTANCE_START: str = "VRRP Instance"
+DATA_SG_INSTANCE_START: str = "VRRP Sync Group"
+
+# Show stats constants
+SHOW_STATS_RELEASED_MASTER: str = "Released master"
+
+# Keepalived stats file constants
+STATS_ADVERT_KEY: str = "Advertisements"
+STATS_RECV_KEY: str = "Received"
+STATS_SENT_KEY: str = "Sent"
+STATS_BECOME_KEY: str = "Became master"
+STATS_RELEASE_KEY: str = "Released master"
+STATS_PACKET_KEY: str = "Packet errors"
+STATS_LENGTH_KEY: str = "Length"
+STATS_TTL_KEY: str = "TTL"
+STATS_INVALID_TYPE_KEY: str = "Invalid type"
+STATS_ADVERT_INTERVAL_KEY: str = "Advertisement interval"
+STATS_ADDRESS_LIST_KEY: str = "Address list"
+STATS_AUTH_ERROR_KEY: str = "Authentication errors"
+STATS_TYPE_MISMATCH_KEY: str = "Type mismatch"
+STATS_FAILURE_KEY: str = "Failure"
+STATS_PZERO_SEARCH_STR: str = "Priority zero"
+STATS_PZERO_KEY: str = \
+    f"{STATS_PZERO_SEARCH_STR} {STATS_ADVERT_KEY.casefold()}"
+
+# Keepalived debug flags
+DEBUG_FLAG_PER_PACKET = 1
+
+# Keepalived file paths
+FILE_PATH_KEEPALIVED_DATA = "/tmp/keepalived.data"
+FILE_PATH_KEEPALIVED_STATS = "/tmp/keepalived.stats"
+
+# Misc string constants
+LOGGING_MODULE_NAME: str = "vyatta-vrrp-vci"
+AGENTX_STRING: str = "tcp:localhost:705:1"
 
 
 def get_specific_vrrp_config_from_yang(
@@ -98,21 +287,22 @@ def get_specific_vrrp_config_from_yang(
         intf: Dict
         yang_root: str = f"interfaces {intf_type[intf_type.index(':')+1:]} "
         for intf in conf[INTERFACE_YANG_NAME][intf_type]:
-            if "vrrp-group" not in intf[VRRP_YANG_NAME]:
+            if YANG_VRRP_GROUP not in intf[VRRP_YANG_NAME]:
                 continue  # start-delay default but no vrrp config
             group: Dict
-            for group in intf[VRRP_YANG_NAME]["vrrp-group"]:
+            for group in intf[VRRP_YANG_NAME][YANG_VRRP_GROUP]:
                 if value in group:
                     yang_path: str = \
-                        yang_root + f"{intf['tagnode']} vrrp vrrp-group " +\
-                        f"{group['tagnode']} {value} {group[value]}"
+                        yang_root + f"{intf[YANG_TAGNODE]} {VRRP} " +\
+                        f"{YANG_VRRP_GROUP} {group[YANG_TAGNODE]} " +\
+                        f"{value} {group[value]}"
                     yield [group[value], yang_path]
 
 
 def is_rfc_compat_configured(conf: Dict) -> Tuple[bool, List[List[str]]]:
     conf_exists = list(
         get_specific_vrrp_config_from_yang(
-            conf, "rfc-compatibility"))
+            conf, YANG_RFC))
     if conf_exists != []:
         return (True, conf_exists)
     return (False, [])
@@ -126,7 +316,7 @@ def get_hello_sources(conf: Dict) -> List[List[str]]:
     "hello-source-address" as the target
     """
     return list(get_specific_vrrp_config_from_yang(
-        conf, "hello-source-address"))
+        conf, YANG_HELLO_SOURCE_ADDR))
 
 
 def what_ip_version(address_string: str) -> int:
@@ -226,23 +416,23 @@ def sanitize_vrrp_config(conf: Dict) -> Dict:
         intf: Dict
         for count, intf in enumerate(intf_dict[intf_type]):
             if VRRP_YANG_NAME in intf:
-                if "vrrp-group" in intf[VRRP_YANG_NAME]:
+                if YANG_VRRP_GROUP in intf[VRRP_YANG_NAME]:
                     new_list.append(intf_dict[intf_type][count])
-            if "vif" in intf:
+            if VIF_YANG_NAME in intf:
                 vif_intf: Dict
-                for vif_intf in intf["vif"]:
+                for vif_intf in intf[VIF_YANG_NAME]:
                     if VRRP_YANG_NAME not in vif_intf:
                         continue
-                    if "vrrp-group" in vif_intf[VRRP_YANG_NAME]:
+                    if YANG_VRRP_GROUP in vif_intf[VRRP_YANG_NAME]:
                         new_vif: Dict = vif_intf
-                        new_vif["tagnode"] = \
-                            f"{intf['tagnode']}.{vif_intf['tagnode']}"
+                        new_vif[YANG_TAGNODE] = \
+                            f"{intf[YANG_TAGNODE]}.{vif_intf[YANG_TAGNODE]}"
                         vif_list.append(new_vif)
-                del intf["vif"]
+                del intf[VIF_YANG_NAME]
         if new_list != []:
             new_dict[intf_type] = new_list
     if vif_list != []:
-        new_dict["vif"] = vif_list
+        new_dict[VIF_YANG_NAME] = vif_list
     return {INTERFACE_YANG_NAME: new_dict}
 
 
@@ -396,20 +586,20 @@ def find_interface_in_yang_repr(
     for intf in interface_list:
         # Interface list has entries so we need to loop through them and
         # see if the interface already exists
-        if intf["tagnode"] == interface_name:
+        if intf[YANG_TAGNODE] == interface_name:
             interface_level = intf
             break
     else:
         # Interface list is empty so create the interface and add it to the
         # list and then return the reference
-        intf_dict = {"tagnode": interface_name}
+        intf_dict = {YANG_TAGNODE: interface_name}
         interface_level = intf_dict
         interface_list.append(intf_dict)
 
     if interface_level is None:
         # Interface doesn't exists yet but there are interfaces in the list
         # so create the interface and return the reference
-        intf_dict = {"tagnode": interface_name}
+        intf_dict = {YANG_TAGNODE: interface_name}
         interface_list.append(intf_dict)
         interface_level = interface_list[-1]
 
@@ -417,22 +607,22 @@ def find_interface_in_yang_repr(
     if vif_number != "":
         vif_dict: Dict
         if VIF_YANG_NAME not in interface_level:
-            vif_dict = {"tagnode": vif_number}
+            vif_dict = {YANG_TAGNODE: vif_number}
             interface_level[VIF_YANG_NAME] = [vif_dict]
         else:
             for vif_dict in interface_level[VIF_YANG_NAME]:
-                if vif_dict["tagnode"] == vif_number:
+                if vif_dict[YANG_TAGNODE] == vif_number:
                     break
             else:
-                vif_dict = {"tagnode": vif_number}
+                vif_dict = {YANG_TAGNODE: vif_number}
                 interface_level[VIF_YANG_NAME].append(vif_dict)
         interface_level = vif_dict
 
     if VRRP_YANG_NAME not in interface_level:
         # If there is no vrrp config in the interface yet add the top level
         # dictionary to the interface
-        interface_level[VRRP_YANG_NAME] = {"start-delay": 0,
-                                           "vrrp-group": []}
+        interface_level[VRRP_YANG_NAME] = {YANG_START_DELAY: 0,
+                                           YANG_VRRP_GROUP: []}
     return interface_level
 
 

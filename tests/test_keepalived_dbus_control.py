@@ -94,7 +94,7 @@ class TestKeepalivedDbusControl:
             self, mock_pydbus, tmp_path):
         import vyatta.keepalived.dbus.process_control as process_ctrl
         import vyatta.keepalived.util as util
-        util.KEEPALIVED_DATA_FILE_PATH = f"{tmp_path}/keepalived.data"
+        util.FILE_PATH_KEEPALIVED_DATA = f"{tmp_path}/keepalived.data"
         process_control = process_ctrl.ProcessControl()
         process_control.keepalived_proxy_obj.SubState = "running"
         result = process_control.dump_keepalived_data()
@@ -105,7 +105,7 @@ class TestKeepalivedDbusControl:
             self, mock_pydbus, tmp_path):
         import vyatta.keepalived.dbus.process_control as process_ctrl
         import vyatta.keepalived.util as util
-        util.KEEPALIVED_STATS_FILE_PATH = f"{tmp_path}/keepalived.stats"
+        util.FILE_PATH_KEEPALIVED_STATS = f"{tmp_path}/keepalived.stats"
         process_control = process_ctrl.ProcessControl()
         process_control.keepalived_proxy_obj.SubState = "running"
         result = process_control.dump_keepalived_stats()

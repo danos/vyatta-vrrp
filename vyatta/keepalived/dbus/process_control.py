@@ -43,7 +43,7 @@ class ProcessControl:
 
         self.keepalived_service_file: str = "keepalived.service"
 
-        self.log: logging.Logger = logging.getLogger("vyatta-vrrp-vci")
+        self.log: logging.Logger = logging.getLogger(util.LOGGING_MODULE_NAME)
         self.sysbus: pydbus.Bus = pydbus.SystemBus()
 
         self.systemd_proxy: pydbus.ProxyObject = self.sysbus.get(
@@ -84,7 +84,7 @@ class ProcessControl:
 
     def shutdown_process(self) -> None:
         self.systemd_manager_intf.StopUnit(
-            self.keepalived_service_file, "replace")
+            self.keepalived_service_file, util.SYSTEMD_REPLACE)
 
     def set_default_daemon_arguments(self) -> None:
         """
@@ -109,7 +109,7 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
         required so Keepalived connects to AgentX correctly.
         """
 
-        snmp_socket: str = "tcp:localhost:705:1"
+        snmp_socket: str = util.AGENTX_STRING
         snmp_conf_file: Path = Path(self.snmpd_conf_file_path)
         if (snmp_conf_file.exists() and snmp_conf_file.is_file()):
             with open(str(snmp_conf_file), "r") as f_obj:
@@ -125,15 +125,15 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
     def start_process(self) -> None:
         self.set_default_daemon_arguments()
         self.systemd_manager_intf.StartUnit(
-            self.keepalived_service_file, "replace")
+            self.keepalived_service_file, util.SYSTEMD_REPLACE)
 
     def reload_process_config(self) -> None:
         self.systemd_manager_intf.ReloadUnit(
-            self.keepalived_service_file, "replace")
+            self.keepalived_service_file, util.SYSTEMD_REPLACE)
 
     def restart_process(self) -> None:
         self.systemd_manager_intf.RestartUnit(
-            self.keepalived_service_file, "replace")
+            self.keepalived_service_file, util.SYSTEMD_REPLACE)
 
     @get_vrrp_proxy
     def get_rfc_mapping(self, intf: str) -> Dict[str, str]:
@@ -144,15 +144,15 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
 
         if not self.is_running():
             return {
-                f"{util.VRRP_NAMESPACE}:receive": "",
-                f"{util.VRRP_NAMESPACE}:group": 0
+                f"{util.RPC_RFC_MAPPING_RECEIVE}": "",
+                f"{util.RPC_RFC_MAPPING_GROUP}": 0
             }
         rfc_mapping: Tuple[str, str] = \
             self.vrrp_proxy_process.GetRfcMapping(intf)
         return {
-            f"{util.VRRP_NAMESPACE}:receive":
+            f"{util.RPC_RFC_MAPPING_RECEIVE}":
             rfc_mapping[0],
-            f"{util.VRRP_NAMESPACE}:group":
+            f"{util.RPC_RFC_MAPPING_GROUP}":
             rfc_mapping[1]}
 
     def subscribe_process_signals(self) -> None:
@@ -168,11 +168,11 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
 
         if not self.is_running():
             return
-        data_file = Path(util.KEEPALIVED_DATA_FILE_PATH)
+        data_file = Path(util.FILE_PATH_KEEPALIVED_DATA)
         if data_file.exists():
             data_file.unlink()
         self.vrrp_proxy_process.PrintData()
-        data_file = Path(util.KEEPALIVED_DATA_FILE_PATH)
+        data_file = Path(util.FILE_PATH_KEEPALIVED_DATA)
         wait_for_write: int = 0
         while wait_for_write < 3:
             if data_file.exists():
@@ -191,11 +191,11 @@ DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc
 
         if not self.is_running():
             return
-        stats_file = Path(util.KEEPALIVED_STATS_FILE_PATH)
+        stats_file = Path(util.FILE_PATH_KEEPALIVED_STATS)
         if stats_file.exists():
             stats_file.unlink()
         self.vrrp_proxy_process.PrintStats()
-        stats_file = Path(util.KEEPALIVED_STATS_FILE_PATH)
+        stats_file = Path(util.FILE_PATH_KEEPALIVED_STATS)
         wait_for_write: int = 0
         while wait_for_write < 3:
             if stats_file.exists():

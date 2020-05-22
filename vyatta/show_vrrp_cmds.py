@@ -35,7 +35,7 @@ SHOW_DETAIL_INTF_DIVIDER: str = "--------------\n"
 
 
 def show_detail_intf_name(intf: str) -> str:
-    return f"Interface: {intf}\n"
+    return f"{util.YANG_INTERFACE_CONST.capitalize()}: {intf}\n"
 
 
 SHOW_DETAIL_GROUP_DIVIDER: str = "  ----------\n"
@@ -50,11 +50,11 @@ def show_detail_line_format(line: List[str]) -> str:
 
 
 def show_detail_tracked_format(line: List[str]) -> str:
-    return f"    {line[0]}   state {line[1]}      {line[2]}\n"
+    return f"    {line[0]}   {util.YANG_STATE} {line[1]}      {line[2]}\n"
 
 
 def show_detail_tracked_format_without_weight(line: List[str]) -> str:
-    return f"    {line[0]}   state {line[1]}\n"
+    return f"    {line[0]}   {util.YANG_STATE} {line[1]}\n"
 
 
 def show_detail_tracked_pmon_format(line: List[str]) -> str:
@@ -165,34 +165,34 @@ def show_vrrp_summary(state_dict: Dict) -> str:
             state_dict[util.INTERFACE_YANG_NAME][intf_type]
         intf: Dict
         for intf in intf_list:
-            intf_name: str = intf[util.TAGNODE_YANG]
+            intf_name: str = intf[util.YANG_TAGNODE]
             if util.VRRP_YANG_NAME not in intf:
                 continue
             vrrp_instances: List = \
-                intf[util.VRRP_YANG_NAME][util.VRRP_GROUP_YANG]
+                intf[util.VRRP_YANG_NAME][util.YANG_VRRP_GROUP]
             vrrp_instance: Dict
             for vrrp_instance in vrrp_instances:
-                if util.INSTANCE_STATE_YANG not in vrrp_instance:
+                if util.YANG_INSTANCE_STATE not in vrrp_instance:
                     continue
-                group: str = vrrp_instance[util.TAGNODE_YANG]
-                state: Dict = vrrp_instance[util.INSTANCE_STATE_YANG]
-                state_name: str = state["state"]
+                group: str = vrrp_instance[util.YANG_TAGNODE]
+                state: Dict = vrrp_instance[util.YANG_INSTANCE_STATE]
+                state_name: str = state[util.YANG_STATE]
                 ipao: str
-                if state["address-owner"]:
-                    ipao = "yes"
+                if state[util.YANG_IPAO]:
+                    ipao = util.SHOW_IPAO_YES
                 else:
-                    ipao = "no"
-                if state["rfc-interface"] == "":
-                    rfc = "no"
+                    ipao = util.SHOW_IPAO_NO
+                if state[util.YANG_RFC_INTF] == "":
+                    rfc = util.SHOW_IPAO_NO
                 else:
-                    rfc = state["rfc-interface"]
+                    rfc = state[util.YANG_RFC_INTF]
                 sync: str
-                if state["sync-group"] == "":
-                    sync = "<none>"
+                if state[util.YANG_SYNC_GROUP] == "":
+                    sync = f"<{util.SHOW_SG_VALUE}>"
                 else:
-                    sync = state["sync-group"]
+                    sync = state[util.YANG_SYNC_GROUP]
                 now: int = calendar.timegm(time.localtime())
-                last: int = state["last-transition"]
+                last: int = state[util.YANG_LAST_TRANSITION]
                 diff: int = now - last
                 output += \
                     show_summary_line_format(
@@ -294,7 +294,7 @@ def show_vrrp_detail(
             state_dict[util.INTERFACE_YANG_NAME][intf_type]
         intf: Dict
         for intf in intf_list:
-            intf_name: str = intf[util.TAGNODE_YANG]
+            intf_name: str = intf[util.YANG_TAGNODE]
             if filter_intf != "" and intf_name != filter_intf:
                 continue
             output += show_detail_intf_name(intf_name)
@@ -302,185 +302,213 @@ def show_vrrp_detail(
             if util.VRRP_YANG_NAME not in intf:
                 continue
             vrrp_instances: List = \
-                intf[util.VRRP_YANG_NAME][util.VRRP_GROUP_YANG]
+                intf[util.VRRP_YANG_NAME][util.YANG_VRRP_GROUP]
             vrrp_instance: Dict
             for vrrp_instance in vrrp_instances:
-                if util.INSTANCE_STATE_YANG not in vrrp_instance:
+                if util.YANG_INSTANCE_STATE not in vrrp_instance:
                     continue
-                group: str = vrrp_instance[util.TAGNODE_YANG]
+                group: str = vrrp_instance[util.YANG_TAGNODE]
                 if filter_grp != "" and int(group) != int(filter_grp):
                     continue
                 output += show_detail_group_name(group)
                 output += SHOW_DETAIL_GROUP_DIVIDER
-                state: Dict = vrrp_instance[util.INSTANCE_STATE_YANG]
-                state_name: str = state["state"]
-                output += show_detail_line_format(["State:", state_name])
+                state: Dict = vrrp_instance[util.YANG_INSTANCE_STATE]
+                state_name: str = state[util.YANG_STATE]
+                output += show_detail_line_format(
+                    [f"{util.YANG_STATE.title()}:", state_name])
                 now: int = calendar.timegm(time.localtime())
-                last: int = state["last-transition"]
+                last: int = state[util.YANG_LAST_TRANSITION]
                 diff: int = now - last
                 output += show_detail_line_format(
-                    ["Last transition:", util.elapsed_time(diff)]
+                    [f"{util.SHOW_LAST_TRANSITION}:", util.elapsed_time(diff)]
                 )
 
-                if state_name == "BACKUP":
+                if state_name == util.STATE_BACKUP:
                     output += "\n"
                     output += show_detail_line_format(
-                        ["Master router:", state["master-router"]]
+                        [f"{util.SHOW_MASTER_ROUTER}:",
+                         state[util.YANG_MASTER_ROUTER_STATE]]
                     )
                     output += show_detail_line_format(
-                        ["Master priority:", str(state["master-priority"])]
+                        [f"{util.SHOW_MASTER_PRIORITY}:",
+                         str(state[util.YANG_MASTER_PRIO_STATE])]
                     )
 
                 output += "\n"
-                version: int = state["version"]
+                version: int = state[util.YANG_VERSION]
                 output += show_detail_line_format(
-                    ["Version:", str(version)]
+                    [f"{util.SHOW_VERSION}:", str(version)]
                 )
 
-                if state["rfc-interface"] != "":
+                if state[util.YANG_RFC_INTF] != "":
                     output += show_detail_line_format(
-                        ["RFC Compliant", ""]
+                        [f"{util.SHOW_RFC_COMPAT}", ""]
                     )
                     output += show_detail_line_format(
-                        ["Virtual MAC interface:", state["rfc-interface"]]
+                        [f"{util.SHOW_VMAC_INTF}:",
+                         state[util.YANG_RFC_INTF]]
                     )
-                if state["address-owner"]:
+                if state[util.YANG_IPAO]:
                     output += show_detail_line_format(
-                        ["Address Owner:", "yes"]
-                    )
-                    output += "\n"
-                elif state["rfc-interface"] != "":
-                    output += show_detail_line_format(
-                        ["Address Owner:", "no"]
+                        [f"{util.SHOW_IPAO}:", util.SHOW_IPAO_YES]
                     )
                     output += "\n"
+                elif state[util.YANG_RFC_INTF] != "":
                     output += show_detail_line_format(
-                        ["Source Address:", state["src-ip"]]
+                        [f"{util.SHOW_IPAO}:", util.SHOW_IPAO_NO]
+                    )
+                    output += "\n"
+                    output += show_detail_line_format(
+                        [f"{util.SHOW_SOURCE_ADDR}:",
+                         state[util.YANG_SRC_IP_STATE]]
                     )
 
                 output += show_detail_line_format(
-                    ["Configured Priority:", str(state["base-priority"])]
+                    [f"{util.SHOW_CONFIG_PRIORITY}:",
+                     str(state[util.YANG_BASE_PRIO])]
                 )
                 output += show_detail_line_format(
-                    ["Effective Priority:", str(state["effective-priority"])]
+                    [f"{util.SHOW_EFFECTIVE_PRIORITY}:",
+                     str(state[util.YANG_EFFECTIVE_PRIO])]
                 )
                 output += show_detail_line_format(
-                    ["Advertisement interval:", state["advert-interval"]]
+                    [f"{util.SHOW_ADVERT_INT}:",
+                     state[util.YANG_ADVERT_INT_STATE]]
                 )
                 if version == 2:
-                    auth_value: Optional[str] = state["auth-type"]
+                    auth_value: Optional[str] = state[util.YANG_AUTH_TYPE]
                     if auth_value is None:
-                        auth_value = "none"
+                        auth_value = util.SHOW_SG_VALUE
                     output += show_detail_line_format(
-                        ["Authentication type:", auth_value]
+                        [f"{util.SHOW_AUTH_TYPE}:",
+                         auth_value]
                     )
 
-                preempt: str = "disabled"
-                if state["preempt"]:
-                    preempt = "enabled"
+                preempt: str = util.SHOW_PREEMPT_DISABLED
+                if state[util.YANG_PREEMPT]:
+                    preempt = util.SHOW_PREEMPT_ENABLED
                 output += show_detail_line_format(
-                    ["Preempt:", preempt]
+                    [f"{util.SHOW_PREEMPT}:", preempt]
                 )
-                if "preempt-delay" in state:
+                if util.YANG_PREEMPT_DELAY in state:
                     output += show_detail_line_format(
-                        ["Preempt delay:", state["preempt-delay"]]
+                        [f"{util.SHOW_PREEMPT_DELAY}:",
+                         state[util.YANG_PREEMPT_DELAY]]
                     )
 
-                if "start-delay" in state:
+                if util.YANG_START_DELAY in state:
                     output += show_detail_line_format(
-                        ["Start delay:", state["start-delay"]]
+                        [f"{util.SHOW_START_DELAY}:",
+                         state[util.YANG_START_DELAY]]
                     )
 
                 if version == 3:
-                    accept: str = "disabled"
-                    if state["accept"]:
-                        accept = "enabled"
+                    accept: str = util.SHOW_PREEMPT_DISABLED
+                    if state[util.YANG_ACCEPT]:
+                        accept = util.SHOW_PREEMPT_ENABLED
                     output += show_detail_line_format(
-                        ["Accept:", accept]
+                        [f"{util.SHOW_ACCEPT}:", accept]
                     )
 
-                if state["sync-group"] != "":
+                if state[util.YANG_SYNC_GROUP] != "":
                     output += "\n"
                     output += show_detail_line_format(
-                        ["Sync-group:", state["sync-group"]]
+                        [f"{util.SHOW_SYNC_GROUP}:",
+                         state[util.YANG_SYNC_GROUP]]
                     )
 
                 output += "\n"
-                if "track" in state:
-                    track: Dict = state["track"]
-                    if "interface" in track:
+                if util.YANG_TRACK in state:
+                    track: Dict = state[util.YANG_TRACK]
+                    if util.YANG_INTERFACE_CONST in track:
                         output += show_detail_line_format(
-                            ["Tracked Interfaces count:",
-                             str(len(track["interface"]))]
+                            [f"{util.SHOW_TRACK_INTF_COUNT}:",
+                             str(len(track[util.YANG_INTERFACE_CONST]))]
                         )
                         track_intf: Dict
-                        for track_intf in sorted(track["interface"],
-                                                 key=lambda k: k["name"]):
+                        for track_intf in \
+                                sorted(track[util.YANG_INTERFACE_CONST],
+                                       key=lambda k: k[util.YANG_NAME]):
                             intf_weight: str = ""
-                            if "weight" in track_intf:
-                                intf_weight = f"weight {track_intf['weight']}"
+                            if util.YANG_TRACK_WEIGHT in track_intf:
+                                intf_weight = \
+                                    f"{util.YANG_TRACK_WEIGHT} " +\
+                                    f"{track_intf[util.YANG_TRACK_WEIGHT]}"
                                 output += show_detail_tracked_format(
-                                    [track_intf["name"], track_intf["state"],
+                                    [track_intf[util.YANG_NAME],
+                                     track_intf[util.YANG_STATE],
                                      intf_weight]
                                 )
                             else:
                                 output += \
                                     show_detail_tracked_format_without_weight(
-                                        [track_intf["name"],
-                                         track_intf["state"]]
+                                        [track_intf[util.YANG_NAME],
+                                         track_intf[util.YANG_STATE]]
                                     )
-                    if "monitor" in track:
+                    if util.YANG_TRACK_MONITOR in track:
                         track_output: str = ""
                         tracked_count: int = 0
                         mont: Dict
-                        for mont in track["monitor"]:
-                            track_output += f"    {mont['name']}\n"
+                        for mont in track[util.YANG_TRACK_MONITOR]:
+                            track_output += f"    {mont[util.YANG_NAME]}\n"
                             pol: Dict
-                            for pol in sorted(mont["policies"],
-                                              key=lambda k: k["name"]):
+                            for pol in sorted(mont[util.SHOW_POLICIES],
+                                              key=lambda k: k[util.YANG_NAME]):
                                 tracked_count += 1
                                 policy_weight: str = ""
-                                if "weight" in pol:
-                                    policy_weight = f"weight {pol['weight']}"
+                                if util.YANG_TRACK_WEIGHT in pol:
+                                    policy_weight = \
+                                        f"{util.YANG_TRACK_WEIGHT} " +\
+                                        f"{pol[util.YANG_TRACK_WEIGHT]}"
                                     track_output += \
                                         show_detail_tracked_pmon_format(
-                                            [pol["name"], pol["state"],
+                                            [pol[util.YANG_NAME],
+                                             pol[util.YANG_STATE],
                                              policy_weight]
                                         )
                                 else:
                                     track_output += \
                                         show_detail_tracked_pmon_format_without_weight(  # noqa: E501
-                                            [pol["name"], pol["state"],
+                                            [pol[util.YANG_NAME],
+                                             pol[util.YANG_STATE],
                                              policy_weight]
                                         )
                         output += show_detail_line_format(
-                            ["Tracked Path Monitor count:",
+                            [f"{util.SHOW_TRACK_PMON_COUNT}:",
                              str(tracked_count)]
                         )
                         output += track_output
-                    if "route" in track:
+                    if util.YANG_TRACK_ROUTE in track:
                         output += show_detail_line_format(
-                            ["Tracked routes count:",
-                             str(len(track["route"]))]
+                            [f"{util.SHOW_TRACK_ROUTES_COUNT}:",
+                             str(len(track[util.YANG_TRACK_ROUTE]))]
                         )
                         route: Dict
-                        for route in sorted(track["route"],
-                                            key=lambda k: k["name"]):
+                        for route in sorted(track[util.YANG_TRACK_ROUTE],
+                                            key=lambda k: k[util.YANG_NAME]):
                             route_weight: str = ""
-                            if "weight" in route:
-                                route_weight = f"weight {route['weight']}"
-                                output += show_detail_tracked_format(
-                                    [route["name"], route["state"],
-                                     route_weight]
-                                )
+                            if util.YANG_TRACK_WEIGHT in route:
+                                route_weight = \
+                                    f"{util.YANG_TRACK_WEIGHT} " +\
+                                    f"{route[util.YANG_TRACK_WEIGHT]}"
+                                output += \
+                                    show_detail_tracked_format(
+                                        [route[util.YANG_NAME],
+                                         route[util.YANG_STATE],
+                                         route_weight]
+                                    )
                             else:
-                                output += show_detail_tracked_format_without_weight(  # noqa: E501
-                                    [route["name"], route["state"]])
+                                output += \
+                                    show_detail_tracked_format_without_weight(
+                                        [route[util.YANG_NAME],
+                                         route[util.YANG_STATE]]
+                                    )
                 output += show_detail_line_format(
-                    ["VIP count:", str(len(state["virtual-ips"]))]
+                    [f"{util.SHOW_VIP_COUNT}:",
+                     str(len(state[util.YANG_VIP_STATE]))]
                 )
                 vip: str
-                for vip in state["virtual-ips"]:
+                for vip in state[util.YANG_VIP_STATE]:
                     output += f"    {vip}\n"
                 output += "\n"
     return output
@@ -591,18 +619,19 @@ def show_vrrp_sync(state_dict: Dict, specific: str = "") -> str:
     output: str = f"\n{SHOW_DETAIL_DIVIDER}"
     if util.VRRP_YANG_NAME in state_dict:
         sync_group: Dict
-        for sync_group in state_dict[util.VRRP_YANG_NAME]["sync-groups"]:
-            if specific != "" and sync_group["name"] != specific:
+        for sync_group in \
+                state_dict[util.VRRP_YANG_NAME][f"{util.YANG_SYNC_GROUP}s"]:
+            if specific != "" and sync_group[util.YANG_NAME] != specific:
                 continue
             output += show_sync_group_name(
-                sync_group["name"]
+                sync_group[util.YANG_NAME]
             )
             output += SHOW_SYNC_GROUP_DIVIDER
             output += show_sync_group_state_format(
-                sync_group["state"]
+                sync_group[util.YANG_STATE]
             )
             group: str
-            for group in sorted(sync_group["members"]):
+            for group in sorted(sync_group[util.YANG_SG_MEMBER]):
                 tokens: List[str] = group.split("-")
                 output += show_sync_group_members_format(
                     tokens[1:]
@@ -721,7 +750,7 @@ def show_vrrp_statistics(
             stats_dict[util.INTERFACE_YANG_NAME][intf_type]
         intf: Dict
         for intf in intf_list:
-            intf_name: str = intf[util.TAGNODE_YANG]
+            intf_name: str = intf[util.YANG_TAGNODE]
             if filter_intf != "" and intf_name != filter_intf:
                 continue
             output += show_detail_intf_name(intf_name)
@@ -729,17 +758,17 @@ def show_vrrp_statistics(
             if util.VRRP_YANG_NAME not in intf:
                 continue
             vrrp_instances: List = \
-                intf[util.VRRP_YANG_NAME][util.VRRP_GROUP_YANG]
+                intf[util.VRRP_YANG_NAME][util.YANG_VRRP_GROUP]
             vrrp_instance: Dict
             for vrrp_instance in vrrp_instances:
-                if util.INSTANCE_STATS_YANG not in vrrp_instance:
+                if util.YANG_INSTANCE_STATS not in vrrp_instance:
                     continue
-                group: str = vrrp_instance[util.TAGNODE_YANG]
+                group: str = vrrp_instance[util.YANG_TAGNODE]
                 if filter_grp != "" and int(group) != int(filter_grp):
                     continue
                 output += show_detail_group_name(group)
                 output += SHOW_DETAIL_GROUP_DIVIDER
-                stats: Dict = vrrp_instance[util.INSTANCE_STATS_YANG]
+                stats: Dict = vrrp_instance[util.YANG_INSTANCE_STATS]
                 key: str
                 for key in stats:
                     if type(stats[key]) is dict:
@@ -756,7 +785,7 @@ def show_vrrp_statistics(
                         key_name = f"{key}:"
                         output += show_stats_header_and_value_format(
                             [key_name, stats[key]])
-                        if key == "Released master":
+                        if key == util.SHOW_STATS_RELEASED_MASTER:
                             output += "\n"
     return output
 
@@ -882,14 +911,14 @@ def _get_end_of_tracking_config(
         last_config_index += 1
         line = config_block[last_config_index]
         if not interface_block:
-            if "Status" in line:
+            if util.DATA_TRACK_STATUS in line:
                 last_config_index += 1
                 line = config_block[last_config_index]
-                if "Weight" in line:
+                if util.DATA_TRACK_WEIGHT in line:
                     last_config_index += 1
                 break
         else:
-            if "Enabling" in line:
+            if util.DATA_TRACK_ENABLE in line:
                 last_config_index += 1
                 break
     return last_config_index
@@ -923,16 +952,21 @@ def _convert_track_block_to_yang(config_block: List[str]) -> Dict[str, str]:
     tracked_obj: Dict[str, str] = {}
     for line in config_block:
         config_value = line.split()[-1]
-        if "Name" in line or "Policy" in line or "Network" in line:
-            tracked_obj["name"] = config_value
-        elif "is UP" in line or "is DOWN" in line or "Status" in line:
-            tracked_obj["state"] = config_value
-        elif "weight" in line or "Weight" in line:
-            tracked_obj["weight"] = config_value
-        elif "Prefix" in line and "name" in tracked_obj:
-            tracked_obj["name"] = tracked_obj["name"] + f"/{config_value}"
-        if "state" not in tracked_obj:
-            tracked_obj["state"] = "DOWN"
+        if util.YANG_NAME.capitalize() in line or \
+                util.YANG_TRACK_POLICY.capitalize() in line \
+                or util.DATA_TRACK_ROUTE_NETWORK in line:
+            tracked_obj[util.YANG_NAME] = config_value
+        elif util.DATA_TRACK_IS_UP in line or util.DATA_TRACK_IS_DOWN in line \
+                or util.DATA_TRACK_STATUS in line:
+            tracked_obj[util.YANG_STATE] = config_value
+        elif util.YANG_TRACK_WEIGHT in line or util.DATA_TRACK_WEIGHT in line:
+            tracked_obj[util.YANG_TRACK_WEIGHT] = config_value
+        elif util.DATA_TRACK_ROUTE_PREFIX in line and \
+                util.YANG_NAME in tracked_obj:
+            tracked_obj[util.YANG_NAME] = \
+                tracked_obj[util.YANG_NAME] + f"/{config_value}"
+        if util.YANG_STATE not in tracked_obj:
+            tracked_obj[util.YANG_STATE] = util.DATA_TRACK_DOWN
     return tracked_obj
 
 
@@ -1015,8 +1049,8 @@ def _convert_tracked_type_to_yang(
         if tracked_monitor_list != []:
             monitor_name = config_block[tracked_index].split()[-1]
             for monitor in tracked_monitor_list:
-                if monitor["name"] == monitor_name:
-                    tracked_object_list = monitor["policies"]
+                if monitor[util.YANG_NAME] == monitor_name:
+                    tracked_object_list = monitor[util.SHOW_POLICIES]
         if tracked_index == block_indexes[-1]:
             track_block_end = end_of_config
         else:
@@ -1055,7 +1089,8 @@ def _prepopulate_pmon_tracking_list(
     for tracked_index in block_indexes:
         monitor_name: str = config_block[tracked_index].split()[-1]
         if monitor_name not in monitor_names:
-            monitor_obj = {"name": monitor_name, "policies": []}
+            monitor_obj = \
+                {util.YANG_NAME: monitor_name, util.SHOW_POLICIES: []}
             monitor_names.append(monitor_name)
             monitor_list.append(monitor_obj)
     return monitor_list
@@ -1101,28 +1136,28 @@ def _convert_keepalived_data_to_yang(
     vrid = instance_name[2]
     instance_dict = \
         {
-            "address-owner": "Address owner",
-            "last-transition": "Last transition",
-            "rfc-interface": "Transmitting device",
-            "state": "State",
-            "sync-group": sync,
-            "version": "VRRP Version",
-            "src-ip": "Using src_ip",
-            "base-priority": "Base priority",
-            "effective-priority": "Effective priority",
-            "advert-interval": "Advert interval",
-            "accept": "Accept",
-            "preempt": "Preempt",
-            "preempt-delay": "Preempt delay",
-            "start-delay": "Start delay",
-            "auth-type": "Authentication Type",
-            "master-priority": "Master priority",
-            "master-router": "Master router"
+            util.YANG_IPAO: f"{util.SHOW_IPAO.capitalize()}",
+            util.YANG_LAST_TRANSITION: util.SHOW_LAST_TRANSITION,
+            util.YANG_RFC_INTF: util.DATA_XMIT_DEV,
+            util.YANG_STATE: f"{util.YANG_STATE.capitalize()}",
+            util.YANG_SYNC_GROUP: sync,
+            util.YANG_VERSION: util.DATA_VERSION,
+            util.YANG_SRC_IP_STATE: util.DATA_SRC_IP,
+            util.YANG_BASE_PRIO: util.DATA_BASE_PRIORITY,
+            util.YANG_EFFECTIVE_PRIO: util.DATA_EFFECTIVE_PRIORITY,
+            util.YANG_ADVERT_INT_STATE: util.DATA_ADVERT_INT,
+            util.YANG_ACCEPT: util.SHOW_ACCEPT.capitalize(),
+            util.YANG_PREEMPT: util.SHOW_PREEMPT,
+            util.YANG_PREEMPT_DELAY: util.SHOW_PREEMPT_DELAY,
+            util.YANG_START_DELAY: util.SHOW_START_DELAY,
+            util.YANG_AUTH_TYPE: util.SHOW_AUTH_TYPE.title(),
+            util.YANG_MASTER_PRIO_STATE: util.SHOW_MASTER_PRIORITY,
+            util.YANG_MASTER_ROUTER_STATE: util.SHOW_MASTER_ROUTER
         }
 
     # Single line config code
     for key in instance_dict:
-        if key == "sync-group":
+        if key == util.YANG_SYNC_GROUP:
             continue
         # Search for each term in the config
         config_exists: Tuple[bool, Union[List[None], str]] = \
@@ -1135,26 +1170,29 @@ def _convert_keepalived_data_to_yang(
             if not isinstance(config_exists[1], list):
                 split_line = config_exists[1].split()
                 value = split_line[1]
-                if key == "advert-interval":
-                    if instance_dict["version"] == 2:
+                if key == util.YANG_ADVERT_INT_STATE:
+                    if instance_dict[util.YANG_VERSION] == 2:
                         value = f"{value} sec"
                     else:
                         value = f"{value} milli-sec"
-                elif key == "start-delay" or key == "preempt-delay":
+                elif key == util.YANG_START_DELAY or key == \
+                        util.YANG_PREEMPT_DELAY:
                     value = f"{value} secs"
-                elif key == "rfc-interface" and value == intf:
+                elif key == util.YANG_RFC_INTF and value == intf:
                     value = ""
                 if value.isdigit():
                     # Term exists in config and has a numerical value
                     instance_dict[key] = int(value)
-                elif value == "no" or value == "disabled":
+                elif value == util.SHOW_IPAO_NO or value == \
+                        util.SHOW_PREEMPT_DISABLED:
                     instance_dict[key] = False
-                elif value == "yes" or value == "enabled":
+                elif value == util.SHOW_IPAO_YES or value == \
+                        util.SHOW_PREEMPT_ENABLED:
                     instance_dict[key] = True
                 else:
                     instance_dict[key] = value
         else:
-            if key == "auth-type":
+            if key == util.YANG_AUTH_TYPE:
                 instance_dict[key] = None
             else:
                 instance_dict[key] = "NOTFOUND"
@@ -1163,11 +1201,14 @@ def _convert_keepalived_data_to_yang(
 
     # Multi line config code
     track_intf_tuple: Tuple[bool, Union[List[None], str]] = \
-        util.find_config_value(config_block, "Tracked interfaces =")
+        util.find_config_value(config_block,
+                               util.DATA_TRACK_INTF_COUNT)
     tracked_pmon_tuple: Tuple[bool, Union[List[None], str]] = \
-        util.find_config_value(config_block, "Tracked path-monitors =")
+        util.find_config_value(config_block,
+                               util.DATA_TRACK_PMON_COUNT)
     track_route_tuple: Tuple[bool, Union[List[None], str]] = \
-        util.find_config_value(config_block, "Tracked routes =")
+        util.find_config_value(config_block,
+                               util.DATA_TRACK_ROUTES_COUNT)
 
     tracked_indexes: List[int]
     tracked_config_end: int
@@ -1176,10 +1217,11 @@ def _convert_keepalived_data_to_yang(
     if not isinstance(track_intf_tuple[1], list) and \
             track_intf_tuple[1] != "NOTFOUND":
         tracked_indexes = util.get_config_indexes(
-            config_block, "------< NIC >------")
+            config_block,
+            util.DATA_TRACK_INTF_DELIMINATOR)
         tracked_config_end = _get_end_of_tracking_config(
             config_block, tracked_indexes[-1], True)
-        tracked_dict["interface"] = \
+        tracked_dict[util.YANG_INTERFACE_CONST] = \
             _convert_tracked_type_to_yang(config_block,
                                           tracked_indexes, tracked_config_end,
                                           config_start_offset)
@@ -1187,14 +1229,14 @@ def _convert_keepalived_data_to_yang(
     if not isinstance(tracked_pmon_tuple[1], list) and \
             tracked_pmon_tuple[1] != "NOTFOUND":
         tracked_indexes = util.get_config_indexes(
-            config_block, "Monitor"
+            config_block, util.YANG_TRACK_MONITOR.capitalize()
         )
         tracked_config_end = _get_end_of_tracking_config(
             config_block, tracked_indexes[-1], False)
         tracked_monitor_list = \
             _prepopulate_pmon_tracking_list(config_block,
                                             tracked_indexes)
-        tracked_dict["monitor"] = \
+        tracked_dict[util.YANG_TRACK_MONITOR] = \
             _convert_tracked_type_to_yang(config_block,
                                           tracked_indexes, tracked_config_end,
                                           config_start_offset,
@@ -1202,34 +1244,38 @@ def _convert_keepalived_data_to_yang(
 
     if not isinstance(track_route_tuple[1], list) and \
             track_route_tuple[1] != "NOTFOUND":
-        tracked_indexes = util.get_config_indexes(config_block, "Network")
+        tracked_indexes = util.get_config_indexes(
+            config_block,
+            util.DATA_TRACK_ROUTE_NETWORK)
         tracked_config_end = _get_end_of_tracking_config(
             config_block, tracked_indexes[-1], False)
         config_start_offset = 0
-        tracked_dict["route"] = \
+        tracked_dict[util.YANG_TRACK_ROUTE] = \
             _convert_tracked_type_to_yang(config_block,
                                           tracked_indexes, tracked_config_end,
                                           config_start_offset)
 
     if tracked_dict != {}:
-        instance_dict["track"] = tracked_dict
+        instance_dict[util.YANG_TRACK] = tracked_dict
 
     vip_tuple: Tuple[bool, Union[List[None], str]] = \
-        util.find_config_value(config_block, "Virtual IP =")
+        util.find_config_value(
+            config_block, f"{util.DATA_VIP_COUNT} =")
     num_vips: int
     if not isinstance(vip_tuple[1], list):
         num_vips = int(vip_tuple[1])
-        vips_start = util.get_config_indexes(config_block, "Virtual IP")[0]
+        vips_start = util.get_config_indexes(
+            config_block, util.DATA_VIP_COUNT)[0]
         vips_end = vips_start + num_vips + 1
         virtual_addresses = []
         for address in config_block[vips_start + 1:vips_end]:
             virtual_addresses.append(address.split()[0])
-        instance_dict["virtual-ips"] = virtual_addresses
+        instance_dict[util.YANG_VIP_STATE] = virtual_addresses
 
     instance_dict = \
         {key: val for key, val in instance_dict.items() if val != "NOTFOUND"}
 
-    return {"instance-state": instance_dict, "tagnode": vrid}
+    return {util.YANG_INSTANCE_STATE: instance_dict, util.YANG_TAGNODE: vrid}
 
 
 def convert_data_file_to_dict(data_string: str) -> Dict:
@@ -1406,17 +1452,19 @@ def convert_data_file_to_dict(data_string: str) -> Dict:
         util.INTERFACE_YANG_NAME: {}
     }
     data_list = data_string.split("\n")
-    config_indexes = util.get_config_indexes(data_list, "VRRP Instance")
+    config_indexes = util.get_config_indexes(
+        data_list, util.DATA_INSTANCE_START)
     config_blocks = util.get_config_blocks(data_list, config_indexes)
 
     sync_group_start_indexes: List[int] = util.get_config_indexes(
-        data_list, "VRRP Sync Group")
+        data_list, util.DATA_SG_INSTANCE_START)
     sync_group_instances: Dict = {}
     if sync_group_start_indexes != []:
-        yang_representation[util.VRRP_YANG_NAME] = {"sync-groups": []}
+        yang_representation[util.VRRP_YANG_NAME] = \
+            {f"{util.YANG_SYNC_GROUP}s": []}
         sync_group_data_list = data_list[sync_group_start_indexes[0]:]
         sync_group_start_indexes = util.get_config_indexes(
-            sync_group_data_list, "VRRP Sync Group")
+            sync_group_data_list, util.DATA_SG_INSTANCE_START)
         sync_group_config: List[str] = util.get_config_blocks(
             sync_group_data_list,
             sync_group_start_indexes
@@ -1426,22 +1474,25 @@ def convert_data_file_to_dict(data_string: str) -> Dict:
         for sync_group in sync_group_config:
             sync_group_show_dict: Dict[str, Union[str, List[str]]] = {}
             group_name_exists: Tuple[bool, str] = \
-                util.find_config_value(sync_group, "VRRP Sync Group")
+                util.find_config_value(sync_group, util.DATA_SG_INSTANCE_START)
             if not group_name_exists[0]:
                 continue
             group_tokens: List[str] = group_name_exists[1].split()
             group_name: str = group_tokens[1][:-1]
-            sync_group_show_dict["name"] = group_name
-            sync_group_show_dict["state"] = group_tokens[-1]
-            sync_group_show_dict["members"] = []
+            sync_group_show_dict[util.YANG_NAME] = group_name
+            sync_group_show_dict[util.YANG_STATE] = group_tokens[-1]
+            sync_group_show_dict[util.YANG_SG_MEMBER] = []
             for instance in sync_group[1:]:
                 if instance == "":
                     continue
                 tokens = instance.split()
                 sync_group_instances[tokens[-1]] = group_name
-                if isinstance(sync_group_show_dict["members"], list):
-                    sync_group_show_dict["members"].append(tokens[-1])
-            yang_representation[util.VRRP_YANG_NAME]["sync-groups"].append(
+                if isinstance(sync_group_show_dict[util.YANG_SG_MEMBER], list):
+                    sync_group_show_dict[util.YANG_SG_MEMBER].append(
+                        tokens[-1]
+                    )
+            vrrp_group: Dict = yang_representation[util.VRRP_YANG_NAME]
+            vrrp_group[f"{util.YANG_SYNC_GROUP}s"].append(
                 sync_group_show_dict
             )
 
@@ -1476,11 +1527,11 @@ def convert_data_file_to_dict(data_string: str) -> Dict:
         insertion_reference: List[Dict] = util.find_interface_in_yang_repr(
             intf_name, vif_number, interface_list)
 
-        insertion_reference[util.VRRP_YANG_NAME]["vrrp-group"].append(
+        insertion_reference[util.VRRP_YANG_NAME][util.YANG_VRRP_GROUP].append(
             instance_dict
         )
-        if "start-delay" in insertion_reference[util.VRRP_YANG_NAME]:
-            del insertion_reference[util.VRRP_YANG_NAME]["start-delay"]
+        if util.YANG_START_DELAY in insertion_reference[util.VRRP_YANG_NAME]:
+            del insertion_reference[util.VRRP_YANG_NAME][util.YANG_START_DELAY]
 
     return yang_representation
 
@@ -1511,46 +1562,30 @@ def _convert_keepalived_stats_to_yang(
 
     instance_name = config_block[0].split("-")
     vrid = instance_name[2]
-    ADVERT_KEY: str = "Advertisements"
-    RECV_KEY: str = "Received"
-    SENT_KEY: str = "Sent"
-    BECOME_KEY: str = "Became master"
-    RELEASE_KEY: str = "Released master"
-    PACKET_KEY: str = "Packet errors"
-    LENGTH_KEY: str = "Length"
-    TTL_KEY: str = "TTL"
-    INVALID_TYPE_KEY: str = "Invalid type"
-    ADVERT_INTERVAL_KEY: str = "Advertisement interval"
-    ADDRESS_LIST_KEY: str = "Address list"
-    AUTH_ERROR_KEY: str = "Authentication errors"
-    TYPE_MISMATCH_KEY: str = "Type mismatch"
-    FAILURE_KEY: str = "Failure"
-    PZERO_SEARCH_STR: str = "Priority zero"
-    PZERO_KEY: str = f"{PZERO_SEARCH_STR} {ADVERT_KEY.casefold()}"
 
     instance_dict = \
         {
-            ADVERT_KEY: {
-                RECV_KEY: "",
-                SENT_KEY: ""
+            util.STATS_ADVERT_KEY: {
+                util.STATS_RECV_KEY: "",
+                util.STATS_SENT_KEY: ""
             },
-            BECOME_KEY: "",
-            RELEASE_KEY: "",
-            PACKET_KEY: {
-                LENGTH_KEY: "",
-                TTL_KEY: "",
-                INVALID_TYPE_KEY: "",
-                ADVERT_INTERVAL_KEY: "",
-                ADDRESS_LIST_KEY: ""
+            util.STATS_BECOME_KEY: "",
+            util.STATS_RELEASE_KEY: "",
+            util.STATS_PACKET_KEY: {
+                util.STATS_LENGTH_KEY: "",
+                util.STATS_TTL_KEY: "",
+                util.STATS_INVALID_TYPE_KEY: "",
+                util.STATS_ADVERT_INTERVAL_KEY: "",
+                util.STATS_ADDRESS_LIST_KEY: ""
             },
-            AUTH_ERROR_KEY: {
-                INVALID_TYPE_KEY: "",
-                TYPE_MISMATCH_KEY: "",
-                FAILURE_KEY: 0
+            util.STATS_AUTH_ERROR_KEY: {
+                util.STATS_INVALID_TYPE_KEY: "",
+                util.STATS_TYPE_MISMATCH_KEY: "",
+                util.STATS_FAILURE_KEY: 0
             },
-            PZERO_KEY: {
-                RECV_KEY: "",
-                SENT_KEY: ""
+            util.STATS_PZERO_KEY: {
+                util.STATS_RECV_KEY: "",
+                util.STATS_SENT_KEY: ""
             }
         }
 
@@ -1559,35 +1594,35 @@ def _convert_keepalived_stats_to_yang(
     value: List[str]
     while config_index < len(config_block):
         line: str = config_block[config_index].casefold()
-        if ADVERT_KEY.casefold() in line:
-            for key in instance_dict[ADVERT_KEY]:
+        if util.STATS_ADVERT_KEY.casefold() in line:
+            for key in instance_dict[util.STATS_ADVERT_KEY]:
                 config_index += 1
                 value = config_block[config_index].split()
-                instance_dict[ADVERT_KEY][key] = value[-1]
-        elif BECOME_KEY.casefold() in line:
+                instance_dict[util.STATS_ADVERT_KEY][key] = value[-1]
+        elif util.STATS_BECOME_KEY.casefold() in line:
             value = config_block[config_index].split()
-            instance_dict[BECOME_KEY] = value[-1]
-        elif RELEASE_KEY.casefold() in line:
+            instance_dict[util.STATS_BECOME_KEY] = value[-1]
+        elif util.STATS_RELEASE_KEY.casefold() in line:
             value = config_block[config_index].split()
-            instance_dict[RELEASE_KEY] = value[-1]
-        elif PACKET_KEY.casefold() in line:
-            for key in instance_dict[PACKET_KEY]:
+            instance_dict[util.STATS_RELEASE_KEY] = value[-1]
+        elif util.STATS_PACKET_KEY.casefold() in line:
+            for key in instance_dict[util.STATS_PACKET_KEY]:
                 config_index += 1
                 value = config_block[config_index].split()
-                instance_dict[PACKET_KEY][key] = value[-1]
-        elif AUTH_ERROR_KEY.casefold() in line:
-            for key in instance_dict[AUTH_ERROR_KEY]:
+                instance_dict[util.STATS_PACKET_KEY][key] = value[-1]
+        elif util.STATS_AUTH_ERROR_KEY.casefold() in line:
+            for key in instance_dict[util.STATS_AUTH_ERROR_KEY]:
                 config_index += 1
                 value = config_block[config_index].split()
-                instance_dict[AUTH_ERROR_KEY][key] = value[-1]
-        elif PZERO_SEARCH_STR.casefold() in line:
-            for key in instance_dict[PZERO_KEY]:
+                instance_dict[util.STATS_AUTH_ERROR_KEY][key] = value[-1]
+        elif util.STATS_PZERO_SEARCH_STR.casefold() in line:
+            for key in instance_dict[util.STATS_PZERO_KEY]:
                 config_index += 1
                 value = config_block[config_index].split()
-                instance_dict[PZERO_KEY][key] = value[-1]
+                instance_dict[util.STATS_PZERO_KEY][key] = value[-1]
         config_index += 1
 
-    return {"stats": instance_dict, "tagnode": int(vrid)}
+    return {"stats": instance_dict, util.YANG_TAGNODE: int(vrid)}
 
 
 def convert_stats_file_to_dict(data_string: str) -> Dict:
@@ -1691,7 +1726,8 @@ VRRP Instance: vyatta-dp0p1s1-1
         util.INTERFACE_YANG_NAME: {}
     }
     data_list = data_string.split("\n")
-    config_indexes = util.get_config_indexes(data_list, "VRRP Instance")
+    config_indexes = util.get_config_indexes(
+        data_list, util.DATA_INSTANCE_START)
     config_blocks = util.get_config_blocks(data_list, config_indexes)
 
     for block in config_blocks:
@@ -1721,10 +1757,10 @@ VRRP Instance: vyatta-dp0p1s1-1
         insertion_reference: List[Dict] = util.find_interface_in_yang_repr(
             intf_name, vif_number, interface_list)
 
-        insertion_reference[util.VRRP_YANG_NAME]["vrrp-group"].append(
+        insertion_reference[util.VRRP_YANG_NAME][util.YANG_VRRP_GROUP].append(
             instance_dict
         )
-        if "start-delay" in insertion_reference[util.VRRP_YANG_NAME]:
-            del(insertion_reference[util.VRRP_YANG_NAME]["start-delay"])
+        if util.YANG_START_DELAY in insertion_reference[util.VRRP_YANG_NAME]:
+            del insertion_reference[util.VRRP_YANG_NAME][util.YANG_START_DELAY]
 
     return yang_representation

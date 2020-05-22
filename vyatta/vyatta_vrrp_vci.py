@@ -20,8 +20,8 @@ import vyatta.keepalived.util as util
 
 
 def send_garp(rpc_input: Dict[str, str]) -> Dict:
-    intf: str = rpc_input[f"{util.VRRP_NAMESPACE}:interface"]
-    group: str = str(rpc_input[f"{util.VRRP_NAMESPACE}:group"])
+    intf: str = rpc_input[util.RPC_GARP_INTERFACE]
+    group: str = str(rpc_input[util.RPC_GARP_GROUP])
     pc = process_control.ProcessControl()
     if not pc.is_running():
         return
@@ -32,7 +32,7 @@ def send_garp(rpc_input: Dict[str, str]) -> Dict:
         vrrp_conn.garp()
     except Exception as e:
         # Horrible but pydbus doesn't actually export any Exceptions
-        log = logging.getLogger("vyatta-vrrp-vci")
+        log = logging.getLogger(util.LOGGING_MODULE_NAME)
         log.info(
             f"Error trying to send GARP for VRRP group "
             f"{group} on {intf}, does the group/intf combination exist?"
@@ -43,7 +43,7 @@ def send_garp(rpc_input: Dict[str, str]) -> Dict:
 
 def rfc_intf_map(rpc_input: Dict[str, str]) -> Dict[str, str]:
     pc = process_control.ProcessControl()
-    xmit_intf: str = rpc_input[f"{util.VRRP_NAMESPACE}:transmit"]
+    xmit_intf: str = rpc_input[util.RPC_RFC_INTERFACE]
     return pc.get_rfc_mapping(xmit_intf)
 
 
@@ -58,7 +58,7 @@ class Config(vci.Config):
                             "inherit from abstract class, developer needs "
                             "to fix this ")
         logging.basicConfig(level=logging.DEBUG, format="%(message)s")
-        self.log = logging.getLogger("vyatta-vrrp-vci")
+        self.log = logging.getLogger(util.LOGGING_MODULE_NAME)
         self.pc = process_control.ProcessControl()
 
     def set(self, conf: Dict[str, Any]) -> None:
@@ -144,7 +144,7 @@ class State(vci.State):
                             "inherit from abstract class, developer needs "
                             "to fix this ")
         logging.basicConfig(level=logging.DEBUG, format="%(message)s")
-        self.log = logging.getLogger("vyatta-vrrp-vci")
+        self.log = logging.getLogger(util.LOGGING_MODULE_NAME)
         self.pc = process_control.ProcessControl()
 
     def get(self) -> Dict[str, Any]:
@@ -157,13 +157,13 @@ class State(vci.State):
         for intf_type in yang_repr[util.INTERFACE_YANG_NAME]:
             intf_list: List = yang_repr[util.INTERFACE_YANG_NAME][intf_type]
             for intf in intf_list:
-                transmit_intf: str = intf["tagnode"]
+                transmit_intf: str = intf[util.YANG_TAGNODE]
                 self._generate_interfaces_vrrp_connection_list(
                     intf, transmit_intf, sysbus)
                 if "vif" in intf:
-                    for vif_intf in intf["vif"]:
+                    for vif_intf in intf[util.VIF_YANG_NAME]:
                         vif_transmit_intf: str = \
-                            f"{transmit_intf}.{vif_intf['tagnode']}"
+                            f"{transmit_intf}.{vif_intf[util.YANG_TAGNODE]}"
                         self._generate_interfaces_vrrp_connection_list(
                             vif_intf, vif_transmit_intf, sysbus)
         return yang_repr
@@ -172,10 +172,10 @@ class State(vci.State):
         self, intf: Dict, transmit_intf: str, sysbus
     ) -> None:
         if util.VRRP_YANG_NAME in intf:
-            if "start-delay" in intf[util.VRRP_YANG_NAME]:
-                del intf[util.VRRP_YANG_NAME]["start-delay"]
+            if util.YANG_START_DELAY in intf[util.VRRP_YANG_NAME]:
+                del intf[util.VRRP_YANG_NAME][util.YANG_START_DELAY]
             vrrp_instances: List[Dict] = \
-                intf[util.VRRP_YANG_NAME]["vrrp-group"]
+                intf[util.VRRP_YANG_NAME][util.YANG_VRRP_GROUP]
             state_instances = []
             for vrrp_instance in vrrp_instances:
                 vrrp_conn: vrrp_dbus.VrrpConnection
@@ -184,18 +184,19 @@ class State(vci.State):
                 )
                 state_future = vrrp_conn.get_instance_state()
                 state_instances.append(state_future)
-            intf[util.VRRP_YANG_NAME]["vrrp-group"] = state_instances
+            intf[util.VRRP_YANG_NAME][util.YANG_VRRP_GROUP] = \
+                state_instances
 
     def _generate_vrrp_connection(
         self, vrrp_instance, transmit_intf, sysbus
     ) -> vrrp_dbus.VrrpConnection:
-        vrid: str = vrrp_instance["tagnode"]
+        vrid: str = vrrp_instance[util.YANG_TAGNODE]
         instance_name: str = f"vyatta-{transmit_intf}-{vrid}"
         vrrp_conn: vrrp_dbus.VrrpConnection
         if instance_name not in \
                 self._conf_obj.vrrp_connections:
             af_type: int = util.what_ip_version(
-                vrrp_instance["virtual-address"][0].split("/")[0])
+                vrrp_instance[util.YANG_VIP][0].split("/")[0])
             vrrp_conn = \
                 vrrp_dbus.VrrpConnection(
                     transmit_intf, vrid, af_type, sysbus

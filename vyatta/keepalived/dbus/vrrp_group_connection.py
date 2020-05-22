@@ -35,7 +35,8 @@ def activate_connection(func) -> Callable:
             group_state = inst.vrrp_property_interface.GetAll(
                 util.VRRP_INSTANCE_DBUS_INTF_NAME
             )
-            inst.current_state = group_state["State"][1].upper()
+            inst.current_state = \
+                group_state[util.YANG_STATE.capitalize()][1].upper()
             inst._activated = True
         return func(inst, *args, **kwargs)
     return wrapper
@@ -56,14 +57,14 @@ class VrrpConnection:
         self.intf: str = intf
         self.vrid: str = vrid
         self.bus_object: pydbus.Bus = bus_object
-        self.log: logging.Logger = logging.getLogger("vyatta-vrrp-vci")
+        self.log: logging.Logger = logging.getLogger(util.LOGGING_MODULE_NAME)
         self.current_state: str
         self.client: vci.Client = vci.Client()
         self.af_type_str: str
         if af_type == 4:
-            self.af_type_str = "IPv4"
+            self.af_type_str = util.IPV4_AF
         else:
-            self.af_type_str = "IPv6"
+            self.af_type_str = util.IPV6_AF
         self.instance_name: str = f"vyatta-{self.intf}-{self.vrid}"
         self.dbus_path: str = \
             f"{util.VRRP_INSTANCE_DBUS_PATH}/{intf}/{vrid}/{self.af_type_str}"
@@ -87,20 +88,23 @@ class VrrpConnection:
         group_state: Dict = self.vrrp_property_interface.GetAll(
             util.VRRP_INSTANCE_DBUS_INTF_NAME
         )
-        rfc_intf: str = group_state["XmitIntf"][0]
+        rfc_intf: str = group_state[util.DBUS_XMIT_INTF_NAME][0]
         if rfc_intf.replace(".", "_") == self.intf:
             rfc_intf = ""
         processed_state: Dict[str, Union[str, Dict[str, str]]] = \
             {
-                "instance-state":
+                util.YANG_INSTANCE_STATE:
                 {
-                    "address-owner": group_state["AddressOwner"][0],
-                    "last-transition": group_state["LastTransition"][0],
-                    "rfc-interface": rfc_intf,
-                    "state": group_state["State"][1].upper(),
-                    "sync-group": group_state["SyncGroup"][0]
+                    util.YANG_IPAO: group_state[util.DBUS_IPAO_NAME][0],
+                    util.YANG_LAST_TRANSITION:
+                        group_state[util.DBUS_LAST_TRANSITION_NAME][0],
+                    util.YANG_RFC_INTF: rfc_intf,
+                    util.YANG_STATE:
+                        group_state[util.YANG_STATE.capitalize()][1].upper(),
+                    util.YANG_SYNC_GROUP:
+                        group_state[util.DBUS_SYNC_GROUP_NAME][0]
                 },
-                "tagnode": f"{self.vrid}"
+                util.YANG_TAGNODE: f"{self.vrid}"
         }
         return processed_state
 
@@ -122,15 +126,15 @@ class VrrpConnection:
         """
 
         if state == 0:
-            return "INIT"
+            return util.STATE_INIT
         elif state == 1:
-            return "BACKUP"
+            return util.STATE_BACKUP
         elif state == 2:
-            return "MASTER"
+            return util.STATE_MASTER
         elif state == 3:
-            return "FAULT"
+            return util.STATE_FAULT
         else:
-            return "TRANSIENT"
+            return util.STATE_TRANSIENT
 
     def state_change(self, status: int) -> None:
         """
@@ -150,11 +154,11 @@ class VrrpConnection:
             f"{self.instance_name} changed state to {status_str}"
         )
         self.client.emit(
-            "vyatta-vrrp-v1",
-            "group-state-change",
+            {util.VRRP_NAMESPACE},
+            util.NOTIFICATION_NAME_YANG,
             {
-                "vyatta-vrrp-v1:instance": self.instance_name,
-                "vyatta-vrrp-v1:new-state": status_str
+                util.NOTIFICATION_INSTANCE_NAME: self.instance_name,
+                util.NOTIFICATION_NEW_STATE: status_str
             }
         )
 
@@ -186,8 +190,8 @@ class VrrpConnection:
         group_state: Dict = self.vrrp_property_interface.GetAll(
             util.VRRP_INSTANCE_DBUS_INTF_NAME
         )
-        state: str = group_state["State"][1].upper()
-        if state == "MASTER":
+        state: str = group_state[util.YANG_STATE.capitalize()][1].upper()
+        if state == util.STATE_MASTER:
             self.vrrp_group_proxy.ResetMaster()
         else:
             print(

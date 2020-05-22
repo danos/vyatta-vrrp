@@ -35,9 +35,9 @@ def process_arguments(command: str, intf: str, vrid: str) -> None:
         connections = keepalived_implementation.vrrp_connections
         connections[instance_name].reset_group_state()
     elif command == "add-debug":
-        process.turn_on_debugs(util.PER_PACKET_DEBUG_FLAG)
+        process.turn_on_debugs(util.DEBUG_FLAG_PER_PACKET)
     elif command == "remove-debug":
-        process.turn_off_debugs(util.PER_PACKET_DEBUG_FLAG)
+        process.turn_off_debugs(util.DEBUG_FLAG_PER_PACKET)
     return
 
 

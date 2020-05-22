@@ -40,7 +40,7 @@ def process_arguments(command: str, intf: str, vrid: str, sync: str) -> str:
                 show_output = "Keepalived is not responding"
                 print(show_output)
                 return show_output
-            with open(util.KEEPALIVED_DATA_FILE_PATH, "r") as file_obj:
+            with open(util.FILE_PATH_KEEPALIVED_DATA, "r") as file_obj:
                 file_contents = file_obj.read()
             json_repr = vrrp_show.convert_data_file_to_dict(file_contents)
             if command == "detail":
@@ -58,7 +58,7 @@ def process_arguments(command: str, intf: str, vrid: str, sync: str) -> str:
                 show_output = "Keepalived is not responding"
                 print(show_output)
                 return show_output
-            with open(util.KEEPALIVED_STATS_FILE_PATH, "r") as file_obj:
+            with open(util.FILE_PATH_KEEPALIVED_STATS, "r") as file_obj:
                 file_contents = file_obj.read()
             json_repr = vrrp_show.convert_stats_file_to_dict(file_contents)
             show_output = vrrp_show.show_vrrp_statistics_filters(
