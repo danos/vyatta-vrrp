@@ -17,6 +17,7 @@ from vyatta.vyatta_vrrp_vci import State
 
 
 def process_arguments(command: str, intf: str, vrid: str, sync: str) -> str:
+    # Break this up into more coherent blocks, tracked via VRVDR-51299
     show_output: str = "VRRP is not running"
     if command == "summary":
         keepalived_implementation: abstract_impl.ConfigFile \
@@ -51,7 +52,7 @@ def process_arguments(command: str, intf: str, vrid: str, sync: str) -> str:
             elif command == "sync":
                 show_output = vrrp_show.show_vrrp_sync(json_repr, sync)
             else:
-                print("Something has gone horribly wrong")
+                print(f"Error: Unknown command:{command}")
         else:
             keepalived_responding = pc.dump_keepalived_stats()
             if not keepalived_responding:
@@ -70,6 +71,7 @@ def process_arguments(command: str, intf: str, vrid: str, sync: str) -> str:
 
 def main() -> str:
     parser = argparse.ArgumentParser(description="Show output for VRRP")
+    # Improve this with sub-parsers? Tracked via VRVDR-51300
     parser.add_argument("show",
                         help="""The show command to display\n
         summary - show vrrp\n

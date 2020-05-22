@@ -396,10 +396,10 @@ vrrp_sync_group {sync_group} {{
                 )[1]
             current_start_delay: str = \
                 vrrp_dict[util.YANG_START_DELAY]
-
-            if new_group_start_delay != current_start_delay and \
-                    int(current_start_delay) < int(new_group_start_delay):
-                vrrp_dict[util.YANG_START_DELAY] = new_group_start_delay
+            vrrp_dict[util.YANG_START_DELAY] = max(
+                int(new_group_start_delay),
+                int(current_start_delay)
+            )
 
             vrrp_dict[util.YANG_VRRP_GROUP].append(
                 self._convert_keepalived_config_to_yang(group))
@@ -483,11 +483,9 @@ vrrp_sync_group {sync_group} {{
         # Remove defaults
         # TODO: Test what is currently returned for defaults
         # may need to put these back in
-        if util.YANG_V2_ADVERT_INT in config_dict and \
-                config_dict[util.YANG_V2_ADVERT_INT] == 1:
+        if config_dict.get(util.YANG_V2_ADVERT_INT) == 1:
             del config_dict[util.YANG_V2_ADVERT_INT]
-        if util.YANG_PRIORITY in config_dict and \
-                config_dict[util.YANG_PRIORITY] == 100:
+        if config_dict.get(util.YANG_PRIORITY) == 100:
             del config_dict[util.YANG_PRIORITY]
 
         # Multi line config code, look for the block start and then the next }
@@ -538,9 +536,7 @@ vrrp_sync_group {sync_group} {{
         string.
         """
 
-        try:
-            block.index("authentication {")
-        except ValueError:
+        if "authentication {" not in block:
             # Authentication doesn't exist in this group
             return
 

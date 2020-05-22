@@ -208,7 +208,7 @@ class TestKeepalivedConfigFile:
 
         intf_list = simple_bonding_config[interface_yang_name]
         bonding_intf = intf_list[bonding_yang_name][0][vrrp_yang_name]
-        bonding_intf["start-delay"] = "60"
+        bonding_intf["start-delay"] = 60
         bonding_intf["vrrp-group"][0]["virtual-address"] = \
             ["10.11.2.100/25"]
         bonding_intf["vrrp-group"][0]["tagnode"] = 2

@@ -4,8 +4,9 @@
 Vyatta VCI component to configure keepalived to provide VRRP functionality
 """
 
-# Copyright (c) 2019 by AT&T, Inc.
+# Copyright (c) 2020 by AT&T, Inc.
 # All rights reserved.
+# SPDX-License-Identifier: GPL-2.0-only
 
 import logging
 from functools import wraps
@@ -140,7 +141,6 @@ class VrrpConnection:
         """
         Call back for when the state change signal fires from the
         DBus object.
-        (An event loop is needed to run this?)
         """
 
         status_str: str = self.state_int_to_string(status)

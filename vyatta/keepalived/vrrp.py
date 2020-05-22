@@ -13,10 +13,10 @@ import vyatta.keepalived.util as util
 
 class VrrpGroup:
     """
-    Simple VRRP group representation
+    Simple VRRP group representation.
 
     Used to represent the keepalived config for each individual
-    VRRP group
+    VRRP group.
     """
 
     def __init__(
@@ -28,11 +28,15 @@ class VrrpGroup:
 
         Arguments:
             name (str):
-                Name of the interface the VRRP group is configured on
+                Name of the interface the VRRP group is configured on.
             delay (str):
-                Start delay configured for the interface
+                Start delay configured for the interface.
             group_config (Dict):
-                YANG Dictionary for the group's config
+                YANG Dictionary for the group's config.
+            rfc_num (int):
+                Forms part of the interface created when using RFC mode.
+                Default is -1 for when RFC mode is not being used for this
+                group.
         """
         self.log: logging.Logger = logging.getLogger(util.LOGGING_MODULE_NAME)
         # Default values from existing code required for minimal
