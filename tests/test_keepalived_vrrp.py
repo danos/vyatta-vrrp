@@ -70,19 +70,16 @@ class TestKeepalivedVrrpGroup:
         assert keepalived_config == str(result)
 
     def test_vrrp_group_preempt_delay_printed_warnings(
-            self, preempt_delay_ignored_group, capsys):
+            self, preempt_delay_ignored_group, caplog):
+        expected = \
+            "preempt delay is ignored when preempt=false"
         VrrpGroup("dp0p1s1", "0", preempt_delay_ignored_group)
-        print_result = \
-            "Warning: preempt delay is ignored when preempt=false\n\n"
-        captured = capsys.readouterr()
-        assert print_result == captured.out
+        assert expected in caplog.text
 
     def test_vrrp_group_rfc_name_length_printed_warnings(
-            self, generic_group, capsys):
+            self, generic_group, caplog):
         generic_group["rfc-compatibility"] = [None]
         VrrpGroup("dp0p1s1", "0", generic_group, 1234567890)
-        print_result = \
-            "Warning: generated interface name is longer than 15 " + \
-            "characters\n\n"
-        captured = capsys.readouterr()
-        assert print_result == captured.out
+        expected = \
+            "generated interface name is longer than 15 characters"
+        assert expected in caplog.text

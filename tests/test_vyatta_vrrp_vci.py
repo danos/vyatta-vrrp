@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: GPL-2.0-only
 
 import json
+import logging
 from pathlib import Path
 
 import pytest
@@ -208,20 +209,12 @@ class TestVyattaVrrpVci:
     @pytest.mark.sanity
     def test_vci_config_check_fuller_config_printed_warnings(
             self, mock_pydbus, test_config, complex_config,
-            mock_show_version_rpc_vmware):
-        import vci  # noqa: F401
+            mock_show_version_rpc_vmware, caplog):
         expected_message = \
             "RFC compatibility is not supported on VMWare"
-        expected_namespace = \
-            "vyatta-vrrp-v1"
-        expected_path = \
-            "/interfaces/dataplane/dp0p1s1/vrrp/vrrp-group" + \
-            "/1/rfc-compatibility"
-        with pytest.raises(Exception) as error:
-            test_config.check(complex_config)
-        assert str(error.value) == expected_message
-        assert error.value.name == expected_namespace
-        assert error.value.path == expected_path
+        caplog.set_level(logging.WARNING, logger="vyatta-vrrp-vci")
+        test_config.check(complex_config)
+        assert expected_message in caplog.text
 
     @pytest.mark.sanity
     def test_vci_config_set_writes_disabled_group(

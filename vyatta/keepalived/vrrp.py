@@ -108,8 +108,9 @@ vrrp_instance {instance} {{
         if util.YANG_RFC in self._group_config:
             self._group_config[util.CONFIG_VMAC] = f"{name[:3]}vrrp{rfc_num}"
             if len(self._group_config[util.CONFIG_VMAC]) > 15:
-                print("Warning: generated interface name is longer than 15 "
-                      "characters\n")
+                self.log.warn(
+                    "generated interface name is longer than 15 characters"
+                )
             else:
                 self._template += """
     use_vmac {vmac}
@@ -123,7 +124,7 @@ vrrp_instance {instance} {{
     preempt_delay {preempt_delay}"""
             if util.YANG_PREEMPT in self._group_config and \
                     self._group_config[util.YANG_PREEMPT] is False:
-                print("Warning: preempt delay is ignored when preempt=false\n")
+                self.log.warn("preempt delay is ignored when preempt=false")
 
         if util.YANG_HELLO_SOURCE_ADDR in self._group_config:
             self._group_config[util.CONFIG_HELLO_SOURCE_ADDR] = \

@@ -123,14 +123,7 @@ class Config(vci.Config):
         rfc_compat: Tuple[bool, List[List[str]]] = \
             util.is_rfc_compat_configured(conf)
         if rfc_compat[0] and util.running_on_vmware():
-            for rfc_config in rfc_compat[1]:
-                rfc_path: str = rfc_config[1]
-                rfc_path = rfc_path[:rfc_path.index("[") - 1]
-                raise vci.Exception(
-                    util.VRRP_NAMESPACE,
-                    "RFC compatibility is not supported on VMWare",
-                    f"/{rfc_path.replace(' ', '/')}"
-                )
+            self.log.warn("RFC compatibility is not supported on VMWare")
         return
 
 
