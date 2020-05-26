@@ -296,15 +296,25 @@ def get_specific_vrrp_config_from_yang(
     intf_type: str
     for intf_type in conf[INTERFACE_YANG_NAME]:
         intf: Dict
-        yang_root: str = f"interfaces {intf_type[intf_type.index(':')+1:]} "
+        sanitized_intf_type: str = intf_type[intf_type.find(':') + 1:]
+        if sanitized_intf_type == VIF_YANG_NAME:
+            sanitized_intf_type = intf_name_to_type(
+                conf[INTERFACE_YANG_NAME][intf_type][0][YANG_TAGNODE]
+            )[1].name
+        yang_root: str = f"interfaces {sanitized_intf_type} "
         for intf in conf[INTERFACE_YANG_NAME][intf_type]:
             if YANG_VRRP_GROUP not in intf[VRRP_YANG_NAME]:
                 continue  # start-delay default but no vrrp config
             group: Dict
             for group in intf[VRRP_YANG_NAME][YANG_VRRP_GROUP]:
                 if value in group:
+                    intf_name: str = intf[YANG_TAGNODE]
+                    if "." in intf_name:
+                        vif_separator: int = intf_name.index(".")
+                        intf_name = f"{intf_name[:vif_separator]} vif " +\
+                                    f"{intf_name[vif_separator + 1:]}"
                     yang_path: str = \
-                        yang_root + f"{intf[YANG_TAGNODE]} {VRRP} " +\
+                        yang_root + f"{intf_name} {VRRP} " +\
                         f"{YANG_VRRP_GROUP} {group[YANG_TAGNODE]} " +\
                         f"{value} {group[value]}"
                     yield [group[value], yang_path]

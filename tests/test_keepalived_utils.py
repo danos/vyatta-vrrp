@@ -139,6 +139,29 @@ class TestKeepalivedUtils:
         assert expected == result
 
     @pytest.mark.sanity
+    def test_get_hello_sources_vifs(
+            self, simple_config, interface_yang_name,
+            dataplane_yang_name, vrrp_yang_name, generic_group):
+        vif_config = copy.deepcopy(simple_config)
+        expected = [
+            [
+                "10.1.1.1",
+                "interfaces dataplane dp0p1s1 vif 10 vrrp vrrp-group 1" +
+                " hello-source-address 10.1.1.1"
+            ]
+        ]
+        del vif_config[interface_yang_name][dataplane_yang_name]
+        vif_config[interface_yang_name]["vif"] = [
+            {"tagnode": "dp0p1s1.10",
+             vrrp_yang_name: {"vrrp-group": [copy.deepcopy(generic_group)]}}
+        ]
+        intf = vif_config[interface_yang_name]["vif"][0]
+        intf[vrrp_yang_name]["vrrp-group"][0]["hello-source-address"] = \
+            "10.1.1.1"
+        result = util.get_hello_sources(vif_config)
+        assert expected == result
+
+    @pytest.mark.sanity
     def test_is_local_address_ipv4(self):
         expected = None
         ipaddress = "127.0.0.1"
