@@ -29,6 +29,17 @@ VIF_YANG_NAME: str = "vif"
 
 intf_type: Enum = Enum("intf_type", "dataplane bonding switch")
 
+
+class ValueTypes(Enum):
+    MISSING = "NOTFOUND"
+    PRESENT = [None]
+
+
+ENUM_CONFIGURED = "CONFIGURED"
+ENUM_NOT_CONFIGURED = "MISSING"
+ENUM_PRESENCE = "PRESENT"
+
+
 # VRRP YANG keys and namespaces
 VRRP_NAMESPACE: str = "vyatta-vrrp-v1"
 VRRP: str = "vrrp"
@@ -502,7 +513,7 @@ def get_config_blocks(
 def find_config_value(
         config_list: List[str],
         search_term: str
-) -> Tuple[bool, Union[List[None], str]]:
+) -> Enum:
     """
     Find a config line in a block of config
 
@@ -513,20 +524,23 @@ def find_config_value(
             The key to look for in the config
 
     Return:
-        Returns a tuple that can take one of three formats. The first value
-        in the tuple is always a boolean. True for if the search term was
-        found in the config, false and a value of "NOTFOUND" as the second
-        element otherwise.
-        The second value is either [None] if the search term is a presence
-        indicator or the value found on the line if the search term is a
-        key with configuration
+        Returns an Enum that can take one of three formats.
+        ValueType.MISSING = "NOTFOUND"
+        ValueType.PRESENCE = [None]
+        ConfiguredValue.CONFIGURED = <found string>
 
     Example:
         config_block = ["vrrp_instance dp0p1s1", "priority 200",
             "use_vmac"]
-        _find_config_value(config_block, "preempt")  # (False, "NOTFOUND")
-        _find_config_value(config_block, "use_vmac")  # (True, [None])
-        _find_config_value(config_block, "priority")  # (True, "200")
+
+        _find_config_value(config_block, "preempt")
+        # ValueType.MISSING
+
+        _find_config_value(config_block, "use_vmac")
+        # ValueType.PRESENCE
+
+        _find_config_value(config_block, "priority")
+        # ConfiguredValue.CONFIGURED
     """
 
     line: str
@@ -536,11 +550,15 @@ def find_config_value(
         if regex_search is not None:
             regex_search = re.match(fr"{search_term}\s+(.*)", line)
             if regex_search is not None:
-                return (True, regex_search.group(1))
+                # Can't extend an enum so hack together this enum to
+                # make processing the results the same for all types.
+                class ConfiguredValue(Enum):
+                    CONFIGURED = regex_search.group(1)
+                return ConfiguredValue.CONFIGURED
             # Yang JSON representation has single key with no value as
             # <key>: [null]
-            return (True, [None])
-    return (False, "NOTFOUND")
+            return ValueTypes.PRESENT
+    return ValueTypes.MISSING
 
 
 def find_interface_in_yang_repr(

@@ -1162,40 +1162,36 @@ def _convert_keepalived_data_to_yang(
         # Search for each term in the config
         config_exists: Tuple[bool, Union[List[None], str]] = \
             util.find_config_value(config_block, instance_dict[key])
-        if not config_exists[0]:
-            instance_dict[key] = config_exists[1]  # NOTFOUND
-
-        if config_exists[1] != "NOTFOUND":
-            split_line: List[str]
-            if not isinstance(config_exists[1], list):
-                split_line = config_exists[1].split()
-                value = split_line[1]
-                if key == util.YANG_ADVERT_INT_STATE:
-                    if instance_dict[util.YANG_VERSION] == 2:
-                        value = f"{value} sec"
-                    else:
-                        value = f"{value} milli-sec"
-                elif key == util.YANG_START_DELAY or key == \
-                        util.YANG_PREEMPT_DELAY:
-                    value = f"{value} secs"
-                elif key == util.YANG_RFC_INTF and value == intf:
-                    value = ""
-                if value.isdigit():
-                    # Term exists in config and has a numerical value
-                    instance_dict[key] = int(value)
-                elif value == util.SHOW_IPAO_NO or value == \
-                        util.SHOW_PREEMPT_DISABLED:
-                    instance_dict[key] = False
-                elif value == util.SHOW_IPAO_YES or value == \
-                        util.SHOW_PREEMPT_ENABLED:
-                    instance_dict[key] = True
-                else:
-                    instance_dict[key] = value
-        else:
+        if config_exists is util.ValueTypes.MISSING:
             if key == util.YANG_AUTH_TYPE:
                 instance_dict[key] = None
             else:
-                instance_dict[key] = "NOTFOUND"
+                instance_dict[key] = util.ValueTypes.MISSING.value
+        elif not isinstance(config_exists.value, list):
+            split_line: List[str]
+            split_line = config_exists.value.split()
+            value = split_line[1]
+            if key == util.YANG_ADVERT_INT_STATE:
+                if instance_dict[util.YANG_VERSION] == 2:
+                    value = f"{value} sec"
+                else:
+                    value = f"{value} milli-sec"
+            elif key == util.YANG_START_DELAY or key == \
+                    util.YANG_PREEMPT_DELAY:
+                value = f"{value} secs"
+            elif key == util.YANG_RFC_INTF and value == intf:
+                value = ""
+            if value.isdigit():
+                # Term exists in config and has a numerical value
+                instance_dict[key] = int(value)
+            elif value == util.SHOW_IPAO_NO or value == \
+                    util.SHOW_PREEMPT_DISABLED:
+                instance_dict[key] = False
+            elif value == util.SHOW_IPAO_YES or value == \
+                    util.SHOW_PREEMPT_ENABLED:
+                instance_dict[key] = True
+            else:
+                instance_dict[key] = value
 
     tracked_dict: Dict = {}
 
@@ -1214,8 +1210,8 @@ def _convert_keepalived_data_to_yang(
     tracked_config_end: int
     config_start_offset: int = 1
 
-    if not isinstance(track_intf_tuple[1], list) and \
-            track_intf_tuple[1] != "NOTFOUND":
+    if not isinstance(track_intf_tuple.value, list) and \
+            track_intf_tuple is not util.ValueTypes.MISSING:
         tracked_indexes = util.get_config_indexes(
             config_block,
             util.DATA_TRACK_INTF_DELIMINATOR)
@@ -1226,8 +1222,8 @@ def _convert_keepalived_data_to_yang(
                                           tracked_indexes, tracked_config_end,
                                           config_start_offset)
 
-    if not isinstance(tracked_pmon_tuple[1], list) and \
-            tracked_pmon_tuple[1] != "NOTFOUND":
+    if not isinstance(tracked_pmon_tuple.value, list) and \
+            tracked_pmon_tuple is not util.ValueTypes.MISSING:
         tracked_indexes = util.get_config_indexes(
             config_block, util.YANG_TRACK_MONITOR.capitalize()
         )
@@ -1242,8 +1238,8 @@ def _convert_keepalived_data_to_yang(
                                           config_start_offset,
                                           tracked_monitor_list)
 
-    if not isinstance(track_route_tuple[1], list) and \
-            track_route_tuple[1] != "NOTFOUND":
+    if not isinstance(track_route_tuple.value, list) and \
+            track_route_tuple is not util.ValueTypes.MISSING:
         tracked_indexes = util.get_config_indexes(
             config_block,
             util.DATA_TRACK_ROUTE_NETWORK)
@@ -1262,8 +1258,8 @@ def _convert_keepalived_data_to_yang(
         util.find_config_value(
             config_block, f"{util.DATA_VIP_COUNT} =")
     num_vips: int
-    if not isinstance(vip_tuple[1], list):
-        num_vips = int(vip_tuple[1])
+    if not isinstance(vip_tuple.value, list):
+        num_vips = int(vip_tuple.value)
         vips_start = util.get_config_indexes(
             config_block, util.DATA_VIP_COUNT)[0]
         vips_end = vips_start + num_vips + 1
@@ -1273,7 +1269,8 @@ def _convert_keepalived_data_to_yang(
         instance_dict[util.YANG_VIP_STATE] = virtual_addresses
 
     instance_dict = \
-        {key: val for key, val in instance_dict.items() if val != "NOTFOUND"}
+        {key: val for key, val in instance_dict.items()
+         if val != util.ValueTypes.MISSING.value}
 
     return {util.YANG_INSTANCE_STATE: instance_dict, util.YANG_TAGNODE: vrid}
 
@@ -1475,9 +1472,9 @@ def convert_data_file_to_dict(data_string: str) -> Dict:
             sync_group_show_dict: Dict[str, Union[str, List[str]]] = {}
             group_name_exists: Tuple[bool, str] = \
                 util.find_config_value(sync_group, util.DATA_SG_INSTANCE_START)
-            if not group_name_exists[0]:
+            if group_name_exists.name == util.ENUM_NOT_CONFIGURED:
                 continue
-            group_tokens: List[str] = group_name_exists[1].split()
+            group_tokens: List[str] = group_name_exists.value.split()
             group_name: str = group_tokens[1][:-1]
             sync_group_show_dict[util.YANG_NAME] = group_name
             sync_group_show_dict[util.YANG_STATE] = group_tokens[-1]

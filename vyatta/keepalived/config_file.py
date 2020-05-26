@@ -338,9 +338,9 @@ vrrp_sync_group {sync_group} {{
                 group_name_exists: Tuple[bool, str] = \
                     util.find_config_value(
                         sync_group, util.CONFIG_VRRP_SYNC_GROUP)
-                if not group_name_exists[0]:
+                if group_name_exists.name == util.ENUM_NOT_CONFIGURED:
                     continue
-                group_name: str = group_name_exists[1].split()[0]
+                group_name: str = group_name_exists.value.split()[0]
                 instance_start: int = sync_group.index("group {")
                 instance_end: int = sync_group.index("}", instance_start)
                 for instance in sync_group[instance_start + 1:instance_end]:
@@ -356,9 +356,9 @@ vrrp_sync_group {sync_group} {{
         for group in group_config:
 
             intf_name: str = util.find_config_value(
-                group, util.YANG_INTERFACE_CONST)[1]
+                group, util.YANG_INTERFACE_CONST).value
             vrid: str = util.find_config_value(
-                group, util.CONFIG_VRID_FILE)[1]
+                group, util.CONFIG_VRID_FILE).value
             instance_name: str = f"vyatta-{intf_name}-{vrid}"
 
             if instance_name in sync_group_instances:
@@ -393,7 +393,7 @@ vrrp_sync_group {sync_group} {{
             new_group_start_delay: str = \
                 util.find_config_value(
                     group, util.CONFIG_START_DELAY
-                )[1]
+                ).value
             current_start_delay: str = \
                 vrrp_dict[util.YANG_START_DELAY]
             vrrp_dict[util.YANG_START_DELAY] = max(
@@ -461,7 +461,7 @@ vrrp_sync_group {sync_group} {{
             # Search for each term in the config
             config_exists: Tuple[bool, Union[List[None], str]] = \
                 util.find_config_value(config_block, config_dict[key])
-            if not config_exists[0]:
+            if config_exists.name == util.ENUM_NOT_CONFIGURED:
                 # Accept and preempt are required defaults in the YANG called
                 # out as a special case here if they don't explicitly exist in
                 # the config block
@@ -470,15 +470,15 @@ vrrp_sync_group {sync_group} {{
                 elif key == util.YANG_PREEMPT:
                     config_dict[key] = True
                 else:
-                    config_dict[key] = config_exists[1]  # NOTFOUND
-            elif isinstance(config_exists[1], list):
+                    config_dict[key] = config_exists.value  # NOTFOUND
+            elif isinstance(config_exists.value, list):
                 # Term exists in config and is presence
-                config_dict[key] = config_exists[1]
-            elif config_exists[1].isdigit():
+                config_dict[key] = config_exists.value
+            elif config_exists.value.isdigit():
                 # Term exists in config and has a numerical value
-                config_dict[key] = int(config_exists[1])
+                config_dict[key] = int(config_exists.value)
             else:
-                config_dict[key] = config_exists[1]
+                config_dict[key] = config_exists.value
 
         # Remove defaults
         # TODO: Test what is currently returned for defaults
@@ -509,8 +509,9 @@ vrrp_sync_group {sync_group} {{
         conf_tuple: Tuple[bool, Union[List[None], str]] = \
             util.find_config_value(config_block, util.YANG_INTERFACE_CONST)
         intf_type = None
-        if conf_tuple[0] and isinstance(conf_tuple[1], str):
-            intf_type = conf_tuple[1]
+        if conf_tuple.name != util.ENUM_NOT_CONFIGURED and \
+                isinstance(conf_tuple.value, str):
+            intf_type = conf_tuple.value
         else:
             return {}
         self._convert_tracking_config(
@@ -520,7 +521,8 @@ vrrp_sync_group {sync_group} {{
             config_block, config_dict)
 
         config_dict = \
-            {key: val for key, val in config_dict.items() if val != "NOTFOUND"}
+            {key: val for key, val in config_dict.items()
+             if val != util.ValueTypes.MISSING.value}
         # Sort dictionary alphabetically for unit tests
         config_dict = \
             {key: config_dict[key] for key in sorted(config_dict.keys())}
@@ -544,13 +546,17 @@ vrrp_sync_group {sync_group} {{
             util.find_config_value(block, util.CONFIG_AUTH_TYPE)
         auth_pass: Tuple[bool, Union[List[None], str]] = \
             util.find_config_value(block, util.CONFIG_AUTH_PASSWORD)
-        if auth_type[0] and auth_pass[0]:
-            if auth_type[1] == util.YANG_AUTH_TYPE_PLAIN:
-                auth_type = (auth_type[0], util.YANG_AUTH_PLAINTXT_PASSWORD)
-            if isinstance(auth_type[1], str):
+        if auth_type.name == util.ENUM_CONFIGURED and \
+                auth_pass.name == util.ENUM_CONFIGURED:
+            if isinstance(auth_type.value, str) and \
+                    isinstance(auth_pass.value, str):
+                auth_type_value: str = auth_type.value
+                auth_pass_value: str = auth_pass.value
+                if auth_type_value == util.YANG_AUTH_TYPE_PLAIN:
+                    auth_type_value = util.YANG_AUTH_PLAINTXT_PASSWORD
                 config_dict[util.YANG_AUTH] = {
-                    util.YANG_AUTH_PASSWORD: auth_pass[1],
-                    util.YANG_TYPE: str.lower(auth_type[1])
+                    util.YANG_AUTH_PASSWORD: auth_pass_value,
+                    util.YANG_TYPE: str.lower(auth_type_value)
                 }
 
     @staticmethod

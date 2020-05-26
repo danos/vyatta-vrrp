@@ -521,42 +521,50 @@ class TestKeepalivedUtils:
             "global_defs {", "enable_traps", "enable_dbus",
             "snmp_socket tcp:localhost:705:1", "enable_snmp_keepalived",
             "enable_snmp_rfc", "}"]]
-        expected = (True, "tcp:localhost:705:1")
+        expected_name = "CONFIGURED"
+        expected_value = "tcp:localhost:705:1"
         for block in config_list:
             result = util.find_config_value(block, "snmp_socket")
-            assert result == expected
+            assert result.name == expected_name
+            assert result.value == expected_value
 
     def test_find_config_value_autogen_key_value_undefined_entry(self):
         config_list = [[
             "global_defs {", "enable_traps", "enable_dbus",
             "snmp_socket tcp:localhost:705:1", "enable_snmp_keepalived",
             "enable_snmp_rfc", "}"]]
-        expected = (False, "NOTFOUND")
+        expected_name = "MISSING"
+        expected_value = "NOTFOUND"
         for block in config_list:
             result = util.find_config_value(
                 block, "Alice_in_wonderland")
-            assert result == expected
+            assert result.name == expected_name
+            assert result.value == expected_value
 
     def test_find_config_value_autogen_presence_defined_entry(self):
         config_list = [[
             "global_defs {", "enable_traps", "enable_dbus",
             "snmp_socket tcp:localhost:705:1", "enable_snmp_keepalived",
             "enable_snmp_rfc", "}"]]
-        expected = (True, [None])
+        expected_name = "PRESENT"
+        expected_value = [None]
         for block in config_list:
             result = util.find_config_value(block, "enable_dbus")
-            assert result == expected
+            assert result.name == expected_name
+            assert result.value == expected_value
 
     def test_find_config_value_autogen_presence_undefined_entry(self):
         config_list = [[
             "global_defs {", "enable_traps", "enable_dbus",
             "snmp_socket tcp:localhost:705:1", "enable_snmp_keepalived",
             "enable_snmp_rfc", "}"]]
-        expected = (False, "NOTFOUND")
+        expected_name = "MISSING"
+        expected_value = "NOTFOUND"
         for block in config_list:
             result = util.find_config_value(
                 block, "The_two_towers")
-            assert result == expected
+            assert result.name == expected_name
+            assert result.value == expected_value
 
     def test_find_config_value_single_group_defined_entry(self):
         config_list = \
@@ -568,10 +576,12 @@ class TestKeepalivedUtils:
                     "virtual_ipaddress {", "10.10.1.100/25", "}", "}"
                 ]
             ]
-        expected = (True, "BACKUP")
+        expected_name = "CONFIGURED"
+        expected_value = "BACKUP"
         for block in config_list:
             result = util.find_config_value(block, "state")
-            assert result == expected
+            assert result.name == expected_name
+            assert result.value == expected_value
 
     def test_find_config_value_over_lapping_default(self):
         config_list = \
@@ -584,10 +594,12 @@ class TestKeepalivedUtils:
                     "virtual_ipaddress {", "10.10.1.100/25", "}", "}"
                 ]
             ]
-        expected = (False, "NOTFOUND")
+        expected_name = "MISSING"
+        expected_value = "NOTFOUND"
         for block in config_list:
             result = util.find_config_value(block, "preempt")
-            assert result == expected
+            assert result.name == expected_name
+            assert result.value == expected_value
 
     def test_find_config_value_overwrite_default(self):
         config_list = \
@@ -600,10 +612,12 @@ class TestKeepalivedUtils:
                     "virtual_ipaddress {", "10.10.1.100/25", "}", "}"
                 ]
             ]
-        expected = (True, "False")
+        expected_name = "CONFIGURED"
+        expected_value = "False"
         for block in config_list:
             result = util.find_config_value(block, "preempt")
-            assert result == expected
+            assert result.name == expected_name
+            assert result.value == expected_value
 
     def test_find_config_value_single_group_undefined_entry(self):
         config_list = \
@@ -615,11 +629,13 @@ class TestKeepalivedUtils:
                     "virtual_ipaddress {", "10.10.1.100/25", "}", "}"
                 ]
             ]
-        expected = (False, "NOTFOUND")
+        expected_name = "MISSING"
+        expected_value = "NOTFOUND"
         for block in config_list:
             result = util.find_config_value(
                 block, "There_and_back_again")
-            assert result == expected
+            assert result.name == expected_name
+            assert result.value == expected_value
 
     def test_find_config_value_multiple_group_defined_entry(self):
         config_list = \
@@ -637,10 +653,12 @@ class TestKeepalivedUtils:
                     "virtual_ipaddress {", "10.11.2.100/25", "}", "}"
                 ]
             ]
-        expected = (True, "BACKUP")
+        expected_name = "CONFIGURED"
+        expected_value = "BACKUP"
         for block in config_list:
             result = util.find_config_value(block, "state")
-            assert result == expected
+            assert result.name == expected_name
+            assert result.value == expected_value
 
     def test_find_config_value_multiple_group_undefined_entry(self):
         config_list = \
@@ -658,11 +676,13 @@ class TestKeepalivedUtils:
                     "virtual_ipaddress {", "10.11.2.100/25", "}", "}"
                 ]
             ]
-        expected = (False, "NOTFOUND")
+        expected_name = "MISSING"
+        expected_value = "NOTFOUND"
         for block in config_list:
             result = util.find_config_value(
                 block, "A_tale_of_two_cities")
-            assert result == expected
+            assert result.name == expected_name
+            assert result.value == expected_value
 
     @pytest.mark.sanity
     def test_find_config_value_multiple_group_presence_defined_entry(
@@ -684,11 +704,13 @@ class TestKeepalivedUtils:
                     "vmac_xmit_base", "}"
                 ]
             ]
-        expected = (True, [None])
+        expected_name = "PRESENT"
+        expected_value = [None]
         for block in config_list:
             result = util.find_config_value(
                 block, "vmac_xmit_base")
-            assert result == expected
+            assert result.name == expected_name
+            assert result.value == expected_value
 
     def test_find_interface_in_yang_dataplane_list_empty(
             self, interface_yang_name,
