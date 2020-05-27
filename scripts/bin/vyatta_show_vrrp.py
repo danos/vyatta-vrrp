@@ -31,14 +31,19 @@ def process_arguments(command: str, intf: str, vrid: str, sync: str) -> str:
     else:
         pc = process_control.ProcessControl()
         if not pc.is_running():
+            if command == "autocomplete":
+                show_output = ""
             print(show_output)
             return show_output
         file_contents: str
         json_repr: Dict
-        if command == "detail" or command == "interface" or command == "sync":
+        if command == "detail" or command == "interface" or command == "sync" \
+                or command == "autocomplete":
             keepalived_responding = pc.dump_keepalived_data()
             if not keepalived_responding:
                 show_output = "Keepalived is not responding"
+                if command == "autocomplete":
+                    show_output = ""
                 print(show_output)
                 return show_output
             with open(util.FILE_PATH_KEEPALIVED_DATA, "r") as file_obj:
@@ -51,6 +56,10 @@ def process_arguments(command: str, intf: str, vrid: str, sync: str) -> str:
                     vrrp_show.show_vrrp_interface(json_repr, intf, vrid)
             elif command == "sync":
                 show_output = vrrp_show.show_vrrp_sync(json_repr, sync)
+            elif command == "autocomplete":
+                show_output = vrrp_show.show_autocomplete(
+                    json_repr, intf, sync
+                )
             else:
                 print(f"Error: Unknown command:{command}")
         else:
@@ -79,9 +88,10 @@ def main() -> str:
         interface - show vrrp interface\n
         stats - show vrrp statistics\n
         sync - show vrrp sync-group\n
+        autocomplete - show which other filter can be applied\n
         """,
                         choices=["summary", "detail", "interface", "stats",
-                                 "sync"]
+                                 "sync", "autocomplete"]
                         )
     parser.add_argument(
         "--intf", help="Filter on interface", default=""

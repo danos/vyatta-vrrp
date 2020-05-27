@@ -1761,3 +1761,48 @@ VRRP Instance: vyatta-dp0p1s1-1
             del insertion_reference[util.VRRP_YANG_NAME][util.YANG_START_DELAY]
 
     return yang_representation
+
+
+def show_autocomplete(
+    state_dict: Dict,
+    filter_intf: str = "",
+    filter_sync: str = ""
+) -> str:
+    """
+    List which interfaces, groups on an interface, or sync groups can be used
+    to in other show commands for filters.
+    """
+
+    output: str = ""
+    intf_type: str
+    if filter_sync != "":
+        if util.VRRP_YANG_NAME in state_dict:
+            sync_groups: Dict = state_dict[util.VRRP_YANG_NAME]
+            sync_group: Dict
+            for sync_group in \
+                    sync_groups[f"{util.YANG_SYNC_GROUP}s"]:
+                output += f"{sync_group[util.YANG_NAME]}\n"
+    elif filter_intf != "":
+        state_dict = util.sanitize_vrrp_config(state_dict)
+        # Show vrrp groups on this interface
+        intf_type: str = util.intf_name_to_type(filter_intf)[0]
+        intf: Dict
+        intf_list: List = \
+            state_dict[util.INTERFACE_YANG_NAME][intf_type]
+        for intf in intf_list:
+            if intf[util.YANG_TAGNODE] == filter_intf:
+                vrrp_instances: List = \
+                    intf[util.VRRP_YANG_NAME][util.YANG_VRRP_GROUP]
+                vrrp_instance: Dict
+                for vrrp_instance in vrrp_instances:
+                    output += f"{vrrp_instance[util.YANG_TAGNODE]}\n"
+                break
+    else:
+        state_dict = util.sanitize_vrrp_config(state_dict)
+        for intf_type in state_dict[util.INTERFACE_YANG_NAME]:
+            intf_list: List = \
+                state_dict[util.INTERFACE_YANG_NAME][intf_type]
+            intf: Dict
+            for intf in intf_list:
+                output += f"{intf[util.YANG_TAGNODE]}\n"
+    return output

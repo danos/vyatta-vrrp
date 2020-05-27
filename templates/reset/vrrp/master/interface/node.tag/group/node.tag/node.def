@@ -1,3 +1,3 @@
 help: Reset VRRP master for specified interface and group
-allowed: vyatta-keepalived.pl --vrrp-action=list-vrrp-group --intf "${COMP_WORDS[COMP_CWORD-2]}"
+allowed: vyatta_show_vrrp.py autocomplete --intf "$5"
 run: vyatta_vrrp_op_commands.py reset --intf "$5" --vrid "$7"
