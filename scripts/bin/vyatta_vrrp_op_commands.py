@@ -8,10 +8,10 @@
 import argparse
 from typing import Any, Dict
 
-import vyatta.abstract_vrrp_classes as abstract_impl
-import vyatta.keepalived.config_file as impl_conf
-import vyatta.keepalived.dbus.process_control as process_control
-import vyatta.keepalived.util as util
+import vyatta.vrrp_vci.abstract_vrrp_classes as abstract_impl
+import vyatta.vrrp_vci.keepalived.config_file as impl_conf
+import vyatta.vrrp_vci.keepalived.dbus.process_control as process_control
+import vyatta.vrrp_vci.keepalived.util as util
 
 
 def process_arguments(command: str, intf: str, vrid: str) -> None:

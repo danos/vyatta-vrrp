@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-import vyatta.keepalived.util as util
+import vyatta.vrrp_vci.keepalived.util as util
 
 
 class TestVyattaVrrpVci:
@@ -85,7 +85,7 @@ class TestVyattaVrrpVci:
     def test_vci_config_set_writes_file(
             self, mock_pydbus, test_config,
             simple_config):
-        import vyatta.keepalived.dbus.process_control as process_ctrl
+        import vyatta.vrrp_vci.keepalived.dbus.process_control as process_ctrl
         process_control = process_ctrl.ProcessControl()
         process_control.keepalived_proxy_obj.SubState = "running"
         result = True
@@ -99,7 +99,7 @@ class TestVyattaVrrpVci:
     def test_vci_config_set_writes_correct_config(
             self, mock_pydbus, test_config,
             simple_config, simple_keepalived_config):
-        import vyatta.keepalived.dbus.process_control as process_ctrl
+        import vyatta.vrrp_vci.keepalived.dbus.process_control as process_ctrl
         process_control = process_ctrl.ProcessControl()
         process_control.keepalived_proxy_obj.SubState = "running"
         result = True
@@ -119,7 +119,7 @@ class TestVyattaVrrpVci:
     def test_vci_config_set_writes_correct_syncgroup_config(
             self, mock_pydbus, test_config,
             syncgroup_config, syncgroup_keepalived_config):
-        import vyatta.keepalived.dbus.process_control as process_ctrl
+        import vyatta.vrrp_vci.keepalived.dbus.process_control as process_ctrl
         process_control = process_ctrl.ProcessControl()
         process_control.keepalived_proxy_obj.SubState = "running"
         result = True
@@ -175,7 +175,7 @@ class TestVyattaVrrpVci:
     def test_vci_config_set_cleans_up_file(
             self, mock_pydbus, test_config,
             simple_config, top_level_dictionary):
-        import vyatta.keepalived.dbus.process_control as process_ctrl
+        import vyatta.vrrp_vci.keepalived.dbus.process_control as process_ctrl
         process_control = process_ctrl.ProcessControl()
         process_control.keepalived_proxy_obj.SubState = "running"
         result = True
@@ -222,7 +222,7 @@ class TestVyattaVrrpVci:
             autogeneration_string,
             dataplane_yang_name, disabled_group,
             dataplane_interface):
-        import vyatta.keepalived.dbus.process_control as process_ctrl
+        import vyatta.vrrp_vci.keepalived.dbus.process_control as process_ctrl
         process_control = process_ctrl.ProcessControl()
         process_control.keepalived_proxy_obj.SubState = "running"
         file_path = \
@@ -251,7 +251,7 @@ class TestVyattaVrrpVci:
             self, mock_pydbus, test_config,
             generic_v3_fast_advert_config,
             simple_v3_keepalived_config):
-        import vyatta.keepalived.dbus.process_control as process_ctrl
+        import vyatta.vrrp_vci.keepalived.dbus.process_control as process_ctrl
         process_control = process_ctrl.ProcessControl()
         process_control.keepalived_proxy_obj.SubState = "running"
         result = True

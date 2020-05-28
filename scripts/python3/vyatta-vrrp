@@ -5,9 +5,9 @@
 # SPDX-License-Identifier: GPL-2.0-only
 
 import vci
-import vyatta.vyatta_vrrp_vci as vrrp
-import vyatta.keepalived.config_file as impl_conf
-import vyatta.abstract_vrrp_classes as abstract_impl
+import vyatta.vrrp_vci.vyatta_vrrp_vci as vrrp
+import vyatta.vrrp_vci.keepalived.config_file as impl_conf
+import vyatta.vrrp_vci.abstract_vrrp_classes as abstract_impl
 
 if __name__ == "__main__":
     keepalived_implementation: abstract_impl.ConfigFile \

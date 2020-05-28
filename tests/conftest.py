@@ -72,7 +72,7 @@ def tmp_file_keepalived_config_no_write(tmp_path):
                 pass
 
     sys.modules["vci"] = FakeVci
-    from vyatta.keepalived.config_file import KeepalivedConfig
+    from vyatta.vrrp_vci.keepalived.config_file import KeepalivedConfig
     file_path = f"{tmp_path}/keepalived.conf"
     return KeepalivedConfig(file_path)
 
@@ -113,7 +113,7 @@ def test_config(
     )
 
     sys.modules["vci"] = FakeVci
-    import vyatta.keepalived.dbus.process_control as process_ctrl
+    import vyatta.vrrp_vci.keepalived.dbus.process_control as process_ctrl
 
     class MockProcess(process_ctrl.ProcessControl):
 
@@ -127,7 +127,7 @@ def test_config(
         process_ctrl.__dict__,
         "ProcessControl",
         MockProcess)
-    from vyatta.vyatta_vrrp_vci import Config
+    from vyatta.vrrp_vci.vyatta_vrrp_vci import Config
     return Config(tmp_file_keepalived_config_no_write)
 
 
@@ -148,7 +148,7 @@ def test_state(tmp_file_keepalived_config_no_write):
                 pass
 
     sys.modules["vci"] = FakeVci
-    from vyatta.vyatta_vrrp_vci import State
+    from vyatta.vrrp_vci.vyatta_vrrp_vci import State
     return State(tmp_file_keepalived_config_no_write)
 
 
@@ -169,7 +169,7 @@ def test_state_vif(tmp_file_keepalived_config_no_write):
                 pass
 
     sys.modules["vci"] = FakeVci
-    from vyatta.vyatta_vrrp_vci import State
+    from vyatta.vrrp_vci.vyatta_vrrp_vci import State
     return State(tmp_file_keepalived_config_no_write)
 
 
@@ -190,7 +190,7 @@ def keepalived_config(pydbus_fakes):
                 pass
 
     sys.modules["vci"] = FakeVci
-    from vyatta.keepalived.config_file import KeepalivedConfig
+    from vyatta.vrrp_vci.keepalived.config_file import KeepalivedConfig
     return KeepalivedConfig()
 
 
@@ -212,7 +212,7 @@ def tmp_file_keepalived_config(tmp_path, autogeneration_string,
                 pass
 
     sys.modules["vci"] = FakeVci
-    from vyatta.keepalived.config_file import KeepalivedConfig
+    from vyatta.vrrp_vci.keepalived.config_file import KeepalivedConfig
     file_path = f"{tmp_path}/keepalived.conf"
     with open(file_path, "w") as file_handle:
         contents = autogeneration_string
@@ -240,7 +240,7 @@ def tmp_file_keepalived_vif_config(
                 pass
 
     sys.modules["vci"] = FakeVci
-    from vyatta.keepalived.config_file import KeepalivedConfig
+    from vyatta.vrrp_vci.keepalived.config_file import KeepalivedConfig
     file_path = f"{tmp_path}/keepalived.conf"
     with open(file_path, "w") as file_handle:
         contents = autogeneration_string
@@ -267,7 +267,7 @@ def tmp_file_syncgroup_keepalived_config(
                 pass
 
     sys.modules["vci"] = FakeVci
-    from vyatta.keepalived.config_file import KeepalivedConfig
+    from vyatta.vrrp_vci.keepalived.config_file import KeepalivedConfig
     file_path = f"{tmp_path}/keepalived.conf"
     with open(file_path, "w") as file_handle:
         contents = syncgroup_keepalived_config
@@ -292,20 +292,20 @@ def non_default_keepalived_config():
                 pass
 
     sys.modules["vci"] = FakeVci
-    from vyatta.keepalived.config_file import KeepalivedConfig
+    from vyatta.vrrp_vci.keepalived.config_file import KeepalivedConfig
     return KeepalivedConfig("/test/file/path.conf")
 
 
 @pytest.fixture
 def simple_vrrp_group_object(generic_group):
-    from vyatta.keepalived.vrrp import VrrpGroup
+    from vyatta.vrrp_vci.keepalived.vrrp import VrrpGroup
     new_group = copy.deepcopy(generic_group)
     return VrrpGroup("dp0p1s1", "0", new_group)
 
 
 @pytest.fixture
 def fuller_vrrp_group_object(max_config_group):
-    from vyatta.keepalived.vrrp import VrrpGroup
+    from vyatta.vrrp_vci.keepalived.vrrp import VrrpGroup
     new_group = copy.deepcopy(max_config_group)
     return VrrpGroup("dp0p1s1", "0", new_group, 1)
 

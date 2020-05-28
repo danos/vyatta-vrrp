@@ -16,7 +16,7 @@ import pydbus
 
 import vci
 
-import vyatta.keepalived.util as util
+import vyatta.vrrp_vci.keepalived.util as util
 
 
 def activate_connection(func) -> Callable:

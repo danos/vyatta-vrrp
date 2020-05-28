@@ -8,7 +8,7 @@
 import logging
 from typing import Dict, Union
 
-import vyatta.keepalived.util as util
+import vyatta.vrrp_vci.keepalived.util as util
 
 
 class VrrpGroup:

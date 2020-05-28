@@ -4,7 +4,7 @@ import copy
 
 import pytest
 
-import vyatta.keepalived.util as util
+import vyatta.vrrp_vci.keepalived.util as util
 
 
 class TestKeepalivedUtils:

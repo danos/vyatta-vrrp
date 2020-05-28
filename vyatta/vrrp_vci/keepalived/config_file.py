@@ -16,10 +16,10 @@ from typing import Any, Dict, List, Tuple, Union
 
 import pydbus
 
-import vyatta.abstract_vrrp_classes as AbstractConfig
-import vyatta.keepalived.dbus.vrrp_group_connection as vrrp_dbus
-import vyatta.keepalived.util as util
-import vyatta.keepalived.vrrp as vrrp
+import vyatta.vrrp_vci.abstract_vrrp_classes as AbstractConfig
+import vyatta.vrrp_vci.keepalived.dbus.vrrp_group_connection as vrrp_dbus
+import vyatta.vrrp_vci.keepalived.util as util
+import vyatta.vrrp_vci.keepalived.vrrp as vrrp
 
 
 class KeepalivedConfig(AbstractConfig.ConfigFile):

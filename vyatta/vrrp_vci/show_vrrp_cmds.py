@@ -8,7 +8,7 @@ import calendar
 import time
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-import vyatta.keepalived.util as util
+import vyatta.vrrp_vci.keepalived.util as util
 
 """ Show VRRP summary helpers. """
 SHOW_SUMMARY_HEADER_LINE_1: List[str] = \

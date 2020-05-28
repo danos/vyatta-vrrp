@@ -1,12 +1,17 @@
 #!/usr/bin/make -f
 
 #VERBOSE=1
+export PYBUILD_NAME=vyatta-vrrp-vci
 export PYBUILD_TEST_PYTEST=1
-export PYBUILD_TEST_ARGS="-m sanity {dir}/tests/"
+export PYBUILD_TEST_ARGS=--pep8 --cov=vyatta/
 export PYBUILD_DISABLE_python2=1
 
 %:
 	 dh $@ --with=systemd,yang,python3,vci --buildsystem=pybuild
+
+override_dh_auto_install:
+	python3 setup.py install --install-layout=deb --root=debian/vyatta-vrrp-vci
+	dh_auto_install
 
 override_dh_auto_test:
 	dh_auto_test -- --test-pytest

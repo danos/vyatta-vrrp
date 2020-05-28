@@ -18,7 +18,7 @@ from typing import Callable, Dict, List, Tuple
 
 import pydbus
 
-import vyatta.keepalived.util as util
+import vyatta.vrrp_vci.keepalived.util as util
 
 
 def get_vrrp_proxy(func) -> Callable:

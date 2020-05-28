@@ -12,11 +12,11 @@ import pydbus
 
 import vci  # pylint: disable=import-error
 
-import vyatta.abstract_vrrp_classes as AbstractVrrpConfig
-import vyatta.keepalived.dbus.process_control as process_control
-import vyatta.keepalived.dbus.vrrp_group_connection as \
+import vyatta.vrrp_vci.abstract_vrrp_classes as AbstractVrrpConfig
+import vyatta.vrrp_vci.keepalived.dbus.process_control as process_control
+import vyatta.vrrp_vci.keepalived.dbus.vrrp_group_connection as \
     vrrp_dbus
-import vyatta.keepalived.util as util
+import vyatta.vrrp_vci.keepalived.util as util
 
 
 def send_garp(rpc_input: Dict[str, str]) -> Dict:

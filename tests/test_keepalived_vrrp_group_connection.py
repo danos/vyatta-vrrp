@@ -3,14 +3,14 @@
 
 import pytest  # noqa: F401
 
-import vyatta.keepalived.util as util
+import vyatta.vrrp_vci.keepalived.util as util
 
 
 class TestKeepalivedVrrpGroupControl:
 
     def test_get_unit_state(
             self, mock_pydbus, instance_state):
-        import vyatta.keepalived.dbus.vrrp_group_connection \
+        import vyatta.vrrp_vci.keepalived.dbus.vrrp_group_connection \
             as group_conn
         import pydbus
         sysbus = pydbus.SystemBus()
@@ -25,7 +25,7 @@ class TestKeepalivedVrrpGroupControl:
     def test_get_unit_state_rfc(
             self, instance_state_rfc,
             mock_pydbus_rfc):
-        import vyatta.keepalived.dbus.vrrp_group_connection \
+        import vyatta.vrrp_vci.keepalived.dbus.vrrp_group_connection \
             as group_conn
         import pydbus
         sysbus = pydbus.SystemBus()
@@ -39,7 +39,7 @@ class TestKeepalivedVrrpGroupControl:
 
     def test_garp(
             self, mock_pydbus):
-        import vyatta.keepalived.dbus.vrrp_group_connection \
+        import vyatta.vrrp_vci.keepalived.dbus.vrrp_group_connection \
             as group_conn
         import pydbus
         sysbus = pydbus.SystemBus()
@@ -52,7 +52,7 @@ class TestKeepalivedVrrpGroupControl:
 
     def test_vif_sanitizing(
             self, mock_pydbus):
-        import vyatta.keepalived.dbus.vrrp_group_connection \
+        import vyatta.vrrp_vci.keepalived.dbus.vrrp_group_connection \
             as group_conn
         import pydbus
         sysbus = pydbus.SystemBus()

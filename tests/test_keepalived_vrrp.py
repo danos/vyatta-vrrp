@@ -6,7 +6,7 @@
 
 import pytest
 
-from vyatta.keepalived.vrrp import VrrpGroup
+from vyatta.vrrp_vci.keepalived.vrrp import VrrpGroup
 
 
 class TestKeepalivedVrrpGroup:

@@ -48,8 +48,8 @@ class TestVyattaShowVrrp:
         ids=["No rfc", "rfc", "rfc sync", "rfc IPAO", "Switch", "vif"]
     )
     def test_show_vrrp_summary(self, fakes, show, state):
-        import vyatta.show_vrrp_cmds
-        result = vyatta.show_vrrp_cmds.show_vrrp_summary(state)
+        import vyatta.vrrp_vci.show_vrrp_cmds
+        result = vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_summary(state)
         assert result == show
 
     @pytest.mark.parametrize(
@@ -169,8 +169,8 @@ class TestVyattaShowVrrp:
         ]
     )
     def test_show_vrrp_detail(self, fakes, show, data):
-        import vyatta.show_vrrp_cmds
-        result = vyatta.show_vrrp_cmds.show_vrrp_detail(data)
+        import vyatta.vrrp_vci.show_vrrp_cmds
+        result = vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_detail(data)
         assert result == show
 
     @pytest.mark.parametrize(
@@ -229,8 +229,11 @@ class TestVyattaShowVrrp:
         ]
     )
     def test_show_vrrp_sync(self, fakes, show, data, grp_filter):
-        import vyatta.show_vrrp_cmds
-        result = vyatta.show_vrrp_cmds.show_vrrp_sync(data, grp_filter)
+        import vyatta.vrrp_vci.show_vrrp_cmds
+        result = \
+            vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_sync(
+                data, grp_filter
+            )
         assert result == show
 
     @pytest.mark.parametrize(
@@ -308,8 +311,8 @@ class TestVyattaShowVrrp:
     )
     def test_show_vrrp_interface(
             self, fakes, show, data, intf_filter, grp_filter):
-        import vyatta.show_vrrp_cmds
-        result = vyatta.show_vrrp_cmds.show_vrrp_interface(
+        import vyatta.vrrp_vci.show_vrrp_cmds
+        result = vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_interface(
             data,
             intf_filter,
             grp_filter)
@@ -420,8 +423,8 @@ class TestVyattaShowVrrp:
     )
     def test_show_vrrp_statistics(
             self, fakes, show, data, intf_filter, grp_filter):
-        import vyatta.show_vrrp_cmds
-        result = vyatta.show_vrrp_cmds.show_vrrp_statistics_filters(
+        import vyatta.vrrp_vci.show_vrrp_cmds
+        result = vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_statistics_filters(
             data,
             intf_filter,
             grp_filter)
@@ -565,8 +568,8 @@ class TestVyattaShowVrrp:
     )
     def test_convert_data_to_json(
             self, fakes, json_data, file_content):
-        import vyatta.show_vrrp_cmds
-        result = vyatta.show_vrrp_cmds.convert_data_file_to_dict(
+        import vyatta.vrrp_vci.show_vrrp_cmds
+        result = vyatta.vrrp_vci.show_vrrp_cmds.convert_data_file_to_dict(
             file_content)
         assert result == json_data
 
@@ -611,9 +614,11 @@ class TestVyattaShowVrrp:
     )
     def test_convert_stats_to_json(
             self, fakes, json_data, file_content):
-        import vyatta.show_vrrp_cmds
-        result = vyatta.show_vrrp_cmds.convert_stats_file_to_dict(
-            file_content)
+        import vyatta.vrrp_vci.show_vrrp_cmds
+        result = \
+            vyatta.vrrp_vci.show_vrrp_cmds.convert_stats_file_to_dict(
+                file_content
+            )
         assert result == json_data
 
     @pytest.mark.parametrize(
@@ -766,10 +771,10 @@ class TestVyattaShowVrrp:
         ]
     )
     def test_complete_show_vrrp_detail(self, fakes, show, file_content):
-        import vyatta.show_vrrp_cmds
-        json_data = vyatta.show_vrrp_cmds.convert_data_file_to_dict(
+        import vyatta.vrrp_vci.show_vrrp_cmds
+        json_data = vyatta.vrrp_vci.show_vrrp_cmds.convert_data_file_to_dict(
             file_content)
-        result = vyatta.show_vrrp_cmds.show_vrrp_detail(json_data)
+        result = vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_detail(json_data)
         assert result == show
 
     @pytest.mark.parametrize(
@@ -843,10 +848,10 @@ class TestVyattaShowVrrp:
     )
     def test_show_vrrp_interface_full_process(
             self, fakes, show, file_contents, intf_filter, grp_filter):
-        import vyatta.show_vrrp_cmds
-        json_data = vyatta.show_vrrp_cmds.convert_data_file_to_dict(
+        import vyatta.vrrp_vci.show_vrrp_cmds
+        json_data = vyatta.vrrp_vci.show_vrrp_cmds.convert_data_file_to_dict(
             file_contents)
-        result = vyatta.show_vrrp_cmds.show_vrrp_interface(
+        result = vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_interface(
             json_data,
             intf_filter,
             grp_filter)
@@ -911,10 +916,13 @@ class TestVyattaShowVrrp:
     )
     def test_show_vrrp_sync_full_process(
             self, fakes, show, file_content, grp_filter):
-        import vyatta.show_vrrp_cmds
-        json_data = vyatta.show_vrrp_cmds.convert_data_file_to_dict(
-            file_content)
-        result = vyatta.show_vrrp_cmds.show_vrrp_sync(json_data, grp_filter)
+        import vyatta.vrrp_vci.show_vrrp_cmds
+        json_data = \
+            vyatta.vrrp_vci.show_vrrp_cmds.convert_data_file_to_dict(
+                file_content
+            )
+        result = vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_sync(
+            json_data, grp_filter)
         assert result == show
 
     @pytest.mark.parametrize(
@@ -982,10 +990,10 @@ class TestVyattaShowVrrp:
     )
     def test_show_vrrp_statistics_full_process(
             self, fakes, show, file_contents, intf_filter, grp_filter):
-        import vyatta.show_vrrp_cmds
-        json_data = vyatta.show_vrrp_cmds.convert_stats_file_to_dict(
+        import vyatta.vrrp_vci.show_vrrp_cmds
+        json_data = vyatta.vrrp_vci.show_vrrp_cmds.convert_stats_file_to_dict(
             file_contents)
-        result = vyatta.show_vrrp_cmds.show_vrrp_statistics_filters(
+        result = vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_statistics_filters(
             json_data,
             intf_filter,
             grp_filter)
