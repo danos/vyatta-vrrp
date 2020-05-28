@@ -2,9 +2,9 @@ Source: vyatta-vrrp
 Section: contrib/net
 Priority: optional
 Maintainer: Vyatta Package Maintainers <DL-vyatta-help@att.com>
-Build-Depends: debhelper (>= 9), debhelper (>= 9.20160709) | dh-systemd, dh-yang, libtest-class-perl,
-               libsort-versions-perl, libnet-dbus-perl, libtry-tiny-perl,
-               python3, dh-python, dh-vci
+Build-Depends: debhelper (>= 9), debhelper (>= 9.20160709) | dh-systemd, dh-yang,
+               python3, dh-python, dh-vci, flake8, python3-pytest, python3-pytest-pep8,
+               python3-pytest-lazy-fixture
 Standards-Version: 3.9.6
 
 Package: vyatta-vrrp
@@ -15,8 +15,6 @@ Depends:
  iftop,
  iproute2 (>= 4.4.0),
  keepalived (>= 1.2.24-git66c870aa+vyatta32),
- libnet-dbus-perl,
- libtry-tiny-perl,
  python,
  python-daemon,
  python-dbus,
@@ -27,15 +25,12 @@ Depends:
  vyatta-op-network,
  vyatta-system (>= 1.6.1),
  ${misc:Depends},
- ${perl:Depends},
  ${python3:Depends},
  python3,
  python3-daemon,
  python3-gi,
  python3-dbus,
  python3-pydbus,
- libnet-dbus-perl,
- libtry-tiny-perl
 Breaks: vyatta-op (<< 1.0)
 Replaces: vyatta-op (<< 1.0)
 Description: Vyatta VRRP configuration/operational commands

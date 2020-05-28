@@ -1,3 +1,0 @@
-vrrp_instance vyatta-dp0s3-1 {
-    use_vmac dp0vrrp1
-}

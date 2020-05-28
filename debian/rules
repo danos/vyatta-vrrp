@@ -1,9 +1,12 @@
 #!/usr/bin/make -f
 
 #VERBOSE=1
+export PYBUILD_TEST_PYTEST=1
+export PYBUILD_TEST_ARGS="-m sanity {dir}/tests/"
+export PYBUILD_DISABLE_python2=1
 
 %:
-	 dh $@ --with=systemd,yang,python3,vci
+	 dh $@ --with=systemd,yang,python3,vci --buildsystem=pybuild
 
 override_dh_auto_test:
-	t/./test-runner.t
+	dh_auto_test -- --test-pytest
