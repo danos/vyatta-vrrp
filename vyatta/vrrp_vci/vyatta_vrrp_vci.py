@@ -6,27 +6,29 @@
 
 import json
 import logging
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
 
 import pydbus
 
 import vci  # pylint: disable=import-error
 
-import vyatta.vrrp_vci.abstract_vrrp_classes as AbstractVrrpConfig
-import vyatta.vrrp_vci.keepalived.dbus.process_control as process_control
-import vyatta.vrrp_vci.keepalived.dbus.vrrp_group_connection as \
-    vrrp_dbus
+
 import vyatta.vrrp_vci.keepalived.util as util
+from vyatta.vrrp_vci.abstract_vrrp_classes import ConfigFile
+from vyatta.vrrp_vci.keepalived.dbus.process_control import ProcessControl
+from vyatta.vrrp_vci.keepalived.dbus.vrrp_group_connection import (
+    VrrpConnection
+)
 
 
 def send_garp(rpc_input: Dict[str, str]) -> Dict:
     intf: str = rpc_input[util.RPC_GARP_INTERFACE]
     group: str = str(rpc_input[util.RPC_GARP_GROUP])
-    pc = process_control.ProcessControl()
+    pc = ProcessControl()
     if not pc.is_running():
         return
     try:
-        vrrp_conn = vrrp_dbus.VrrpConnection(
+        vrrp_conn = VrrpConnection(
             intf, group, 4, pydbus.SystemBus()
         )
         vrrp_conn.garp()
@@ -42,7 +44,7 @@ def send_garp(rpc_input: Dict[str, str]) -> Dict:
 
 
 def rfc_intf_map(rpc_input: Dict[str, str]) -> Dict[str, str]:
-    pc = process_control.ProcessControl()
+    pc = ProcessControl()
     xmit_intf: str = rpc_input[util.RPC_RFC_INTERFACE]
     return pc.get_rfc_mapping(xmit_intf)
 
@@ -53,13 +55,13 @@ class Config(vci.Config):
     def __init__(self, config_impl) -> None:
         super().__init__()
         self._conf_obj = config_impl
-        if not isinstance(self._conf_obj, AbstractVrrpConfig.ConfigFile):
+        if not isinstance(self._conf_obj, ConfigFile):
             raise TypeError("Implementation of config object does not "
                             "inherit from abstract class, developer needs "
                             "to fix this ")
         logging.basicConfig(level=logging.DEBUG, format="%(message)s")
         self.log = logging.getLogger(util.LOGGING_MODULE_NAME)
-        self.pc = process_control.ProcessControl()
+        self.pc = ProcessControl()
 
     def set(self, conf: Dict[str, Any]) -> None:
         conf = util.sanitize_vrrp_config(conf)
@@ -102,8 +104,9 @@ class Config(vci.Config):
         conf = util.sanitize_vrrp_config(conf)
         hello_address: List[List[str]] = util.get_hello_sources(conf)
         for address in hello_address:
+            configured_locally: bool
             try:
-                util.is_local_address(address[0])
+                configured_locally = util.is_local_address(address[0])
             except TypeError:
                 vci_error = vci.Exception(
                     util.VRRP_NAMESPACE,
@@ -112,7 +115,7 @@ class Config(vci.Config):
                     f"/{address[1].replace(' ', '/')}"
                 )
                 raise vci_error
-            except OSError:
+            if not configured_locally:
                 vci_error = vci.Exception(
                     util.VRRP_NAMESPACE,
                     f"Hello-source-address [{address[0]}] must be configured" +
@@ -120,10 +123,9 @@ class Config(vci.Config):
                     f"/{address[1].replace(' ', '/')}"
                 )
                 raise vci_error
-        rfc_compat: Tuple[bool, List[List[str]]] = \
-            util.is_rfc_compat_configured(conf)
-        if rfc_compat[0] and util.running_on_vmware():
-            self.log.warn("RFC compatibility is not supported on VMWare")
+        rfc_compat: bool = util.is_rfc_compat_configured(conf)
+        if rfc_compat and util.running_on_vmware():
+            self.log.warning("RFC compatibility is not supported on VMWare")
         return
 
 
@@ -132,13 +134,13 @@ class State(vci.State):
     def __init__(self, config_impl) -> None:
         super().__init__()
         self._conf_obj = config_impl
-        if not isinstance(self._conf_obj, AbstractVrrpConfig.ConfigFile):
+        if not isinstance(self._conf_obj, ConfigFile):
             raise TypeError("Implementation of config object does not "
                             "inherit from abstract class, developer needs "
                             "to fix this ")
         logging.basicConfig(level=logging.DEBUG, format="%(message)s")
         self.log = logging.getLogger(util.LOGGING_MODULE_NAME)
-        self.pc = process_control.ProcessControl()
+        self.pc = ProcessControl()
 
     def get(self) -> Dict[str, Any]:
         if not self.pc.is_running():
@@ -153,7 +155,7 @@ class State(vci.State):
                 transmit_intf: str = intf[util.YANG_TAGNODE]
                 self._generate_interfaces_vrrp_connection_list(
                     intf, transmit_intf, sysbus)
-                if "vif" in intf:
+                if util.VIF_YANG_NAME in intf:
                     for vif_intf in intf[util.VIF_YANG_NAME]:
                         vif_transmit_intf: str = \
                             f"{transmit_intf}.{vif_intf[util.YANG_TAGNODE]}"
@@ -171,7 +173,7 @@ class State(vci.State):
                 intf[util.VRRP_YANG_NAME][util.YANG_VRRP_GROUP]
             state_instances = []
             for vrrp_instance in vrrp_instances:
-                vrrp_conn: vrrp_dbus.VrrpConnection
+                vrrp_conn: VrrpConnection
                 vrrp_conn = self._generate_vrrp_connection(
                     vrrp_instance, transmit_intf, sysbus
                 )
@@ -182,16 +184,16 @@ class State(vci.State):
 
     def _generate_vrrp_connection(
         self, vrrp_instance, transmit_intf, sysbus
-    ) -> vrrp_dbus.VrrpConnection:
+    ) -> VrrpConnection:
         vrid: str = vrrp_instance[util.YANG_TAGNODE]
         instance_name: str = f"vyatta-{transmit_intf}-{vrid}"
-        vrrp_conn: vrrp_dbus.VrrpConnection
+        vrrp_conn: VrrpConnection
         if instance_name not in \
                 self._conf_obj.vrrp_connections:
-            af_type: int = util.what_ip_version(
+            af_type: int = util.get_ip_version(
                 vrrp_instance[util.YANG_VIP][0].split("/")[0])
             vrrp_conn = \
-                vrrp_dbus.VrrpConnection(
+                VrrpConnection(
                     transmit_intf, vrid, af_type, sysbus
                 )
         else:

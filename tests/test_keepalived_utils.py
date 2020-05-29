@@ -163,46 +163,27 @@ class TestKeepalivedUtils:
 
     @pytest.mark.sanity
     def test_is_local_address_ipv4(self):
-        expected = None
-        ipaddress = "127.0.0.1"
-        util.is_local_address(ipaddress)
-        result = None
-        assert expected == result
+        assert util.is_local_address("127.0.0.1") is True
 
     @pytest.mark.sanity
     def test_is_local_address_ipv6(self):
-        expected = None
-        ipaddress = "::1"
-        util.is_local_address(ipaddress)
-        result = None
-        assert expected == result
+        assert util.is_local_address("::1") is True
 
     @pytest.mark.sanity
     def test_is_local_address_not_local(self):
-        ipaddress = "10.1.1.1"
-        with pytest.raises(OSError):
-            util.is_local_address(ipaddress)
+        assert util.is_local_address("10.1.1.1") is False
 
     @pytest.mark.sanity
     def test_is_rfc_compat_configured_no(
             self, simple_config):
-        expected = (False, [])
+        expected = False
         result = util.is_rfc_compat_configured(simple_config)
         assert expected == result
 
     @pytest.mark.sanity
     def test_is_rfc_compat_configured_yes(
             self, complex_config):
-        expected = (
-            True,
-            [
-                [
-                    [None],
-                    'interfaces dataplane dp0p1s1 vrrp vrrp-group 1 ' +
-                    'rfc-compatibility [None]'
-                ]
-            ]
-        )
+        expected = True
         result = util.is_rfc_compat_configured(complex_config)
         assert expected == result
 

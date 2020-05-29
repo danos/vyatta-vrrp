@@ -92,20 +92,19 @@ class VrrpConnection:
         rfc_intf: str = group_state[util.DBUS_XMIT_INTF_NAME][0]
         if rfc_intf.replace(".", "_") == self.intf:
             rfc_intf = ""
-        processed_state: Dict[str, Union[str, Dict[str, str]]] = \
+        processed_state: Dict[str, Union[str, Dict[str, str]]] = {
+            util.YANG_INSTANCE_STATE:
             {
-                util.YANG_INSTANCE_STATE:
-                {
-                    util.YANG_IPAO: group_state[util.DBUS_IPAO_NAME][0],
-                    util.YANG_LAST_TRANSITION:
-                        group_state[util.DBUS_LAST_TRANSITION_NAME][0],
-                    util.YANG_RFC_INTF: rfc_intf,
-                    util.YANG_STATE:
-                        group_state[util.YANG_STATE.capitalize()][1].upper(),
-                    util.YANG_SYNC_GROUP:
-                        group_state[util.DBUS_SYNC_GROUP_NAME][0]
-                },
-                util.YANG_TAGNODE: f"{self.vrid}"
+                util.YANG_IPAO: group_state[util.DBUS_IPAO_NAME][0],
+                util.YANG_LAST_TRANSITION:
+                    group_state[util.DBUS_LAST_TRANSITION_NAME][0],
+                util.YANG_RFC_INTF: rfc_intf,
+                util.YANG_STATE:
+                    group_state[util.YANG_STATE.capitalize()][1].upper(),
+                util.YANG_SYNC_GROUP:
+                    group_state[util.DBUS_SYNC_GROUP_NAME][0]
+            },
+            util.YANG_TAGNODE: f"{self.vrid}"
         }
         return processed_state
 
@@ -183,8 +182,8 @@ class VrrpConnection:
 
         self.log.info(f"Resetting state of {self.instance_name} to BACKUP", )
         if self.vrrp_group_proxy is None:
-            self.log.warn(
-                f"Failed to reset state of {self.instance_name}, " +
+            self.log.warning(
+                f"Failed to reset state of {self.instance_name}, "
                 f"DBus connection not initialised?")
             return
         group_state: Dict = self.vrrp_property_interface.GetAll(

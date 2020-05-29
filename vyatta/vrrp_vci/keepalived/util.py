@@ -14,13 +14,14 @@ import ipaddress
 import re
 import socket
 from enum import Enum
-from typing import Any, Dict, Generator, List, Match, Optional, Tuple, Union
+from typing import Any, Dict, Generator, List, Match, Optional, Tuple
 
 # YANG strings for interfaces types, and short names
 INTERFACE_YANG_NAME: str = "vyatta-interfaces-v1:interfaces"
 DATAPLANE_SHORT_NAME: str = "dataplane"
-DATAPLANE_YANG_NAME: str = f"vyatta-interfaces-dataplane-v1:" +\
-    f"{DATAPLANE_SHORT_NAME}"
+DATAPLANE_YANG_NAME: str = (
+    f"vyatta-interfaces-dataplane-v1:"
+    f"{DATAPLANE_SHORT_NAME}")
 BONDING_SHORT_NAME: str = "bonding"
 BONDING_YANG_NAME: str = f"vyatta-bonding-v1:{BONDING_SHORT_NAME}"
 SWITCH_SHORT_NAME: str = "switch"
@@ -296,6 +297,10 @@ def get_specific_vrrp_config_from_yang(
     intf_type: str
     for intf_type in conf[INTERFACE_YANG_NAME]:
         intf: Dict
+        # Most interface types contain a namespace and then the interface name,
+        # but not all. Vif interfaces have no namespace attached to them so we
+        # need to use find() here instead of index() for the vif interface
+        # type.
         sanitized_intf_type: str = intf_type[intf_type.find(':') + 1:]
         if sanitized_intf_type == VIF_YANG_NAME:
             sanitized_intf_type = intf_name_to_type(
@@ -310,23 +315,18 @@ def get_specific_vrrp_config_from_yang(
                 if value in group:
                     intf_name: str = intf[YANG_TAGNODE]
                     if "." in intf_name:
-                        vif_separator: int = intf_name.index(".")
-                        intf_name = f"{intf_name[:vif_separator]} vif " +\
-                                    f"{intf_name[vif_separator + 1:]}"
-                    yang_path: str = \
-                        yang_root + f"{intf_name} {VRRP} " +\
-                        f"{YANG_VRRP_GROUP} {group[YANG_TAGNODE]} " +\
+                        vif_tokens: List[str] = intf_name.split(".")
+                        intf_name = f"{vif_tokens[0]} vif {vif_tokens[1]}"
+                    yang_path: str = (
+                        yang_root + f"{intf_name} {VRRP} "
+                        f"{YANG_VRRP_GROUP} {group[YANG_TAGNODE]} "
                         f"{value} {group[value]}"
+                    )
                     yield [group[value], yang_path]
 
 
-def is_rfc_compat_configured(conf: Dict) -> Tuple[bool, List[List[str]]]:
-    conf_exists = list(
-        get_specific_vrrp_config_from_yang(
-            conf, YANG_RFC))
-    if conf_exists != []:
-        return (True, conf_exists)
-    return (False, [])
+def is_rfc_compat_configured(conf: Dict) -> bool:
+    return next(get_specific_vrrp_config_from_yang(conf, YANG_RFC), []) != []
 
 
 def get_hello_sources(conf: Dict) -> List[List[str]]:
@@ -340,10 +340,8 @@ def get_hello_sources(conf: Dict) -> List[List[str]]:
         conf, YANG_HELLO_SOURCE_ADDR))
 
 
-def what_ip_version(address_string: str) -> int:
-    ipaddr: Union[ipaddress.IPv4Address, ipaddress.IPv6Address] = \
-        ipaddress.ip_address(address_string)
-    return ipaddr.version
+def get_ip_version(address_string: str) -> int:
+    return ipaddress.ip_address(address_string).version
 
 
 def vrrp_ipv6_sort(ips: List[str]) -> List[str]:
@@ -354,7 +352,7 @@ def vrrp_ipv6_sort(ips: List[str]) -> List[str]:
     return link_locals + global_addr
 
 
-def is_local_address(address_string: str) -> None:
+def is_local_address(address_string: str) -> bool:
     """
     Runtime check to determine if the address passed to the function
     exists on the box.
@@ -371,7 +369,7 @@ def is_local_address(address_string: str) -> None:
     infrastructure will interpret as a validation error
     """
 
-    ipaddr_version: int = what_ip_version(address_string)
+    ipaddr_version: int = get_ip_version(address_string)
     ipaddr_type: socket.AddressFamily
     if ipaddr_version == 4:
         ipaddr_type = socket.AF_INET
@@ -379,8 +377,12 @@ def is_local_address(address_string: str) -> None:
         ipaddr_type = socket.AF_INET6
     else:
         raise TypeError(f"{address_string} is not an IPv4 or IPv6 address")
-    with socket.socket(ipaddr_type, socket.SOCK_STREAM) as s:
-        s.bind((address_string, 0))
+    try:
+        with socket.socket(ipaddr_type, socket.SOCK_STREAM) as s:
+            s.bind((address_string, 0))
+    except OSError:
+        return False
+    return True
 
 
 def sanitize_vrrp_config(conf: Dict) -> Dict:

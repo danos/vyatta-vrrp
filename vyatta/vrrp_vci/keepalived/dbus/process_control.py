@@ -94,10 +94,13 @@ class ProcessControl:
         snmp_socket: str = self.get_agent_x_socket()
         if snmp_socket != "":
             snmp_socket = f"--snmp-agent-socket {snmp_socket}"
-        default_string: str = f"""# Options to pass to keepalived
-# DAEMON_ARGS are appended to the keepalived command-line
-DAEMON_ARGS="--snmp --log-facility=7 --log-detail --dump-conf -x --use-file /etc/keepalived/keepalived.conf --release-vips {snmp_socket}"
-"""  # noqa: E501
+        default_string: str = (
+            f"# Options to pass to keepalived\n"
+            f"# DAEMON_ARGS are appended to the keepalived command-line"
+            f"DAEMON_ARGS=\"--snmp --log-facility=7 --log-detail --dump-conf "
+            f"-x --use-file /etc/keepalived/keepalived.conf --release-vips "
+            f"{snmp_socket}\"\n"
+        )
         with open(self.systemd_default_file_path, "w") as f_obj:
             f_obj.write(default_string)
 

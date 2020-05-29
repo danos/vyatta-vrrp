@@ -20,7 +20,7 @@ class VrrpGroup:
     """
 
     def __init__(
-            self, name: str, delay: str, group_config: Dict,
+            self, name: str, delay: int, group_config: Dict,
             rfc_num: int = -1
     ) -> None:
         """
@@ -29,7 +29,7 @@ class VrrpGroup:
         Arguments:
             name (str):
                 Name of the interface the VRRP group is configured on.
-            delay (str):
+            delay (int):
                 Start delay configured for the interface.
             group_config (Dict):
                 YANG Dictionary for the group's config.
@@ -44,8 +44,8 @@ class VrrpGroup:
         self._group_config: Dict = group_config
         self._group_config[util.YANG_PRIORITY] = \
             self._group_config.get(util.YANG_PRIORITY, 100)
-        if util.YANG_V2_ADVERT_INT not in self._group_config \
-                and util.YANG_V3_ADVERT_INT not in self._group_config:
+        if (util.YANG_V2_ADVERT_INT not in self._group_config and
+                util.YANG_V3_ADVERT_INT not in self._group_config):
             self._group_config[util.CONFIG_ADVERT] = 1
         elif util.YANG_V2_ADVERT_INT in self._group_config:
             self._group_config[util.CONFIG_ADVERT] = \
@@ -69,7 +69,7 @@ class VrrpGroup:
         self._group_config[util.YANG_ACCEPT] = group_config[util.YANG_ACCEPT]
 
         first_addr = group_config[util.YANG_VIP][0].split("/")[0]
-        ip_version = util.what_ip_version(first_addr)
+        ip_version = util.get_ip_version(first_addr)
         if ip_version == 4:
             self._group_config[util.CONFIG_VIP] = """
         """.join(sorted(group_config[util.YANG_VIP]))
@@ -93,64 +93,63 @@ vrrp_instance {instance} {{
     }}"""
 
         if ip_version == 6:
-            self._template += """
-    native_ipv6"""
+            self._template += "\n    native_ipv6"
 
         # Optional config
         if self._group_config[util.YANG_ACCEPT]:
-            self._template += """
-    accept"""
+            self._template += "\n    accept"
 
         if not self._group_config[util.YANG_PREEMPT]:
-            self._template += """
-    nopreempt"""
+            self._template += "\n    nopreempt"
 
         if util.YANG_RFC in self._group_config:
             self._group_config[util.CONFIG_VMAC] = f"{name[:3]}vrrp{rfc_num}"
             if len(self._group_config[util.CONFIG_VMAC]) > 15:
-                self.log.warn(
+                self.log.warning(
                     "generated interface name is longer than 15 characters"
                 )
             else:
-                self._template += """
-    use_vmac {vmac}
-    vmac_xmit_base"""
+                self._template += (
+                    "\n    use_vmac {vmac}"
+                    "\n    vmac_xmit_base"
+                )
 
         if util.YANG_PREEMPT_DELAY in self._group_config:
             self._group_config[util.CONFIG_PREEMPT_DELAY] = \
                 self._group_config[util.YANG_PREEMPT_DELAY]
             del self._group_config[util.YANG_PREEMPT_DELAY]
-            self._template += """
-    preempt_delay {preempt_delay}"""
+            self._template += "\n    preempt_delay {preempt_delay}"
             if util.YANG_PREEMPT in self._group_config and \
                     self._group_config[util.YANG_PREEMPT] is False:
-                self.log.warn("preempt delay is ignored when preempt=false")
+                self.log.warning("preempt delay is ignored when preempt=false")
 
         if util.YANG_HELLO_SOURCE_ADDR in self._group_config:
             self._group_config[util.CONFIG_HELLO_SOURCE_ADDR] = \
                 self._group_config[util.YANG_HELLO_SOURCE_ADDR]
             del self._group_config[util.YANG_HELLO_SOURCE_ADDR]
-            self._template += """
-    mcast_src_ip {mcast_src_ip}"""
+            self._template += "\n    mcast_src_ip {mcast_src_ip}"
 
         if util.YANG_AUTH in self._group_config:
             self._group_config[util.CONFIG_AUTH_PASSWORD] = \
                 self._group_config[util.YANG_AUTH][util.YANG_AUTH_PASSWORD]
-            if self._group_config[util.YANG_AUTH][util.YANG_TYPE] == \
-                    util.YANG_AUTH_PLAINTXT_PASSWORD:
+            if (self._group_config[util.YANG_AUTH][util.YANG_TYPE] ==
+                    util.YANG_AUTH_PLAINTXT_PASSWORD):
                 auth_type = util.YANG_AUTH_TYPE_PLAIN
             else:
                 auth_type = util.YANG_AUTH_TYPE_AH
             self._group_config[util.CONFIG_AUTH_TYPE] = auth_type
-            self._template += """
-    authentication {{
-        auth_type {auth_type}
-        auth_pass {auth_pass}
-    }}"""
+            self._template += (
+                "\n    authentication {{"
+                "\n        auth_type {auth_type}"
+                "\n        auth_pass {auth_pass}"
+                "\n    }}"
+            )
 
-        if util.YANG_TRACK_INTERFACE in self._group_config:
-            if util.YANG_TRACK in self._group_config:
-                track_dict: Dict = self._group_config[util.YANG_TRACK]
+        track_intf_dict: Dict = self._group_config.get(
+            util.YANG_TRACK_INTERFACE)
+        if track_intf_dict is not None:
+            track_dict: Dict = self._group_config.get(util.YANG_TRACK, {})
+            if track_dict != {}:
                 if util.YANG_INTERFACE_CONST in track_dict:
                     track_dict[util.YANG_INTERFACE_CONST].append(
                         *self._group_config[util.YANG_TRACK_INTERFACE]
@@ -161,7 +160,7 @@ vrrp_instance {instance} {{
             else:
                 self._group_config[util.YANG_TRACK] = {
                     util.YANG_INTERFACE_CONST:
-                    self._group_config[util.YANG_TRACK_INTERFACE]
+                    track_intf_dict
                 }
             del self._group_config[util.YANG_TRACK_INTERFACE]
 
@@ -169,42 +168,43 @@ vrrp_instance {instance} {{
             self._generate_track_string(self._group_config[util.YANG_TRACK])
 
         if util.YANG_NOTIFY in self._group_config:
-            self._template += """
-    notify {{"""
+            self._template += "\n    notify {{"
             if util.YANG_IPSEC in self._group_config[util.YANG_NOTIFY]:
-                self._template += """
-        /opt/vyatta/sbin/vyatta-ipsec-notify.sh"""
+                self._template += \
+                    "\n        /opt/vyatta/sbin/vyatta-ipsec-notify.sh"""
             if util.YANG_BGP in self._group_config[util.YANG_NOTIFY]:
-                self._template += """
-        /opt/vyatta/sbin/notify-bgp"""
-            self._template += """
-    }}"""
+                self._template += "\n        /opt/vyatta/sbin/notify-bgp"
+            self._template += "\n    }}"
 
         # TODO: This may need changed to add transition scripts
         # for all the transition scripts not explicitly defined.
         # That is the behaviour of the legacy scripts but I think
         # anything that needs to react to a state change should listen
         # for dbus/yang notifications and react to them.
+        # JIRA VRVDR-51429
         if util.YANG_RUN_SCRIPT in self._group_config:
             transition_scripts = self._group_config[util.YANG_RUN_SCRIPT]
             if util.STATE_MASTER.lower() in transition_scripts:
-                self._template += \
-                    f"\n    notify_master \"" +\
-                    f"{transition_scripts[util.STATE_MASTER.lower()]} " +\
-                    f"{util.STATE_MASTER.lower()} {name} " +\
+                self._template += (
+                    f"\n    notify_master \""
+                    f"{transition_scripts[util.STATE_MASTER.lower()]} "
+                    f"{util.STATE_MASTER.lower()} {name} "
                     f"{self._group_config[util.CONFIG_VRID]}\""
+                )
             if util.STATE_BACKUP.lower() in transition_scripts:
-                self._template += \
-                    f"\n    notify_backup \"" +\
-                    f"{transition_scripts[util.STATE_BACKUP.lower()]} " +\
-                    f"{util.STATE_BACKUP.lower()} {name} " +\
+                self._template += (
+                    f"\n    notify_backup \""
+                    f"{transition_scripts[util.STATE_BACKUP.lower()]} "
+                    f"{util.STATE_BACKUP.lower()} {name} "
                     f"{self._group_config[util.CONFIG_VRID]}\""
+                )
             if util.STATE_FAULT.lower() in transition_scripts:
-                self._template += \
-                    f"\n    notify_fault \"" +\
-                    f"{transition_scripts[util.STATE_FAULT.lower()]} " +\
-                    f"{util.STATE_FAULT.lower()} {name} " +\
+                self._template += (
+                    f"\n    notify_fault \""
+                    f"{transition_scripts[util.STATE_FAULT.lower()]} "
+                    f"{util.STATE_FAULT.lower()} {name} "
                     f"{self._group_config[util.CONFIG_VRID]}\""
+                )
 
         self._instance = f"vyatta-{name}-{group_config[util.YANG_TAGNODE]}"
         self._group_config[util.YANG_INSTANCE] = self._instance
@@ -217,8 +217,7 @@ vrrp_instance {instance} {{
         return self._instance
 
     def _generate_track_string(self, track_dict) -> None:
-        self._template += """
-    track {{"""
+        self._template += "\n    track {{"
         if util.YANG_INTERFACE_CONST in track_dict:
             self._generate_track_interfaces(
                 track_dict[util.YANG_INTERFACE_CONST])
@@ -234,22 +233,18 @@ vrrp_instance {instance} {{
         if util.ROUTE_BONDING_YANG_NAME in track_dict:
             self._generate_track_route_to(
                 track_dict[util.ROUTE_BONDING_YANG_NAME])
-        self._template += """
-    }}"""
+        self._template += "\n    }}"
 
     def _generate_track_interfaces(self, intf_dict) -> None:
-        self._template += """
-        interface {{"""
+        self._template += "\n        interface {{"
         for interface in intf_dict:
             if util.YANG_NAME in interface:
-                track_string = f"""
-            {interface[util.YANG_NAME]}"""
+                track_string = f"\n            {interface[util.YANG_NAME]}"
             if util.YANG_TAGNODE in interface:
-                track_string = f"""
-            {interface[util.YANG_TAGNODE]}"""
+                track_string = f"\n            {interface[util.YANG_TAGNODE]}"
             if util.YANG_TRACK_WEIGHT in interface:
-                if interface[util.YANG_TRACK_WEIGHT][util.YANG_TYPE] == \
-                        util.YANG_TRACK_DEC:
+                if (interface[util.YANG_TRACK_WEIGHT][util.YANG_TYPE] ==
+                        util.YANG_TRACK_DEC):
                     multiplier = -1
                 else:
                     multiplier = 1
@@ -257,43 +252,39 @@ vrrp_instance {instance} {{
                     interface[util.YANG_TRACK_WEIGHT][util.YANG_TRACK_VALUE]
                 track_string += f"   {util.YANG_TRACK_WEIGHT}  {value:+d}"
             self._template += track_string
-        self._template += """
-        }}"""  # Close interface brace
+        self._template += "\n        }}"  # Close interface brace
 
     def _generate_track_pathmon(self, pathmon_dict) -> None:
-        self._template += """
-        pathmon {{"""
+        self._template += "\n        pathmon {{"
         for monitor in pathmon_dict[util.YANG_TRACK_MONITOR]:
             monitor_name = monitor[util.YANG_NAME]
             for policy in monitor[util.YANG_TRACK_POLICY]:
-                track_string = f"""
-            {util.YANG_TRACK_MONITOR} {monitor_name}    """ +\
+                track_string = (
+                    f"\n            {util.YANG_TRACK_MONITOR} "
+                    f"{monitor_name}    "
                     f"{util.YANG_TRACK_POLICY} {policy[util.YANG_NAME]}"
+                )
                 if util.YANG_TRACK_WEIGHT in policy:
-                    if policy[util.YANG_TRACK_WEIGHT][util.YANG_TYPE] == \
-                            util.YANG_TRACK_DEC:
+                    if (policy[util.YANG_TRACK_WEIGHT][util.YANG_TYPE] ==
+                            util.YANG_TRACK_DEC):
                         multiplier = -1
                     else:
                         multiplier = 1
-                    value = \
-                        multiplier * \
+                    value = multiplier * \
                         policy[util.YANG_TRACK_WEIGHT][util.YANG_TRACK_VALUE]
                     track_string += \
                         f"      {util.YANG_TRACK_WEIGHT}  {value:+d}"
                 self._template += track_string
-        self._template += """
-        }}"""  # Close pathmon brace
+        self._template += "\n        }}"  # Close pathmon brace
 
     def _generate_track_route_to(self, route_dict) -> None:
-        self._template += """
-        route_to {{"""
+        self._template += "\n        route_to {{"
         for route in route_dict:
             if util.YANG_TRACK_ROUTE in route:
-                track_string = f"""
-            {route[util.YANG_TRACK_ROUTE]}"""
+                track_string = f"\n            {route[util.YANG_TRACK_ROUTE]}"
             if util.YANG_TRACK_WEIGHT in route:
-                if route[util.YANG_TRACK_WEIGHT][util.YANG_TYPE] == \
-                        util.YANG_TRACK_DEC:
+                if (route[util.YANG_TRACK_WEIGHT][util.YANG_TYPE] ==
+                        util.YANG_TRACK_DEC):
                     multiplier = -1
                 else:
                     multiplier = 1
@@ -301,8 +292,7 @@ vrrp_instance {instance} {{
                     route[util.YANG_TRACK_WEIGHT][util.YANG_TRACK_VALUE]
                 track_string += f"   {util.YANG_TRACK_WEIGHT}  {value:+d}"
             self._template += track_string
-        self._template += """
-        }}"""  # Close route brace
+        self._template += "\n        }}"  # Close route brace
 
     def __repr__(self) -> str:
         return self._template.format(

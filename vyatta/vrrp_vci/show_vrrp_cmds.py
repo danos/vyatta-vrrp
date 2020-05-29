@@ -6,31 +6,36 @@
 
 import calendar
 import time
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, TYPE_CHECKING, Tuple, Union
 
 import vyatta.vrrp_vci.keepalived.util as util
 
+if TYPE_CHECKING:
+    from enum import Enum
+
 """ Show VRRP summary helpers. """
-SHOW_SUMMARY_HEADER_LINE_1: List[str] = \
-    ["", "", "", "RFC", "Addr", "Last", "Sync"]
-SHOW_SUMMARY_HEADER_LINE_2: List[str] = \
+SHOW_SUMMARY_HEADER_LINE_1: List[str] = (
+    ["", "", "", "RFC", "Addr", "Last", "Sync"])
+SHOW_SUMMARY_HEADER_LINE_2: List[str] = (
     ["Interface", "Group", "State", "Compliant", "Owner",
-     "Transition", "Group"]
-SHOW_SUMMARY_HEADER_LINE_3: List[str] = \
+     "Transition", "Group"])
+SHOW_SUMMARY_HEADER_LINE_3: List[str] = (
     ["---------", "-----", "-----", "---------", "-----",
      "----------", "-----"]
+)
 
 
 def show_summary_line_format(values: List[str]) -> str:
-    return f"{values[0]:<18s}{values[1]:<7s}{values[2]:<8s}" +\
-        f"{values[3]:<11s}{values[4]:<7s}{values[5]:<12s}{values[6]}\n"
+    return (f"{values[0]:<18s}{values[1]:<7s}{values[2]:<8s}"
+            f"{values[3]:<11s}{values[4]:<7s}{values[5]:<12s}"
+            f"{values[6]}\n")
 
 
 """ Show VRRP detail helpers. """
 
 
-SHOW_DETAIL_DIVIDER: str = \
-    "--------------------------------------------------\n"
+SHOW_DETAIL_DIVIDER: str = (
+    "--------------------------------------------------\n")
 SHOW_DETAIL_INTF_DIVIDER: str = "--------------\n"
 
 
@@ -197,8 +202,7 @@ def show_vrrp_summary(state_dict: Dict) -> str:
                 output += \
                     show_summary_line_format(
                         [intf_name, group, state_name, rfc, ipao,
-                         util.elapsed_time(diff), sync]
-                    )
+                         util.elapsed_time(diff), sync])
     return output + "\n"
 
 
@@ -431,9 +435,10 @@ def show_vrrp_detail(
                                        key=lambda k: k[util.YANG_NAME]):
                             intf_weight: str = ""
                             if util.YANG_TRACK_WEIGHT in track_intf:
-                                intf_weight = \
-                                    f"{util.YANG_TRACK_WEIGHT} " +\
+                                intf_weight = (
+                                    f"{util.YANG_TRACK_WEIGHT} "
                                     f"{track_intf[util.YANG_TRACK_WEIGHT]}"
+                                )
                                 output += show_detail_tracked_format(
                                     [track_intf[util.YANG_NAME],
                                      track_intf[util.YANG_STATE],
@@ -457,9 +462,10 @@ def show_vrrp_detail(
                                 tracked_count += 1
                                 policy_weight: str = ""
                                 if util.YANG_TRACK_WEIGHT in pol:
-                                    policy_weight = \
-                                        f"{util.YANG_TRACK_WEIGHT} " +\
+                                    policy_weight = (
+                                        f"{util.YANG_TRACK_WEIGHT} "
                                         f"{pol[util.YANG_TRACK_WEIGHT]}"
+                                    )
                                     track_output += \
                                         show_detail_tracked_pmon_format(
                                             [pol[util.YANG_NAME],
@@ -488,9 +494,9 @@ def show_vrrp_detail(
                                             key=lambda k: k[util.YANG_NAME]):
                             route_weight: str = ""
                             if util.YANG_TRACK_WEIGHT in route:
-                                route_weight = \
-                                    f"{util.YANG_TRACK_WEIGHT} " +\
-                                    f"{route[util.YANG_TRACK_WEIGHT]}"
+                                route_weight = (
+                                    f"{util.YANG_TRACK_WEIGHT} "
+                                    f"{route[util.YANG_TRACK_WEIGHT]}")
                                 output += \
                                     show_detail_tracked_format(
                                         [route[util.YANG_NAME],
@@ -537,9 +543,9 @@ def show_vrrp_interface(
     output = show_vrrp_detail(state_dict, filter_intf, filter_grp)
     if output == f"\n{SHOW_DETAIL_DIVIDER}":
         output = f"VRRP is not running on {filter_intf}"
-    elif output == f"\n{SHOW_DETAIL_DIVIDER}" + \
-                   f"{show_detail_intf_name(filter_intf)}" + \
-                   f"{SHOW_DETAIL_INTF_DIVIDER}":
+    elif output == (f"\n{SHOW_DETAIL_DIVIDER}"
+                    f"{show_detail_intf_name(filter_intf)}"
+                    f"{SHOW_DETAIL_INTF_DIVIDER}"):
         output = f"No VRRP group {filter_grp} exists on {filter_intf}"
     return output
 
@@ -813,9 +819,9 @@ def show_vrrp_statistics_filters(
     output = show_vrrp_statistics(stats_dict, filter_intf, filter_grp)
     if output == f"\n{SHOW_DETAIL_DIVIDER}":
         output = f"VRRP is not running on {filter_intf}"
-    elif output == f"\n{SHOW_DETAIL_DIVIDER}" + \
-                   f"{show_detail_intf_name(filter_intf)}" + \
-                   f"{SHOW_DETAIL_INTF_DIVIDER}":
+    elif output == (f"\n{SHOW_DETAIL_DIVIDER}"
+                    f"{show_detail_intf_name(filter_intf)}"
+                    f"{SHOW_DETAIL_INTF_DIVIDER}"):
         output = f"No VRRP group {filter_grp} exists on {filter_intf}"
     return output
 
@@ -952,17 +958,18 @@ def _convert_track_block_to_yang(config_block: List[str]) -> Dict[str, str]:
     tracked_obj: Dict[str, str] = {}
     for line in config_block:
         config_value = line.split()[-1]
-        if util.YANG_NAME.capitalize() in line or \
-                util.YANG_TRACK_POLICY.capitalize() in line \
-                or util.DATA_TRACK_ROUTE_NETWORK in line:
+        if (util.YANG_NAME.capitalize() in line or
+                util.YANG_TRACK_POLICY.capitalize() in line or
+                util.DATA_TRACK_ROUTE_NETWORK in line):
             tracked_obj[util.YANG_NAME] = config_value
-        elif util.DATA_TRACK_IS_UP in line or util.DATA_TRACK_IS_DOWN in line \
-                or util.DATA_TRACK_STATUS in line:
+        elif (util.DATA_TRACK_IS_UP in line or
+                util.DATA_TRACK_IS_DOWN in line or
+                util.DATA_TRACK_STATUS in line):
             tracked_obj[util.YANG_STATE] = config_value
         elif util.YANG_TRACK_WEIGHT in line or util.DATA_TRACK_WEIGHT in line:
             tracked_obj[util.YANG_TRACK_WEIGHT] = config_value
-        elif util.DATA_TRACK_ROUTE_PREFIX in line and \
-                util.YANG_NAME in tracked_obj:
+        elif (util.DATA_TRACK_ROUTE_PREFIX in line and
+                util.YANG_NAME in tracked_obj):
             tracked_obj[util.YANG_NAME] = \
                 tracked_obj[util.YANG_NAME] + f"/{config_value}"
         if util.YANG_STATE not in tracked_obj:
@@ -1160,7 +1167,7 @@ def _convert_keepalived_data_to_yang(
         if key == util.YANG_SYNC_GROUP:
             continue
         # Search for each term in the config
-        config_exists: Tuple[bool, Union[List[None], str]] = \
+        config_exists: Enum = \
             util.find_config_value(config_block, instance_dict[key])
         if config_exists is util.ValueTypes.MISSING:
             if key == util.YANG_AUTH_TYPE:
@@ -1176,19 +1183,19 @@ def _convert_keepalived_data_to_yang(
                     value = f"{value} sec"
                 else:
                     value = f"{value} milli-sec"
-            elif key == util.YANG_START_DELAY or key == \
-                    util.YANG_PREEMPT_DELAY:
+            elif (key == util.YANG_START_DELAY or key ==
+                    util.YANG_PREEMPT_DELAY):
                 value = f"{value} secs"
             elif key == util.YANG_RFC_INTF and value == intf:
                 value = ""
             if value.isdigit():
                 # Term exists in config and has a numerical value
                 instance_dict[key] = int(value)
-            elif value == util.SHOW_IPAO_NO or value == \
-                    util.SHOW_PREEMPT_DISABLED:
+            elif (value == util.SHOW_IPAO_NO or value ==
+                    util.SHOW_PREEMPT_DISABLED):
                 instance_dict[key] = False
-            elif value == util.SHOW_IPAO_YES or value == \
-                    util.SHOW_PREEMPT_ENABLED:
+            elif (value == util.SHOW_IPAO_YES or value ==
+                    util.SHOW_PREEMPT_ENABLED):
                 instance_dict[key] = True
             else:
                 instance_dict[key] = value
@@ -1196,13 +1203,13 @@ def _convert_keepalived_data_to_yang(
     tracked_dict: Dict = {}
 
     # Multi line config code
-    track_intf_tuple: Tuple[bool, Union[List[None], str]] = \
+    track_intf_tuple: Enum = \
         util.find_config_value(config_block,
                                util.DATA_TRACK_INTF_COUNT)
-    tracked_pmon_tuple: Tuple[bool, Union[List[None], str]] = \
+    tracked_pmon_tuple: Enum = \
         util.find_config_value(config_block,
                                util.DATA_TRACK_PMON_COUNT)
-    track_route_tuple: Tuple[bool, Union[List[None], str]] = \
+    track_route_tuple: Enum = \
         util.find_config_value(config_block,
                                util.DATA_TRACK_ROUTES_COUNT)
 
@@ -1210,51 +1217,51 @@ def _convert_keepalived_data_to_yang(
     tracked_config_end: int
     config_start_offset: int = 1
 
-    if not isinstance(track_intf_tuple.value, list) and \
-            track_intf_tuple is not util.ValueTypes.MISSING:
+    if (not isinstance(track_intf_tuple.value, list) and
+            track_intf_tuple is not util.ValueTypes.MISSING):
         tracked_indexes = util.get_config_indexes(
             config_block,
             util.DATA_TRACK_INTF_DELIMINATOR)
         tracked_config_end = _get_end_of_tracking_config(
             config_block, tracked_indexes[-1], True)
-        tracked_dict[util.YANG_INTERFACE_CONST] = \
+        tracked_dict[util.YANG_INTERFACE_CONST] = (
             _convert_tracked_type_to_yang(config_block,
                                           tracked_indexes, tracked_config_end,
-                                          config_start_offset)
+                                          config_start_offset))
 
-    if not isinstance(tracked_pmon_tuple.value, list) and \
-            tracked_pmon_tuple is not util.ValueTypes.MISSING:
+    if (not isinstance(tracked_pmon_tuple.value, list) and
+            tracked_pmon_tuple is not util.ValueTypes.MISSING):
         tracked_indexes = util.get_config_indexes(
             config_block, util.YANG_TRACK_MONITOR.capitalize()
         )
         tracked_config_end = _get_end_of_tracking_config(
             config_block, tracked_indexes[-1], False)
-        tracked_monitor_list = \
+        tracked_monitor_list = (
             _prepopulate_pmon_tracking_list(config_block,
-                                            tracked_indexes)
-        tracked_dict[util.YANG_TRACK_MONITOR] = \
+                                            tracked_indexes))
+        tracked_dict[util.YANG_TRACK_MONITOR] = (
             _convert_tracked_type_to_yang(config_block,
                                           tracked_indexes, tracked_config_end,
                                           config_start_offset,
-                                          tracked_monitor_list)
+                                          tracked_monitor_list))
 
-    if not isinstance(track_route_tuple.value, list) and \
-            track_route_tuple is not util.ValueTypes.MISSING:
+    if (not isinstance(track_route_tuple.value, list) and
+            track_route_tuple is not util.ValueTypes.MISSING):
         tracked_indexes = util.get_config_indexes(
             config_block,
             util.DATA_TRACK_ROUTE_NETWORK)
         tracked_config_end = _get_end_of_tracking_config(
             config_block, tracked_indexes[-1], False)
         config_start_offset = 0
-        tracked_dict[util.YANG_TRACK_ROUTE] = \
+        tracked_dict[util.YANG_TRACK_ROUTE] = (
             _convert_tracked_type_to_yang(config_block,
                                           tracked_indexes, tracked_config_end,
-                                          config_start_offset)
+                                          config_start_offset))
 
     if tracked_dict != {}:
         instance_dict[util.YANG_TRACK] = tracked_dict
 
-    vip_tuple: Tuple[bool, Union[List[None], str]] = \
+    vip_tuple: Enum = \
         util.find_config_value(
             config_block, f"{util.DATA_VIP_COUNT} =")
     num_vips: int
@@ -1509,15 +1516,16 @@ def convert_data_file_to_dict(data_string: str) -> Dict:
             vif_sep: List[str] = intf_name.split(".")
             intf_name = vif_sep[0]
             vif_number = vif_sep[1]
-        interface_list: Dict[Any, Any] = \
+        interface_types: Dict[Any, Any] = \
             yang_representation[util.INTERFACE_YANG_NAME]
+        interface_list: List[Dict]
         # Find the interface type for the interface name, right now this
         # is just a guess, there might be a better method of doing this
         # than regexes
         intf_type: str = util.intf_name_to_type(intf_name)[0]
-        if intf_type not in interface_list:
-            interface_list[intf_type] = []
-        interface_list = interface_list[intf_type]
+        if intf_type not in interface_types:
+            interface_types[intf_type] = []
+        interface_list = interface_types[intf_type]
 
         # Hackery to find the reference to the interface this VRRP
         # group should be added to.
@@ -1739,15 +1747,16 @@ VRRP Instance: vyatta-dp0p1s1-1
             vif_sep: List[str] = intf_name.split(".")
             intf_name = vif_sep[0]
             vif_number = vif_sep[1]
-        interface_list: Dict[Any, Any] = \
+        interface_types: Dict[Any, Any] = \
             yang_representation[util.INTERFACE_YANG_NAME]
+        interface_list: List[Dict]
         # Find the interface type for the interface name, right now this
         # is just a guess, there might be a better method of doing this
         # than regexes
         intf_type: str = util.intf_name_to_type(intf_name)[0]
-        if intf_type not in interface_list:
-            interface_list[intf_type] = []
-        interface_list = interface_list[intf_type]
+        if intf_type not in interface_types:
+            interface_types[intf_type] = []
+        interface_list = interface_types[intf_type]
 
         # Hackery to find the reference to the interface this VRRP
         # group should be added to.

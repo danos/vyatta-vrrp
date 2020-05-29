@@ -8,6 +8,8 @@ import sys
 import copy
 import pytest
 
+from vyatta.vrrp_vci.keepalived.vrrp import VrrpGroup
+
 # pylint: disable=missing-docstring
 # pylint: disable=too-few-public-methods
 # pylint: disable=redefined-outer-name
@@ -298,14 +300,12 @@ def non_default_keepalived_config():
 
 @pytest.fixture
 def simple_vrrp_group_object(generic_group):
-    from vyatta.vrrp_vci.keepalived.vrrp import VrrpGroup
     new_group = copy.deepcopy(generic_group)
     return VrrpGroup("dp0p1s1", "0", new_group)
 
 
 @pytest.fixture
 def fuller_vrrp_group_object(max_config_group):
-    from vyatta.vrrp_vci.keepalived.vrrp import VrrpGroup
     new_group = copy.deepcopy(max_config_group)
     return VrrpGroup("dp0p1s1", "0", new_group, 1)
 
