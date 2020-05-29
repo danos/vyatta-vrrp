@@ -1,3 +1,12 @@
+vyatta-vrrp (2.26) unstable; urgency=medium
+
+  [ Daniel Gollub ]
+  * ipsec-notify: xl2tpd is gone
+  * ipsec-notify: Do not stop ipsec if IPsec stroke usage is not present
+  * ipsec-notify: adjust for IPsec for VCI usage
+
+ -- Anthony Dempsey <anthony.dempsey@intl.att.com>  Fri, 29 May 2020 11:36:29 +0100
+
 vyatta-vrrp (2.25) unstable; urgency=medium
 
   * Bugfix/Always start groups in BACKUP state
