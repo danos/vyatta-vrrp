@@ -12,7 +12,7 @@ class TestVyattaShowVrrp:
     # pylint: disable=too-many-arguments
 
     @pytest.mark.parametrize(
-        "fakes,show,state",
+        "fakes,expected,state",
         [
             (
                 pytest.lazy_fixture("calendar_fakes"),
@@ -47,13 +47,13 @@ class TestVyattaShowVrrp:
         ],
         ids=["No rfc", "rfc", "rfc sync", "rfc IPAO", "Switch", "vif"]
     )
-    def test_show_vrrp_summary(self, fakes, show, state):
+    def test_show_vrrp_summary(self, fakes, expected, state):
         import vyatta.vrrp_vci.show_vrrp_cmds
-        result = vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_summary(state)
-        assert result == show
+        assert vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_summary(state) \
+            == expected
 
     @pytest.mark.parametrize(
-        "fakes,show,data",
+        "fakes,expected,data",
         [
             (
                 pytest.lazy_fixture("calendar_fakes"),
@@ -168,13 +168,13 @@ class TestVyattaShowVrrp:
             "RFC v3 with fast advert",
         ]
     )
-    def test_show_vrrp_detail(self, fakes, show, data):
+    def test_show_vrrp_detail(self, fakes, expected, data):
         import vyatta.vrrp_vci.show_vrrp_cmds
-        result = vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_detail(data)
-        assert result == show
+        assert vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_detail(data) \
+            == expected
 
     @pytest.mark.parametrize(
-        "fakes,show,data,grp_filter",
+        "fakes,expected,data,grp_filter",
         [
             (
                 pytest.lazy_fixture("calendar_fakes"),
@@ -228,16 +228,13 @@ class TestVyattaShowVrrp:
             "show vrrp sync group doesn't exist", "Vif sync groups"
         ]
     )
-    def test_show_vrrp_sync(self, fakes, show, data, grp_filter):
+    def test_show_vrrp_sync(self, fakes, expected, data, grp_filter):
         import vyatta.vrrp_vci.show_vrrp_cmds
-        result = \
-            vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_sync(
-                data, grp_filter
-            )
-        assert result == show
+        assert vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_sync(data, grp_filter)\
+            == expected
 
     @pytest.mark.parametrize(
-        "fakes,show,data,intf_filter,grp_filter",
+        "fakes,expected,data,intf_filter,grp_filter",
         [
             (
                 pytest.lazy_fixture("calendar_fakes"),
@@ -310,16 +307,14 @@ class TestVyattaShowVrrp:
         ]
     )
     def test_show_vrrp_interface(
-            self, fakes, show, data, intf_filter, grp_filter):
+            self, fakes, expected, data, intf_filter, grp_filter):
         import vyatta.vrrp_vci.show_vrrp_cmds
-        result = vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_interface(
-            data,
-            intf_filter,
-            grp_filter)
-        assert result == show
+        assert \
+            vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_interface(
+                data, intf_filter, grp_filter) == expected
 
     @pytest.mark.parametrize(
-        "fakes,show,data,intf_filter,grp_filter",
+        "fakes,expected,data,intf_filter,grp_filter",
         [
             (
                 pytest.lazy_fixture("calendar_fakes"),
@@ -422,16 +417,13 @@ class TestVyattaShowVrrp:
         ]
     )
     def test_show_vrrp_statistics(
-            self, fakes, show, data, intf_filter, grp_filter):
+            self, fakes, expected, data, intf_filter, grp_filter):
         import vyatta.vrrp_vci.show_vrrp_cmds
-        result = vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_statistics_filters(
-            data,
-            intf_filter,
-            grp_filter)
-        assert result == show
+        assert vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_statistics_filters(
+            data, intf_filter, grp_filter) == expected
 
     @pytest.mark.parametrize(
-        "fakes,json_data,file_content",
+        "fakes,expected,file_content",
         [
             (
                 pytest.lazy_fixture("calendar_fakes"),
@@ -567,14 +559,13 @@ class TestVyattaShowVrrp:
         ]
     )
     def test_convert_data_to_json(
-            self, fakes, json_data, file_content):
+            self, fakes, expected, file_content):
         import vyatta.vrrp_vci.show_vrrp_cmds
-        result = vyatta.vrrp_vci.show_vrrp_cmds.convert_data_file_to_dict(
-            file_content)
-        assert result == json_data
+        assert vyatta.vrrp_vci.show_vrrp_cmds.convert_data_file_to_dict(
+            file_content) == expected
 
     @pytest.mark.parametrize(
-        "fakes,json_data,file_content",
+        "fakes,expected,file_content",
         [
             (
                 pytest.lazy_fixture("calendar_fakes"),
@@ -613,16 +604,13 @@ class TestVyattaShowVrrp:
         ]
     )
     def test_convert_stats_to_json(
-            self, fakes, json_data, file_content):
+            self, fakes, expected, file_content):
         import vyatta.vrrp_vci.show_vrrp_cmds
-        result = \
-            vyatta.vrrp_vci.show_vrrp_cmds.convert_stats_file_to_dict(
-                file_content
-            )
-        assert result == json_data
+        assert vyatta.vrrp_vci.show_vrrp_cmds.convert_stats_file_to_dict(
+            file_content) == expected
 
     @pytest.mark.parametrize(
-        "fakes,show,file_content",
+        "fakes,expected,file_content",
         [
             (
                 pytest.lazy_fixture("calendar_fakes"),
@@ -770,15 +758,15 @@ class TestVyattaShowVrrp:
             "Vif group", "Version 3 fast-advert"
         ]
     )
-    def test_complete_show_vrrp_detail(self, fakes, show, file_content):
+    def test_complete_show_vrrp_detail(self, fakes, expected, file_content):
         import vyatta.vrrp_vci.show_vrrp_cmds
         json_data = vyatta.vrrp_vci.show_vrrp_cmds.convert_data_file_to_dict(
             file_content)
-        result = vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_detail(json_data)
-        assert result == show
+        assert vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_detail(json_data) \
+            == expected
 
     @pytest.mark.parametrize(
-        "fakes,show,file_contents,intf_filter,grp_filter",
+        "fakes,expected,file_contents,intf_filter,grp_filter",
         [
             (
                 pytest.lazy_fixture("calendar_fakes"),
@@ -847,18 +835,15 @@ class TestVyattaShowVrrp:
         ]
     )
     def test_show_vrrp_interface_full_process(
-            self, fakes, show, file_contents, intf_filter, grp_filter):
+            self, fakes, expected, file_contents, intf_filter, grp_filter):
         import vyatta.vrrp_vci.show_vrrp_cmds
         json_data = vyatta.vrrp_vci.show_vrrp_cmds.convert_data_file_to_dict(
             file_contents)
-        result = vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_interface(
-            json_data,
-            intf_filter,
-            grp_filter)
-        assert result == show
+        assert vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_interface(
+            json_data, intf_filter, grp_filter) == expected
 
     @pytest.mark.parametrize(
-        "fakes,show,file_content,grp_filter",
+        "fakes,expected,file_content,grp_filter",
         [
             (
                 pytest.lazy_fixture("calendar_fakes"),
@@ -915,18 +900,17 @@ class TestVyattaShowVrrp:
         ]
     )
     def test_show_vrrp_sync_full_process(
-            self, fakes, show, file_content, grp_filter):
+            self, fakes, expected, file_content, grp_filter):
         import vyatta.vrrp_vci.show_vrrp_cmds
         json_data = \
             vyatta.vrrp_vci.show_vrrp_cmds.convert_data_file_to_dict(
                 file_content
             )
-        result = vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_sync(
-            json_data, grp_filter)
-        assert result == show
+        assert vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_sync(
+            json_data, grp_filter) == expected
 
     @pytest.mark.parametrize(
-        "fakes,show,file_contents,intf_filter,grp_filter",
+        "fakes,expected,file_contents,intf_filter,grp_filter",
         [
             (
                 pytest.lazy_fixture("calendar_fakes"),
@@ -989,12 +973,9 @@ class TestVyattaShowVrrp:
         ]
     )
     def test_show_vrrp_statistics_full_process(
-            self, fakes, show, file_contents, intf_filter, grp_filter):
+            self, fakes, expected, file_contents, intf_filter, grp_filter):
         import vyatta.vrrp_vci.show_vrrp_cmds
         json_data = vyatta.vrrp_vci.show_vrrp_cmds.convert_stats_file_to_dict(
             file_contents)
-        result = vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_statistics_filters(
-            json_data,
-            intf_filter,
-            grp_filter)
-        assert result == show
+        assert vyatta.vrrp_vci.show_vrrp_cmds.show_vrrp_statistics_filters(
+            json_data, intf_filter, grp_filter) == expected

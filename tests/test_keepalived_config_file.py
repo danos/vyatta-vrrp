@@ -4,7 +4,6 @@
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
-import copy
 import json
 from pathlib import Path
 
@@ -19,254 +18,177 @@ class TestKeepalivedConfigFile:
     # pylint: disable=missing-docstring
     # pylint: disable=no-self-use
     # pylint: disable=too-many-arguments
-    def test_config_path_default(self, keepalived_config):
-        expected = "/etc/keepalived/keepalived.conf"
-        result = keepalived_config.config_file_path()
-        assert result == expected
 
-    def test_config_path_user_defined(self, non_default_keepalived_config):
-        expected = "/test/file/path.conf"
-        result = non_default_keepalived_config.config_file_path()
-        assert result == expected
+    @pytest.mark.parametrize(
+        "keepalived,expected_path",
+        [
+            (pytest.lazy_fixture("keepalived_config"),
+             "/etc/keepalived/keepalived.conf"),
+            (pytest.lazy_fixture("non_default_keepalived_config"),
+             "/test/file/path.conf"),
+        ],
+        ids=[
+            "Default path file",
+            "Nondefault path file"
+        ]
+    )
+    def test_config_path_default(self, keepalived, expected_path):
+        assert keepalived.config_file_path() == expected_path
 
     def test_implementation_name(self, keepalived_config):
         expected = "Keepalived"
-        result = keepalived_config.impl_name()
-        assert result == expected
-
-    def test_convert_no_vrrp_keepalived_conf_to_yang(
-            self, keepalived_config):
-        expected = {}
-        result = keepalived_config._convert_keepalived_config_to_yang([])
-        assert expected == result
-
-    def test_convert_fuller_vrrp_keepalived_conf_to_yang(
-            self, max_group_keepalived_config, max_config_group,
-            keepalived_config):
-        expected = max_config_group
-        config_split = max_group_keepalived_config.splitlines()
-        indexes = util.get_config_indexes(
-            config_split, "vrrp_instance")
-        config_block = util.get_config_blocks(
-            config_split, indexes)[0]
-        result = keepalived_config._convert_keepalived_config_to_yang(
-            config_block)
-        assert expected == result
+        assert keepalived_config.impl_name() == expected
 
     @pytest.mark.sanity
-    def test_convert_pathmon_vrrp_keepalived_conf_to_yang(
-            self, pathmon_track_group_keepalived_config,
-            pathmon_track_group,
-            keepalived_config):
-        expected = pathmon_track_group
-        config_split = pathmon_track_group_keepalived_config.splitlines()
-        indexes = util.get_config_indexes(
-            config_split, "vrrp_instance")
-        config_block = util.get_config_blocks(
-            config_split, indexes)[0]
-        result = keepalived_config._convert_keepalived_config_to_yang(
-            config_block)
-        assert expected == result
+    @pytest.mark.parametrize(
+        "config_lines,expected_yang,keepalived",
+        [
+            ([[]], {}, pytest.lazy_fixture("keepalived_config")),
+            (
+                pytest.lazy_fixture("complex_keepalived_config_block"),
+                pytest.lazy_fixture("max_config_group"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                pytest.lazy_fixture(
+                    "pathmon_track_group_keepalived_config_block"
+                ),
+                pytest.lazy_fixture("pathmon_track_group"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                pytest.lazy_fixture(
+                    "route_to_track_group_keepalived_config_block"
+                ),
+                pytest.lazy_fixture("route_to_track_group"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                pytest.lazy_fixture("simple_keepalived_config_block"),
+                pytest.lazy_fixture("generic_group"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                pytest.lazy_fixture(
+                    "switch_rfc_group_keepalived_config_block"
+                ),
+                pytest.lazy_fixture("generic_rfc_group"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                pytest.lazy_fixture(
+                    "dataplane_vif_group_keepalived_config_block"
+                ),
+                pytest.lazy_fixture("modified_vif_group"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                pytest.lazy_fixture("syncgroup_group_keepalived_config_block"),
+                pytest.lazy_fixture("sync_group1"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                pytest.lazy_fixture(
+                    "v3_fast_advert_group_keepalived_config_block"
+                ),
+                pytest.lazy_fixture("generic_v3_fast_advert_group"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                pytest.lazy_fixture(
+                    "v3_fast_advert_group_seconds_keepalived_config_block"
+                ),
+                pytest.lazy_fixture("generic_v3_fast_advert_seconds_group"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                pytest.lazy_fixture(
+                    "v3_fast_advert_group_between_seconds_keepalived_"
+                    "config_block"
+                ),
+                pytest.lazy_fixture(
+                    "generic_v3_fast_advert_between_seconds_group"
+                ),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+        ],
+        ids=[
+            "No config", "Convert max config",
+            "Convert path monitor tracking config",
+            "Convert route to tracking config",
+            "Convert minimal config", "Convert switch RFC interface",
+            "Convert dataplane VIF group",
+            "Convert group with syncgroup",
+            "Convert subsecond fast-advertise-interval group",
+            "Convert second fast-advertise-interval group",
+            "convert between two second fast-advertise-interval group"
+        ]
+    )
+    def test_convert_keepalived_config_to_yang(
+            self, config_lines, expected_yang, keepalived):
+        assert keepalived._convert_keepalived_config_to_yang(config_lines[0]) \
+            == expected_yang
 
     @pytest.mark.sanity
-    def test_convert_route_to_vrrp_keepalived_conf_to_yang(
-            self, route_to_track_group_keepalived_config,
-            route_to_track_group,
-            keepalived_config):
-        expected = route_to_track_group
-        config_split = route_to_track_group_keepalived_config.splitlines()
-        indexes = util.get_config_indexes(
-            config_split, "vrrp_instance")
-        config_block = util.get_config_blocks(
-            config_split, indexes)[0]
-        result = keepalived_config._convert_keepalived_config_to_yang(
-            config_block)
-        assert expected == result
-
-    @pytest.mark.sanity
-    def test_convert_minimal_vrrp_keepalived_conf_to_yang(
-            self, dataplane_group_keepalived_config, generic_group,
-            keepalived_config):
-        expected = generic_group
-        config_split = dataplane_group_keepalived_config.splitlines()
-        indexes = util.get_config_indexes(
-            config_split, "vrrp_instance")
-        config_block = util.get_config_blocks(
-            config_split, indexes)[0]
-        result = keepalived_config._convert_keepalived_config_to_yang(
-            config_block)
-        assert expected == result
-
-    @pytest.mark.sanity
-    def test_convert_switch_vrrp_keepalived_conf_to_yang(
-            self, switch_rfc_group_keepalived_config, generic_rfc_group,
-            keepalived_config):
-        expected = generic_rfc_group
-        config_split = switch_rfc_group_keepalived_config.splitlines()
-        indexes = util.get_config_indexes(
-            config_split, "vrrp_instance")
-        config_block = util.get_config_blocks(
-            config_split, indexes)[0]
-        result = keepalived_config._convert_keepalived_config_to_yang(
-            config_block)
-        assert expected == result
-
-    def test_convert_vif_vrrp_keepalived_conf_to_yang(
-            self, dataplane_vif_group_keepalived_config, generic_group,
-            keepalived_config):
-        expected = generic_group
-        expected["virtual-address"] = ["10.10.2.100/25"]
-        expected["priority"] = 100
-        expected["tagnode"] = 2
-        config_split = dataplane_vif_group_keepalived_config.splitlines()
-        indexes = util.get_config_indexes(
-            config_split, "vrrp_instance")
-        config_block = util.get_config_blocks(
-            config_split, indexes)[0]
-        del expected["priority"]
-        result = keepalived_config._convert_keepalived_config_to_yang(
-            config_block)
-        assert expected == result
-
-    def test_convert_syncgroup_vrrp_keepalived_conf_to_yang(
-            self, syncgroup_keepalived_config, sync_group1,
-            keepalived_config):
-        expected = sync_group1
-        config_split = syncgroup_keepalived_config.splitlines()
-        indexes = util.get_config_indexes(
-            config_split, "vrrp_instance")
-        config_block = util.get_config_blocks(
-            config_split, indexes)[0]
-        config_block.append("sync_group TEST")
-        result = keepalived_config._convert_keepalived_config_to_yang(
-            config_block)
-        assert expected == result
-
-    def test_config_to_vci_format_no_config(self, keepalived_config):
-        result = json.dumps({})
-        expect = keepalived_config.convert_to_vci_format("")
-        assert result == expect
-
-    def test_config_to_vci_format_minimal_config(
-            self, autogeneration_string, dataplane_group_keepalived_config,
-            keepalived_config, simple_config, interface_yang_name,
-            dataplane_yang_name, vrrp_yang_name):
-
-        copy_string = copy.deepcopy(autogeneration_string)
-        config_string = copy_string
-        copy_string = copy.deepcopy(dataplane_group_keepalived_config)
-        config_string += copy_string
-        result = json.dumps(simple_config)
-        expect = keepalived_config.convert_to_vci_format(config_string)
-        assert result == expect
-
-    def test_config_to_vci_format_v3_config(
-            self, autogeneration_string, generic_v3_group_keepalived_config,
-            keepalived_config, generic_v3_config, interface_yang_name,
-            dataplane_yang_name, vrrp_yang_name):
-
-        copy_string = copy.deepcopy(autogeneration_string)
-        config_string = copy_string
-        copy_string = copy.deepcopy(generic_v3_group_keepalived_config)
-        config_string += copy_string
-        result = json.dumps(generic_v3_config)
-        expect = keepalived_config.convert_to_vci_format(config_string)
-        assert result == expect
-
-    def test_config_to_vci_format_syncgroup_config(
-            self, syncgroup_keepalived_config,
-            keepalived_config, syncgroup_config):
-
-        copy_string = copy.deepcopy(syncgroup_keepalived_config)
-        config_string = copy_string
-        result = json.dumps(syncgroup_config)
-        expect = keepalived_config.convert_to_vci_format(config_string)
-        assert result == expect
-
-    def test_config_to_vci_format_fuller_config(
-            self, autogeneration_string, max_group_keepalived_config,
-            keepalived_config, complex_config):
-
-        copy_string = copy.deepcopy(autogeneration_string)
-        config_string = copy_string
-        copy_string = copy.deepcopy(max_group_keepalived_config)
-        config_string += copy_string
-        result = json.dumps(complex_config)
-        expect = keepalived_config.convert_to_vci_format(config_string)
-        assert result == expect
-
-    @pytest.mark.sanity
-    def test_config_to_vci_format_bonding_config(
-            self, autogeneration_string, bonding_group_keepalived_config,
-            keepalived_config, simple_bonding_config, interface_yang_name,
-            bonding_yang_name, vrrp_yang_name):
-
-        copy_string = copy.deepcopy(autogeneration_string)
-        config_string = copy_string
-        copy_string = copy.deepcopy(bonding_group_keepalived_config)
-        config_string += copy_string
-
-        intf_list = simple_bonding_config[interface_yang_name]
-        bonding_intf = intf_list[bonding_yang_name][0][vrrp_yang_name]
-        bonding_intf["start-delay"] = 60
-        bonding_intf["vrrp-group"][0]["virtual-address"] = \
-            ["10.11.2.100/25"]
-        bonding_intf["vrrp-group"][0]["tagnode"] = 2
-        del bonding_intf["vrrp-group"][0]["priority"]
-
-        result = json.dumps(simple_bonding_config)
-        expect = keepalived_config.convert_to_vci_format(config_string)
-        assert result == expect
-
-    @pytest.mark.sanity
-    def test_config_to_vci_format_dataplane_vif_config(
-            self, autogeneration_string,
-            dataplane_vif_group_keepalived_config,
-            keepalived_config, simple_dataplane_vif_config,
-            interface_yang_name, dataplane_yang_name, vrrp_yang_name,
-            dataplane_group_keepalived_config, generic_group):
-
-        copy_string = copy.deepcopy(autogeneration_string)
-        config_string = copy_string
-        copy_string = copy.deepcopy(dataplane_group_keepalived_config)
-        config_string += copy_string
-        copy_string = copy.deepcopy(dataplane_vif_group_keepalived_config)
-        config_string += copy_string
-
-        intf_level = simple_dataplane_vif_config[interface_yang_name]
-        vif_intf = intf_level[dataplane_yang_name][0]["vif"][0]
-        vif_group = copy.deepcopy(generic_group)
-        vif_group["virtual-address"] = ["10.10.2.100/25"]
-        del vif_group["priority"]
-        vif_group["tagnode"] = 2
-        vif_intf[vrrp_yang_name]["vrrp-group"] = [vif_group]
-
-        result = json.dumps(simple_dataplane_vif_config)
-        expect = keepalived_config.convert_to_vci_format(config_string)
-        assert result == expect
-
-    @pytest.mark.sanity
-    def test_config_to_vci_format_switch_config(
-            self, autogeneration_string,
-            switch_rfc_group_keepalived_config,
-            keepalived_config, simple_switch_config,
-            interface_yang_name, switch_yang_name, vrrp_yang_name,
-            generic_rfc_group):
-
-        copy_string = copy.deepcopy(autogeneration_string)
-        config_string = copy_string
-        copy_string = copy.deepcopy(switch_rfc_group_keepalived_config)
-        config_string += copy_string
-
-        intf_level = simple_switch_config[interface_yang_name]
-        vif_intf = intf_level[switch_yang_name][0]["vif"][0]
-        del intf_level[switch_yang_name][0][vrrp_yang_name]
-        vif_group = copy.deepcopy(generic_rfc_group)
-        vif_intf[vrrp_yang_name]["vrrp-group"] = [vif_group]
-
-        result = json.dumps(simple_switch_config)
-        expect = keepalived_config.convert_to_vci_format(config_string)
-        assert result == expect
+    @pytest.mark.parametrize(
+        "config_string,yang_config,keepalived",
+        [
+            (
+                "", {},
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                pytest.lazy_fixture("simple_keepalived_config"),
+                pytest.lazy_fixture("simple_config"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                pytest.lazy_fixture("generic_v3_keepalived_config"),
+                pytest.lazy_fixture("generic_v3_config"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                pytest.lazy_fixture("syncgroup_keepalived_config"),
+                pytest.lazy_fixture("syncgroup_config"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                pytest.lazy_fixture("multiple_syncgroup_keepalived_config"),
+                pytest.lazy_fixture("multiple_syncgroup_config"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                pytest.lazy_fixture("complex_keepalived_config"),
+                pytest.lazy_fixture("complex_config"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                pytest.lazy_fixture("bonding_keepalived_config"),
+                pytest.lazy_fixture("bonding_config"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                pytest.lazy_fixture("parent_and_vif_keepalived_config"),
+                pytest.lazy_fixture("parent_and_vif_config"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                pytest.lazy_fixture("switch_keepalived_config"),
+                pytest.lazy_fixture("switch_config"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+        ],
+        ids=[
+            "No config", "Minimal config", "v3 Config",
+            "Sync group config", "Multiple sync groups",
+            "Complex config", "Bonding config",
+            "Parent and vif config", "switch config"
+        ]
+    )
+    def test_config_to_vci_format(
+            self, config_string, yang_config, keepalived):
+        expected = json.dumps(yang_config)
+        assert keepalived.convert_to_vci_format(config_string) == expected
 
     def test_read_config_no_file(self, non_default_keepalived_config):
         with pytest.raises(FileNotFoundError):
@@ -282,67 +204,64 @@ class TestKeepalivedConfigFile:
         result = tmp_file_keepalived_config.read_config()
         assert result == simple_keepalived_config
 
-    def test_update_config_no_config(
-            self, top_level_dictionary, keepalived_config):
-        expected = []
-        keepalived_config.update(top_level_dictionary)
-        result = keepalived_config.vrrp_instances
-        assert expected == result
-
-    def test_update_config_no_vrrp_config(
-            self, top_level_dictionary, keepalived_config,
-            dataplane_yang_name, second_dataplane_interface):
-        expected = []
-        config = top_level_dictionary
-        config[dataplane_yang_name] = [second_dataplane_interface]
-        keepalived_config.update(config)
-        result = keepalived_config.vrrp_instances
-        assert expected == result
+    @pytest.mark.sanity
+    @pytest.mark.parametrize(
+        "fakes,yang_config,expected,keepalived",
+        [
+            (
+                None,
+                {},
+                [],
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                None,
+                pytest.lazy_fixture("top_level_dictionary"),
+                [],
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                None,
+                pytest.lazy_fixture("no_vrrp_config"),
+                [],
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                None,
+                pytest.lazy_fixture("disabled_vrrp_config"),
+                [],
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                pytest.lazy_fixture("mock_pydbus"),
+                pytest.lazy_fixture("simple_config"),
+                pytest.lazy_fixture("simple_vrrp_group_object"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
+                pytest.lazy_fixture("mock_pydbus"),
+                pytest.lazy_fixture("complex_config"),
+                pytest.lazy_fixture("fuller_vrrp_group_object"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+        ],
+        ids=[
+            "No Config", "No Interface config", "No VRRP config",
+            "Disabled VRRP group", "Simple VRRP config", "Complex config"
+        ]
+    )
+    def test_update_config(
+            self, fakes, yang_config, expected, keepalived):
+        if not isinstance(expected, list):
+            # Need to instansiate lazy fixtures
+            expected = [expected]
+        keepalived.update(yang_config)
+        assert str(keepalived.vrrp_instances) == str(expected)
 
     def test_update_config_error_when_vif_under_intf(
             self, keepalived_config, simple_dataplane_vif_config):
         with pytest.raises(ValueError):
             keepalived_config.update(simple_dataplane_vif_config)
-
-    def test_update_config_disabled_group(
-            self, keepalived_config, interface_yang_name,
-            dataplane_yang_name, disabled_group,
-            dataplane_interface):
-        expected = []
-        disabled_interface = dataplane_interface
-        disabled_interface["vyatta-vrrp-v1:vrrp"]["vrrp-group"] = [
-            disabled_group
-        ]
-        disabled_config = {
-            interface_yang_name: {
-                dataplane_yang_name: [disabled_interface]
-            }
-        }
-        keepalived_config.update(disabled_config)
-        result = keepalived_config.vrrp_instances
-        # Contents should be the same, even if the reference
-        # isn't
-        assert str(result) == str(expected)
-
-    def test_update_config_simple_config(
-            self, mock_pydbus, keepalived_config, simple_config,
-            simple_vrrp_group_object):
-        expected = [simple_vrrp_group_object]
-        keepalived_config.update(simple_config)
-        result = keepalived_config.vrrp_instances
-        # Contents should be the same, even if the reference
-        # isn't
-        assert str(result) == str(expected)
-
-    def test_update_complex_config(
-            self, mock_pydbus, keepalived_config, complex_config,
-            fuller_vrrp_group_object):
-        expected = [fuller_vrrp_group_object]
-        keepalived_config.update(complex_config)
-        result = keepalived_config.vrrp_instances
-        # Contents should be the same, even if the reference
-        # isn't
-        assert str(result) == str(expected)
 
     def test_write_config_file_exist(
             self, tmp_path, tmp_file_keepalived_config_no_write):

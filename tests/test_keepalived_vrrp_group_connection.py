@@ -8,34 +8,26 @@ import vyatta.vrrp_vci.keepalived.util as util
 
 class TestKeepalivedVrrpGroupControl:
 
-    def test_get_unit_state(
-            self, mock_pydbus, instance_state):
+    @pytest.mark.parametrize(
+        "expected,fakes",
+        [
+            (pytest.lazy_fixture("instance_state"),
+             pytest.lazy_fixture("mock_pydbus")),
+            (pytest.lazy_fixture("instance_state_rfc"),
+             pytest.lazy_fixture("mock_pydbus_rfc"))
+        ],
+        ids=["Non rfc", "rfc"])
+    def test_get_unit_state(self, expected, fakes):
         import vyatta.vrrp_vci.keepalived.dbus.vrrp_group_connection \
             as group_conn
         import pydbus
         sysbus = pydbus.SystemBus()
-        expected = instance_state
         conn = group_conn.VrrpConnection(
             "dp0p1s1", "1", 4, sysbus
         )
         util.VRRP_INSTANCE_DBUS_INTF_NAME = "dp0p1s1"
-        result = conn.get_instance_state()
-        assert expected == result
 
-    def test_get_unit_state_rfc(
-            self, instance_state_rfc,
-            mock_pydbus_rfc):
-        import vyatta.vrrp_vci.keepalived.dbus.vrrp_group_connection \
-            as group_conn
-        import pydbus
-        sysbus = pydbus.SystemBus()
-        expected = instance_state_rfc
-        conn = group_conn.VrrpConnection(
-            "dp0p1s1", "1", 4, sysbus
-        )
-        util.VRRP_INSTANCE_DBUS_INTF_NAME = "dp0p1s1"
-        result = conn.get_instance_state()
-        assert expected == result
+        assert conn.get_instance_state() == expected
 
     def test_garp(
             self, mock_pydbus):
@@ -43,12 +35,12 @@ class TestKeepalivedVrrpGroupControl:
             as group_conn
         import pydbus
         sysbus = pydbus.SystemBus()
-        expected = {}
         conn = group_conn.VrrpConnection(
             "dp0p1s1", "1", 4, sysbus
         )
-        result = conn.garp()
-        assert expected == result
+
+        expected = {}
+        assert conn.garp() == expected
 
     def test_vif_sanitizing(
             self, mock_pydbus):
@@ -56,10 +48,9 @@ class TestKeepalivedVrrpGroupControl:
             as group_conn
         import pydbus
         sysbus = pydbus.SystemBus()
-        expected = \
-            f"/org/keepalived/Vrrp1/Instance/dp0p1s1_10/1/IPv4"
         conn = group_conn.VrrpConnection(
             "dp0p1s1.10", "1", 4, sysbus
         )
-        result = conn.dbus_path
-        assert expected == result
+
+        expected = "/org/keepalived/Vrrp1/Instance/dp0p1s1_10/1/IPv4"
+        assert conn.dbus_path == expected

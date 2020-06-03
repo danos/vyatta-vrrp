@@ -217,9 +217,12 @@ def tmp_file_keepalived_config(tmp_path, autogeneration_string,
     from vyatta.vrrp_vci.keepalived.config_file import KeepalivedConfig
     file_path = f"{tmp_path}/keepalived.conf"
     with open(file_path, "w") as file_handle:
-        contents = autogeneration_string
-        contents += dataplane_group_keepalived_config
-        file_handle.write(contents)
+        file_handle.write(
+            (
+                autogeneration_string +
+                dataplane_group_keepalived_config
+            )
+        )
     return KeepalivedConfig(file_path)
 
 
@@ -245,9 +248,12 @@ def tmp_file_keepalived_vif_config(
     from vyatta.vrrp_vci.keepalived.config_file import KeepalivedConfig
     file_path = f"{tmp_path}/keepalived.conf"
     with open(file_path, "w") as file_handle:
-        contents = autogeneration_string
-        contents += dataplane_vif_group_keepalived_config
-        file_handle.write(contents)
+        file_handle.write(
+            (
+                autogeneration_string +
+                dataplane_vif_group_keepalived_config
+            )
+        )
     return KeepalivedConfig(file_path)
 
 
@@ -272,8 +278,7 @@ def tmp_file_syncgroup_keepalived_config(
     from vyatta.vrrp_vci.keepalived.config_file import KeepalivedConfig
     file_path = f"{tmp_path}/keepalived.conf"
     with open(file_path, "w") as file_handle:
-        contents = syncgroup_keepalived_config
-        file_handle.write(contents)
+        file_handle.write(syncgroup_keepalived_config)
     return KeepalivedConfig(file_path)
 
 
@@ -315,47 +320,57 @@ def fuller_vrrp_group_object(max_config_group):
 
 @pytest.fixture
 def generic_group():
-    return \
-        {
-            "accept": False,
-            "preempt": True,
-            "priority": 200,
-            "tagnode": 1,
-            "version": 2,
-            "virtual-address": [
-                "10.10.1.100/25"
-            ]
-        }
+    return {
+        "accept": False,
+        "preempt": True,
+        "priority": 200,
+        "tagnode": 1,
+        "version": 2,
+        "virtual-address": [
+            "10.10.1.100/25"
+        ]
+    }
+
+
+@pytest.fixture
+def modified_vif_group():
+    return {
+        "accept": False,
+        "preempt": True,
+        "tagnode": 2,
+        "version": 2,
+        "virtual-address": [
+            "10.10.2.100/25"
+        ]
+    }
 
 
 @pytest.fixture
 def generic_rfc_group():
-    return \
-        {
-            "accept": False,
-            "preempt": True,
-            "priority": 200,
-            "rfc-compatibility": [
-                None
-            ],
-            "tagnode": 1,
-            "version": 2,
-            "virtual-address": [
-                "10.10.1.100/25"
-            ]
-        }
+    return {
+        "accept": False,
+        "preempt": True,
+        "priority": 200,
+        "rfc-compatibility": [
+            None
+        ],
+        "tagnode": 1,
+        "version": 2,
+        "virtual-address": [
+            "10.10.1.100/25"
+        ]
+    }
 
 
 @pytest.fixture
 def generic_group_state():
-    return \
-        {
-            "address-owner": False,
-            "last-transition": 0,
-            "rfc-interface": "",
-            "state": "MASTER",
-            "sync-group": "",
-        }
+    return {
+        "address-owner": False,
+        "last-transition": 0,
+        "rfc-interface": "",
+        "state": "MASTER",
+        "sync-group": "",
+    }
 
 
 @pytest.fixture
@@ -461,29 +476,28 @@ def generic_group_simple_keepalived_data():
 
 @pytest.fixture
 def detailed_simple_keepalived_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "",
-                "state": "MASTER",
-                "sync-group": "",
-                "version": 2,
-                "src-ip": "10.10.1.1",
-                "base-priority": 100,
-                "effective-priority": 100,
-                "advert-interval": "2 sec",
-                "accept": True,
-                "preempt": True,
-                "auth-type": None,
-                "virtual-ips": [
-                    "10.10.1.100/32"
-                ]
-            },
-            "tagnode": "1"
-        }
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "",
+            "state": "MASTER",
+            "sync-group": "",
+            "version": 2,
+            "src-ip": "10.10.1.1",
+            "base-priority": 100,
+            "effective-priority": 100,
+            "advert-interval": "2 sec",
+            "accept": True,
+            "preempt": True,
+            "auth-type": None,
+            "virtual-ips": [
+                "10.10.1.100/32"
+            ]
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
@@ -574,29 +588,28 @@ Interface: dp0p1s1
 
 @pytest.fixture
 def detailed_rfc_simple_keepalived_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "dp0vrrp1",
-                "state": "MASTER",
-                "sync-group": "",
-                "version": 2,
-                "src-ip": "10.10.1.1",
-                "base-priority": 100,
-                "effective-priority": 100,
-                "advert-interval": "2 sec",
-                "accept": True,
-                "preempt": True,
-                "auth-type": None,
-                "virtual-ips": [
-                    "10.10.1.100/32"
-                ]
-            },
-            "tagnode": "1"
-        }
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "dp0vrrp1",
+            "state": "MASTER",
+            "sync-group": "",
+            "version": 2,
+            "src-ip": "10.10.1.1",
+            "base-priority": 100,
+            "effective-priority": 100,
+            "advert-interval": "2 sec",
+            "accept": True,
+            "preempt": True,
+            "auth-type": None,
+            "virtual-ips": [
+                "10.10.1.100/32"
+            ]
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
@@ -669,29 +682,28 @@ Interface: dp0p1s1
 
 @pytest.fixture
 def detailed_rfc_sync_simple_keepalived_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "dp0vrrp1",
-                "state": "MASTER",
-                "sync-group": "TEST",
-                "version": 2,
-                "src-ip": "10.10.1.1",
-                "base-priority": 100,
-                "effective-priority": 100,
-                "advert-interval": "2 sec",
-                "accept": True,
-                "preempt": True,
-                "auth-type": None,
-                "virtual-ips": [
-                    "10.10.1.100/32"
-                ]
-            },
-            "tagnode": "1"
-        }
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "dp0vrrp1",
+            "state": "MASTER",
+            "sync-group": "TEST",
+            "version": 2,
+            "src-ip": "10.10.1.1",
+            "base-priority": 100,
+            "effective-priority": 100,
+            "advert-interval": "2 sec",
+            "accept": True,
+            "preempt": True,
+            "auth-type": None,
+            "virtual-ips": [
+                "10.10.1.100/32"
+            ]
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
@@ -757,29 +769,28 @@ Interface: dp0p1s1
 
 @pytest.fixture
 def detailed_rfc_ipao_simple_keepalived_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": True,
-                "last-transition": 0,
-                "rfc-interface": "dp0vrrp1",
-                "state": "MASTER",
-                "sync-group": "",
-                "version": 2,
-                "src-ip": "10.10.1.1",
-                "base-priority": 100,
-                "effective-priority": 255,
-                "advert-interval": "2 sec",
-                "accept": True,
-                "preempt": True,
-                "auth-type": None,
-                "virtual-ips": [
-                    "10.10.1.100/32"
-                ]
-            },
-            "tagnode": "1"
-        }
+            "address-owner": True,
+            "last-transition": 0,
+            "rfc-interface": "dp0vrrp1",
+            "state": "MASTER",
+            "sync-group": "",
+            "version": 2,
+            "src-ip": "10.10.1.1",
+            "base-priority": 100,
+            "effective-priority": 255,
+            "advert-interval": "2 sec",
+            "accept": True,
+            "preempt": True,
+            "auth-type": None,
+            "virtual-ips": [
+                "10.10.1.100/32"
+            ]
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
@@ -902,31 +913,30 @@ Interface: dp0p1s1
 
 @pytest.fixture
 def detailed_backup_simple_keepalived_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "",
-                "state": "BACKUP",
-                "sync-group": "",
-                "version": 2,
-                "master-router": "10.10.1.1",
-                "master-priority": 100,
-                "src-ip": "10.10.1.2",
-                "base-priority": 50,
-                "effective-priority": 50,
-                "advert-interval": "2 sec",
-                "accept": True,
-                "preempt": True,
-                "auth-type": None,
-                "virtual-ips": [
-                    "10.10.1.100/24"
-                ]
-            },
-            "tagnode": "1"
-        }
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "",
+            "state": "BACKUP",
+            "sync-group": "",
+            "version": 2,
+            "master-router": "10.10.1.1",
+            "master-priority": 100,
+            "src-ip": "10.10.1.2",
+            "base-priority": 50,
+            "effective-priority": 50,
+            "advert-interval": "2 sec",
+            "accept": True,
+            "preempt": True,
+            "auth-type": None,
+            "virtual-ips": [
+                "10.10.1.100/24"
+            ]
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
@@ -1007,39 +1017,38 @@ Interface: dp0p1s1
 
 @pytest.fixture
 def detailed_backup_track_intf_simple_keepalived_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "",
-                "state": "BACKUP",
-                "sync-group": "",
-                "version": 2,
-                "master-router": "10.10.1.1",
-                "master-priority": 100,
-                "src-ip": "10.10.1.2",
-                "base-priority": 50,
-                "effective-priority": 50,
-                "advert-interval": "2 sec",
-                "accept": True,
-                "preempt": True,
-                "auth-type": None,
-                "track": {
-                    "interface": [
-                        {
-                            "name": "dp0s2", "state": "UP",
-                            "weight": "-10"
-                        }
-                    ]
-                },
-                "virtual-ips": [
-                    "10.10.1.100/24"
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "",
+            "state": "BACKUP",
+            "sync-group": "",
+            "version": 2,
+            "master-router": "10.10.1.1",
+            "master-priority": 100,
+            "src-ip": "10.10.1.2",
+            "base-priority": 50,
+            "effective-priority": 50,
+            "advert-interval": "2 sec",
+            "accept": True,
+            "preempt": True,
+            "auth-type": None,
+            "track": {
+                "interface": [
+                    {
+                        "name": "dp0s2", "state": "UP",
+                        "weight": "-10"
+                    }
                 ]
             },
-            "tagnode": "1"
-        }
+            "virtual-ips": [
+                "10.10.1.100/24"
+            ]
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
@@ -1119,39 +1128,38 @@ Interface: dp0p1s1
 
 @pytest.fixture
 def detailed_backup_track_intf_down_simple_keepalived_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "",
-                "state": "BACKUP",
-                "sync-group": "",
-                "version": 2,
-                "master-router": "10.10.1.1",
-                "master-priority": 100,
-                "src-ip": "10.10.1.2",
-                "base-priority": 50,
-                "effective-priority": 50,
-                "advert-interval": "2 sec",
-                "accept": True,
-                "preempt": True,
-                "auth-type": None,
-                "track": {
-                    "interface": [
-                        {
-                            "name": "dp0s2", "state": "DOWN",
-                            "weight": "-10"
-                        }
-                    ]
-                },
-                "virtual-ips": [
-                    "10.10.1.100/24"
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "",
+            "state": "BACKUP",
+            "sync-group": "",
+            "version": 2,
+            "master-router": "10.10.1.1",
+            "master-priority": 100,
+            "src-ip": "10.10.1.2",
+            "base-priority": 50,
+            "effective-priority": 50,
+            "advert-interval": "2 sec",
+            "accept": True,
+            "preempt": True,
+            "auth-type": None,
+            "track": {
+                "interface": [
+                    {
+                        "name": "dp0s2", "state": "DOWN",
+                        "weight": "-10"
+                    }
                 ]
             },
-            "tagnode": "1"
-        }
+            "virtual-ips": [
+                "10.10.1.100/24"
+            ]
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
@@ -1231,38 +1239,37 @@ Interface: dp0p1s1
 
 @pytest.fixture
 def detailed_backup_track_intf_no_weight_simple_keepalived_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "",
-                "state": "BACKUP",
-                "sync-group": "",
-                "version": 2,
-                "master-router": "10.10.1.1",
-                "master-priority": 100,
-                "src-ip": "10.10.1.2",
-                "base-priority": 50,
-                "effective-priority": 50,
-                "advert-interval": "2 sec",
-                "accept": True,
-                "preempt": True,
-                "auth-type": None,
-                "track": {
-                    "interface": [
-                        {
-                            "name": "dp0s2", "state": "UP"
-                        }
-                    ]
-                },
-                "virtual-ips": [
-                    "10.10.1.100/24"
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "",
+            "state": "BACKUP",
+            "sync-group": "",
+            "version": 2,
+            "master-router": "10.10.1.1",
+            "master-priority": 100,
+            "src-ip": "10.10.1.2",
+            "base-priority": 50,
+            "effective-priority": 50,
+            "advert-interval": "2 sec",
+            "accept": True,
+            "preempt": True,
+            "auth-type": None,
+            "track": {
+                "interface": [
+                    {
+                        "name": "dp0s2", "state": "UP"
+                    }
                 ]
             },
-            "tagnode": "1"
-        }
+            "virtual-ips": [
+                "10.10.1.100/24"
+            ]
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
@@ -1336,45 +1343,44 @@ Interface: dp0p1s1
 
 @pytest.fixture
 def detailed_backup_track_pathmon_simple_keepalived_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "",
-                "state": "BACKUP",
-                "sync-group": "",
-                "version": 2,
-                "master-router": "10.10.1.1",
-                "master-priority": 100,
-                "src-ip": "10.10.1.2",
-                "base-priority": 50,
-                "effective-priority": 50,
-                "advert-interval": "2 sec",
-                "accept": True,
-                "preempt": True,
-                "auth-type": None,
-                "track": {
-                    "monitor": [
-                        {
-                            "name": "test_monitor",
-                            "policies": [
-                                {
-                                    "name": "test_policy",
-                                    "state": "COMPLIANT",
-                                    "weight": "10"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                "virtual-ips": [
-                    "10.10.1.100/24"
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "",
+            "state": "BACKUP",
+            "sync-group": "",
+            "version": 2,
+            "master-router": "10.10.1.1",
+            "master-priority": 100,
+            "src-ip": "10.10.1.2",
+            "base-priority": 50,
+            "effective-priority": 50,
+            "advert-interval": "2 sec",
+            "accept": True,
+            "preempt": True,
+            "auth-type": None,
+            "track": {
+                "monitor": [
+                    {
+                        "name": "test_monitor",
+                        "policies": [
+                            {
+                                "name": "test_policy",
+                                "state": "COMPLIANT",
+                                "weight": "10"
+                            }
+                        ]
+                    }
                 ]
             },
-            "tagnode": "1"
-        }
+            "virtual-ips": [
+                "10.10.1.100/24"
+            ]
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
@@ -1452,49 +1458,48 @@ Interface: dp0p1s1
 
 @pytest.fixture
 def detailed_backup_multiple_track_pathmon_simple_keepalived_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "",
-                "state": "BACKUP",
-                "sync-group": "",
-                "version": 2,
-                "master-router": "10.10.1.1",
-                "master-priority": 100,
-                "src-ip": "10.10.1.2",
-                "base-priority": 50,
-                "effective-priority": 50,
-                "advert-interval": "2 sec",
-                "accept": True,
-                "preempt": True,
-                "auth-type": None,
-                "track": {
-                    "monitor": [
-                        {
-                            "name": "test_monitor",
-                            "policies": [
-                                {
-                                    "name": "test_policy",
-                                    "state": "COMPLIANT",
-                                    "weight": "10"
-                                },
-                                {
-                                    "name": "test_nonpolicy",
-                                    "state": "COMPLIANT",
-                                }
-                            ]
-                        }
-                    ]
-                },
-                "virtual-ips": [
-                    "10.10.1.100/24"
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "",
+            "state": "BACKUP",
+            "sync-group": "",
+            "version": 2,
+            "master-router": "10.10.1.1",
+            "master-priority": 100,
+            "src-ip": "10.10.1.2",
+            "base-priority": 50,
+            "effective-priority": 50,
+            "advert-interval": "2 sec",
+            "accept": True,
+            "preempt": True,
+            "auth-type": None,
+            "track": {
+                "monitor": [
+                    {
+                        "name": "test_monitor",
+                        "policies": [
+                            {
+                                "name": "test_policy",
+                                "state": "COMPLIANT",
+                                "weight": "10"
+                            },
+                            {
+                                "name": "test_nonpolicy",
+                                "state": "COMPLIANT",
+                            }
+                        ]
+                    }
                 ]
             },
-            "tagnode": "1"
-        }
+            "virtual-ips": [
+                "10.10.1.100/24"
+            ]
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
@@ -1567,40 +1572,39 @@ Interface: dp0p1s1
 
 @pytest.fixture
 def detailed_backup_track_route_simple_keepalived_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "",
-                "state": "BACKUP",
-                "sync-group": "",
-                "version": 2,
-                "master-router": "10.10.1.1",
-                "master-priority": 100,
-                "src-ip": "10.10.1.2",
-                "base-priority": 50,
-                "effective-priority": 50,
-                "advert-interval": "2 sec",
-                "accept": True,
-                "preempt": True,
-                "auth-type": None,
-                "track": {
-                    "route": [
-                        {
-                            "name": "10.10.10.0/24",
-                            "state": "DOWN",
-                            "weight": "10"
-                        }
-                    ]
-                },
-                "virtual-ips": [
-                    "10.10.1.100/24"
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "",
+            "state": "BACKUP",
+            "sync-group": "",
+            "version": 2,
+            "master-router": "10.10.1.1",
+            "master-priority": 100,
+            "src-ip": "10.10.1.2",
+            "base-priority": 50,
+            "effective-priority": 50,
+            "advert-interval": "2 sec",
+            "accept": True,
+            "preempt": True,
+            "auth-type": None,
+            "track": {
+                "route": [
+                    {
+                        "name": "10.10.10.0/24",
+                        "state": "DOWN",
+                        "weight": "10"
+                    }
                 ]
             },
-            "tagnode": "1"
-        }
+            "virtual-ips": [
+                "10.10.1.100/24"
+            ]
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
@@ -1711,67 +1715,66 @@ Interface: dp0p1s1
 
 @pytest.fixture
 def detailed_track_multiple_simple_keepalived_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "",
-                "state": "MASTER",
-                "sync-group": "",
-                "version": 2,
-                "src-ip": "10.10.1.1",
-                "base-priority": 50,
-                "effective-priority": 70,
-                "advert-interval": "2 sec",
-                "accept": True,
-                "preempt": True,
-                "auth-type": None,
-                "track": {
-                    "interface": [
-                        {
-                            "name": "dp0p1s1", "state": "UP",
-                            "weight": "10"
-                        },
-                        {
-                            "name": "dp0s2", "state": "UP"
-                        }
-                    ],
-                    "monitor": [
-                        {
-                            "name": "test_monitor",
-                            "policies": [
-                                {
-                                    "name": "test_policy",
-                                    "state": "COMPLIANT",
-                                    "weight": "10"
-                                },
-                                {
-                                    "name": "test_nonpolicy",
-                                    "state": "COMPLIANT",
-                                }
-                            ]
-                        }
-                    ],
-                    "route": [
-                        {
-                            "name": "10.10.10.0/24",
-                            "state": "DOWN",
-                            "weight": "10"
-                        },
-                        {
-                            "name": "11.11.11.0/24",
-                            "state": "UP"
-                        }
-                    ]
-                },
-                "virtual-ips": [
-                    "10.10.1.100/24"
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "",
+            "state": "MASTER",
+            "sync-group": "",
+            "version": 2,
+            "src-ip": "10.10.1.1",
+            "base-priority": 50,
+            "effective-priority": 70,
+            "advert-interval": "2 sec",
+            "accept": True,
+            "preempt": True,
+            "auth-type": None,
+            "track": {
+                "interface": [
+                    {
+                        "name": "dp0p1s1", "state": "UP",
+                        "weight": "10"
+                    },
+                    {
+                        "name": "dp0s2", "state": "UP"
+                    }
+                ],
+                "monitor": [
+                    {
+                        "name": "test_monitor",
+                        "policies": [
+                            {
+                                "name": "test_policy",
+                                "state": "COMPLIANT",
+                                "weight": "10"
+                            },
+                            {
+                                "name": "test_nonpolicy",
+                                "state": "COMPLIANT",
+                            }
+                        ]
+                    }
+                ],
+                "route": [
+                    {
+                        "name": "10.10.10.0/24",
+                        "state": "DOWN",
+                        "weight": "10"
+                    },
+                    {
+                        "name": "11.11.11.0/24",
+                        "state": "UP"
+                    }
                 ]
             },
-            "tagnode": "1"
-        }
+            "virtual-ips": [
+                "10.10.1.100/24"
+            ]
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
@@ -1808,29 +1811,28 @@ def generic_v3_group_simple_keepalived_data():
 
 @pytest.fixture
 def detailed_v3_simple_keepalived_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "",
-                "state": "MASTER",
-                "sync-group": "",
-                "version": 3,
-                "src-ip": "10.10.1.1",
-                "base-priority": 100,
-                "effective-priority": 100,
-                "advert-interval": "2000 milli-sec",
-                "accept": False,
-                "preempt": True,
-                "auth-type": None,
-                "virtual-ips": [
-                    "10.10.1.100/32"
-                ]
-            },
-            "tagnode": "1"
-        }
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "",
+            "state": "MASTER",
+            "sync-group": "",
+            "version": 3,
+            "src-ip": "10.10.1.1",
+            "base-priority": 100,
+            "effective-priority": 100,
+            "advert-interval": "2000 milli-sec",
+            "accept": False,
+            "preempt": True,
+            "auth-type": None,
+            "virtual-ips": [
+                "10.10.1.100/32"
+            ]
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
@@ -1891,29 +1893,28 @@ def generic_v3_rfc_group_fast_advert_simple_keepalived_data():
 
 @pytest.fixture
 def detailed_v3_rfc_fast_advert_simple_keepalived_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "dp0vrrp1",
-                "state": "MASTER",
-                "sync-group": "",
-                "version": 3,
-                "src-ip": "10.10.1.1",
-                "base-priority": 100,
-                "effective-priority": 100,
-                "advert-interval": "500 milli-sec",
-                "accept": False,
-                "preempt": True,
-                "auth-type": None,
-                "virtual-ips": [
-                    "10.10.1.100/32"
-                ]
-            },
-            "tagnode": "1"
-        }
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "dp0vrrp1",
+            "state": "MASTER",
+            "sync-group": "",
+            "version": 3,
+            "src-ip": "10.10.1.1",
+            "base-priority": 100,
+            "effective-priority": 100,
+            "advert-interval": "500 milli-sec",
+            "accept": False,
+            "preempt": True,
+            "auth-type": None,
+            "virtual-ips": [
+                "10.10.1.100/32"
+            ]
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
@@ -1980,30 +1981,29 @@ def generic_group_start_delay_simple_keepalived_data():
 
 @pytest.fixture
 def detailed_start_delay_simple_keepalived_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "",
-                "state": "MASTER",
-                "sync-group": "",
-                "version": 2,
-                "src-ip": "10.10.1.1",
-                "base-priority": 100,
-                "effective-priority": 100,
-                "advert-interval": "2 sec",
-                "accept": True,
-                "preempt": True,
-                "start-delay": "30 secs",
-                "auth-type": None,
-                "virtual-ips": [
-                    "10.10.1.100/32"
-                ]
-            },
-            "tagnode": "1"
-        }
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "",
+            "state": "MASTER",
+            "sync-group": "",
+            "version": 2,
+            "src-ip": "10.10.1.1",
+            "base-priority": 100,
+            "effective-priority": 100,
+            "advert-interval": "2 sec",
+            "accept": True,
+            "preempt": True,
+            "start-delay": "30 secs",
+            "auth-type": None,
+            "virtual-ips": [
+                "10.10.1.100/32"
+            ]
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
@@ -2066,30 +2066,29 @@ def generic_group_preempt_delay_simple_keepalived_data():
 
 @pytest.fixture
 def detailed_preempt_delay_simple_keepalived_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "",
-                "state": "MASTER",
-                "sync-group": "",
-                "version": 2,
-                "src-ip": "10.10.1.1",
-                "base-priority": 100,
-                "effective-priority": 100,
-                "advert-interval": "2 sec",
-                "accept": True,
-                "preempt": True,
-                "preempt-delay": "30 secs",
-                "auth-type": None,
-                "virtual-ips": [
-                    "10.10.1.100/32"
-                ]
-            },
-            "tagnode": "1"
-        }
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "",
+            "state": "MASTER",
+            "sync-group": "",
+            "version": 2,
+            "src-ip": "10.10.1.1",
+            "base-priority": 100,
+            "effective-priority": 100,
+            "advert-interval": "2 sec",
+            "accept": True,
+            "preempt": True,
+            "preempt-delay": "30 secs",
+            "auth-type": None,
+            "virtual-ips": [
+                "10.10.1.100/32"
+            ]
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
@@ -2151,29 +2150,28 @@ def generic_group_vif_simple_keepalived_data():
 
 @pytest.fixture
 def detailed_simple_vif_keepalived_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "",
-                "state": "MASTER",
-                "sync-group": "",
-                "version": 2,
-                "src-ip": "10.10.1.1",
-                "base-priority": 100,
-                "effective-priority": 100,
-                "advert-interval": "2 sec",
-                "accept": True,
-                "preempt": True,
-                "auth-type": None,
-                "virtual-ips": [
-                    "10.10.1.100/32"
-                ]
-            },
-            "tagnode": "1"
-        }
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "",
+            "state": "MASTER",
+            "sync-group": "",
+            "version": 2,
+            "src-ip": "10.10.1.1",
+            "base-priority": 100,
+            "effective-priority": 100,
+            "advert-interval": "2 sec",
+            "accept": True,
+            "preempt": True,
+            "auth-type": None,
+            "virtual-ips": [
+                "10.10.1.100/32"
+            ]
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
@@ -2323,74 +2321,71 @@ def sync_group_simple_keepalived_data():
 
 @pytest.fixture
 def sync_group_simple_keepalived_state():
-    return \
-        {
-            "sync-groups":
-            [
-                {
-                    "name": "TEST",
-                    "state": "MASTER",
-                    "members": [
-                        "vyatta-dp0p1s2-1",
-                        "vyatta-dp0p1s1-1"
-                    ]
-                }
-            ]
-        }
+    return {
+        "sync-groups":
+        [
+            {
+                "name": "TEST",
+                "state": "MASTER",
+                "members": [
+                    "vyatta-dp0p1s2-1",
+                    "vyatta-dp0p1s1-1"
+                ]
+            }
+        ]
+    }
 
 
 @pytest.fixture
 def detailed_multi_group_first_simple_keepalived_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "",
-                "state": "MASTER",
-                "sync-group": "TEST",
-                "version": 2,
-                "src-ip": "10.10.1.1",
-                "base-priority": 200,
-                "effective-priority": 200,
-                "advert-interval": "1 sec",
-                "accept": True,
-                "preempt": True,
-                "auth-type": None,
-                "virtual-ips": [
-                    "10.10.1.100/32"
-                ]
-            },
-            "tagnode": "1"
-        }
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "",
+            "state": "MASTER",
+            "sync-group": "TEST",
+            "version": 2,
+            "src-ip": "10.10.1.1",
+            "base-priority": 200,
+            "effective-priority": 200,
+            "advert-interval": "1 sec",
+            "accept": True,
+            "preempt": True,
+            "auth-type": None,
+            "virtual-ips": [
+                "10.10.1.100/32"
+            ]
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
 def detailed_multi_group_second_simple_keepalived_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "",
-                "state": "MASTER",
-                "sync-group": "TEST",
-                "version": 2,
-                "src-ip": "10.10.2.1",
-                "base-priority": 200,
-                "effective-priority": 200,
-                "advert-interval": "1 sec",
-                "accept": True,
-                "preempt": True,
-                "auth-type": None,
-                "virtual-ips": [
-                    "10.10.2.100/32"
-                ]
-            },
-            "tagnode": "1"
-        }
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "",
+            "state": "MASTER",
+            "sync-group": "TEST",
+            "version": 2,
+            "src-ip": "10.10.2.1",
+            "base-priority": 200,
+            "effective-priority": 200,
+            "advert-interval": "1 sec",
+            "accept": True,
+            "preempt": True,
+            "auth-type": None,
+            "virtual-ips": [
+                "10.10.2.100/32"
+            ]
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
@@ -2679,20 +2674,19 @@ def sync_group_simple_vif_keepalived_data():
 
 @pytest.fixture
 def sync_group_simple_vif_keepalived_state():
-    return \
-        {
-            "sync-groups":
-            [
-                {
-                    "name": "TEST",
-                    "state": "MASTER",
-                    "members": [
-                        "vyatta-dp0p1s2.20-1",
-                        "vyatta-dp0p1s1.10-1"
-                    ]
-                }
-            ]
-        }
+    return {
+        "sync-groups":
+        [
+            {
+                "name": "TEST",
+                "state": "MASTER",
+                "members": [
+                    "vyatta-dp0p1s2.20-1",
+                    "vyatta-dp0p1s1.10-1"
+                ]
+            }
+        ]
+    }
 
 
 @pytest.fixture
@@ -3464,28 +3458,27 @@ Interface: dp0p1s1.10
 
 @pytest.fixture
 def multiple_sync_group_simple_keepalived_state():
-    return \
-        {
-            "sync-groups":
-            [
-                {
-                    "name": "TEST",
-                    "state": "MASTER",
-                    "members": [
-                        "vyatta-dp0p1s2-1",
-                        "vyatta-dp0p1s1-1"
-                    ]
-                },
-                {
-                    "name": "TESTV2",
-                    "state": "MASTER",
-                    "members": [
-                        "vyatta-dp0p1s3-1",
-                        "vyatta-dp0p1s4-1"
-                    ]
-                }
-            ]
-        }
+    return {
+        "sync-groups":
+        [
+            {
+                "name": "TEST",
+                "state": "MASTER",
+                "members": [
+                    "vyatta-dp0p1s2-1",
+                    "vyatta-dp0p1s1-1"
+                ]
+            },
+            {
+                "name": "TESTV2",
+                "state": "MASTER",
+                "members": [
+                    "vyatta-dp0p1s3-1",
+                    "vyatta-dp0p1s4-1"
+                ]
+            }
+        ]
+    }
 
 
 """ Show vrrp interface fixtures """
@@ -3675,528 +3668,586 @@ Interface: dp0p1s2
 
 @pytest.fixture
 def instance_state():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "",
-                "state": "MASTER",
-                "sync-group": "",
-            },
-            "tagnode": "1"
-        }
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "",
+            "state": "MASTER",
+            "sync-group": "",
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
 def instance_state_rfc():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "dp0vrrp1",
-                "state": "MASTER",
-                "sync-group": "",
-            },
-            "tagnode": "1"
-        }
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "dp0vrrp1",
+            "state": "MASTER",
+            "sync-group": "",
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
 def instance_state_rfc_switch():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "sw0vrrp1",
-                "state": "MASTER",
-                "sync-group": "",
-            },
-            "tagnode": "1"
-        }
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "sw0vrrp1",
+            "state": "MASTER",
+            "sync-group": "",
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
 def instance_state_rfc_sync():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": False,
-                "last-transition": 0,
-                "rfc-interface": "dp0vrrp1",
-                "state": "MASTER",
-                "sync-group": "TEST",
-            },
-            "tagnode": "1"
-        }
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "dp0vrrp1",
+            "state": "MASTER",
+            "sync-group": "TEST",
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
 def instance_state_rfc_ipao():
-    return \
+    return {
+        "instance-state":
         {
-            "instance-state":
-            {
-                "address-owner": True,
-                "last-transition": 0,
-                "rfc-interface": "dp0vrrp1",
-                "state": "MASTER",
-                "sync-group": "",
-            },
-            "tagnode": "1"
-        }
+            "address-owner": True,
+            "last-transition": 0,
+            "rfc-interface": "dp0vrrp1",
+            "state": "MASTER",
+            "sync-group": "",
+        },
+        "tagnode": "1"
+    }
 
 
 @pytest.fixture
 def generic_v3_group():
-    return \
-        {
-            "accept": False,
-            "fast-advertise-interval": 2000,
-            "preempt": True,
-            "tagnode": 1,
-            "version": 3,
-            "virtual-address": [
-                "10.10.1.100/25"
-            ]
-        }
+    return {
+        "accept": False,
+        "fast-advertise-interval": 2000,
+        "preempt": True,
+        "tagnode": 1,
+        "version": 3,
+        "virtual-address": [
+            "10.10.1.100/25"
+        ]
+    }
 
 
 @pytest.fixture
 def generic_ipv6_group():
-    return \
-        {
-            "accept": False,
-            "fast-advertise-interval": 2000,
-            "preempt": True,
-            "tagnode": 1,
-            "version": 3,
-            "virtual-address": [
-                "2001::2/64",
-                "fe80::1/64"
-            ]
-        }
+    return {
+        "accept": False,
+        "fast-advertise-interval": 2000,
+        "preempt": True,
+        "tagnode": 1,
+        "version": 3,
+        "virtual-address": [
+            "2001::2/64",
+            "fe80::1/64"
+        ]
+    }
 
 
 @pytest.fixture
 def accept_v3_group():
-    return \
-        {
-            "accept": True,
-            "fast-advertise-interval": 2000,
-            "preempt": True,
-            "tagnode": 1,
-            "version": 3,
-            "virtual-address": [
-                "10.10.1.100/25"
-            ]
-        }
+    return {
+        "accept": True,
+        "fast-advertise-interval": 2000,
+        "preempt": True,
+        "tagnode": 1,
+        "version": 3,
+        "virtual-address": [
+            "10.10.1.100/25"
+        ]
+    }
 
 
 @pytest.fixture
 def nopreempt_v3_group():
-    return \
-        {
-            "accept": False,
-            "fast-advertise-interval": 2000,
-            "preempt": False,
-            "tagnode": 1,
-            "version": 3,
-            "virtual-address": [
-                "10.10.1.100/25"
-            ]
-        }
+    return {
+        "accept": False,
+        "fast-advertise-interval": 2000,
+        "preempt": False,
+        "tagnode": 1,
+        "version": 3,
+        "virtual-address": [
+            "10.10.1.100/25"
+        ]
+    }
 
 
 @pytest.fixture
 def ah_auth_v3_group():
-    return \
-        {
-            "accept": False,
-            "authentication": {
-                "password": "help",
-                "type": "ah"
-            },
-            "fast-advertise-interval": 2000,
-            "preempt": True,
-            "tagnode": 1,
-            "version": 3,
-            "virtual-address": [
-                "10.10.1.100/25"
-            ]
-        }
+    return {
+        "accept": False,
+        "authentication": {
+            "password": "help",
+            "type": "ah"
+        },
+        "fast-advertise-interval": 2000,
+        "preempt": True,
+        "tagnode": 1,
+        "version": 3,
+        "virtual-address": [
+            "10.10.1.100/25"
+        ]
+    }
 
 
 @pytest.fixture
 def generic_v3_fast_advert_group():
-    return \
-        {
-            "accept": False,
-            "fast-advertise-interval": 500,
-            "preempt": True,
-            "tagnode": 1,
-            "version": 3,
-            "virtual-address": [
-                "2001::2/64",
-                "fe80::1/64"
-            ]
-        }
+    return {
+        "accept": False,
+        "fast-advertise-interval": 500,
+        "preempt": True,
+        "tagnode": 1,
+        "version": 3,
+        "virtual-address": [
+            "fe80::1/64",
+            "2001::2/64",
+        ]
+    }
+
+
+@pytest.fixture
+def generic_v3_fast_advert_seconds_group():
+    return {
+        "accept": False,
+        "fast-advertise-interval": 2000,
+        "preempt": True,
+        "tagnode": 1,
+        "version": 3,
+        "virtual-address": [
+            "fe80::1/64",
+            "2001::2/64",
+        ]
+    }
+
+
+@pytest.fixture
+def generic_v3_fast_advert_between_seconds_group():
+    return {
+        "accept": False,
+        "fast-advertise-interval": 2500,
+        "preempt": True,
+        "tagnode": 1,
+        "version": 3,
+        "virtual-address": [
+            "fe80::1/64",
+            "2001::2/64",
+        ]
+    }
 
 
 @pytest.fixture
 def runtransition_v3_group():
-    return \
-        {
-            "accept": False,
-            "fast-advertise-interval": 2000,
-            "preempt": True,
-            "tagnode": 1,
-            "version": 3,
-            "virtual-address": [
-                "10.10.1.100/25"
-            ],
-            "run-transition-scripts": {
-                "master": "master.py",
-                "backup": "backup.py",
-                "fault": "fault.py"
-            }
+    return {
+        "accept": False,
+        "fast-advertise-interval": 2000,
+        "preempt": True,
+        "tagnode": 1,
+        "version": 3,
+        "virtual-address": [
+            "10.10.1.100/25"
+        ],
+        "run-transition-scripts": {
+            "master": "master.py",
+            "backup": "backup.py",
+            "fault": "fault.py"
         }
+    }
 
 
 @pytest.fixture
 def legacy_and_enhanced_track_group():
-    return \
-        {
-            "accept": False,
-            "fast-advertise-interval": 2000,
-            "preempt": True,
-            "tagnode": 1,
-            "version": 3,
-            "virtual-address": [
-                "10.10.1.100/25"
-            ],
-            "track": {
-                "interface": [
-                    {
-                        "name": "dp0p1s1",
-                    },
-                ]
-            },
-            "track-interface": [
+    return {
+        "accept": False,
+        "fast-advertise-interval": 2000,
+        "preempt": True,
+        "tagnode": 1,
+        "version": 3,
+        "virtual-address": [
+            "10.10.1.100/25"
+        ],
+        "track": {
+            "interface": [
                 {
-                    "name": "lo"
-                }
+                    "name": "dp0p1s1",
+                },
             ]
-        }
+        },
+        "track-interface": [
+            {
+                "name": "lo"
+            }
+        ]
+    }
 
 
 @pytest.fixture
 def legacy_and_pathmon_enhanced_track_group(pathmon_yang_name):
-    return \
-        {
-            "accept": False,
-            "fast-advertise-interval": 2000,
-            "preempt": True,
-            "tagnode": 1,
-            "version": 3,
-            "virtual-address": [
-                "10.10.1.100/25"
-            ],
-            "track": {
-                pathmon_yang_name: {
-                    "monitor": [
-                        {
-                            "name": "test_monitor",
-                            "policy": [
-                                {
-                                    "name": "test_policy",
-                                }
-                            ]
-                        }
-                    ]
-                }
-            },
-            "track-interface": [
-                {
-                    "name": "lo"
-                }
-            ]
-        }
+    return {
+        "accept": False,
+        "fast-advertise-interval": 2000,
+        "preempt": True,
+        "tagnode": 1,
+        "version": 3,
+        "virtual-address": [
+            "10.10.1.100/25"
+        ],
+        "track": {
+            pathmon_yang_name: {
+                "monitor": [
+                    {
+                        "name": "test_monitor",
+                        "policy": [
+                            {
+                                "name": "test_policy",
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "track-interface": [
+            {
+                "name": "lo"
+            }
+        ]
+    }
 
 
 @pytest.fixture
 def legacy_track_group():
-    return \
-        {
-            "accept": False,
-            "fast-advertise-interval": 2000,
-            "preempt": True,
-            "tagnode": 1,
-            "version": 3,
-            "virtual-address": [
-                "10.10.1.100/25"
-            ],
-            "track-interface": [
+    return {
+        "accept": False,
+        "fast-advertise-interval": 2000,
+        "preempt": True,
+        "tagnode": 1,
+        "version": 3,
+        "virtual-address": [
+            "10.10.1.100/25"
+        ],
+        "track-interface": [
+            {
+                "tagnode": "dp0p1s1",
+                "weight": {
+                    "type": "increment",
+                    "value": 10
+                }
+            },
+            {
+                "tagnode": "dp0s2",
+                "weight": {
+                    "type": "decrement",
+                    "value": 10
+                }
+            },
+            {
+                "tagnode": "lo"
+            }
+        ]
+    }
+
+
+@pytest.fixture
+def pathmon_track_group(pathmon_yang_name):
+    return {
+        "accept": False,
+        "preempt": True,
+        "tagnode": 1,
+        "version": 3,
+        "virtual-address": [
+            "10.10.1.100/25"
+        ],
+        "track": {
+            pathmon_yang_name: {
+                "monitor": [
+                    {
+                        "name": "test_monitor",
+                        "policy": [
+                            {
+                                "name": "test_policy",
+                                "weight": {
+                                    "type": "increment",
+                                    "value": 10
+                                }
+                            },
+                            {
+                                "name": "tester_policy",
+                                "weight": {
+                                    "type": "decrement",
+                                    "value": 10
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+    }
+
+
+@pytest.fixture
+def route_to_track_group(route_to_yang_name):
+    return {
+        "accept": False,
+        "preempt": True,
+        "tagnode": 1,
+        "version": 3,
+        "virtual-address": [
+            "10.10.1.100/25"
+        ],
+        "track": {
+            route_to_yang_name: [
                 {
-                    "tagnode": "dp0p1s1",
+                    "route": "10.10.10.128/25",
                     "weight": {
                         "type": "increment",
                         "value": 10
                     }
                 },
                 {
-                    "tagnode": "dp0s2",
+                    "route": "10.10.10.0/24",
                     "weight": {
                         "type": "decrement",
                         "value": 10
                     }
                 },
                 {
-                    "tagnode": "lo"
+                    "route": "0.0.0.0/0"
                 }
             ]
-        }
-
-
-@pytest.fixture
-def pathmon_track_group(pathmon_yang_name):
-    return \
-        {
-            "accept": False,
-            "preempt": True,
-            "tagnode": 1,
-            "version": 3,
-            "virtual-address": [
-                "10.10.1.100/25"
-            ],
-            "track": {
-                pathmon_yang_name: {
-                    "monitor": [
-                        {
-                            "name": "test_monitor",
-                            "policy": [
-                                {
-                                    "name": "test_policy",
-                                    "weight": {
-                                        "type": "increment",
-                                        "value": 10
-                                    }
-                                },
-                                {
-                                    "name": "tester_policy",
-                                    "weight": {
-                                        "type": "decrement",
-                                        "value": 10
-                                    }
-                                }
-                            ]
-                        }
-                    ]
-                }
-            },
-        }
-
-
-@pytest.fixture
-def route_to_track_group(route_to_yang_name):
-    return \
-        {
-            "accept": False,
-            "preempt": True,
-            "tagnode": 1,
-            "version": 3,
-            "virtual-address": [
-                "10.10.1.100/25"
-            ],
-            "track": {
-                route_to_yang_name: [
-                    {
-                        "route": "10.10.10.128/25",
-                        "weight": {
-                            "type": "increment",
-                            "value": 10
-                        }
-                    },
-                    {
-                        "route": "10.10.10.0/24",
-                        "weight": {
-                            "type": "decrement",
-                            "value": 10
-                        }
-                    },
-                    {
-                        "route": "0.0.0.0/0"
-                    }
-                ]
-            },
-        }
+        },
+    }
 
 
 @pytest.fixture
 def max_config_group(pathmon_yang_name, route_to_yang_name):
-    return \
-        {
-            "accept": False,
-            "advertise-interval": 2,
-            "authentication": {
-                "password": "help",
-                "type": "plaintext-password"
-            },
-            "hello-source-address": "127.0.0.1",
-            "notify": {
-                "bgp": [
-                    None
-                ],
-                "ipsec": [
-                    None
-                ]
-            },
-            "preempt": True,
-            "preempt-delay": 10,
-            "priority": 200,
-            "rfc-compatibility": [
+    return {
+        "accept": False,
+        "advertise-interval": 2,
+        "authentication": {
+            "password": "help",
+            "type": "plaintext-password"
+        },
+        "hello-source-address": "127.0.0.1",
+        "notify": {
+            "bgp": [
                 None
             ],
-            "tagnode": 1,
-            "track": {
-                "interface": [
-                    {
-                        "name": "dp0p1s1",
-                        "weight": {
-                            "type": "increment",
-                            "value": 10
-                        }
-                    },
-                    {
-                        "name": "dp0s2",
-                        "weight": {
-                            "type": "decrement",
-                            "value": 10
-                        }
-                    },
-                    {
-                        "name": "lo"
+            "ipsec": [
+                None
+            ]
+        },
+        "preempt": True,
+        "preempt-delay": 10,
+        "priority": 200,
+        "rfc-compatibility": [
+            None
+        ],
+        "tagnode": 1,
+        "track": {
+            "interface": [
+                {
+                    "name": "dp0p1s1",
+                    "weight": {
+                        "type": "increment",
+                        "value": 10
                     }
-                ],
-                pathmon_yang_name: {
-                    "monitor": [
-                        {
-                            "name": "test_monitor",
-                            "policy": [
-                                {
-                                    "name": "test_policy",
-                                    "weight": {
-                                        "type": "decrement",
-                                        "value": 10
-                                    }
-                                }
-                            ]
-                        }
-                    ]
                 },
-                route_to_yang_name: [
-                    {"route": "10.10.10.0/24"}
+                {
+                    "name": "dp0s2",
+                    "weight": {
+                        "type": "decrement",
+                        "value": 10
+                    }
+                },
+                {
+                    "name": "lo"
+                }
+            ],
+            pathmon_yang_name: {
+                "monitor": [
+                    {
+                        "name": "test_monitor",
+                        "policy": [
+                            {
+                                "name": "test_policy",
+                                "weight": {
+                                    "type": "decrement",
+                                    "value": 10
+                                }
+                            }
+                        ]
+                    }
                 ]
             },
-            "version": 2,
-            "virtual-address": [
-                "10.10.1.100/25"
+            route_to_yang_name: [
+                {"route": "10.10.10.0/24"}
             ]
-        }
+        },
+        "version": 2,
+        "virtual-address": [
+            "10.10.1.100/25"
+        ]
+    }
 
 
 @pytest.fixture
 def disabled_group():
-    return \
-        {
-            "accept": False,
-            "disable": [None],
-            "preempt": True,
-            "priority": 100,
-            "tagnode": 1,
-            "version": 2,
-            "virtual-address": [
-                "10.10.1.100/25"
-            ]
-        }
+    return {
+        "accept": False,
+        "disable": [None],
+        "preempt": True,
+        "priority": 100,
+        "tagnode": 1,
+        "version": 2,
+        "virtual-address": [
+            "10.10.1.100/25"
+        ]
+    }
 
 
 @pytest.fixture
 def preempt_delay_ignored_group():
-    return \
-        {
-            "accept": False,
-            "preempt": False,
-            "preempt-delay": 10,
-            "priority": 200,
-            "tagnode": 1,
-            "version": 2,
-            "virtual-address": [
-                "10.10.1.100/25"
-            ]
-        }
+    return {
+        "accept": False,
+        "preempt": False,
+        "preempt-delay": 10,
+        "priority": 200,
+        "tagnode": 1,
+        "version": 2,
+        "virtual-address": [
+            "10.10.1.100/25"
+        ]
+    }
 
 
 @pytest.fixture
 def sync_group1():
-    return \
-        {
-            "accept": False,
-            "preempt": True,
-            "priority": 200,
-            "sync-group": "TEST",
-            "tagnode": 1,
-            "version": 2,
-            "virtual-address": [
-                "10.10.1.100"
-            ]
-        }
+    return {
+        "accept": False,
+        "preempt": True,
+        "priority": 200,
+        "sync-group": "TEST",
+        "tagnode": 1,
+        "version": 2,
+        "virtual-address": [
+            "10.10.1.100"
+        ]
+    }
 
 
 @pytest.fixture
 def sync_group2():
-    return \
-        {
-            "accept": False,
-            "preempt": True,
-            "priority": 200,
-            "sync-group": "TEST",
-            "tagnode": 1,
-            "version": 2,
-            "virtual-address": [
-                "10.10.2.100"
-            ]
-        }
+    return {
+        "accept": False,
+        "preempt": True,
+        "priority": 200,
+        "sync-group": "TEST",
+        "tagnode": 1,
+        "version": 2,
+        "virtual-address": [
+            "10.10.2.100"
+        ]
+    }
+
+
+@pytest.fixture
+def sync_group3():
+    return {
+        "accept": False,
+        "preempt": True,
+        "priority": 200,
+        "sync-group": "TESTV2",
+        "tagnode": 1,
+        "version": 2,
+        "virtual-address": [
+            "10.10.1.100"
+        ]
+    }
+
+
+@pytest.fixture
+def sync_group4():
+    return {
+        "accept": False,
+        "preempt": True,
+        "priority": 200,
+        "sync-group": "TESTV2",
+        "tagnode": 1,
+        "version": 2,
+        "virtual-address": [
+            "10.10.2.100"
+        ]
+    }
 
 
 @pytest.fixture
 def syncgroup1_dataplane_interface(sync_group1):
-    return \
-        {
-            "tagnode": "dp0p1s1",
-            "vyatta-vrrp-v1:vrrp": {
-                "start-delay": 0,
-                "vrrp-group": [sync_group1]
-            }
+    return {
+        "tagnode": "dp0p1s1",
+        "vyatta-vrrp-v1:vrrp": {
+            "start-delay": 0,
+            "vrrp-group": [sync_group1]
         }
+    }
 
 
 @pytest.fixture
 def syncgroup2_dataplane_interface(sync_group2):
-    return \
-        {
-            "tagnode": "dp0p1s2",
-            "vyatta-vrrp-v1:vrrp": {
-                "start-delay": 0,
-                "vrrp-group": [sync_group2]
-            }
+    return {
+        "tagnode": "dp0p1s2",
+        "vyatta-vrrp-v1:vrrp": {
+            "start-delay": 0,
+            "vrrp-group": [sync_group2]
         }
+    }
+
+
+@pytest.fixture
+def syncgroup3_dataplane_interface(sync_group3):
+    return {
+        "tagnode": "dp0p1s3",
+        "vyatta-vrrp-v1:vrrp": {
+            "start-delay": 0,
+            "vrrp-group": [sync_group3]
+        }
+    }
+
+
+@pytest.fixture
+def syncgroup4_dataplane_interface(sync_group4):
+    return {
+        "tagnode": "dp0p1s4",
+        "vyatta-vrrp-v1:vrrp": {
+            "start-delay": 0,
+            "vrrp-group": [sync_group4]
+        }
+    }
 
 
 @pytest.fixture
@@ -4234,6 +4285,40 @@ vrrp_instance vyatta-dp0p1s2-1 {
 
 
 @pytest.fixture
+def syncgroup3_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0p1s3-1 {
+    state BACKUP
+    interface dp0p1s3
+    virtual_router_id 1
+    version 2
+    start_delay 0
+    priority 200
+    advert_int 1
+    virtual_ipaddress {
+        10.10.1.100
+    }
+}"""
+
+
+@pytest.fixture
+def syncgroup4_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0p1s4-1 {
+    state BACKUP
+    interface dp0p1s4
+    virtual_router_id 1
+    version 2
+    start_delay 0
+    priority 200
+    advert_int 1
+    virtual_ipaddress {
+        10.10.2.100
+    }
+}"""
+
+
+@pytest.fixture
 def syncgroup_keepalived_section():
     return """
 vrrp_sync_group TEST {
@@ -4246,15 +4331,26 @@ vrrp_sync_group TEST {
 
 
 @pytest.fixture
+def second_syncgroup_keepalived_section():
+    return """
+vrrp_sync_group TESTV2 {
+    group {
+        vyatta-dp0p1s3-1
+        vyatta-dp0p1s4-1
+    }
+}
+"""
+
+
+@pytest.fixture
 def dataplane_interface(generic_group):
-    return \
-        {
-            "tagnode": "dp0p1s1",
-            "vyatta-vrrp-v1:vrrp": {
-                "start-delay": 0,
-                "vrrp-group": [generic_group]
-            }
+    return {
+        "tagnode": "dp0p1s1",
+        "vyatta-vrrp-v1:vrrp": {
+            "start-delay": 0,
+            "vrrp-group": [copy.deepcopy(generic_group)]
         }
+    }
 
 
 @pytest.fixture
@@ -4262,6 +4358,18 @@ def syncgroup_dataplane_list(
         syncgroup1_dataplane_interface,
         syncgroup2_dataplane_interface):
     return [syncgroup1_dataplane_interface, syncgroup2_dataplane_interface]
+
+
+@pytest.fixture
+def multiple_syncgroup_dataplane_list(
+        syncgroup1_dataplane_interface,
+        syncgroup2_dataplane_interface,
+        syncgroup3_dataplane_interface,
+        syncgroup4_dataplane_interface):
+    return [
+        syncgroup1_dataplane_interface, syncgroup2_dataplane_interface,
+        syncgroup3_dataplane_interface, syncgroup4_dataplane_interface
+    ]
 
 
 @pytest.fixture
@@ -4419,6 +4527,44 @@ vrrp_instance vyatta-dp0p1s1-1 {
     start_delay 0
     priority 100
     advert_int 0.5
+    virtual_ipaddress {
+        fe80::1/64
+        2001::2/64
+    }
+    native_ipv6
+}"""
+
+
+@pytest.fixture
+def generic_v3_fast_advert_group_seconds_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0p1s1-1 {
+    state BACKUP
+    interface dp0p1s1
+    virtual_router_id 1
+    version 3
+    start_delay 0
+    priority 100
+    advert_int 2
+    virtual_ipaddress {
+        fe80::1/64
+        2001::2/64
+    }
+    native_ipv6
+}"""
+
+
+@pytest.fixture
+def generic_v3_fast_advert_group_between_seconds_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0p1s1-1 {
+    state BACKUP
+    interface dp0p1s1
+    virtual_router_id 1
+    version 3
+    start_delay 0
+    priority 100
+    advert_int 2.5
     virtual_ipaddress {
         fe80::1/64
         2001::2/64
@@ -4614,45 +4760,43 @@ vrrp_instance vyatta-dp0p1s1-1 {
 
 @pytest.fixture
 def second_dataplane_interface():
-    return \
-        {
-            "tagnode": "dp0p1s2",
-            "vyatta-vrrp-v1:vrrp": {
-                "start-delay": 0
-            }
+    return {
+        "tagnode": "dp0p1s2",
+        "vyatta-vrrp-v1:vrrp": {
+            "start-delay": 0
         }
+    }
 
 
 @pytest.fixture
 def switch_vif_interface():
-    return \
-        {
-            "tagnode": "sw0",
-            "vif": [
-                {
-                    "tagnode": "10",
-                    "vyatta-vrrp-v1:vrrp": {
-                        "start-delay": 0
-                    }
+    return {
+        "tagnode": "sw0",
+        "vif": [
+            {
+                "tagnode": "10",
+                "vyatta-vrrp-v1:vrrp": {
+                    "start-delay": 0
                 }
-            ],
-            "vyatta-vrrp-v1:vrrp": {
-                "start-delay": 0
             }
+        ],
+        "vyatta-vrrp-v1:vrrp": {
+            "start-delay": 0
         }
+    }
 
 
 @pytest.fixture
 def vif_switch_list_sanitized(generic_group):
-    switch_intf = \
+    return [
         {
             "tagnode": "sw0.10",
             "vyatta-vrrp-v1:vrrp": {
                 "start-delay": 0,
-                "vrrp-group": [generic_group]
+                "vrrp-group": [copy.deepcopy(generic_group)]
             }
         }
-    return [switch_intf]
+    ]
 
 
 @pytest.fixture
@@ -4692,14 +4836,18 @@ def vrrp_yang_name():
 
 @pytest.fixture
 def pathmon_yang_name():
-    return \
-        "vyatta-vrrp-path-monitor-track-interfaces-dataplane-v1:path-monitor"
+    return (
+        "vyatta-vrrp-path-monitor-track-interfaces-dataplane-v1:"
+        "path-monitor"
+    )
 
 
 @pytest.fixture
 def route_to_yang_name():
-    return \
-        "vyatta-vrrp-route-to-track-interfaces-dataplane-v1:route-to"
+    return (
+        "vyatta-vrrp-route-to-track-interfaces-dataplane-v1"
+        ":route-to"
+    )
 
 
 @pytest.fixture
@@ -5259,6 +5407,22 @@ def complex_config(top_level_dictionary, interface_yang_name,
 
 
 @pytest.fixture
+def bonding_config(top_level_dictionary, interface_yang_name,
+                   bonding_yang_name, bonding_list, vrrp_yang_name):
+    simple_yang_config = copy.deepcopy(top_level_dictionary)
+    simple_yang_config[interface_yang_name][bonding_yang_name] = \
+        copy.deepcopy(bonding_list)
+    intf_list = simple_yang_config[interface_yang_name]
+    bonding_intf = intf_list[bonding_yang_name][0][vrrp_yang_name]
+    bonding_intf["start-delay"] = 60
+    bonding_intf["vrrp-group"][0]["virtual-address"] = \
+        ["10.11.2.100/25"]
+    bonding_intf["vrrp-group"][0]["tagnode"] = 2
+    del bonding_intf["vrrp-group"][0]["priority"]
+    return simple_yang_config
+
+
+@pytest.fixture
 def simple_bonding_config(top_level_dictionary, interface_yang_name,
                           bonding_yang_name, bonding_list):
     simple_yang_config = top_level_dictionary
@@ -5270,11 +5434,11 @@ def simple_bonding_config(top_level_dictionary, interface_yang_name,
 def simple_dataplane_vif_config(
         top_level_dictionary, interface_yang_name, dataplane_yang_name,
         vif_dataplane_list, dataplane_list):
-    simple_yang_config = top_level_dictionary
+    simple_yang_config = copy.deepcopy(top_level_dictionary)
     simple_yang_config[interface_yang_name][dataplane_yang_name] = \
-        dataplane_list
+        copy.deepcopy(dataplane_list)
     simple_yang_config[interface_yang_name][dataplane_yang_name][0]["vif"] = \
-        vif_dataplane_list
+        copy.deepcopy(vif_dataplane_list)
     return simple_yang_config
 
 
@@ -5298,31 +5462,211 @@ def syncgroup_config(top_level_dictionary, interface_yang_name,
 
 
 @pytest.fixture
-def vif_dataplane_interface():
-    return \
-        {
-            "tagnode": "10",
-            "vyatta-vrrp-v1:vrrp": {
-                "start-delay": 0
-            }
+def multiple_syncgroup_config(
+    top_level_dictionary, interface_yang_name, dataplane_yang_name,
+    multiple_syncgroup_dataplane_list
+):
+    syncgroup_yang_config = top_level_dictionary
+    syncgroup_yang_config[interface_yang_name][dataplane_yang_name] =\
+        multiple_syncgroup_dataplane_list
+    return syncgroup_yang_config
+
+
+@pytest.fixture
+def no_vrrp_config(
+        top_level_dictionary, interface_yang_name, dataplane_yang_name,
+        dataplane_list, vrrp_yang_name):
+    simple_yang_config = copy.deepcopy(top_level_dictionary)
+    new_list = copy.deepcopy(dataplane_list)
+    simple_yang_config[interface_yang_name][dataplane_yang_name] = \
+        new_list
+    del new_list[0][vrrp_yang_name]["vrrp-group"]
+    return simple_yang_config
+
+
+@pytest.fixture
+def simple_multi_intf_same_type_config(
+        top_level_dictionary, interface_yang_name,
+        dataplane_yang_name, dataplane_list,
+        second_dataplane_interface):
+    simple_yang_config = copy.deepcopy(top_level_dictionary)
+    simple_yang_config[interface_yang_name][dataplane_yang_name] =\
+        copy.deepcopy(dataplane_list)
+    simple_yang_config[interface_yang_name][dataplane_yang_name].append(
+        second_dataplane_interface)
+    return simple_yang_config
+
+
+@pytest.fixture
+def simple_multi_intf_differing_type_config(
+        top_level_dictionary, interface_yang_name,
+        dataplane_yang_name, bonding_yang_name,
+        dataplane_list, second_dataplane_interface,
+        bonding_list):
+    simple_yang_config = copy.deepcopy(top_level_dictionary)
+    simple_yang_config[interface_yang_name][dataplane_yang_name] =\
+        copy.deepcopy(dataplane_list)
+    simple_yang_config[interface_yang_name][dataplane_yang_name].append(
+        second_dataplane_interface)
+    simple_yang_config[interface_yang_name][bonding_yang_name] = \
+        bonding_list
+    return simple_yang_config
+
+
+@pytest.fixture
+def simple_multi_intf_differing_type_config_sanitized(
+        top_level_dictionary, interface_yang_name,
+        dataplane_yang_name, bonding_yang_name,
+        dataplane_list, bonding_list):
+    simple_yang_config = copy.deepcopy(top_level_dictionary)
+    simple_yang_config[interface_yang_name][dataplane_yang_name] =\
+        copy.deepcopy(dataplane_list)
+    simple_yang_config[interface_yang_name][bonding_yang_name] = \
+        bonding_list
+    return simple_yang_config
+
+
+@pytest.fixture
+def simple_dataplane_vif_with_vrrp_config(
+        top_level_dictionary, interface_yang_name, dataplane_yang_name,
+        vrrp_yang_name,
+        vif_dataplane_interface, dataplane_list, generic_group):
+    simple_yang_config = copy.deepcopy(top_level_dictionary)
+    simple_yang_config[interface_yang_name][dataplane_yang_name] = \
+        copy.deepcopy(dataplane_list)
+    simple_yang_config[interface_yang_name][dataplane_yang_name][0]["vif"] = \
+        [copy.deepcopy(vif_dataplane_interface)]
+    vif_list = \
+        simple_yang_config[interface_yang_name][dataplane_yang_name][0]["vif"]
+    vif_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [copy.deepcopy(generic_group)]
+    return simple_yang_config
+
+
+@pytest.fixture
+def simple_dataplane_vif_sanitized_config(
+        top_level_dictionary, interface_yang_name, dataplane_yang_name,
+        vif_dataplane_list_sanitized, dataplane_list):
+    simple_yang_config = copy.deepcopy(top_level_dictionary)
+    simple_yang_config[interface_yang_name]["vif"] = \
+        copy.deepcopy(vif_dataplane_list_sanitized)
+    simple_yang_config[interface_yang_name][dataplane_yang_name] = \
+        copy.deepcopy(dataplane_list)
+    return simple_yang_config
+
+
+@pytest.fixture
+def simple_multi_intf_type_vif_config(
+        top_level_dictionary, interface_yang_name, dataplane_yang_name,
+        bonding_yang_name, vrrp_yang_name,
+        vif_dataplane_list, dataplane_list,
+        vif_bonding_list, bonding_list, generic_group):
+    simple_yang_config = copy.deepcopy(top_level_dictionary)
+    simple_yang_config[interface_yang_name][dataplane_yang_name] = \
+        copy.deepcopy(dataplane_list)
+    simple_yang_config[interface_yang_name][dataplane_yang_name][0]["vif"] = \
+        copy.deepcopy(vif_dataplane_list)
+    dp_vif = \
+        simple_yang_config[interface_yang_name][dataplane_yang_name][0]["vif"]
+    dp_vif[0][vrrp_yang_name]["vrrp-group"] = [copy.deepcopy(generic_group)]
+    simple_yang_config[interface_yang_name][bonding_yang_name] = \
+        copy.deepcopy(bonding_list)
+    simple_yang_config[interface_yang_name][bonding_yang_name][0]["vif"] = \
+        copy.deepcopy(vif_bonding_list)
+    bond_vif = \
+        simple_yang_config[interface_yang_name][bonding_yang_name][0]["vif"]
+    modified_group = copy.deepcopy(generic_group)
+    modified_group["tagnode"] = 50
+    bond_vif[0][vrrp_yang_name]["vrrp-group"] = [modified_group]
+    return simple_yang_config
+
+
+@pytest.fixture
+def simple_multi_intf_type_vif_sanitized_config(
+        top_level_dictionary, interface_yang_name, dataplane_yang_name,
+        bonding_yang_name, dataplane_list, bonding_list,
+        vif_two_type_list_sanitized):
+    simple_yang_config = top_level_dictionary
+    simple_yang_config[interface_yang_name][dataplane_yang_name] = \
+        copy.deepcopy(dataplane_list)
+    simple_yang_config[interface_yang_name][bonding_yang_name] = \
+        copy.deepcopy(bonding_list)
+    simple_yang_config[interface_yang_name]["vif"] = \
+        copy.deepcopy(vif_two_type_list_sanitized)
+    return simple_yang_config
+
+
+@pytest.fixture
+def parent_and_vif_config(
+    simple_dataplane_vif_config, interface_yang_name,
+    dataplane_yang_name, vrrp_yang_name, generic_group
+):
+    new_yang_config = copy.deepcopy(simple_dataplane_vif_config)
+    intf_level = new_yang_config[interface_yang_name]
+    vif_intf = intf_level[dataplane_yang_name][0]["vif"][0]
+    vif_group = copy.deepcopy(generic_group)
+    vif_group["virtual-address"] = ["10.10.2.100/25"]
+    del vif_group["priority"]
+    vif_group["tagnode"] = 2
+    vif_intf[vrrp_yang_name]["vrrp-group"] = [vif_group]
+    return new_yang_config
+
+
+@pytest.fixture
+def switch_config(
+    simple_switch_config, interface_yang_name,
+    switch_yang_name, vrrp_yang_name, generic_rfc_group
+):
+    new_yang_config = copy.deepcopy(simple_switch_config)
+    intf_level = new_yang_config[interface_yang_name]
+    vif_intf = intf_level[switch_yang_name][0]["vif"][0]
+    del intf_level[switch_yang_name][0][vrrp_yang_name]
+    vif_group = copy.deepcopy(generic_rfc_group)
+    vif_intf[vrrp_yang_name]["vrrp-group"] = [vif_group]
+    return new_yang_config
+
+
+@pytest.fixture
+def disabled_vrrp_config(
+    interface_yang_name, dataplane_yang_name, vrrp_yang_name,
+    disabled_group, dataplane_interface
+):
+    disabled_interface = copy.deepcopy(dataplane_interface)
+    disabled_interface["vyatta-vrrp-v1:vrrp"]["vrrp-group"] = [
+        disabled_group
+    ]
+    disabled_config = {
+        interface_yang_name: {
+            dataplane_yang_name: [copy.deepcopy(disabled_interface)]
         }
+    }
+    return disabled_config
+
+
+@pytest.fixture
+def vif_dataplane_interface():
+    return {
+        "tagnode": "10",
+        "vyatta-vrrp-v1:vrrp": {
+            "start-delay": 0
+        }
+    }
 
 
 @pytest.fixture
 def vif_dataplane_list(vif_dataplane_interface):
-    return [vif_dataplane_interface]
+    return [copy.deepcopy(vif_dataplane_interface)]
 
 
 @pytest.fixture
 def vif_dataplane_interface_sanitized(generic_group):
-    return \
-        {
-            "tagnode": "dp0p1s1.10",
-            "vyatta-vrrp-v1:vrrp": {
-                "start-delay": 0,
-                "vrrp-group": [generic_group]
-            }
+    return {
+        "tagnode": "dp0p1s1.10",
+        "vyatta-vrrp-v1:vrrp": {
+            "start-delay": 0,
+            "vrrp-group": [copy.deepcopy(generic_group)]
         }
+    }
 
 
 @pytest.fixture
@@ -5349,13 +5693,12 @@ def vif_dataplane_list_sanitized(vif_dataplane_interface_sanitized):
 
 @pytest.fixture
 def vif_bonding_interface():
-    return \
-        {
-            "tagnode": "100",
-            "vyatta-vrrp-v1:vrrp": {
-                "start-delay": 0
-            }
+    return {
+        "tagnode": "100",
+        "vyatta-vrrp-v1:vrrp": {
+            "start-delay": 0
         }
+    }
 
 
 @pytest.fixture
@@ -5365,16 +5708,15 @@ def vif_bonding_list(vif_bonding_interface):
 
 @pytest.fixture
 def vif_bonding_interface_sanitized(generic_group):
-    modified_group = generic_group
+    modified_group = copy.deepcopy(generic_group)
     modified_group["tagnode"] = 50
-    return \
-        {
-            "tagnode": "dp0bond0.100",
-            "vyatta-vrrp-v1:vrrp": {
-                "start-delay": 0,
-                "vrrp-group": [modified_group]
-            }
+    return {
+        "tagnode": "dp0bond0.100",
+        "vyatta-vrrp-v1:vrrp": {
+            "start-delay": 0,
+            "vrrp-group": [modified_group]
         }
+    }
 
 
 @pytest.fixture
@@ -5391,14 +5733,13 @@ def vif_two_type_list_sanitized(vif_dataplane_list_sanitized,
 
 @pytest.fixture
 def bonding_interface(generic_group):
-    return \
-        {
-            "tagnode": "dp0bond0",
-            "vyatta-vrrp-v1:vrrp": {
-                "start-delay": 0,
-                "vrrp-group": [generic_group]
-            }
+    return {
+        "tagnode": "dp0bond0",
+        "vyatta-vrrp-v1:vrrp": {
+            "start-delay": 0,
+            "vrrp-group": [copy.deepcopy(generic_group)]
         }
+    }
 
 
 @pytest.fixture
@@ -5447,22 +5788,251 @@ def simple_keepalived_config(autogeneration_string,
 
 
 @pytest.fixture
-def simple_v3_keepalived_config(
+def generic_v3_keepalived_config(
         autogeneration_string,
-        generic_ipv6_fast_advert_group_keepalived_config):
-    return f"{autogeneration_string}" +\
-        f"{generic_ipv6_fast_advert_group_keepalived_config}"
+        generic_v3_group_keepalived_config):
+    return (
+        f"{autogeneration_string}"
+        f"{generic_v3_group_keepalived_config}"
+    )
 
 
 @pytest.fixture
-def syncgroup_keepalived_config(autogeneration_string,
-                                syncgroup_keepalived_section,
-                                syncgroup1_keepalived_config,
-                                syncgroup2_keepalived_config):
-    return f"{autogeneration_string}" + \
-        f"{syncgroup_keepalived_section}" + \
-        f"{syncgroup1_keepalived_config}" + \
+def simple_v3_keepalived_config(
+        autogeneration_string,
+        generic_ipv6_fast_advert_group_keepalived_config):
+    return (
+        f"{autogeneration_string}"
+        f"{generic_ipv6_fast_advert_group_keepalived_config}"
+    )
+
+
+@pytest.fixture
+def syncgroup_keepalived_config(
+    autogeneration_string, syncgroup_keepalived_section,
+    syncgroup1_keepalived_config, syncgroup2_keepalived_config,
+):
+    return (
+        f"{autogeneration_string}"
+        f"{syncgroup_keepalived_section}"
+        f"{syncgroup1_keepalived_config}"
         f"{syncgroup2_keepalived_config}"
+    )
+
+
+@pytest.fixture
+def multiple_syncgroup_keepalived_config(
+    autogeneration_string, syncgroup_keepalived_section,
+    second_syncgroup_keepalived_section,
+    syncgroup1_keepalived_config, syncgroup2_keepalived_config,
+    syncgroup3_keepalived_config, syncgroup4_keepalived_config
+):
+    return (
+        f"{autogeneration_string}"
+        f"{syncgroup_keepalived_section}"
+        f"{second_syncgroup_keepalived_section}"
+        f"{syncgroup1_keepalived_config}"
+        f"{syncgroup2_keepalived_config}"
+        f"{syncgroup3_keepalived_config}"
+        f"{syncgroup4_keepalived_config}"
+    )
+
+
+@pytest.fixture
+def multiple_group_keepalived_config(
+        autogeneration_string,
+        dataplane_group_keepalived_config,
+        bonding_group_keepalived_config):
+    return (
+        f"{autogeneration_string}"
+        f"{dataplane_group_keepalived_config}"
+        f"{bonding_group_keepalived_config}"
+    )
+
+
+@pytest.fixture
+def complex_keepalived_config(
+        autogeneration_string,
+        max_group_keepalived_config):
+    return (
+        f"{autogeneration_string}"
+        f"{max_group_keepalived_config}"
+    )
+
+
+@pytest.fixture
+def bonding_keepalived_config(
+        autogeneration_string,
+        bonding_group_keepalived_config):
+    return (
+        f"{autogeneration_string}"
+        f"{bonding_group_keepalived_config}"
+    )
+
+
+@pytest.fixture
+def parent_and_vif_keepalived_config(
+        autogeneration_string,
+        dataplane_group_keepalived_config,
+        dataplane_vif_group_keepalived_config):
+    return (
+        f"{autogeneration_string}"
+        f"{dataplane_group_keepalived_config}"
+        f"{dataplane_vif_group_keepalived_config}"
+    )
+
+
+@pytest.fixture
+def switch_keepalived_config(
+        autogeneration_string,
+        switch_rfc_group_keepalived_config):
+    return (
+        f"{autogeneration_string}"
+        f"{switch_rfc_group_keepalived_config}"
+    )
+
+
+@pytest.fixture
+def autogeneration_config_block(autogeneration_string):
+    return [
+        [line.strip(" ") for line in autogeneration_string.splitlines()[6:]]
+    ]
+
+
+@pytest.fixture
+def simple_keepalived_config_block(
+        dataplane_group_keepalived_config):
+    return [
+        [
+            line.strip(" ")
+            for line in dataplane_group_keepalived_config.splitlines()[1:]
+        ]
+    ]
+
+
+@pytest.fixture
+def multiple_group_keepalived_config_block(
+        dataplane_group_keepalived_config,
+        bonding_group_keepalived_config):
+    return [
+        [
+            line.strip(" ")
+            for line in dataplane_group_keepalived_config.splitlines()[1:]
+        ],
+        [
+            line.strip(" ")
+            for line in bonding_group_keepalived_config.splitlines()[1:]
+        ]
+    ]
+
+
+@pytest.fixture
+def complex_keepalived_config_block(max_group_keepalived_config):
+    return [
+        [
+            line.strip(" ")
+            for line in max_group_keepalived_config.splitlines()[1:]
+        ]
+    ]
+
+
+@pytest.fixture
+def pathmon_track_group_keepalived_config_block(
+        pathmon_track_group_keepalived_config):
+    return [
+        [
+            line.strip(" ")
+            for line in pathmon_track_group_keepalived_config.splitlines()[1:]
+        ]
+    ]
+
+
+@pytest.fixture
+def route_to_track_group_keepalived_config_block(
+        route_to_track_group_keepalived_config):
+    return [
+        [
+            line.strip(" ")
+            for line in route_to_track_group_keepalived_config.splitlines()[1:]
+        ]
+    ]
+
+
+@pytest.fixture
+def switch_rfc_group_keepalived_config_block(
+        switch_rfc_group_keepalived_config):
+    return [
+        [
+            line.strip(" ")
+            for line in switch_rfc_group_keepalived_config.splitlines()[1:]
+        ]
+    ]
+
+
+@pytest.fixture
+def dataplane_vif_group_keepalived_config_block(
+        dataplane_vif_group_keepalived_config):
+    return [
+        [
+            line.strip(" ")
+            for line in dataplane_vif_group_keepalived_config.splitlines()[1:]
+        ]
+    ]
+
+
+@pytest.fixture
+def syncgroup_group_keepalived_config_block(
+        syncgroup_keepalived_config):
+    block = [
+        [
+            line.strip(" ")
+            for line in syncgroup_keepalived_config.splitlines()[1:]
+        ]
+    ]
+    block[0].append("sync_group TEST")
+    return block
+
+
+@pytest.fixture
+def v3_fast_advert_group_keepalived_config_block(
+        generic_v3_fast_advert_group_keepalived_config):
+    block = [
+        [
+            line.strip(" ")
+            for line in
+            generic_v3_fast_advert_group_keepalived_config.splitlines()[1:]
+        ]
+    ]
+    return block
+
+
+@pytest.fixture
+def v3_fast_advert_group_seconds_keepalived_config_block(
+        generic_v3_fast_advert_group_seconds_keepalived_config):
+    block = [
+        [
+            line.strip(" ")
+            for line in
+            generic_v3_fast_advert_group_seconds_keepalived_config.splitlines(
+            )[1:]
+        ]
+    ]
+    return block
+
+
+@pytest.fixture
+def v3_fast_advert_group_between_seconds_keepalived_config_block(
+        generic_v3_fast_advert_group_between_seconds_keepalived_config):
+    pep8_workaround = \
+        generic_v3_fast_advert_group_between_seconds_keepalived_config
+    block = [
+        [
+            line.strip(" ")
+            for line in
+            pep8_workaround.splitlines()[1:]
+        ]
+    ]
+    return block
 
 
 @pytest.fixture
@@ -5470,15 +6040,14 @@ def complete_state_yang(top_level_dictionary, interface_yang_name,
                         dataplane_yang_name, generic_group_state,
                         vrrp_yang_name):
     state_config = top_level_dictionary
-    intf = \
-        {
-            "tagnode": "dp0p1s1",
-            vrrp_yang_name:
-                {
-                    "vrrp-group":
-                    [{"instance-state": generic_group_state, "tagnode": "1"}]
-                }
-        }
+    intf = {
+        "tagnode": "dp0p1s1",
+        vrrp_yang_name:
+            {
+                "vrrp-group":
+                [{"instance-state": generic_group_state, "tagnode": "1"}]
+            }
+    }
     state_config[interface_yang_name][dataplane_yang_name] =\
         [intf]
     return state_config
@@ -5490,23 +6059,22 @@ def complete_state_vif_yang(
         dataplane_yang_name, generic_group_state,
         vrrp_yang_name):
     state_config = top_level_dictionary
-    intf = \
-        {
-            "tagnode": "dp0p1s1",
-            "vif": [
-                {
-                    "tagnode": "10",
-                    vrrp_yang_name:
-                        {
-                            "vrrp-group":
-                            [
-                                {"instance-state": generic_group_state,
-                                 "tagnode": "2"}
-                            ]
-                        }
-                }
-            ]
-        }
+    intf = {
+        "tagnode": "dp0p1s1",
+        "vif": [
+            {
+                "tagnode": "10",
+                vrrp_yang_name:
+                    {
+                        "vrrp-group":
+                        [
+                            {"instance-state": generic_group_state,
+                             "tagnode": "2"}
+                        ]
+                    }
+            }
+        ]
+    }
     state_config[interface_yang_name][dataplane_yang_name] =\
         [intf]
     return state_config
@@ -5733,3 +6301,48 @@ override .1.3.6.1.2.1.80.1.2.1.13.3 octet_str ""
     file_path = f"{tmp_path}/snmpd.conf"
     with open(file_path, "w") as file_handle:
         file_handle.write(config_string)
+
+
+# find interface in yang fixtures
+
+
+@pytest.fixture
+def search_empty_dataplane_list(
+        interface_yang_name, dataplane_yang_name, simple_config,
+        dataplane_interface, vrrp_yang_name):
+    new_yang = copy.deepcopy(simple_config)
+    new_yang[interface_yang_name][dataplane_yang_name] = []
+    interface_list = new_yang[interface_yang_name][dataplane_yang_name]
+    return interface_list
+
+
+@pytest.fixture
+def search_dataplane_list(
+        interface_yang_name, dataplane_yang_name, simple_config,):
+    new_yang = copy.deepcopy(simple_config)
+    interface_list = new_yang[interface_yang_name][dataplane_yang_name]
+    return interface_list
+
+
+@pytest.fixture
+def search_vif_dataplane_list(
+    interface_yang_name, dataplane_yang_name, simple_config,
+    vif_dataplane_interface
+):
+    new_yang = copy.deepcopy(simple_config)
+    interface_list = new_yang[interface_yang_name][dataplane_yang_name]
+    interface_list[0]["vif"] = [copy.deepcopy(vif_dataplane_interface)]
+    return interface_list
+
+
+@pytest.fixture
+def search_vif_dataplane_list_multiple_vrrp_groups(
+    interface_yang_name, dataplane_yang_name, simple_config,
+    vif_dataplane_interface, generic_group
+):
+    new_yang = copy.deepcopy(simple_config)
+    interface_list = new_yang[interface_yang_name][dataplane_yang_name]
+    multi_vif_groups = copy.deepcopy(vif_dataplane_interface)
+    multi_vif_groups["vrrp-group"] = copy.deepcopy(generic_group)
+    interface_list[0]["vif"] = [multi_vif_groups]
+    return interface_list

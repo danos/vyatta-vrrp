@@ -18,12 +18,12 @@ class TestKeepalivedVrrpGroup:
     def test_vrrp_group_instance_name(
             self, simple_vrrp_group_object):
         expected = "vyatta-dp0p1s1-1"
-        result = simple_vrrp_group_object.instance_name
-        assert result == expected
+        assert simple_vrrp_group_object.instance_name == \
+            expected
 
     @pytest.mark.sanity
     @pytest.mark.parametrize(
-        "keepalived_config,yang,rfc_num,intf",
+        "expected,yang,rfc_num,intf",
         [(pytest.lazy_fixture("dataplane_group_keepalived_config"),
           pytest.lazy_fixture("generic_group"), -1, "dp0p1s1"),
          (pytest.lazy_fixture("max_group_keepalived_config"),
@@ -56,30 +56,36 @@ class TestKeepalivedVrrpGroup:
           pytest.lazy_fixture("generic_rfc_group"), 1, "sw0.10"),
          (pytest.lazy_fixture(
              "generic_v3_fast_advert_group_keepalived_config"),
-          pytest.lazy_fixture("generic_v3_fast_advert_group"), -1, "dp0p1s1")],
+          pytest.lazy_fixture("generic_v3_fast_advert_group"), -1, "dp0p1s1"),
+         (pytest.lazy_fixture(
+             "generic_v3_fast_advert_group_seconds_keepalived_config"),
+          pytest.lazy_fixture("generic_v3_fast_advert_seconds_group"), -1,
+          "dp0p1s1"),
+         (pytest.lazy_fixture(
+             "generic_v3_fast_advert_group_between_seconds_keepalived_config"),
+          pytest.lazy_fixture("generic_v3_fast_advert_between_seconds_group"),
+          -1, "dp0p1s1")],
         ids=["Simple", "Complex", "VRRPv3", "IPv6 group",
              "Pathmon tracking",
              "Legacy tracking", "Legacy & Enhanced Tracking",
              "Legacy Interface & Enhanced Pathmon Tracking", "Accept VRRPv3",
              "No Preempt VRRPv3", "AH Auth VRRPv3",
              "Run transition scripts", "Switch interface",
-             "VRRPv3 fast-advert"])
+             "VRRPv3 fast-advert subsecond",
+             "VRRPv3 fast-advert second boundary",
+             "VRRPv3 fast-advert between full seconds"])
     def test_vrrp_group_config_string(
-            self, keepalived_config, yang, rfc_num, intf):
-        result = VrrpGroup(intf, "0", yang, rfc_num)
-        assert keepalived_config == str(result)
+            self, expected, yang, rfc_num, intf):
+        assert str(VrrpGroup(intf, "0", yang, rfc_num)) == expected
 
     def test_vrrp_group_preempt_delay_printed_warnings(
             self, preempt_delay_ignored_group, caplog):
-        expected = \
-            "preempt delay is ignored when preempt=false"
         VrrpGroup("dp0p1s1", "0", preempt_delay_ignored_group)
-        assert expected in caplog.text
+        assert "preempt delay is ignored when preempt=false" in caplog.text
 
     def test_vrrp_group_rfc_name_length_printed_warnings(
             self, generic_group, caplog):
         generic_group["rfc-compatibility"] = [None]
         VrrpGroup("dp0p1s1", "0", generic_group, 1234567890)
-        expected = \
-            "generated interface name is longer than 15 characters"
-        assert expected in caplog.text
+        assert "generated interface name is longer than 15 characters" in \
+            caplog.text
