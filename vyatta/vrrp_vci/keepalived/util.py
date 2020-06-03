@@ -375,8 +375,6 @@ def is_local_address(address_string: str) -> bool:
         ipaddr_type = socket.AF_INET
     elif ipaddr_version == 6:
         ipaddr_type = socket.AF_INET6
-    else:
-        raise TypeError(f"{address_string} is not an IPv4 or IPv6 address")
     try:
         with socket.socket(ipaddr_type, socket.SOCK_STREAM) as s:
             s.bind((address_string, 0))
@@ -625,13 +623,6 @@ def find_interface_in_yang_repr(
         intf_dict = {YANG_TAGNODE: interface_name}
         interface_level = intf_dict
         interface_list.append(intf_dict)
-
-    if interface_level is None:
-        # Interface doesn't exists yet but there are interfaces in the list
-        # so create the interface and return the reference
-        intf_dict = {YANG_TAGNODE: interface_name}
-        interface_list.append(intf_dict)
-        interface_level = interface_list[-1]
 
     # Deal with vifs here now that we've found the interface it's on
     if vif_number != "":

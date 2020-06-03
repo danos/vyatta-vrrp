@@ -107,7 +107,7 @@ class Config(vci.Config):
             configured_locally: bool
             try:
                 configured_locally = util.is_local_address(address[0])
-            except TypeError:
+            except ValueError:
                 vci_error = vci.Exception(
                     util.VRRP_NAMESPACE,
                     f"Misconfigured Hello-source-address [{address[0]}] " +

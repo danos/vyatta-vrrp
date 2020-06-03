@@ -230,7 +230,7 @@ global_defs {
 
                 intf_name: str = intf[util.YANG_TAGNODE]
                 vrrp_conf: Dict = intf[util.VRRP_YANG_NAME]
-                if vrrp_conf[util.YANG_VRRP_GROUP] == []:
+                if vrrp_conf.get(util.YANG_VRRP_GROUP, []) == []:
                     break
                 start_delay: int = vrrp_conf[util.YANG_START_DELAY]
                 group: Dict
