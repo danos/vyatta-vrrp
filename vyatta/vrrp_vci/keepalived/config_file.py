@@ -502,8 +502,13 @@ vrrp_sync_group {sync_group} {{
                 config_block, config_dict)
         else:
             if util.YANG_V2_ADVERT_INT in config_dict:
-                fast_advertise: int = \
-                    config_dict.pop(util.YANG_V2_ADVERT_INT) * 1000
+                # Need to convert to float because the value is a string
+                # and then need to type cast back to an int because the
+                # YANG value is of type uint16.
+                # Can't use int for the first conversion because configured
+                # value can be part of a second e.g. 0.5
+                fast_advertise: float = \
+                    float(config_dict.pop(util.YANG_V2_ADVERT_INT)) * 1000
                 config_dict[util.YANG_V3_ADVERT_INT] = int(fast_advertise)
 
         # Find interface so we know which yang name to use for tracking
