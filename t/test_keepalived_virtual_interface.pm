@@ -15,10 +15,10 @@ use Vyatta::VRRP::virtual_interface;
 my $data_path = Cwd::getcwd();
 my $base_name = basename($data_path);
 
-if ( ($base_name eq "vyatta-vrrp") or ($base_name eq "BUILD") ) {
-    $data_path .= "/t/data/";
-} elsif ($base_name eq "t") {
+if ($base_name eq "t") {
     $data_path .= "/data/";
+} else {
+    $data_path .= "/t/data/";
 }
 
 sub set_up : Test(setup) {
