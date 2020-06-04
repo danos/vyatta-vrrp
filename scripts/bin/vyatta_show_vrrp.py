@@ -37,8 +37,7 @@ def process_arguments(command: str, intf: str, vrid: str, sync: str) -> str:
             return show_output
         file_contents: str
         json_repr: Dict
-        if command == "detail" or command == "interface" or command == "sync" \
-                or command == "autocomplete":
+        if command in ["detail", "interface", "sync", "autocomplete"]:
             keepalived_responding = pc.dump_keepalived_data()
             if not keepalived_responding:
                 show_output = "Keepalived is not responding"

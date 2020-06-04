@@ -1,5 +1,3 @@
-#! /usr/bin/python3
-
 # Copyright (c) 2019-2020 AT&T Intellectual Property.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
@@ -21,7 +19,7 @@ from vyatta.vrrp_vci.keepalived.dbus.vrrp_group_connection import (
 )
 
 
-def send_garp(rpc_input: Dict[str, str]) -> Dict:
+def send_garp(rpc_input: Dict[str, str]) -> None:
     intf: str = rpc_input[util.RPC_GARP_INTERFACE]
     group: str = str(rpc_input[util.RPC_GARP_GROUP])
     pc = ProcessControl()
@@ -45,8 +43,7 @@ def send_garp(rpc_input: Dict[str, str]) -> Dict:
 
 def rfc_intf_map(rpc_input: Dict[str, str]) -> Dict[str, str]:
     pc = ProcessControl()
-    xmit_intf: str = rpc_input[util.RPC_RFC_INTERFACE]
-    return pc.get_rfc_mapping(xmit_intf)
+    return pc.get_rfc_mapping(rpc_input[util.RPC_RFC_INTERFACE])
 
 
 class Config(vci.Config):
@@ -75,7 +72,7 @@ class Config(vci.Config):
                 self._conf_obj.shutdown()
             return
         self.log.debug(
-            f"Got following config from VCI infra:" +
+            f"Got following config from VCI infra: "
             f"{json.dumps(conf, indent=4, sort_keys=True)}"
         )
 
@@ -86,7 +83,7 @@ class Config(vci.Config):
         else:
             self.pc.start_process()
         self.log.info(
-            f"{self._conf_obj.impl_name()} config written to " +
+            f"{self._conf_obj.impl_name()} config written to "
             f"{self._conf_obj.config_file_path()}"
         )
         return
@@ -110,7 +107,7 @@ class Config(vci.Config):
             except ValueError:
                 vci_error = vci.Exception(
                     util.VRRP_NAMESPACE,
-                    f"Misconfigured Hello-source-address [{address[0]}] " +
+                    f"Misconfigured Hello-source-address [{address[0]}] "
                     f"must be IPv4 or IPv6 address",
                     f"/{address[1].replace(' ', '/')}"
                 )
@@ -118,7 +115,7 @@ class Config(vci.Config):
             if not configured_locally:
                 vci_error = vci.Exception(
                     util.VRRP_NAMESPACE,
-                    f"Hello-source-address [{address[0]}] must be configured" +
+                    f"Hello-source-address [{address[0]}] must be configured"
                     f" on the interface",
                     f"/{address[1].replace(' ', '/')}"
                 )

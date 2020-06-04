@@ -1,7 +1,8 @@
-#! /usr/bin/python3
+# Copyright (c) 2019-2020 AT&T Intellectual Property.
+# All rights reserved.
+# SPDX-License-Identifier: GPL-2.0-only.
 
-
-import pytest  # noqa: F401
+import pytest
 
 import vyatta.vrrp_vci.keepalived.util as util
 
@@ -29,28 +30,24 @@ class TestKeepalivedVrrpGroupControl:
 
         assert conn.get_instance_state() == expected
 
-    def test_garp(
-            self, mock_pydbus):
+    def test_garp(self, mock_pydbus):
         import vyatta.vrrp_vci.keepalived.dbus.vrrp_group_connection \
             as group_conn
         import pydbus
-        sysbus = pydbus.SystemBus()
-        conn = group_conn.VrrpConnection(
-            "dp0p1s1", "1", 4, sysbus
-        )
 
-        expected = {}
-        assert conn.garp() == expected
+        sysbus = pydbus.SystemBus()
+        conn = group_conn.VrrpConnection("dp0p1s1", "1", 4, sysbus)
+
+        assert conn.garp() is None
 
     def test_vif_sanitizing(
             self, mock_pydbus):
         import vyatta.vrrp_vci.keepalived.dbus.vrrp_group_connection \
             as group_conn
         import pydbus
+
         sysbus = pydbus.SystemBus()
-        conn = group_conn.VrrpConnection(
-            "dp0p1s1.10", "1", 4, sysbus
-        )
+        conn = group_conn.VrrpConnection("dp0p1s1.10", "1", 4, sysbus)
 
         expected = "/org/keepalived/Vrrp1/Instance/dp0p1s1_10/1/IPv4"
         assert conn.dbus_path == expected

@@ -1,20 +1,18 @@
-#! /ust/bin/env python3
-
-"""
-Vyatta VCI component to configure keepalived to provide VRRP functionality
-This file provides functionality for starting and stopping the keepalived
-process using dbus controls.
-"""
-
 # Copyright (c) 2020 AT&T Intellectual Property.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
+
+"""
+Vyatta VCI component to configure keepalived to provide VRRP functionality.
+This file provides functionality for starting and stopping the keepalived
+process using dbus controls.
+"""
 
 import logging
 import time
 from functools import wraps
 from pathlib import Path
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, Tuple
 
 import pydbus
 
@@ -69,18 +67,13 @@ class ProcessControl:
         self.systemd_default_file_path: str = "/etc/default/keepalived"
         self.snmpd_conf_file_path: str = "/etc/snmp/snmpd.conf"
 
-    def unit_state(self) -> str:
-        return self.running_state
-
     def refresh_unit_state(self) -> None:
         self.running_state = \
             self.keepalived_proxy_obj.SubState
 
     def is_running(self) -> bool:
         self.refresh_unit_state()
-        if self.running_state == "running":
-            return True
-        return False
+        return self.running_state == "running"
 
     def shutdown_process(self) -> None:
         self.systemd_manager_intf.StopUnit(
@@ -112,18 +105,13 @@ class ProcessControl:
         required so Keepalived connects to AgentX correctly.
         """
 
-        snmp_socket: str = util.AGENTX_STRING
         snmp_conf_file: Path = Path(self.snmpd_conf_file_path)
-        if (snmp_conf_file.exists() and snmp_conf_file.is_file()):
+        if snmp_conf_file.is_file():
             with open(str(snmp_conf_file), "r") as f_obj:
-                content: List[str] = f_obj.readlines()
-                content = [x.strip() for x in content]
-                for line in content:
+                for line in [x.strip() for x in f_obj.readlines()]:
                     if "agentXSocket" in line:
-                        snmp_socket = line.split(" ")[-1]
-                        snmp_socket = f"{snmp_socket}:1"
-                        break
-        return snmp_socket
+                        return f"{line.split(' ')[-1]}:1"
+        return util.AGENTX_STRING
 
     def start_process(self) -> None:
         self.set_default_daemon_arguments()

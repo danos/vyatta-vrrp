@@ -1,5 +1,3 @@
-#! /usr/bin/python3
-
 # Copyright (c) 2019-2020 AT&T Intellectual Property.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
@@ -39,7 +37,6 @@ class TestKeepalivedConfigFile:
         expected = "Keepalived"
         assert keepalived_config.impl_name() == expected
 
-    @pytest.mark.sanity
     @pytest.mark.parametrize(
         "config_lines,expected_yang,keepalived",
         [
@@ -129,7 +126,6 @@ class TestKeepalivedConfigFile:
         assert keepalived._convert_keepalived_config_to_yang(config_lines[0]) \
             == expected_yang
 
-    @pytest.mark.sanity
     @pytest.mark.parametrize(
         "config_string,yang_config,keepalived",
         [
@@ -204,7 +200,6 @@ class TestKeepalivedConfigFile:
         result = tmp_file_keepalived_config.read_config()
         assert result == simple_keepalived_config
 
-    @pytest.mark.sanity
     @pytest.mark.parametrize(
         "fakes,yang_config,expected,keepalived",
         [
@@ -274,7 +269,6 @@ class TestKeepalivedConfigFile:
         expected = file_path.exists()
         assert result == expected
 
-    @pytest.mark.sanity
     def test_shutdown(
             self, tmp_path, tmp_file_keepalived_config_no_write):
         file_path = Path(f"{tmp_path}/keepalived.conf")

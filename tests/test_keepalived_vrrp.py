@@ -1,5 +1,3 @@
-#! /usr/bin/python3
-
 # Copyright (c) 2019-2020 AT&T Intellectual Property.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
@@ -21,7 +19,6 @@ class TestKeepalivedVrrpGroup:
         assert simple_vrrp_group_object.instance_name == \
             expected
 
-    @pytest.mark.sanity
     @pytest.mark.parametrize(
         "expected,yang,rfc_num,intf",
         [(pytest.lazy_fixture("dataplane_group_keepalived_config"),

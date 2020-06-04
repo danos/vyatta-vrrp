@@ -1,11 +1,10 @@
-#! /usr/bin/env python3
-
 # Copyright (c) 2020 AT&T Intellectual Property.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
 
 import logging
+from decimal import Decimal
 from typing import Dict
 
 import vyatta.vrrp_vci.keepalived.util as util
@@ -52,7 +51,7 @@ class VrrpGroup:
                 group_config[util.YANG_V2_ADVERT_INT]
             del self._group_config[util.YANG_V2_ADVERT_INT]
         elif util.YANG_V3_ADVERT_INT in self._group_config:
-            fast_advertise: float = \
+            fast_advertise: Decimal = \
                 group_config[util.YANG_V3_ADVERT_INT] / 1000
             if group_config[util.YANG_V3_ADVERT_INT] % 1000 == 0:
                 self._group_config[util.CONFIG_ADVERT] = int(fast_advertise)

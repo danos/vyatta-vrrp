@@ -1,8 +1,7 @@
-#! /usr/bin/env python3
-
 # Copyright (c) 2020 AT&T Intellectual Property.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
+
 """
 Useful functions to be shared between packages. A few have been
 moved here from keepalived/config_file.py, they were part of the class

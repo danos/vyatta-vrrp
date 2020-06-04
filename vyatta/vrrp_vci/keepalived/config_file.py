@@ -1,8 +1,7 @@
-#! /usr/bin/python3
-
 # Copyright (c) 2019-2020 AT&T Intellectual Property.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
+
 """
 Vyatta VCI component to configure keepalived to provide VRRP functionality
 """
@@ -10,6 +9,7 @@ Vyatta VCI component to configure keepalived to provide VRRP functionality
 import contextlib
 import json
 import os
+from decimal import Decimal
 from enum import Enum
 from typing import Any, Dict, List, Union
 
@@ -307,8 +307,8 @@ vrrp_sync_group {sync_group} {{
 
     def convert_to_vci_format_dict(self, config_string: str) -> Dict:
         """
-        Given a string of keepalived config convert to YANG format return
-        it as a python dictionary
+        Given a string of keepalived config convert to YANG format and
+        return it as a python dictionary.
 
         Arguments:
             config_string:
@@ -520,13 +520,15 @@ vrrp_sync_group {sync_group} {{
                 config_block, config_dict)
         else:
             if util.YANG_V2_ADVERT_INT in config_dict:
-                # Need to convert to float because the value is a string
+                # Need to convert to decimal because the value is a string
                 # and then need to type cast back to an int because the
                 # YANG value is of type uint16.
                 # Can't use int for the first conversion because configured
                 # value can be part of a second e.g. 0.5
-                fast_advertise: float = \
-                    float(config_dict.pop(util.YANG_V2_ADVERT_INT)) * 1000
+                # See https://docs.python.org/3/library/decimal.html for
+                # advantages of using Decimal over float
+                fast_advertise: Decimal = \
+                    Decimal(config_dict.pop(util.YANG_V2_ADVERT_INT)) * 1000
                 config_dict[util.YANG_V3_ADVERT_INT] = int(fast_advertise)
 
         # Find interface so we know which yang name to use for tracking

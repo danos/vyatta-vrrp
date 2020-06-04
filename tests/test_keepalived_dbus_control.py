@@ -1,23 +1,12 @@
-#! /usr/bin/python3
+# Copyright (c) 2019-2020 AT&T Intellectual Property.
+# All rights reserved.
+# SPDX-License-Identifier: GPL-2.0-only.
 
 from pathlib import Path
-
-import pytest  # noqa: F401
 
 
 class TestKeepalivedDbusControl:
 
-    def test_get_unit_state(self, mock_pydbus):
-        import vyatta.vrrp_vci.keepalived.dbus.process_control as process_ctrl
-        process_control = process_ctrl.ProcessControl()
-        expected = "UNKNOWN"
-        assert process_control.unit_state() == expected
-
-        process_control.refresh_unit_state()
-        expected = "dead"
-        assert process_control.unit_state() == expected
-
-    @pytest.mark.sanity
     def test_is_process_running(self, mock_pydbus):
         import vyatta.vrrp_vci.keepalived.dbus.process_control as process_ctrl
         process_control = process_ctrl.ProcessControl()
@@ -26,7 +15,6 @@ class TestKeepalivedDbusControl:
         expected = True
         assert process_control.is_running() == expected
 
-    @pytest.mark.sanity
     def test_start_process(self, mock_pydbus):
         import vyatta.vrrp_vci.keepalived.dbus.process_control as process_ctrl
         process_control = process_ctrl.ProcessControl()

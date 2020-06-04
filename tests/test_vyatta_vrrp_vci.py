@@ -1,5 +1,3 @@
-#! /usr/bin/python3
-
 # Copyright (c) 2019,2020 AT&T Intellectual Property.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
@@ -20,7 +18,6 @@ class TestVyattaVrrpVci:
     # pylint: disable=no-self-use
     # pylint: disable=too-many-arguments
 
-    @pytest.mark.sanity
     def test_vci_config_get(self, mock_pydbus,
                             test_config, simple_config,
                             tmp_file_keepalived_config):
@@ -29,7 +26,6 @@ class TestVyattaVrrpVci:
         expected = json.dumps(simple_config)
         assert test_config.get() == expected
 
-    @pytest.mark.sanity
     def test_vci_state_get(self, complete_state_yang,
                            mock_pydbus, test_state,
                            tmp_file_keepalived_config):
@@ -40,7 +36,6 @@ class TestVyattaVrrpVci:
         expected = complete_state_yang
         assert test_state.get() == expected
 
-    @pytest.mark.sanity
     def test_vci_state_get_with_vif(
             self, complete_state_vif_yang,
             mock_pydbus, test_state_vif,
@@ -52,7 +47,6 @@ class TestVyattaVrrpVci:
         expected = complete_state_vif_yang
         assert test_state_vif.get() == expected
 
-    @pytest.mark.sanity
     def test_vci_state_get_not_running(
             self, mock_pydbus, test_state,
             tmp_file_keepalived_config):
@@ -61,7 +55,6 @@ class TestVyattaVrrpVci:
         expected = {}
         assert test_state.get() == expected
 
-    @pytest.mark.sanity
     def test_vci_config_get_with_syncgroup(
             self, mock_pydbus, test_config, syncgroup_config,
             tmp_file_syncgroup_keepalived_config):
@@ -70,7 +63,6 @@ class TestVyattaVrrpVci:
         expected = json.dumps(syncgroup_config)
         assert test_config.get() == expected
 
-    @pytest.mark.sanity
     def test_vci_config_set_no_config(
             self, mock_pydbus, test_config,
             top_level_dictionary):
@@ -81,7 +73,6 @@ class TestVyattaVrrpVci:
         expected = False
         assert conf_path.exists() == expected
 
-    @pytest.mark.sanity
     def test_vci_config_set_writes_file(
             self, mock_pydbus, test_config,
             simple_config):
@@ -95,7 +86,6 @@ class TestVyattaVrrpVci:
         expected = True
         assert conf_path.exists() == expected
 
-    @pytest.mark.sanity
     def test_vci_config_set_writes_correct_config(
             self, mock_pydbus, test_config,
             simple_config, simple_keepalived_config):
@@ -118,7 +108,6 @@ class TestVyattaVrrpVci:
         expected = simple_keepalived_config
         assert file_contents == expected
 
-    @pytest.mark.sanity
     def test_vci_config_set_writes_correct_syncgroup_config(
             self, mock_pydbus, test_config,
             syncgroup_config, syncgroup_keepalived_config):
@@ -141,7 +130,6 @@ class TestVyattaVrrpVci:
         expected = syncgroup_keepalived_config
         assert file_contents == expected
 
-    @pytest.mark.sanity
     def test_vci_config_check_local_address(
             self, mock_pydbus, test_config, simple_config,
             interface_yang_name,
@@ -154,7 +142,6 @@ class TestVyattaVrrpVci:
         expected = None
         assert test_config.check(simple_config) == expected
 
-    @pytest.mark.sanity
     def test_vci_config_check_local_address_not_ip(
             self, mock_pydbus, test_config, simple_config,
             interface_yang_name,
@@ -182,7 +169,6 @@ class TestVyattaVrrpVci:
         )
         assert error.value.path == expected
 
-    @pytest.mark.sanity
     def test_vci_config_check_non_local_address(
             self, mock_pydbus, test_config, simple_config,
             interface_yang_name,
@@ -209,7 +195,6 @@ class TestVyattaVrrpVci:
         )
         assert error.value.path == expected
 
-    @pytest.mark.sanity
     def test_vci_config_set_cleans_up_file(
             self, mock_pydbus, test_config,
             simple_config, top_level_dictionary):
@@ -244,7 +229,6 @@ class TestVyattaVrrpVci:
         expected = None
         assert test_config.check(complex_config) == expected
 
-    @pytest.mark.sanity
     def test_vci_config_check_fuller_config_printed_warnings(
             self, mock_pydbus, test_config, complex_config,
             mock_show_version_rpc_vmware, caplog):
@@ -255,7 +239,6 @@ class TestVyattaVrrpVci:
         expected = caplog.text
         assert expected_message in expected
 
-    @pytest.mark.sanity
     def test_vci_config_set_writes_disabled_group(
             self, mock_pydbus, test_config, interface_yang_name,
             autogeneration_string,

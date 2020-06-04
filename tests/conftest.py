@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Copyright (c) 2019-2020 AT&T Intellectual Property.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only.
@@ -61,17 +59,8 @@ def calendar_fakes():
 def tmp_file_keepalived_config_no_write(tmp_path):
     class FakeVci:
 
-        class Config:
-            def set(self, conf):
-                pass
-
-        class State:
-            def get(self):
-                pass
-
         class Client:
-            def emit(self):
-                pass
+            pass
 
     sys.modules["vci"] = FakeVci
     from vyatta.vrrp_vci.keepalived.config_file import KeepalivedConfig
@@ -81,26 +70,17 @@ def tmp_file_keepalived_config_no_write(tmp_path):
 
 @pytest.fixture
 def test_config(
-        pydbus_fakes, monkeypatch, tmp_path,
+        pydbus_fakes, tmp_path,
         tmp_file_keepalived_config_no_write
 ):
 
     class FakeVci:
 
         class Config:
-            def __init__(self):
-                pass
-
-            def set(self, conf):
-                pass
+            pass
 
         class State:
-            def get(self):
-                pass
-
-        class Client:
-            def emit(self):
-                pass
+            pass
 
     class VciException(Exception):
         def __init__(self, namespace, message, path, *args):
@@ -125,10 +105,7 @@ def test_config(
                 f"{tmp_path}/vyatta-keepalived"
             self.snmpd_conf_file_path = \
                 f"{tmp_path}/snmpd.conf"
-    monkeypatch.setitem(
-        process_ctrl.__dict__,
-        "ProcessControl",
-        MockProcess)
+    setattr(process_ctrl, "ProcessControl", MockProcess)
     from vyatta.vrrp_vci.vyatta_vrrp_vci import Config
     return Config(tmp_file_keepalived_config_no_write)
 
@@ -137,17 +114,8 @@ def test_config(
 def test_state(tmp_file_keepalived_config_no_write):
     class FakeVci:
 
-        class Config:
-            def set(self, conf):
-                pass
-
-        class State:
-            def get(self):
-                pass
-
         class Client:
-            def emit(self):
-                pass
+            pass
 
     sys.modules["vci"] = FakeVci
     from vyatta.vrrp_vci.vyatta_vrrp_vci import State
@@ -157,18 +125,8 @@ def test_state(tmp_file_keepalived_config_no_write):
 @pytest.fixture
 def test_state_vif(tmp_file_keepalived_config_no_write):
     class FakeVci:
-
-        class Config:
-            def set(self, conf):
-                pass
-
-        class State:
-            def get(self):
-                pass
-
         class Client:
-            def emit(self):
-                pass
+            pass
 
     sys.modules["vci"] = FakeVci
     from vyatta.vrrp_vci.vyatta_vrrp_vci import State
@@ -178,18 +136,8 @@ def test_state_vif(tmp_file_keepalived_config_no_write):
 @pytest.fixture
 def keepalived_config(pydbus_fakes):
     class FakeVci:
-
-        class Config:
-            def set(self, conf):
-                pass
-
-        class State:
-            def get(self):
-                pass
-
         class Client:
-            def emit(self):
-                pass
+            pass
 
     sys.modules["vci"] = FakeVci
     from vyatta.vrrp_vci.keepalived.config_file import KeepalivedConfig
@@ -201,17 +149,8 @@ def tmp_file_keepalived_config(tmp_path, autogeneration_string,
                                dataplane_group_keepalived_config):
     class FakeVci:
 
-        class Config:
-            def set(self, conf):
-                pass
-
-        class State:
-            def get(self):
-                pass
-
         class Client:
-            def emit(self):
-                pass
+            pass
 
     sys.modules["vci"] = FakeVci
     from vyatta.vrrp_vci.keepalived.config_file import KeepalivedConfig
@@ -232,17 +171,8 @@ def tmp_file_keepalived_vif_config(
         dataplane_vif_group_keepalived_config):
     class FakeVci:
 
-        class Config:
-            def set(self, conf):
-                pass
-
-        class State:
-            def get(self):
-                pass
-
         class Client:
-            def emit(self):
-                pass
+            pass
 
     sys.modules["vci"] = FakeVci
     from vyatta.vrrp_vci.keepalived.config_file import KeepalivedConfig
@@ -262,17 +192,8 @@ def tmp_file_syncgroup_keepalived_config(
         tmp_path, syncgroup_keepalived_config):
     class FakeVci:
 
-        class Config:
-            def set(self, conf):
-                pass
-
-        class State:
-            def get(self):
-                pass
-
         class Client:
-            def emit(self):
-                pass
+            pass
 
     sys.modules["vci"] = FakeVci
     from vyatta.vrrp_vci.keepalived.config_file import KeepalivedConfig
@@ -286,17 +207,8 @@ def tmp_file_syncgroup_keepalived_config(
 def non_default_keepalived_config():
     class FakeVci:
 
-        class Config:
-            def set(self, conf):
-                pass
-
-        class State:
-            def get(self):
-                pass
-
         class Client:
-            def emit(self):
-                pass
+            pass
 
     sys.modules["vci"] = FakeVci
     from vyatta.vrrp_vci.keepalived.config_file import KeepalivedConfig
@@ -6081,7 +5993,7 @@ def complete_state_vif_yang(
 
 
 @pytest.fixture
-def mock_show_version_rpc_kvm(monkeypatch):
+def mock_show_version_rpc_kvm():
     import vyatta
 
     class MockConfigd:
@@ -6094,11 +6006,11 @@ def mock_show_version_rpc_kvm(monkeypatch):
             def call_rpc_dict(self, source, action, arguments):
                 return {"output": "Hypervisor: KVM"}
 
-    monkeypatch.setitem(vyatta.__dict__, "configd", MockConfigd)
+    setattr(vyatta, "configd", MockConfigd)
 
 
 @pytest.fixture
-def mock_show_version_rpc_vmware(monkeypatch):
+def mock_show_version_rpc_vmware():
     import vyatta
 
     class MockConfigd:
@@ -6111,11 +6023,11 @@ def mock_show_version_rpc_vmware(monkeypatch):
             def call_rpc_dict(self, source, action, arguments):
                 return {"output": "Hypervisor: VMware"}
 
-    monkeypatch.setitem(vyatta.__dict__, "configd", MockConfigd)
+    setattr(vyatta, "configd", MockConfigd)
 
 
 @pytest.fixture
-def mock_show_version_rpc_no_hypervisor(monkeypatch):
+def mock_show_version_rpc_no_hypervisor():
     import vyatta
 
     class MockConfigd:
@@ -6128,11 +6040,11 @@ def mock_show_version_rpc_no_hypervisor(monkeypatch):
             def call_rpc_dict(self, source, action, arguments):
                 return {"output": ""}
 
-    monkeypatch.setitem(vyatta.__dict__, "configd", MockConfigd)
+    setattr(vyatta, "configd", MockConfigd)
 
 
 @pytest.fixture
-def mock_pydbus(monkeypatch, pydbus_fakes, tmp_path):
+def mock_pydbus(pydbus_fakes, tmp_path):
     import pydbus
 
     class SystemdProxyObject:
@@ -6148,8 +6060,8 @@ def mock_pydbus(monkeypatch, pydbus_fakes, tmp_path):
             return self.vrrp_proxy_obj
 
         def LoadUnit(self, servicefile):  # noqa: N802
-            return "/org/freedesktop/systemd1/" + \
-                "unit/vyatta_2dkeepalived_2eservice"
+            return ("/org/freedesktop/systemd1/"
+                    "unit/vyatta_keepalived_service")
 
     class PropertyInterface:
 
@@ -6230,25 +6142,20 @@ def mock_pydbus(monkeypatch, pydbus_fakes, tmp_path):
 
     class MockSystemBus:
 
-        def __init__(self):
-            pass
-
         def get(self, obj_name, obj_path):
 
             if "/org/freedesktop/systemd1/unit/" + \
-                    "vyatta_2dkeepalived_2eservice" == obj_path or \
-                    "org.keepalived.Vrrp1" == obj_name or \
-                    "org.keepalived.Vrrp1.Instance" == obj_name:
-                vrrp_proxy = VrrpProxyObject()
-                return vrrp_proxy
+                    "vyatta_keepalived_service" == obj_path or \
+                    obj_name in ("org.keepalived.Vrrp1",
+                                 "org.keepalived.Vrrp1.Instance"):
+                return VrrpProxyObject()
             if "/org/freedesktop/systemd1" == obj_path:
-                systemd = SystemdProxyObject()
-                return systemd
+                return SystemdProxyObject()
 
         def watch_name(self, name, name_appeared=None):
             return
 
-    monkeypatch.setitem(pydbus.__dict__, "SystemBus", MockSystemBus)
+    setattr(pydbus, "SystemBus", MockSystemBus)
     return PropertyInterface
 
 
@@ -6298,9 +6205,8 @@ monitor  -r 10 -e linkDownTrap "Generate linkDown" ifOperStatus == 2
 override .1.3.6.1.2.1.80.1.2.1.13.3 octet_str ""
 
 """  # noqa: E501
-    file_path = f"{tmp_path}/snmpd.conf"
-    with open(file_path, "w") as file_handle:
-        file_handle.write(config_string)
+    with open(f"{tmp_path}/snmpd.conf", "w") as fh:
+        fh.write(config_string)
 
 
 # find interface in yang fixtures

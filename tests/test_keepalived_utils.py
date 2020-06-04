@@ -1,5 +1,3 @@
-#! /usr/bin/python3
-
 import copy
 
 import pytest
@@ -9,118 +7,11 @@ import vyatta.vrrp_vci.keepalived.util as util
 
 class TestKeepalivedUtils:
 
-    @pytest.mark.parametrize(
-        "expected,actual",
-        [
-            (
-                "vyatta-interfaces-v1:interfaces",
-                util.INTERFACE_YANG_NAME
-            ),
-            (
-                "vyatta-interfaces-dataplane-v1:dataplane",
-                util.DATAPLANE_YANG_NAME
-            ),
-            (
-                "vyatta-vrrp-v1:vrrp",
-                util.VRRP_YANG_NAME
-            ),
-            (
-                "vyatta-bonding-v1:bonding",
-                util.BONDING_YANG_NAME
-            ),
-            (
-                "vyatta-interfaces-switch-v1:switch",
-                util.SWITCH_YANG_NAME
-            ),
-            (
-                "vif",
-                util.VIF_YANG_NAME
-            ),
-            (
-                "vyatta-vrrp-path-monitor-track-interfaces-dataplane" +
-                "-v1:path-monitor",
-                util.PATHMON_DATAPLANE_YANG_NAME
-            ),
-            (
-                "vyatta-vrrp-path-monitor-track-interfaces-bonding" +
-                "-v1:path-monitor",
-                util.PATHMON_BONDING_YANG_NAME
-            ),
-            (
-                "vyatta-vrrp-route-to-track-interfaces-dataplane" +
-                "-v1:route-to",
-                util.ROUTE_DATAPLANE_YANG_NAME
-            ),
-            (
-                "vyatta-vrrp-route-to-track-interfaces-bonding" +
-                "-v1:route-to",
-                util.ROUTE_BONDING_YANG_NAME
-            ),
-            (
-                "org.freedesktop.DBus.Properties",
-                util.PROPERTIES_DBUS_INTF_NAME,
-            ),
-            (
-                "org.freedesktop.systemd1",
-                util.SYSTEMD_DBUS_INTF_NAME
-            ),
-            (
-                "/org/freedesktop/systemd1",
-                util.SYSTEMD_DBUS_PATH
-            ),
-            (
-                "org.freedesktop.systemd1.Manager",
-                util.SYSTEMD_MANAGER_DBUS_INTF_NAME
-            ),
-            (
-                "org.freedesktop.systemd1.Unit",
-                util.SYSTEMD_UNIT_DBUS_NAME
-            ),
-            (
-                "org.keepalived.Vrrp1",
-                util.KEEPALIVED_DBUS_INTF_NAME
-            ),
-            (
-                "/org/keepalived/Vrrp1/Vrrp",
-                util.VRRP_PROCESS_DBUS_INTF_PATH
-            ),
-            (
-                "org.keepalived.Vrrp1.Instance",
-                util.VRRP_INSTANCE_DBUS_INTF_NAME
-            ),
-            (
-                "/org/keepalived/Vrrp1/Instance",
-                util.VRRP_INSTANCE_DBUS_PATH
-            )
-        ],
-        ids=[
-            "Interface yang name", "Dataplane yang name",
-            "Vrrp yang name", "Bonding yang name",
-            "Switch yang name", "Vif yang name",
-            "Path monitor dataplane yang name",
-            "Path monitor bonding yang name",
-            "Route to dataplane yang name",
-            "Route to monitor bonding yang name",
-            "DBus properties name",
-            "DBus systemd interface name",
-            "DBus systemd path name",
-            "DBus systemd manager interface name",
-            "DBus systemd unit interface name",
-            "DBus keepalived interface name",
-            "DBus VRRP process interface path",
-            "DBus VRRP Group instance interface name",
-            "DBus VRRP Group instance path"
-        ]
-    )
-    def test_generated_constants(self, expected, actual):
-        assert actual == expected
-
     def test_get_hello_sources_no_hellos(
             self, simple_config):
         expected = []
         assert util.get_hello_sources(simple_config) == expected
 
-    @pytest.mark.sanity
     def test_get_hello_sources(
             self, simple_config, interface_yang_name,
             dataplane_yang_name, vrrp_yang_name):
@@ -137,7 +28,6 @@ class TestKeepalivedUtils:
         result = util.get_hello_sources(simple_config)
         assert expected == result
 
-    @pytest.mark.sanity
     def test_get_hello_sources_vifs(
             self, simple_config, interface_yang_name,
             dataplane_yang_name, vrrp_yang_name, generic_group):
@@ -160,7 +50,6 @@ class TestKeepalivedUtils:
         result = util.get_hello_sources(vif_config)
         assert expected == result
 
-    @pytest.mark.sanity
     @pytest.mark.parametrize(
         "expected,address",
         [
@@ -175,7 +64,6 @@ class TestKeepalivedUtils:
     def test_is_local_address(self, expected, address):
         assert util.is_local_address(address) == expected
 
-    @pytest.mark.sanity
     @pytest.mark.parametrize(
         "expected,config",
         [
@@ -212,7 +100,6 @@ class TestKeepalivedUtils:
             self, expected, hypervisor):
         assert util.running_on_vmware() == expected
 
-    @pytest.mark.sanity
     def test_sanitize_vrrp_config_one_configured(self,
                                                  simple_config):
         assert util.sanitize_vrrp_config(simple_config) == simple_config

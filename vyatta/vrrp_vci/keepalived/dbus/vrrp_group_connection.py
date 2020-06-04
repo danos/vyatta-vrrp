@@ -1,12 +1,12 @@
-#! /usr/bin/env python3
-
-"""
-Vyatta VCI component to configure keepalived to provide VRRP functionality
-"""
-
 # Copyright (c) 2020 by AT&T, Inc.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
+
+"""
+Vyatta VCI component to configure keepalived to provide VRRP functionality.
+This file models the individual VRRP group DBus interface. Should be used
+for checking state and for emitting VCI signals on DBus signals.
+"""
 
 import logging
 from functools import wraps
@@ -61,11 +61,7 @@ class VrrpConnection:
         self.log: logging.Logger = logging.getLogger(util.LOGGING_MODULE_NAME)
         self.current_state: str
         self.client: vci.Client = vci.Client()
-        self.af_type_str: str
-        if af_type == 4:
-            self.af_type_str = util.IPV4_AF
-        else:
-            self.af_type_str = util.IPV6_AF
+        self.af_type_str: str = util.IPV4_AF if af_type == 4 else util.IPV6_AF
         self.instance_name: str = f"vyatta-{self.intf}-{self.vrid}"
         self.dbus_path: str = \
             f"{util.VRRP_INSTANCE_DBUS_PATH}/{intf}/{vrid}/{self.af_type_str}"
@@ -109,15 +105,15 @@ class VrrpConnection:
         return processed_state
 
     @activate_connection
-    def garp(self) -> Dict:
+    def garp(self) -> None:
         """
         Trigger the group to send a gARP packet to refresh L2 ARP tables.
         """
 
         if self.vrrp_group_proxy is None:
-            return {}
+            return
         self.vrrp_group_proxy.SendGarp()
-        return {}
+        return
 
     @staticmethod
     def state_int_to_string(state: int) -> str:
