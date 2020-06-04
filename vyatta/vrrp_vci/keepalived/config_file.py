@@ -341,9 +341,9 @@ vrrp_sync_group {sync_group} {{
                         sync_group, util.CONFIG_VRRP_SYNC_GROUP)
                 except ValueError:
                     continue
-                instance_start: int = sync_group.index("group {")
-                instance_end: int = sync_group.index("}", instance_start)
-                if isinstance(group_name, str):
+                else:
+                    instance_start: int = sync_group.index("group {")
+                    instance_end: int = sync_group.index("}", instance_start)
                     for instance in \
                             sync_group[instance_start + 1:instance_end]:
                         # Group name string also includes a { so get rid of it
@@ -368,8 +368,7 @@ vrrp_sync_group {sync_group} {{
                     group, util.CONFIG_VRID_FILE)
             except ValueError:
                 continue
-
-            if isinstance(intf_name, str) and isinstance(vrid, str):
+            else:
                 instance_name = f"vyatta-{intf_name}-{vrid}"
 
             if instance_name in sync_group_instances:
@@ -410,6 +409,7 @@ vrrp_sync_group {sync_group} {{
                     )
             except ValueError:
                 new_group_start_delay = 0
+
             current_start_delay: int = \
                 vrrp_dict[util.YANG_START_DELAY]
             vrrp_dict[util.YANG_START_DELAY] = max(
@@ -490,8 +490,9 @@ vrrp_sync_group {sync_group} {{
                 elif key == util.YANG_PREEMPT:
                     config_dict[key] = True
                 else:
-                    config_dict[key] = "NOTFOUND"  # NOTFOUND
+                    config_dict[key] = "NOTFOUND"
                 continue
+
             if isinstance(config_exists, list):
                 # Term exists in config and is presence
                 config_dict[key] = [None]
@@ -539,8 +540,7 @@ vrrp_sync_group {sync_group} {{
                 config_block, util.YANG_INTERFACE_CONST)
         except ValueError:
             return {}
-
-        if isinstance(conf_tuple, str):
+        else:
             intf_type = conf_tuple
             self._convert_tracking_config(
                 config_block, config_dict, intf_type)
@@ -578,10 +578,8 @@ vrrp_sync_group {sync_group} {{
             auth_pass = util.find_config_value(
                 block, util.CONFIG_AUTH_PASSWORD)
         except ValueError:
-            auth_pass = []
-            auth_type = []
-        if (isinstance(auth_type, str) and
-                isinstance(auth_pass, str)):
+            pass
+        else:
             if auth_type == util.YANG_AUTH_TYPE_PLAIN:
                 auth_type = util.YANG_AUTH_PLAINTXT_PASSWORD
             config_dict[util.YANG_AUTH] = {

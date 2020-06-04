@@ -1171,8 +1171,7 @@ def _convert_keepalived_data_to_yang(
                 instance_dict[key] = None
             else:
                 instance_dict[key] = "NOTFOUND"
-            config_exists = []
-        if not isinstance(config_exists, list):
+        else:
             split_line: List[str]
             split_line = config_exists.split()
             value = split_line[1]
@@ -1199,32 +1198,16 @@ def _convert_keepalived_data_to_yang(
                 instance_dict[key] = value
 
     tracked_dict: Dict = {}
-
-    # Multi line config code
-    track_intf_tuple: Union[List, str]
-    try:
-        track_intf_tuple = util.find_config_value(
-            config_block, util.DATA_TRACK_INTF_COUNT)
-    except ValueError:
-        track_intf_tuple = []
-    track_pmon_tuple: Union[List, str]
-    try:
-        track_pmon_tuple = util.find_config_value(
-            config_block, util.DATA_TRACK_PMON_COUNT)
-    except ValueError:
-        track_pmon_tuple = []
-    track_route_tuple: Union[List, str]
-    try:
-        track_route_tuple = util.find_config_value(
-            config_block, util.DATA_TRACK_ROUTES_COUNT)
-    except ValueError:
-        track_route_tuple = []
-
-    tracked_indexes: List[int]
+    tracked_indexes: List
     tracked_config_end: int
     config_start_offset: int = 1
 
-    if isinstance(track_intf_tuple, str):
+    # Multi line config code
+    try:
+        util.find_config_value(config_block, util.DATA_TRACK_INTF_COUNT)
+    except ValueError:
+        pass  # Tracked interface not in configuration
+    else:
         tracked_indexes = util.get_config_indexes(
             config_block,
             util.DATA_TRACK_INTF_DELIMINATOR)
@@ -1235,7 +1218,11 @@ def _convert_keepalived_data_to_yang(
                                           tracked_indexes, tracked_config_end,
                                           config_start_offset))
 
-    if isinstance(track_pmon_tuple, str):
+    try:
+        util.find_config_value(config_block, util.DATA_TRACK_PMON_COUNT)
+    except ValueError:
+        pass  # Tracked path monitor not in configuration
+    else:
         tracked_indexes = util.get_config_indexes(
             config_block, util.YANG_TRACK_MONITOR.capitalize()
         )
@@ -1250,7 +1237,12 @@ def _convert_keepalived_data_to_yang(
                                           config_start_offset,
                                           tracked_monitor_list))
 
-    if isinstance(track_route_tuple, str):
+    try:
+        util.find_config_value(
+            config_block, util.DATA_TRACK_ROUTES_COUNT)
+    except ValueError:
+        pass  # Tracked route not in configuration
+    else:
         tracked_indexes = util.get_config_indexes(
             config_block,
             util.DATA_TRACK_ROUTE_NETWORK)
@@ -1270,10 +1262,9 @@ def _convert_keepalived_data_to_yang(
         vip_tuple = util.find_config_value(
             config_block, f"{util.DATA_VIP_COUNT} =")
     except ValueError:
-        vip_tuple = []
-    num_vips: int
-    if isinstance(vip_tuple, str):
-        num_vips = int(vip_tuple)
+        pass
+    else:
+        num_vips: int = int(vip_tuple)
         vips_start = util.get_config_indexes(
             config_block, util.DATA_VIP_COUNT)[0]
         vips_end = vips_start + num_vips + 1
@@ -1485,14 +1476,14 @@ def convert_data_file_to_dict(data_string: str) -> Dict:
         for sync_group in sync_group_config:
             sync_group_show_dict: Dict[str, Union[str, List[str]]] = {}
             group_name_exists: Union[List, str]
+            group_tokens: List[str]
             try:
                 group_name_exists = \
                     util.find_config_value(
                         sync_group, util.DATA_SG_INSTANCE_START)
             except ValueError:
                 continue
-            group_tokens: List[str]
-            if isinstance(group_name_exists, str):
+            else:
                 group_tokens = group_name_exists.split()
             group_name: str = group_tokens[1][:-1]
             sync_group_show_dict[util.YANG_NAME] = group_name
