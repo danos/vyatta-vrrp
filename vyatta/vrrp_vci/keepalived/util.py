@@ -14,7 +14,7 @@ import ipaddress
 import re
 import socket
 from enum import Enum
-from typing import Any, Dict, Generator, List, Match, Optional, Tuple
+from typing import Any, Dict, Generator, List, Match, Optional, Tuple, Union
 
 # YANG strings for interfaces types, and short names
 INTERFACE_YANG_NAME: str = "vyatta-interfaces-v1:interfaces"
@@ -29,17 +29,6 @@ SWITCH_YANG_NAME: str = f"vyatta-interfaces-switch-v1:{SWITCH_SHORT_NAME}"
 VIF_YANG_NAME: str = "vif"
 
 intf_type: Enum = Enum("intf_type", "dataplane bonding switch")
-
-
-class ValueTypes(Enum):
-    MISSING = "NOTFOUND"
-    PRESENT = [None]
-
-
-ENUM_CONFIGURED = "CONFIGURED"
-ENUM_NOT_CONFIGURED = "MISSING"
-ENUM_PRESENCE = "PRESENT"
-
 
 # VRRP YANG keys and namespaces
 VRRP_NAMESPACE: str = "vyatta-vrrp-v1"
@@ -523,7 +512,7 @@ def get_config_blocks(
 def find_config_value(
         config_list: List[str],
         search_term: str
-) -> Enum:
+) -> Union[List, str]:
     """
     Find a config line in a block of config
 
@@ -534,23 +523,25 @@ def find_config_value(
             The key to look for in the config
 
     Return:
-        Returns an Enum that can take one of three formats.
-        ValueType.MISSING = "NOTFOUND"
-        ValueType.PRESENCE = [None]
-        ConfiguredValue.CONFIGURED = <found string>
+        Returns either a value for the search string being found
+        or raises an error if the value isn't found an Enum that
+        can take one of three formats.
+        ValueError("Config not found")
+        Present but not configured = [None]
+        Present and configured = <found string>
 
     Example:
         config_block = ["vrrp_instance dp0p1s1", "priority 200",
             "use_vmac"]
 
         _find_config_value(config_block, "preempt")
-        # ValueType.MISSING
+        # raise ValueError for caller to deal with
 
         _find_config_value(config_block, "use_vmac")
-        # ValueType.PRESENCE
+        # [None]
 
         _find_config_value(config_block, "priority")
-        # ConfiguredValue.CONFIGURED
+        # "200"
     """
 
     line: str
@@ -560,15 +551,11 @@ def find_config_value(
         if regex_search is not None:
             regex_search = re.match(fr"{search_term}\s+(.*)", line)
             if regex_search is not None:
-                # Can't extend an enum so hack together this enum to
-                # make processing the results the same for all types.
-                class ConfiguredValue(Enum):
-                    CONFIGURED = regex_search.group(1)
-                return ConfiguredValue.CONFIGURED
+                return regex_search.group(1)
             # Yang JSON representation has single key with no value as
             # <key>: [null]
-            return ValueTypes.PRESENT
-    return ValueTypes.MISSING
+            return [None]
+    raise ValueError(f"Value {search_term} not found in config")
 
 
 def find_interface_in_yang_repr(

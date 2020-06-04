@@ -11,7 +11,7 @@ import contextlib
 import json
 import os
 from enum import Enum
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Union
 
 import pydbus
 
@@ -335,16 +335,19 @@ vrrp_sync_group {sync_group} {{
             )
             sync_group: str
             for sync_group in sync_group_config:
-                group_name_exists: Tuple[bool, str] = \
-                    util.find_config_value(
+                group_name: Union[List, str]
+                try:
+                    group_name = util.find_config_value(
                         sync_group, util.CONFIG_VRRP_SYNC_GROUP)
-                if group_name_exists.name == util.ENUM_NOT_CONFIGURED:
+                except ValueError:
                     continue
-                group_name: str = group_name_exists.value.split()[0]
                 instance_start: int = sync_group.index("group {")
                 instance_end: int = sync_group.index("}", instance_start)
-                for instance in sync_group[instance_start + 1:instance_end]:
-                    sync_group_instances[instance] = group_name
+                if isinstance(group_name, str):
+                    for instance in \
+                            sync_group[instance_start + 1:instance_end]:
+                        # Group name string also includes a { so get rid of it
+                        sync_group_instances[instance] = group_name.split()[0]
 
         group_config: List[List[str]] = util.get_config_blocks(
             config_lines, vrrp_group_start_indexes)
@@ -355,11 +358,19 @@ vrrp_sync_group {sync_group} {{
         group: List[str]
         for group in group_config:
 
-            intf_name: str = util.find_config_value(
-                group, util.YANG_INTERFACE_CONST).value
-            vrid: str = util.find_config_value(
-                group, util.CONFIG_VRID_FILE).value
-            instance_name: str = f"vyatta-{intf_name}-{vrid}"
+            instance_name: str
+            intf_name: str
+            vrid: str
+            try:
+                intf_name = util.find_config_value(
+                    group, util.YANG_INTERFACE_CONST)
+                vrid = util.find_config_value(
+                    group, util.CONFIG_VRID_FILE)
+            except ValueError:
+                continue
+
+            if isinstance(intf_name, str) and isinstance(vrid, str):
+                instance_name = f"vyatta-{intf_name}-{vrid}"
 
             if instance_name in sync_group_instances:
                 group.append(
@@ -391,10 +402,14 @@ vrrp_sync_group {sync_group} {{
 
             # All groups should have the same start delay but check and
             # store the largest delay found
-            new_group_start_delay: int = \
-                util.find_config_value(
-                    group, util.CONFIG_START_DELAY
-                ).value
+            new_group_start_delay: int
+            try:
+                new_group_start_delay = \
+                    util.find_config_value(
+                        group, util.CONFIG_START_DELAY
+                    )
+            except ValueError:
+                new_group_start_delay = 0
             current_start_delay: int = \
                 vrrp_dict[util.YANG_START_DELAY]
             vrrp_dict[util.YANG_START_DELAY] = max(
@@ -462,9 +477,11 @@ vrrp_sync_group {sync_group} {{
         key: str
         for key in config_dict:
             # Search for each term in the config
-            config_exists: Enum = util.find_config_value(
-                config_block, config_dict[key])
-            if config_exists.name == util.ENUM_NOT_CONFIGURED:
+            config_exists: Union[List, str]
+            try:
+                config_exists = util.find_config_value(
+                    config_block, config_dict[key])
+            except ValueError:
                 # Accept and preempt are required defaults in the YANG called
                 # out as a special case here if they don't explicitly exist in
                 # the config block
@@ -473,15 +490,16 @@ vrrp_sync_group {sync_group} {{
                 elif key == util.YANG_PREEMPT:
                     config_dict[key] = True
                 else:
-                    config_dict[key] = config_exists.value  # NOTFOUND
-            elif isinstance(config_exists.value, list):
+                    config_dict[key] = "NOTFOUND"  # NOTFOUND
+                continue
+            if isinstance(config_exists, list):
                 # Term exists in config and is presence
-                config_dict[key] = config_exists.value
-            elif config_exists.value.isdigit():
+                config_dict[key] = [None]
+            elif config_exists.isdigit():
                 # Term exists in config and has a numerical value
-                config_dict[key] = int(config_exists.value)
+                config_dict[key] = int(config_exists)
             else:
-                config_dict[key] = config_exists.value
+                config_dict[key] = config_exists
 
         # Remove defaults
         # TODO: Test what is currently returned for defaults
@@ -513,23 +531,24 @@ vrrp_sync_group {sync_group} {{
 
         # Find interface so we know which yang name to use for tracking
         # augments
-        conf_tuple: Enum = util.find_config_value(
-            config_block, util.YANG_INTERFACE_CONST)
-        intf_type = None
-        if (conf_tuple.name != util.ENUM_NOT_CONFIGURED and
-                isinstance(conf_tuple.value, str)):
-            intf_type = conf_tuple.value
-        else:
+        conf_tuple: Union[List, str]
+        try:
+            conf_tuple = util.find_config_value(
+                config_block, util.YANG_INTERFACE_CONST)
+        except ValueError:
             return {}
-        self._convert_tracking_config(
-            config_block, config_dict, intf_type)
+
+        if isinstance(conf_tuple, str):
+            intf_type = conf_tuple
+            self._convert_tracking_config(
+                config_block, config_dict, intf_type)
 
         self._convert_notify_proto_config(
             config_block, config_dict)
 
         config_dict = \
             {key: val for key, val in config_dict.items()
-             if val != util.ValueTypes.MISSING.value}
+             if val != "NOTFOUND"}
         # Sort dictionary alphabetically for unit tests
         config_dict = \
             {key: config_dict[key] for key in sorted(config_dict)}
@@ -549,21 +568,24 @@ vrrp_sync_group {sync_group} {{
             # Authentication doesn't exist in this group
             return
 
-        auth_type: Enum = util.find_config_value(block, util.CONFIG_AUTH_TYPE)
-        auth_pass: Enum = util.find_config_value(
-            block, util.CONFIG_AUTH_PASSWORD)
-        if auth_type.name == util.ENUM_CONFIGURED and \
-                auth_pass.name == util.ENUM_CONFIGURED:
-            if (isinstance(auth_type.value, str) and
-                    isinstance(auth_pass.value, str)):
-                auth_type_value: str = auth_type.value
-                auth_pass_value: str = auth_pass.value
-                if auth_type_value == util.YANG_AUTH_TYPE_PLAIN:
-                    auth_type_value = util.YANG_AUTH_PLAINTXT_PASSWORD
-                config_dict[util.YANG_AUTH] = {
-                    util.YANG_AUTH_PASSWORD: auth_pass_value,
-                    util.YANG_TYPE: auth_type_value.lower()
-                }
+        auth_type: Union[list, str]
+        auth_pass: Union[list, str]
+        try:
+            auth_type = util.find_config_value(
+                block, util.CONFIG_AUTH_TYPE)
+            auth_pass = util.find_config_value(
+                block, util.CONFIG_AUTH_PASSWORD)
+        except ValueError:
+            auth_pass = []
+            auth_type = []
+        if (isinstance(auth_type, str) and
+                isinstance(auth_pass, str)):
+            if auth_type == util.YANG_AUTH_TYPE_PLAIN:
+                auth_type = util.YANG_AUTH_PLAINTXT_PASSWORD
+            config_dict[util.YANG_AUTH] = {
+                util.YANG_AUTH_PASSWORD: auth_pass,
+                util.YANG_TYPE: auth_type.lower()
+            }
 
     @staticmethod
     def _convert_notify_proto_config(

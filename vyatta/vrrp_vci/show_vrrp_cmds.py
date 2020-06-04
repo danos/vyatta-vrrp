@@ -6,12 +6,9 @@
 
 import calendar
 import time
-from typing import Any, Dict, List, Optional, TYPE_CHECKING, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
 import vyatta.vrrp_vci.keepalived.util as util
-
-if TYPE_CHECKING:
-    from enum import Enum
 
 """ Show VRRP summary helpers. """
 SHOW_SUMMARY_HEADER_LINE_1: List[str] = (
@@ -1167,16 +1164,19 @@ def _convert_keepalived_data_to_yang(
         if key == util.YANG_SYNC_GROUP:
             continue
         # Search for each term in the config
-        config_exists: Enum = \
-            util.find_config_value(config_block, instance_dict[key])
-        if config_exists is util.ValueTypes.MISSING:
+        config_exists: Union[List, str]
+        try:
+            config_exists = \
+                util.find_config_value(config_block, instance_dict[key])
+        except ValueError:
             if key == util.YANG_AUTH_TYPE:
                 instance_dict[key] = None
             else:
-                instance_dict[key] = util.ValueTypes.MISSING.value
-        elif not isinstance(config_exists.value, list):
+                instance_dict[key] = "NOTFOUND"
+            config_exists = []
+        if not isinstance(config_exists, list):
             split_line: List[str]
-            split_line = config_exists.value.split()
+            split_line = config_exists.split()
             value = split_line[1]
             if key == util.YANG_ADVERT_INT_STATE:
                 if instance_dict[util.YANG_VERSION] == 2:
@@ -1203,22 +1203,30 @@ def _convert_keepalived_data_to_yang(
     tracked_dict: Dict = {}
 
     # Multi line config code
-    track_intf_tuple: Enum = \
-        util.find_config_value(config_block,
-                               util.DATA_TRACK_INTF_COUNT)
-    tracked_pmon_tuple: Enum = \
-        util.find_config_value(config_block,
-                               util.DATA_TRACK_PMON_COUNT)
-    track_route_tuple: Enum = \
-        util.find_config_value(config_block,
-                               util.DATA_TRACK_ROUTES_COUNT)
+    track_intf_tuple: Union[List, str]
+    try:
+        track_intf_tuple = util.find_config_value(
+            config_block, util.DATA_TRACK_INTF_COUNT)
+    except ValueError:
+        track_intf_tuple = []
+    track_pmon_tuple: Union[List, str]
+    try:
+        track_pmon_tuple = util.find_config_value(
+            config_block, util.DATA_TRACK_PMON_COUNT)
+    except ValueError:
+        track_pmon_tuple = []
+    track_route_tuple: Union[List, str]
+    try:
+        track_route_tuple = util.find_config_value(
+            config_block, util.DATA_TRACK_ROUTES_COUNT)
+    except ValueError:
+        track_route_tuple = []
 
     tracked_indexes: List[int]
     tracked_config_end: int
     config_start_offset: int = 1
 
-    if (not isinstance(track_intf_tuple.value, list) and
-            track_intf_tuple is not util.ValueTypes.MISSING):
+    if isinstance(track_intf_tuple, str):
         tracked_indexes = util.get_config_indexes(
             config_block,
             util.DATA_TRACK_INTF_DELIMINATOR)
@@ -1229,8 +1237,7 @@ def _convert_keepalived_data_to_yang(
                                           tracked_indexes, tracked_config_end,
                                           config_start_offset))
 
-    if (not isinstance(tracked_pmon_tuple.value, list) and
-            tracked_pmon_tuple is not util.ValueTypes.MISSING):
+    if isinstance(track_pmon_tuple, str):
         tracked_indexes = util.get_config_indexes(
             config_block, util.YANG_TRACK_MONITOR.capitalize()
         )
@@ -1245,8 +1252,7 @@ def _convert_keepalived_data_to_yang(
                                           config_start_offset,
                                           tracked_monitor_list))
 
-    if (not isinstance(track_route_tuple.value, list) and
-            track_route_tuple is not util.ValueTypes.MISSING):
+    if isinstance(track_route_tuple, str):
         tracked_indexes = util.get_config_indexes(
             config_block,
             util.DATA_TRACK_ROUTE_NETWORK)
@@ -1261,12 +1267,15 @@ def _convert_keepalived_data_to_yang(
     if tracked_dict != {}:
         instance_dict[util.YANG_TRACK] = tracked_dict
 
-    vip_tuple: Enum = \
-        util.find_config_value(
+    vip_tuple: Union[List, str]
+    try:
+        vip_tuple = util.find_config_value(
             config_block, f"{util.DATA_VIP_COUNT} =")
+    except ValueError:
+        vip_tuple = []
     num_vips: int
-    if not isinstance(vip_tuple.value, list):
-        num_vips = int(vip_tuple.value)
+    if isinstance(vip_tuple, str):
+        num_vips = int(vip_tuple)
         vips_start = util.get_config_indexes(
             config_block, util.DATA_VIP_COUNT)[0]
         vips_end = vips_start + num_vips + 1
@@ -1277,7 +1286,7 @@ def _convert_keepalived_data_to_yang(
 
     instance_dict = \
         {key: val for key, val in instance_dict.items()
-         if val != util.ValueTypes.MISSING.value}
+         if val != "NOTFOUND"}
 
     return {util.YANG_INSTANCE_STATE: instance_dict, util.YANG_TAGNODE: vrid}
 
@@ -1477,11 +1486,16 @@ def convert_data_file_to_dict(data_string: str) -> Dict:
         sync_group: str
         for sync_group in sync_group_config:
             sync_group_show_dict: Dict[str, Union[str, List[str]]] = {}
-            group_name_exists: Tuple[bool, str] = \
-                util.find_config_value(sync_group, util.DATA_SG_INSTANCE_START)
-            if group_name_exists.name == util.ENUM_NOT_CONFIGURED:
+            group_name_exists: Union[List, str]
+            try:
+                group_name_exists = \
+                    util.find_config_value(
+                        sync_group, util.DATA_SG_INSTANCE_START)
+            except ValueError:
                 continue
-            group_tokens: List[str] = group_name_exists.value.split()
+            group_tokens: List[str]
+            if isinstance(group_name_exists, str):
+                group_tokens = group_name_exists.split()
             group_name: str = group_tokens[1][:-1]
             sync_group_show_dict[util.YANG_NAME] = group_name
             sync_group_show_dict[util.YANG_STATE] = group_tokens[-1]

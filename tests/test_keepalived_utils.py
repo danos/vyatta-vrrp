@@ -328,42 +328,58 @@ class TestKeepalivedUtils:
             (
                 pytest.lazy_fixture("autogeneration_config_block"),
                 "snmp_socket",
-                {"Name": "CONFIGURED", "Value": "tcp:localhost:705:1"},
+                {"Type": str, "Value": "tcp:localhost:705:1"},
             ),
+            (
+                pytest.lazy_fixture("autogeneration_config_block"),
+                "enable_dbus",
+                {"Type": list, "Value": [None]},
+            ),
+            (
+                pytest.lazy_fixture("multiple_group_keepalived_config_block"),
+                "state",
+                {"Type": str, "Value": "BACKUP"},
+            ),
+        ],
+        ids=[
+            "Autogen SNMP defined",
+            "Autogen presence defined",
+            "Multiple config blocks"
+        ]
+    )
+    def test_find_value_in_config_blocks_value_exists(
+            self, config_list, search_string, expected):
+        for block in config_list:
+            assert isinstance(
+                util.find_config_value(block, search_string),
+                expected["Type"]
+            )
+            assert util.find_config_value(block, search_string) \
+                == expected["Value"]
+
+    @pytest.mark.parametrize(
+        "config_list,search_string,expected",
+        [
             (
                 pytest.lazy_fixture("autogeneration_config_block"),
                 "garp",
                 {"Name": "MISSING", "Value": "NOTFOUND"},
             ),
             (
-                pytest.lazy_fixture("autogeneration_config_block"),
-                "enable_dbus",
-                {"Name": "PRESENT", "Value": [None]},
-            ),
-            (
                 pytest.lazy_fixture("complex_keepalived_config_block"),
                 "preempt",
                 {"Name": "MISSING", "Value": "NOTFOUND"},
             ),
-            (
-                pytest.lazy_fixture("multiple_group_keepalived_config_block"),
-                "state",
-                {"Name": "CONFIGURED", "Value": "BACKUP"},
-            ),
         ],
         ids=[
-            "Autogen SNMP defined", "Autogen undefined key",
-            "Autogen presence defined", "Overlapping substring",
-            "Multiple config blocks"
+            "Autogen undefined key", "Overlapping substring",
         ]
     )
-    def test_find_value_in_config_blocks(
+    def test_find_value_in_config_blocks_value_doesnt_exist(
             self, config_list, search_string, expected):
         for block in config_list:
-            assert util.find_config_value(block, search_string).name \
-                == expected["Name"]
-            assert util.find_config_value(block, search_string).value \
-                == expected["Value"]
+            with pytest.raises(ValueError):
+                util.find_config_value(block, search_string)
 
     @pytest.mark.parametrize(
         "intf_name,intf_list,intf_index",
