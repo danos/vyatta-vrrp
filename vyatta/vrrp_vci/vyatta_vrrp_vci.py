@@ -4,6 +4,7 @@
 
 import json
 import logging
+import subprocess
 from typing import Any, Dict, List
 
 import pydbus
@@ -81,6 +82,7 @@ class Config(vci.Config):
         if self.pc.is_running():
             self.pc.reload_process_config()
         else:
+            subprocess.Popen([util.DBUS_NOTIFY_SCRIPT]).pid
             self.pc.start_process()
         self.log.info(
             f"{self._conf_obj.impl_name()} config written to "

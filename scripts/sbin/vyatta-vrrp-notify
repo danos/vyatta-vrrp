@@ -9,9 +9,9 @@ import pydbus
 import logging
 import logging.handlers
 from gi.repository import GLib
-import vyatta.keepalived.util as util
-import vyatta.keepalived.config_file as config_file
-import vyatta.keepalived.dbus.process_control as process_control
+import vyatta.vrrp_vci.keepalived.util as util
+import vyatta.vrrp_vci.keepalived.config_file as config_file
+import vyatta.vrrp_vci.keepalived.dbus.process_control as process_control
 
 
 class NotifyDaemon:
@@ -21,12 +21,37 @@ class NotifyDaemon:
         self.keepalived = None
         self.keepalived_dbus = None
         self.keepalived_proxy = None
+        self.old_instances = []
         self._loop = GLib.MainLoop()
         self.log.info("Notify daemon object created")
 
     @property
     def loop(self):
         return self._loop
+
+    def refresh_state(self):
+        if self.keepalived is None:
+            self.keepalived = config_file.KeepalivedConfig()
+        if self.keepalived_dbus is None:
+            self.keepalived_dbus = process_control.ProcessControl()
+            self.keepalived_dbus.keepalived_process = \
+                self.keepalived_dbus.sysbus.get(
+                    util.KEEPALIVED_DBUS_INTF_NAME,
+                    util.VRRP_PROCESS_DBUS_INTF_PATH
+                )
+            self.keepalived_proxy = self.keepalived_dbus.keepalived_process
+        if self.keepalived.vrrp_connections != {}:
+            self.old_instances = self.keepalived.vrrp_connections.keys()
+        self.log.debug("Reading config")
+        file_config = self.keepalived.read_config()
+        self.keepalived.update(
+            self.keepalived.convert_to_vci_format_dict(file_config)
+        )
+        self.log.debug("Registering vrrp instance signal")
+        for instance, connection in self.keepalived.vrrp_connections.items():
+            if instance not in self.old_instances:
+                connection.subscribe_instance_signals()
+        self.old_instances = []
 
     def shutdown_system(self):
         self.log.info("Keepalived VrrpStopped signal caught")
@@ -38,21 +63,11 @@ def bus_activates(name):
     # This really isn't the best thing to do abusing the scope of variables
     # need to figure out a better way for this to work
     log.info("Bus name %s has become active, registering signals", name)
+    daemon.refresh_state()
+    log.debug("Registering Keepalived Reloaded signal")
+    daemon.keepalived_proxy.VrrpReloaded.connect(daemon.refresh_state)
     log.debug("Registering keepalived shutdown signal")
-    daemon.keepalived = config_file.KeepalivedConfig()
-    file_config = daemon.keepalived.read_config()
-    yang_repr = daemon.keepalived.convert_to_vci_format_dict(file_config)
-    daemon.keepalived.update(yang_repr)
-    daemon.keepalived_dbus = process_control.ProcessControl()
-    daemon.keepalived_dbus.keepalived_process = daemon.keepalived_dbus.sysbus.get(
-        util.KEEPALIVED_DBUS_INTF_NAME,
-        util.VRRP_PROCESS_DBUS_INTF_PATH
-    )
-    daemon.keepalived_proxy = daemon.keepalived_dbus.keepalived_process
     daemon.keepalived_proxy.VrrpStopped.connect(daemon.shutdown_system)
-    log.debug("Registering vrrp instance signal")
-    for instance, connection in daemon.keepalived.vrrp_connections.items():
-        connection.subscribe_instance_signals()
     log.debug("Registering other keepalived signals")
     daemon.keepalived_dbus.subscribe_process_signals()
 
@@ -60,11 +75,11 @@ def bus_activates(name):
 if __name__ == "__main__":
     logging.basicConfig(
         level=logging.DEBUG,
-        format="vyatta-vrrp-notify[%(process)d]: %(message)s"
+        format="%(message)s"
     )
-    handler = logging.handlers.SysLogHandler(address="/dev/log")
+    #handler = logging.handlers.SysLogHandler(address="/dev/log")
     log = logging.getLogger("vyatta-vrrp-notify")
-    log.addHandler(handler)
+    #log.addHandler(handler)
     log.info("Starting vrrp notify daemon")
     daemon = NotifyDaemon(log)
     loop = daemon.loop

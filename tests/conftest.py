@@ -62,7 +62,16 @@ def tmp_file_keepalived_config_no_write(tmp_path):
         class Client:
             pass
 
+    class FakeSubprocess:
+
+        class Popen:
+
+            def __init__(self, *args):
+                self.pid = None
+                return
+
     sys.modules["vci"] = FakeVci
+    sys.modules["subprocess"] = FakeSubprocess
     from vyatta.vrrp_vci.keepalived.config_file import KeepalivedConfig
     file_path = f"{tmp_path}/keepalived.conf"
     return KeepalivedConfig(file_path)

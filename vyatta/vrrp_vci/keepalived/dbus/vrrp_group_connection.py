@@ -9,8 +9,9 @@ for checking state and for emitting VCI signals on DBus signals.
 """
 
 import logging
+import os
 from functools import wraps
-from typing import Any, Callable, Dict, Union
+from typing import Any, Callable, Dict, List, Union
 
 import pydbus
 
@@ -47,7 +48,7 @@ class VrrpConnection:
 
     def __init__(
             self, intf: str, vrid: str, af_type: int,
-            bus_object: Any
+            bus_object: Any, notify: List = []
     ) -> None:
         """
         This object represents the DBus interface/object to a VRRP group.
@@ -57,6 +58,7 @@ class VrrpConnection:
             intf = intf.replace(".", "_")
         self.intf: str = intf
         self.vrid: str = vrid
+        self.notify_scripts: List[str] = notify
         self.bus_object: pydbus.Bus = bus_object
         self.log: logging.Logger = logging.getLogger(util.LOGGING_MODULE_NAME)
         self.current_state: str
@@ -102,6 +104,8 @@ class VrrpConnection:
             },
             util.YANG_TAGNODE: f"{self.vrid}"
         }
+        self.current_state = \
+            group_state[util.YANG_STATE.capitalize()][1].upper()
         return processed_state
 
     @activate_connection
@@ -147,15 +151,44 @@ class VrrpConnection:
         self.current_state = status_str
         self.log.debug(
             f"{self.instance_name} changed state to {status_str}"
+            " firing VCI notification"
         )
         self.client.emit(
-            {util.VRRP_NAMESPACE},
+            util.VRRP_NAMESPACE,
             util.NOTIFICATION_NAME_YANG,
             {
                 util.NOTIFICATION_INSTANCE_NAME: self.instance_name,
                 util.NOTIFICATION_NEW_STATE: status_str
             }
         )
+
+    def legacy_notify(self, status: int) -> None:
+        """
+        Call back for when the state change signal fires from the
+        DBus object, and legacy scripts need to be triggered.
+
+        All services that wish to react to VRRP changes should now
+        listen for the VCI notification, but this is a process and
+        until such times this function should be used for BGP and
+        IPSEC notifications. This function will run the scripts
+        """
+
+        status_str: str = self.state_int_to_string(status)
+        # May need to also send 5 gARP replies on a master transition
+        # there's a note about this in the legacy implementation
+        if self.current_state == status_str:
+            # No actual state change so do not emit notification
+            return
+        self.current_state = status_str
+        self.log.debug(
+            f"{self.instance_name} changed state to {status_str}"
+            " firing legacy scripts"
+        )
+        for script in self.notify_scripts:
+            os.system(
+                f"{script} INSTANCE {self.instance_name} "
+                f"{self.current_state}"
+            )
 
     @activate_connection
     def subscribe_instance_signals(self) -> None:
@@ -166,8 +199,15 @@ class VrrpConnection:
         self.log.debug(f"{self.dbus_path} subscribing to signals")
         if self.vrrp_group_proxy is None:
             return
+        self.get_instance_state()
+        self.log.debug(
+            f"{self.dbus_path} current state is {self.current_state}"
+        )
         self.vrrp_group_proxy.VrrpStatusChange.connect(
             self.state_change
+        )
+        self.vrrp_group_proxy.VrrpStatusChange.connect(
+            self.legacy_notify
         )
 
     @activate_connection

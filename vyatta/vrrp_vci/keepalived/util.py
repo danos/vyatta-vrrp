@@ -66,6 +66,9 @@ VRRP_INSTANCE_DBUS_PATH: str = \
 IPV4_AF: str = "IPv4"
 IPV6_AF: str = "IPv6"
 
+# Path to script that listens for DBus events and converts them to VCI
+DBUS_NOTIFY_SCRIPT = "/opt/vyatta/sbin/vyatta-vrrp-notify"
+
 # DBus property keys
 DBUS_IPAO_NAME: str = "AddressOwner"
 DBUS_LAST_TRANSITION_NAME: str = "LastTransition"
@@ -246,6 +249,10 @@ DEBUG_FLAG_PER_PACKET = 1
 # Keepalived file paths
 FILE_PATH_KEEPALIVED_DATA = "/tmp/keepalived.data"
 FILE_PATH_KEEPALIVED_STATS = "/tmp/keepalived.stats"
+
+# Legacy notification script paths
+LEGACY_NOTIFY_BGP = "/opt/vyatta/sbin/notify-bgp"
+LEGACY_NOTIFY_IPSEC = "/opt/vyatta/sbin/vyatta-ipsec-notify.sh"
 
 # Misc string constants
 LOGGING_MODULE_NAME: str = "vyatta-vrrp-vci"

@@ -5,7 +5,7 @@
 
 import logging
 from decimal import Decimal
-from typing import Dict
+from typing import Dict, List
 
 import vyatta.vrrp_vci.keepalived.util as util
 
@@ -38,6 +38,7 @@ class VrrpGroup:
                 group.
         """
         self.log: logging.Logger = logging.getLogger(util.LOGGING_MODULE_NAME)
+        self.notify_scripts: List[str] = []
         # Default values from existing code required for minimal
         # config
         self._group_config: Dict = group_config
@@ -170,10 +171,11 @@ vrrp_instance {instance} {{
         if util.YANG_NOTIFY in self._group_config:
             self._template += "\n    notify {{"
             if util.YANG_IPSEC in self._group_config[util.YANG_NOTIFY]:
-                self._template += \
-                    "\n        /opt/vyatta/sbin/vyatta-ipsec-notify.sh"""
+                self._template += f"\n        {util.LEGACY_NOTIFY_IPSEC}"
+                self.notify_scripts.append(util.LEGACY_NOTIFY_IPSEC)
             if util.YANG_BGP in self._group_config[util.YANG_NOTIFY]:
-                self._template += "\n        /opt/vyatta/sbin/notify-bgp"
+                self._template += f"\n        {util.LEGACY_NOTIFY_BGP}"
+                self.notify_scripts.append(util.LEGACY_NOTIFY_BGP)
             self._template += "\n    }}"
 
         # TODO: This may need changed to add transition scripts
@@ -215,6 +217,9 @@ vrrp_instance {instance} {{
     def instance_name(self) -> str:
         """Name of this group in the config file"""
         return self._instance
+
+    def get_notify_scripts(self) -> List[str]:
+        return self.notify_scripts
 
     def _generate_track_string(self, track_dict) -> None:
         self._template += "\n    track {{"

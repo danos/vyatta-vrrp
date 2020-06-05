@@ -250,13 +250,15 @@ global_defs {
                                 VrrpGroup(
                                     intf_name, start_delay, group))
 
+                        notify_scripts: List[str] = \
+                            self.vrrp_instances[-1].get_notify_scripts()
                         af_type: int = util.get_ip_version(
                             first_vip
                         )
                         connection: VrrpConnection = \
                             VrrpConnection(
                                 intf_name, group[util.YANG_TAGNODE],
-                                af_type, pydbus.SystemBus()
+                                af_type, pydbus.SystemBus(), notify_scripts
                             )
                         instance_name: str = \
                             f"vyatta-{intf_name}-{group[util.YANG_TAGNODE]}"
