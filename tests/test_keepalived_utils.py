@@ -374,3 +374,19 @@ class TestKeepalivedUtils:
     def test_intf_name_to_type_unknown_type(self):
         with pytest.raises(ValueError):
             util.intf_name_to_type("dp0p")
+
+    @pytest.mark.parametrize(
+        "time_delta,expected",
+        [
+            ("3", "3s"), ("60", "1m0s"), ("70", "1m10s"),
+            ("3600", "1h0s"), ("3659", "1h59s"), ("3661", "1h1m1s"),
+            ("86400", "1d0s"), ("190800", "2d5h0s"), ("828222", "1w2d14h3m42s")
+        ],
+        ids=[
+            "Seconds", "Minute", "Minutes and seconds",
+            "Hour", "Hour and seconds", "Hour, minute, and seconds",
+            "Day", "Days and hours", "Weeks, days, hours, minutes, and seconds"
+        ]
+    )
+    def test_elapsed_time(self, time_delta, expected):
+        assert util.elapsed_time(time_delta) == expected
