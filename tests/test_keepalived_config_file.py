@@ -164,6 +164,11 @@ class TestKeepalivedConfigFile:
                 pytest.lazy_fixture("keepalived_config")
             ),
             (
+                pytest.lazy_fixture("bonding_complex_keepalived_config"),
+                pytest.lazy_fixture("bonding_complex_config"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
+            (
                 pytest.lazy_fixture("parent_and_vif_keepalived_config"),
                 pytest.lazy_fixture("parent_and_vif_config"),
                 pytest.lazy_fixture("keepalived_config")
@@ -173,12 +178,19 @@ class TestKeepalivedConfigFile:
                 pytest.lazy_fixture("switch_config"),
                 pytest.lazy_fixture("keepalived_config")
             ),
+            (
+                pytest.lazy_fixture("switch_complex_keepalived_config"),
+                pytest.lazy_fixture("switch_complex_config"),
+                pytest.lazy_fixture("keepalived_config")
+            ),
         ],
         ids=[
             "No config", "Minimal config", "v3 Config",
             "Sync group config", "Multiple sync groups",
-            "Complex config", "Bonding config",
-            "Parent and vif config", "switch config"
+            "Complex config",
+            "Bonding config", "Bonding complex config",
+            "Parent and vif config",
+            "switch config", "Switch complex config",
         ]
     )
     def test_config_to_vci_format(

@@ -61,7 +61,13 @@ class TestKeepalivedVrrpGroup:
          (pytest.lazy_fixture(
              "generic_v3_fast_advert_group_between_seconds_keepalived_config"),
           pytest.lazy_fixture("generic_v3_fast_advert_between_seconds_group"),
-          -1, "dp0p1s1")],
+          -1, "dp0p1s1"),
+         (pytest.lazy_fixture("switch_max_group_keepalived_config"),
+          pytest.lazy_fixture("switch_max_config_group"), 1, "sw0.10"),
+         (pytest.lazy_fixture("bonding_max_group_keepalived_config"),
+          pytest.lazy_fixture("bonding_max_config_group"), 1, "dp0bond0"),
+         (pytest.lazy_fixture("route_to_track_group_keepalived_config"),
+          pytest.lazy_fixture("route_to_track_group"), 1, "dp0p1s1")],
         ids=["Simple", "Complex", "VRRPv3", "IPv6 group",
              "Pathmon tracking",
              "Legacy tracking", "Legacy & Enhanced Tracking",
@@ -70,7 +76,10 @@ class TestKeepalivedVrrpGroup:
              "Run transition scripts", "Switch interface",
              "VRRPv3 fast-advert subsecond",
              "VRRPv3 fast-advert second boundary",
-             "VRRPv3 fast-advert between full seconds"])
+             "VRRPv3 fast-advert between full seconds",
+             "Complex switch config",
+             "Complex bonding config",
+             "Route to tracking"])
     def test_vrrp_group_config_string(
             self, expected, yang, rfc_num, intf):
         assert str(VrrpGroup(intf, "0", yang, rfc_num)) == expected

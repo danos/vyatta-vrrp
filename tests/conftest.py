@@ -4038,6 +4038,154 @@ def max_config_group(pathmon_yang_name, route_to_yang_name):
 
 
 @pytest.fixture
+def bonding_max_config_group(
+    bonding_pathmon_yang_name, bonding_route_to_yang_name
+):
+    return {
+        "accept": False,
+        "advertise-interval": 2,
+        "authentication": {
+            "password": "help",
+            "type": "plaintext-password"
+        },
+        "hello-source-address": "127.0.0.1",
+        "notify": {
+            "bgp": [
+                None
+            ],
+            "ipsec": [
+                None
+            ]
+        },
+        "preempt": True,
+        "preempt-delay": 10,
+        "priority": 200,
+        "rfc-compatibility": [
+            None
+        ],
+        "tagnode": 1,
+        "track": {
+            "interface": [
+                {
+                    "name": "dp0p1s1",
+                    "weight": {
+                        "type": "increment",
+                        "value": 10
+                    }
+                },
+                {
+                    "name": "dp0s2",
+                    "weight": {
+                        "type": "decrement",
+                        "value": 10
+                    }
+                },
+                {
+                    "name": "lo"
+                }
+            ],
+            bonding_pathmon_yang_name: {
+                "monitor": [
+                    {
+                        "name": "test_monitor",
+                        "policy": [
+                            {
+                                "name": "test_policy",
+                                "weight": {
+                                    "type": "decrement",
+                                    "value": 10
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            bonding_route_to_yang_name: [
+                {"route": "10.10.10.0/24"}
+            ]
+        },
+        "version": 2,
+        "virtual-address": [
+            "10.10.1.100/25"
+        ]
+    }
+
+
+@pytest.fixture
+def switch_max_config_group(
+    switch_pathmon_yang_name, switch_route_to_yang_name
+):
+    return {
+        "accept": False,
+        "advertise-interval": 2,
+        "authentication": {
+            "password": "help",
+            "type": "plaintext-password"
+        },
+        "hello-source-address": "127.0.0.1",
+        "notify": {
+            "bgp": [
+                None
+            ],
+            "ipsec": [
+                None
+            ]
+        },
+        "preempt": True,
+        "preempt-delay": 10,
+        "priority": 200,
+        "rfc-compatibility": [
+            None
+        ],
+        "tagnode": 1,
+        "track": {
+            "interface": [
+                {
+                    "name": "dp0p1s1",
+                    "weight": {
+                        "type": "increment",
+                        "value": 10
+                    }
+                },
+                {
+                    "name": "dp0s2",
+                    "weight": {
+                        "type": "decrement",
+                        "value": 10
+                    }
+                },
+                {
+                    "name": "lo"
+                }
+            ],
+            switch_pathmon_yang_name: {
+                "monitor": [
+                    {
+                        "name": "test_monitor",
+                        "policy": [
+                            {
+                                "name": "test_policy",
+                                "weight": {
+                                    "type": "decrement",
+                                    "value": 10
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            switch_route_to_yang_name: [
+                {"route": "10.10.10.0/24"}
+            ]
+        },
+        "version": 2,
+        "virtual-address": [
+            "10.10.1.100/25"
+        ]
+    }
+
+
+@pytest.fixture
 def disabled_group():
     return {
         "accept": False,
@@ -4614,6 +4762,90 @@ vrrp_instance vyatta-dp0p1s1-1 {
 
 
 @pytest.fixture
+def bonding_max_group_keepalived_config():
+    return """
+vrrp_instance vyatta-dp0bond0-1 {
+    state BACKUP
+    interface dp0bond0
+    virtual_router_id 1
+    version 2
+    start_delay 0
+    priority 200
+    advert_int 2
+    virtual_ipaddress {
+        10.10.1.100/25
+    }
+    use_vmac dp0vrrp1
+    vmac_xmit_base
+    preempt_delay 10
+    mcast_src_ip 127.0.0.1
+    authentication {
+        auth_type PASS
+        auth_pass help
+    }
+    track {
+        interface {
+            dp0p1s1   weight  +10
+            dp0s2   weight  -10
+            lo
+        }
+        pathmon {
+            monitor test_monitor    policy test_policy      weight  -10
+        }
+        route_to {
+            10.10.10.0/24
+        }
+    }
+    notify {
+        /opt/vyatta/sbin/vyatta-ipsec-notify.sh
+        /opt/vyatta/sbin/notify-bgp
+    }
+}"""
+
+
+@pytest.fixture
+def switch_max_group_keepalived_config():
+    return """
+vrrp_instance vyatta-sw0.10-1 {
+    state BACKUP
+    interface sw0.10
+    virtual_router_id 1
+    version 2
+    start_delay 0
+    priority 200
+    advert_int 2
+    virtual_ipaddress {
+        10.10.1.100/25
+    }
+    use_vmac sw0vrrp1
+    vmac_xmit_base
+    preempt_delay 10
+    mcast_src_ip 127.0.0.1
+    authentication {
+        auth_type PASS
+        auth_pass help
+    }
+    track {
+        interface {
+            dp0p1s1   weight  +10
+            dp0s2   weight  -10
+            lo
+        }
+        pathmon {
+            monitor test_monitor    policy test_policy      weight  -10
+        }
+        route_to {
+            10.10.10.0/24
+        }
+    }
+    notify {
+        /opt/vyatta/sbin/vyatta-ipsec-notify.sh
+        /opt/vyatta/sbin/notify-bgp
+    }
+}"""
+
+
+@pytest.fixture
 def pathmon_track_group_keepalived_config():
     return """
 vrrp_instance vyatta-dp0p1s1-1 {
@@ -4767,6 +4999,38 @@ def pathmon_yang_name():
 def route_to_yang_name():
     return (
         "vyatta-vrrp-route-to-track-interfaces-dataplane-v1"
+        ":route-to"
+    )
+
+
+@pytest.fixture
+def bonding_pathmon_yang_name():
+    return (
+        "vyatta-vrrp-path-monitor-track-interfaces-bonding-v1:"
+        "path-monitor"
+    )
+
+
+@pytest.fixture
+def bonding_route_to_yang_name():
+    return (
+        "vyatta-vrrp-route-to-track-interfaces-bonding-v1"
+        ":route-to"
+    )
+
+
+@pytest.fixture
+def switch_pathmon_yang_name():
+    return (
+        "vyatta-vrrp-path-monitor-track-interfaces-switch-v1:"
+        "path-monitor"
+    )
+
+
+@pytest.fixture
+def switch_route_to_yang_name():
+    return (
+        "vyatta-vrrp-route-to-track-interfaces-switch-v1"
         ":route-to"
     )
 
@@ -5344,6 +5608,20 @@ def bonding_config(top_level_dictionary, interface_yang_name,
 
 
 @pytest.fixture
+def bonding_complex_config(
+    top_level_dictionary, interface_yang_name, bonding_yang_name,
+    bonding_interface, bonding_max_config_group, vrrp_yang_name
+):
+    new_interface = copy.deepcopy(bonding_interface)
+    new_interface[vrrp_yang_name]["vrrp-group"] = \
+        [copy.deepcopy(bonding_max_config_group)]
+    complex_yang_config = copy.deepcopy(top_level_dictionary)
+    complex_yang_config[interface_yang_name][bonding_yang_name] =\
+        [new_interface]
+    return complex_yang_config
+
+
+@pytest.fixture
 def simple_bonding_config(top_level_dictionary, interface_yang_name,
                           bonding_yang_name, bonding_list):
     simple_yang_config = top_level_dictionary
@@ -5371,6 +5649,22 @@ def simple_switch_config(
     simple_yang_config[interface_yang_name][switch_yang_name] = \
         switch_list
     return simple_yang_config
+
+
+@pytest.fixture
+def switch_complex_config(
+        top_level_dictionary, interface_yang_name, switch_yang_name,
+        switch_list, switch_max_config_group, vrrp_yang_name):
+    switch_list_copy = copy.deepcopy(switch_list)
+    new_interface = switch_list_copy[0]
+    del new_interface[vrrp_yang_name]
+    vif_interface = new_interface["vif"][0]
+    vif_interface[vrrp_yang_name]["vrrp-group"] = \
+        [copy.deepcopy(switch_max_config_group)]
+    complex_yang_config = copy.deepcopy(top_level_dictionary)
+    complex_yang_config[interface_yang_name][switch_yang_name] =\
+        switch_list_copy
+    return complex_yang_config
 
 
 @pytest.fixture
@@ -5792,6 +6086,16 @@ def bonding_keepalived_config(
 
 
 @pytest.fixture
+def bonding_complex_keepalived_config(
+        autogeneration_string,
+        bonding_max_group_keepalived_config):
+    return (
+        f"{autogeneration_string}"
+        f"{bonding_max_group_keepalived_config}"
+    )
+
+
+@pytest.fixture
 def parent_and_vif_keepalived_config(
         autogeneration_string,
         dataplane_group_keepalived_config,
@@ -5810,6 +6114,26 @@ def switch_keepalived_config(
     return (
         f"{autogeneration_string}"
         f"{switch_rfc_group_keepalived_config}"
+    )
+
+
+@pytest.fixture
+def switch_complex_keepalived_config(
+        autogeneration_string,
+        switch_max_group_keepalived_config):
+    return (
+        f"{autogeneration_string}"
+        f"{switch_max_group_keepalived_config}"
+    )
+
+
+@pytest.fixture
+def vif_complex_keepalived_config(
+        autogeneration_string,
+        vif_max_group_keepalived_config):
+    return (
+        f"{autogeneration_string}"
+        f"{vif_max_group_keepalived_config}"
     )
 
 

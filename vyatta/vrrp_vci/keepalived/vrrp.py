@@ -232,12 +232,18 @@ vrrp_instance {instance} {{
         if util.PATHMON_BONDING_YANG_NAME in track_dict:
             self._generate_track_pathmon(
                 track_dict[util.PATHMON_BONDING_YANG_NAME])
+        if util.PATHMON_SWITCH_YANG_NAME in track_dict:
+            self._generate_track_pathmon(
+                track_dict[util.PATHMON_SWITCH_YANG_NAME])
         if util.ROUTE_DATAPLANE_YANG_NAME in track_dict:
             self._generate_track_route_to(
                 track_dict[util.ROUTE_DATAPLANE_YANG_NAME])
         if util.ROUTE_BONDING_YANG_NAME in track_dict:
             self._generate_track_route_to(
                 track_dict[util.ROUTE_BONDING_YANG_NAME])
+        if util.ROUTE_SWITCH_YANG_NAME in track_dict:
+            self._generate_track_route_to(
+                track_dict[util.ROUTE_SWITCH_YANG_NAME])
         self._template += "\n    }}"
 
     def _generate_track_interfaces(self, intf_dict) -> None:
