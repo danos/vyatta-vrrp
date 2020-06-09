@@ -1,3 +1,251 @@
+vyatta-vrrp (3.0) unstable; urgency=medium
+
+  * Feature/Initial vrrp vci component commit
+  * Remove interfaces without vrrp-group config
+  * Tests/Add testing infra and test for existing code
+  * Update script naming and positioning
+  * Refactor code for drop in implementations
+  * Rename remove_empty_vrrp to _sanitize_vrrp_config
+  * Add tests moving vif interfaces to own list
+  * Move vif interfaces to their own top level list
+  * Refactor code to use logging instead of prints
+  * Add object setup call to get, set, check
+  * Add test file for keepalived/config_file.py
+  * Add tests for _get_group_start_index function
+  * Add _get_config_indexes function
+  * Add tests for breaking up string config into units
+  * Add functionality that splits config into blocks
+  * Add tests for finding value of keepalived config
+  * Implement _find_config_value function
+  * Add test for presence detection in group
+  * Add virtualenv setup and information
+  * Update tests to use pytest conventions
+  * Move test_keepalived_config-file.py to pytest
+  * Add tests to find an interface in the yang repr
+  * Implement method to find interfaces in yang repr
+  * Add test for converting minimal vrrp group config
+  * Add code to convert vrrp config to yang
+  * Add detailed documentation to the config file code
+  * Update fixtures add test for vci conversion
+  * Implement convert_to_vci_format method
+  * Add tests for reading the keepalived.conf file
+  * Implement read_config method
+  * Increase coverage of config_file.py tests
+  * Add pylint tags to ignore some warnings
+  * Static analysis changes to imports and naming
+  * Add test for class attribute instead of _object_setup
+  * Change _object_setup to a type check
+  * Add test for VCI get, first sanity test
+  * Add implementation of VCI get
+  * Fix type hint on update Dict instead of str
+  * Refactor spelling mistakes
+  * Add further sanity tests for setting config
+  * Fix import being deleted for tests
+  * Add tests for the update method of ConfigFile
+  * Implement update function for config file
+  * Improve update tests
+  * Introduce simple tests for VRRP group
+  * Change the format of the keepalived test string
+  * Add tests for keepalived write_config
+  * Implement write_config function
+  * Add vrrp.py file
+  * Update state method to return valid full tree
+  * Update tests for changing from the default minimum
+  * Add some move logging for the Get opperation
+  * Change which code writes the keepalived.conf file
+  * Add test for disabled groups in the config
+  * Don't add disabled groups to the instance list
+  * Add docstrings for vrrp.py
+  * Add tests for commit checking/validating
+  * Implement check function for config validation
+  * Add tests for individual functions under check
+  * Refactor code into utility package
+  * Standardise fixtures instead of modifying to match
+  * Change how VrrpGroups store information
+  * Add group with more config turned on
+  * Rename test and remove priority setting
+  * Remove sync groups from the current test
+  * Remove more value settings that aren't needed now
+  * Add test for generating keepalived conf from fuller config
+  * Change variable name to make more sense
+  * Start adding in optional configuration to VrrpGroup
+  * Make sure substrings aren't picked up in config search
+  * Add test to convert from complex keepalived conf to yang
+  * Remove default priorities from the yang format
+  * And tests for more config options and helper functions
+  * Implement code to convert a fuller selection of config
+  * Fix minor annoyance in tests - missing { in string
+  * Generate RFC interface names
+  * Tidy up comments and make sure complex config uses local address
+  * Add tests for VMware rfc check
+  * Add tests for v3 specific config options
+  * Implement specific v3 code
+  * Minor tidy up of punctuation
+  * Add tests and fixtures for pathmon testing
+  * Add some more test coverage for track interface
+  * Implement code to convert pathmon track between formats
+  * Remove test that didn't testing anything in the implementation
+  * Take advantage of pytest fixture paramatization
+  * Add tests and fixtures for legacy tracking
+  * Add implementation for track-interface yang to keepalived
+  * Add AH authentication conversion
+  * Add tests for warnings that perl code prints
+  * Add warnings from perl and update rfc intf generation
+  * Add fixtures,tests, and code for nondefault accept & preempt
+  * Remove unnecessary fixtures and use VrrpGroup directly
+  * Increase code coverage with missing config combinations
+  * Add tests for IPv6 groups
+  * Add implementation for IPv6 addresses
+  * Correct track-interface dictionary names
+  * Change how the VrrpGroup is imported
+  * Bugfix/fix track-interface conversion
+  * Add tests for run transition scripts
+  * Add implementation for transition scripts
+  * Minor refactors to include logging ability
+  * Move interface type determining to helper function
+  * Add tests for sync groups
+  * Implement code to convert sync-groups between formats
+  * Add tests for dbus process control
+  * Implement DBus process control code
+  * Add control commands to set calls and tests
+  * Add more controls, use reload instead of restart
+  * Remove configd:end and configd:delete nodes
+  * Remove unneeded __main__ code
+  * Mark more tests as sanity tests
+  * Introduce pipfile and switch from dbus to pydbus
+  * Add tests for VRRP VCI state calls
+  * Add implementation of VCI State get call
+  * Add tests for Garp RPC
+  * Add VCI SendGarp plumming
+  * Add tests for finding the recv intf give the xmit intf
+  * Add new yang RPC for finding the recv intf of an rfc intf
+  * Add RPC rfc-intf-map implmentation
+  * Rename find_recv_intf to rfc_intf_map and return vrid as well
+  * Minor buxfixes and added some tests for generated constants
+  * Add tests and fixtures for default daemon arguments
+  * Add some type checking for return values
+  * Implement keepalived process default argument generation
+  * Refactor code to use __init__ properly
+  * Add tests and implementation for shutting down keepalived
+  * Move rfc mapping code into ProcessControl
+  * Minor change to stop VSCode flagging problems with self
+  * Convert vrrp_group_connection to a class
+  * Fix fall out from class change and __init__ adding
+  * Add some missing imports for deleting conf file
+  * Update code to generate vrrp group dbus connections on config generation
+  * Fix bug in garp rpc call
+  * Fixed calling DBus names before they were registered
+  * Minor tidy up and type hinting
+  * Move activate connection to a decorator
+  * Bugfix use correct object name for vrrp dbus connection
+  * Add further type annotations and fix up some warnings
+  * Add notify daemon code
+  * Tests/Add test for removal of config file
+  * Implement config file deletion
+  * Update component file for new yang modules
+  * Update tests for augmenting tracked objects
+  * Added further yang names for augments
+  * Convert intf_name_to_type to return a tuple
+  * Refactor tests and code to use new enum value for intf type
+  * Add tests and fixtures for route-to tracking
+  * Add code for route to tracking
+  * Tests/Initial tests for show vrrp commands
+  * Implement summary and detail vrrp show commands
+  * Refactor/Change how adv interval is reported
+  * Tests/Add VRRPv3 show detail simple test
+  * Refactor/Add version specific code
+  * Tests/Add start delay tests
+  * Add start delay to show detail output
+  * Tests/Add preempt delay tests
+  * Add preempt delay to show detail output
+  * Test/Add tests for show vrrp sync
+  * Add tests for show vrrp sync
+  * Add show vrrp sync implementation
+  * Add further tests for show vrrp sync
+  * Replace format with f-strings
+  * Switch to f-strings and in line type checking
+  * Change vyatta-keepalived.service name to new name
+  * Fix hard coded sync-group name
+  * Add tests for switch interfaces
+  * Remove extraneous print statement add comment for test data
+  * Extend show vrrp sync tests to filter on group name
+  * Extend show_vrrp_sync to take a filter
+  * Add test for show vrrp interface
+  * Add show_vrrp_interface and filters for show_vrrp_detail
+  * Address review comments on style - imports
+  * Update tests to use fake snmpd conf file
+  * Add tests for sync group filter doesn't exist
+  * Add functionality for show sync filter nonexist
+  * Test/Add tests for show vrrp stats
+  * Add show command for vrrp stats
+  * Tests/Add tests for converting keepalived.data to json
+  * Add implementation of data to JSON function
+  * Add tests to convert stats file to json
+  * Add implementation for stats file conversion
+  * Add doc strings to functions in show_vrrp_cmds
+  * Add tests and fixtures for full show process
+  * Fix minor bugs with complete conversion
+  * Add tests for dumping data and stats information to files
+  * Add implementation to dump data and stats
+  * Extract common dbus code to wrapper function
+  * Added code to call DBus reset and reload commands
+  * Added code to add and remove debug flags for Keepalived
+  * Add scripts for op mode commands
+  * Change template scripts to use new scripts
+  * Reset sync-group dictionary
+  * Update default file path for package name
+  * Remove obsolete state script and YANG calls
+  * Remove scripts for RPC and update template command
+  * Add tests for vifs in show commands
+  * Fix VRRP groups on vif interfaces breaking show commands
+  * Correctly add VRRP state for vif interfaces
+  * DBus paths can't contain . character, replace with _
+  * Sanitise vif names for DBus paths
+  * Add test for VRRP state on a vif interface
+  * Bugfix/sanitized dictionary was being truncated
+  * Improve type hinting of values
+  * Add function type hints, adjust braces, add comments
+  * Make finding initial interface in YANG more pythonic
+  * Add tests for millisecond fast-advert-interval value
+  * Don't convert fast-advert-interval to int if high precision required
+  * PEP8 updates
+  * Add tests for an tracking a down interface
+  * Add DOWN when state isn't found in tracked intf config
+  * Correct how garps were sent
+  * Convert fast-advertisement-interval to a number before * 1000
+  * Check group is in master state before trying to reset it
+  * Bugfix/Change how check warnings/errors are reported
+  * Check that keepalived is running before calling DBus methods on it
+  * Move rfc_intf_map RPC out of Config object
+  * Fix send_garp debug traceback and make it more informative
+  * Use consistent quotation marks
+  * Flip logic so we check for disable in a group before doing any processing
+  * Save a variable and return the VRRP group __repr__ directly
+  * Convert logging calls to use f-string instead of old-style %
+  * Remove magic strings, replace them with constant variables in util
+  * Deprecate run-transition-scripts subtree
+  * Address PR comments
+  * Change prints to log warning and make VMWare non-fatal
+  * Change find_config_value to return an enum instead of a Tuple
+  * Corrected problem with vif interfaces, assumed : in all interface types
+  * Update keepalived dependency for RFC mapping DBus method
+  * Add autocomplete to python show commands
+  * Remove legacy perl code
+  * Improve how the new VCI code is installed
+  * Address PR comments
+  * Testing refactoring
+  * Update fast advertise converstions
+  * Some minor changes to increase test coverage
+  * Rewrite find_config_value to raise error when config not found
+  * Address PR comments
+  * Add pipfile.lock and update README for other developers
+  * Make use of pythons try/except/else control flow
+  * Make sure DBus signal event script is called
+  * Write extended tracking for switch interfaces to keepalived.conf
+  * Improve util test coverage - test elapsed time function
+
+ -- Anthony Dempsey <anthony.dempsey@intl.att.com>  Tue, 09 Jun 2020 11:42:01 +0100
+
 vyatta-vrrp (2.27) unstable; urgency=medium
 
   [ John Southworth ]
