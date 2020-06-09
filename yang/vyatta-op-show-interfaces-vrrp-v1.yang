@@ -21,7 +21,7 @@ module vyatta-op-show-interfaces-vrrp-v1 {
 		Web: www.att.com";
 
 	description
-		"Copyright (c) 2019, AT&T Intellectual Property.
+		"Copyright (c) 2019-2020, AT&T Intellectual Property.
 		 All rights reserved.
 
 		 Defines the top 'vrrp' level under 'show interfaces' for operational CLI
@@ -55,6 +55,12 @@ module vyatta-op-show-interfaces-vrrp-v1 {
 
 		SPDX-License-Identifier: BSD-3-Clause";
 
+	revision 2020-06-12 {
+		description
+			"Extend filter pattern to include interfaces created under
+			 switch interfaces";
+	}
+
 	revision 2019-01-17 {
 		description "Initial version";
 	}
@@ -74,8 +80,8 @@ module vyatta-op-show-interfaces-vrrp-v1 {
 				opd:on-enter 'vyatta-show-interfaces.pl --intf="$4"';
 				opd:allowed 'vyatta-show-interfaces.pl --vrrp --action=allowed';
 				type string {
-					pattern 'dp[0-9]+vrrp[0-9]+';
-					opd:pattern-help '<dpNvrrpN>';
+					pattern '(dp|sw)[0-9]+vrrp[0-9]+';
+					opd:pattern-help '<dpNvrrpN>|<swNvrrpN>';
 				}
 
 				opd:command brief {
