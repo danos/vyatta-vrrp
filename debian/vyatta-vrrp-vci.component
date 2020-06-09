@@ -1,0 +1,23 @@
+[Vyatta Component]
+Name=net.vyatta.vci.vrrp
+Description=Vyatta VRRP Component
+ExecName=/opt/vyatta/sbin/vyatta-vrrp
+ConfigFile=/etc/keepalived/keepalived.conf
+
+[Model net.vyatta.vci.vrrp.v1]
+Modules=vyatta-vrrp-v1, \
+  vyatta-vrrp-interfaces-switch-v1, \
+  vyatta-vrrp-path-monitor-track-v1, \
+  vyatta-vrrp-path-monitor-track-interfaces-dataplane-v1, \
+  vyatta-vrrp-path-monitor-track-interfaces-bonding-v1, \
+  vyatta-vrrp-path-monitor-track-interfaces-switch-v1, \
+  vyatta-vrrp-route-to-track-v1, \
+  vyatta-vrrp-route-to-track-interfaces-dataplane-v1, \
+  vyatta-vrrp-route-to-track-interfaces-bonding-v1, \
+  vyatta-vrrp-route-to-track-interfaces-switch-v1, \
+  vyatta-vrrp-state-v1, \
+  vyatta-vrrp-state-interfaces-dataplane-v1, \
+  vyatta-vrrp-state-interfaces-bonding-v1, \
+  vyatta-vrrp-state-interfaces-switch-v
+
+ModelSets=vyatta-v1

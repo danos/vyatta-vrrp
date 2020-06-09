@@ -2,9 +2,6 @@ module vyatta-vrrp-state-interfaces-switch-v1 {
     namespace "urn:vyatta.com:mgmt:vyatta-vrrp-state-interfaces-switch:1";
     prefix vyatta-vrrp-state-interfaces-switch-v1;
 
-    import configd-v1 {
-        prefix configd;
-    }
     import vyatta-interfaces-v1 {
         prefix if;
     }
@@ -61,14 +58,17 @@ module vyatta-vrrp-state-interfaces-switch-v1 {
 
         Augment VRRP groups on switch vif interfaces with state nodes.";
 
+    revision 2020-05-18 {
+        description
+            "Remove script call, state retrieval is now handled by the VCI
+            component";
+    }
+
     revision 2019-12-06 {
         description    "Initial revision.";
     }
 
     augment /if:interfaces/intf-sw:switch/intf-sw:vif/vrrp:vrrp/vrrp:vrrp-group {
         uses vrrp-state:vrrp-group-state;
-    }
-    augment /if:interfaces/intf-sw:switch/intf-sw:vif/vrrp:vrrp {
-        configd:get-state "/opt/vyatta/sbin/vyatta-vrrp-state.py";
     }
 }

@@ -1,18 +1,13 @@
 Source: vyatta-vrrp
 Section: contrib/net
 Priority: optional
+X-Python3-Version: >= 3.6
 Maintainer: Vyatta Package Maintainers <DL-vyatta-help@att.com>
-Build-Depends:
- debhelper (>= 9),
- debhelper (>= 9.20160709) | dh-systemd,
- dh-python,
- dh-yang,
- libnet-dbus-perl,
- libsort-versions-perl,
- libtest-class-perl,
- libtry-tiny-perl,
- python
-Standards-Version: 3.9.6
+Build-Depends: debhelper (>= 9), debhelper (>= 9.20160709) | dh-systemd, dh-yang,
+               python3, python3-all, python3-setuptools, dh-python, dh-vci, git,
+               python3-pytest, python3-pytest-pep8, python3-pytest-cov, 
+               python3-pytest-lazy-fixture, python3-pydbus
+Standards-Version: 4.3.0
 
 Package: vyatta-vrrp
 Architecture: all
@@ -21,21 +16,16 @@ Depends:
  dbus,
  iftop,
  iproute2 (>= 4.4.0),
- keepalived (>= 1.2.24-git66c870aa+vyatta26),
- libnet-dbus-perl,
- libtry-tiny-perl,
- python,
- python-daemon,
- python-dbus,
- python-gi,
- python-pydbus,
- python-vyatta-cfgclient,
+ keepalived (>= 1.2.24-git66c870aa+vyatta32),
  vyatta-cfg (>= 0.99.83),
  vyatta-interfaces (>= 0.5),
  vyatta-op-network,
  vyatta-system (>= 1.6.1),
  ${misc:Depends},
- ${perl:Depends}
+ ${python3:Depends},
+ python3,
+ python3-gi,
+ python3-pydbus,
 Breaks: vyatta-op (<< 1.0)
 Replaces: vyatta-op (<< 1.0)
 Description: Vyatta VRRP configuration/operational commands
@@ -62,6 +52,7 @@ Architecture: all
 Depends:
  vyatta-vrrp (>= ${source:Version}),
  vyatta-vrrp-dataplane (>= ${source:Version}),
+ vyatta-vrrp-vci (>= ${source:Version}),
  ${misc:Depends},
  ${yang:Depends}
 Section: contrib/admin
@@ -187,3 +178,10 @@ Section: contrib/admin
 Description: vyatta-vrrp-state-interfaces-switch-v1 yang module
  The YANG module that augments switch vif interfaces with state nodes.
 
+Package: vyatta-vrrp-vci
+Architecture: any
+Priority: optional
+Depends: python3, python3-vci, ${python3:Depends}, ${misc:Depends}, ${shlibs:depends}
+Built-Using: ${misc:Built-Using}
+Description: Vci Service for vyatta-vrrp config
+ Service for vyatta vrrp using the Vyatta Component Infrastructure

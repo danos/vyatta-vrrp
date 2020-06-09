@@ -1,0 +1,47 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pylint = "*"
+autopep8 = "*"
+apipkg = "*"
+argh = "*"
+atomicwrites = "*"
+attrs = "*"
+colorama = "*"
+coverage = "*"
+docopt = "*"
+entrypoints = "*"
+execnet = "*"
+mccabe = "*"
+mock = "*"
+more-itertools = "*"
+pathtools = "*"
+pbr = "*"
+pluggy = "*"
+py = "*"
+pyflakes = "*"
+pyparsing = "*"
+pytest = "*"
+pytest-cache = "*"
+pytest-cov = "*"
+pytest-spec = "*"
+pytest-sugar = "*"
+pytest-watch = "*"
+six = "*"
+termcolor = "*"
+watchdog = "*"
+PyYAML = "*"
+pytest-pep8 = "*"
+mypy = "*"
+pytest-lazy-fixture = "*"
+flake8-import-order = "*"
+pytest-flake8 = "*"
+
+[packages]
+pydbus = "*"
+
+[requires]
+python_version = "3.6"

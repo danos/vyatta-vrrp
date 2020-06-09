@@ -8,3 +8,5 @@ __pycache__
 .coverage
 .vscode
 validation_*
+.cache/
+venv/
