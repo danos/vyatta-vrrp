@@ -18,6 +18,6 @@ Modules=vyatta-vrrp-v1, \
   vyatta-vrrp-state-v1, \
   vyatta-vrrp-state-interfaces-dataplane-v1, \
   vyatta-vrrp-state-interfaces-bonding-v1, \
-  vyatta-vrrp-state-interfaces-switch-v
+  vyatta-vrrp-state-interfaces-switch-v1
 
 ModelSets=vyatta-v1

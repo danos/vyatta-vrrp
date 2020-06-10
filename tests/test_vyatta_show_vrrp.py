@@ -37,8 +37,8 @@ class TestVyattaShowVrrp:
             ),
             (
                 pytest.lazy_fixture("calendar_fakes"),
-                pytest.lazy_fixture("generic_group_rfc_switch_show_summary"),
-                pytest.lazy_fixture("simple_rfc_switch_state")
+                pytest.lazy_fixture("switch_show_vrrp_output"),
+                pytest.lazy_fixture("switch_show_dictionary")
             ),
             (
                 pytest.lazy_fixture("calendar_fakes"),

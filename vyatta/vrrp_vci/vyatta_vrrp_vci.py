@@ -151,7 +151,12 @@ class State(vci.State):
         for intf_type in yang_repr[util.INTERFACE_YANG_NAME]:
             intf_list: List = yang_repr[util.INTERFACE_YANG_NAME][intf_type]
             for intf in intf_list:
-                transmit_intf: str = intf[util.YANG_TAGNODE]
+                intf_name_key: str = util.get_namespace(
+                    intf, util.YANG_INTERFACE_NAMESPACE
+                )
+                if intf_name_key == "":
+                    continue
+                transmit_intf: str = intf[intf_name_key]
                 self._generate_interfaces_vrrp_connection_list(
                     intf, transmit_intf, sysbus)
                 if util.VIF_YANG_NAME in intf:
@@ -165,21 +170,25 @@ class State(vci.State):
     def _generate_interfaces_vrrp_connection_list(
         self, intf: Dict, transmit_intf: str, sysbus
     ) -> None:
-        if util.VRRP_YANG_NAME in intf:
-            if util.YANG_START_DELAY in intf[util.VRRP_YANG_NAME]:
-                del intf[util.VRRP_YANG_NAME][util.YANG_START_DELAY]
-            vrrp_instances: List[Dict] = \
-                intf[util.VRRP_YANG_NAME][util.YANG_VRRP_GROUP]
-            state_instances = []
-            for vrrp_instance in vrrp_instances:
-                vrrp_conn: VrrpConnection
-                vrrp_conn = self._generate_vrrp_connection(
-                    vrrp_instance, transmit_intf, sysbus
-                )
-                state_future = vrrp_conn.get_instance_state()
-                state_instances.append(state_future)
-            intf[util.VRRP_YANG_NAME][util.YANG_VRRP_GROUP] = \
-                state_instances
+        current_vrrp_namespace: str = util.get_namespace(
+            intf, util.VRRP_YANG_NAMESPACES
+        )
+        if current_vrrp_namespace == "":
+            return
+        if util.YANG_START_DELAY in intf[current_vrrp_namespace]:
+            del intf[current_vrrp_namespace][util.YANG_START_DELAY]
+        vrrp_instances: List[Dict] = \
+            intf[current_vrrp_namespace][util.YANG_VRRP_GROUP]
+        state_instances = []
+        for vrrp_instance in vrrp_instances:
+            vrrp_conn: VrrpConnection
+            vrrp_conn = self._generate_vrrp_connection(
+                vrrp_instance, transmit_intf, sysbus
+            )
+            state_future = vrrp_conn.get_instance_state()
+            state_instances.append(state_future)
+        intf[current_vrrp_namespace][util.YANG_VRRP_GROUP] = \
+            state_instances
 
     def _generate_vrrp_connection(
         self, vrrp_instance, transmit_intf, sysbus

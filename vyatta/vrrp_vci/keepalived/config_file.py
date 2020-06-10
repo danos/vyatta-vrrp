@@ -399,7 +399,11 @@ vrrp_sync_group {sync_group} {{
             # group should be added to.
             insertion_reference: List[Dict] = util.find_interface_in_yang_repr(
                 intf_name, vif_number, interface_list)
-            vrrp_dict: Dict = insertion_reference[util.VRRP_YANG_NAME]
+            vrrp_dict: Dict
+            if intf_type == util.SWITCH_YANG_NAME:
+                vrrp_dict = insertion_reference[util.SWITCH_VRRP_YANG_NAME]
+            else:
+                vrrp_dict = insertion_reference[util.VRRP_YANG_NAME]
 
             # All groups should have the same start delay but check and
             # store the largest delay found

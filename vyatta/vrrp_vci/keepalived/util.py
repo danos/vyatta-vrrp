@@ -33,6 +33,8 @@ intf_type: Enum = Enum("intf_type", "dataplane bonding switch")
 VRRP_NAMESPACE: str = "vyatta-vrrp-v1"
 VRRP: str = "vrrp"
 VRRP_YANG_NAME: str = f"{VRRP_NAMESPACE}:{VRRP}"
+SWITCH_VRRP_YANG_NAME: str = f"vyatta-vrrp-interfaces-switch-v1:{VRRP}"
+VRRP_YANG_NAMESPACES: List[str] = [VRRP_YANG_NAME, SWITCH_VRRP_YANG_NAME]
 PATHMON_DATAPLANE_YANG_NAME: str = \
     "vyatta-vrrp-path-monitor-track-interfaces-dataplane-v1:path-monitor"
 PATHMON_BONDING_YANG_NAME: str = \
@@ -123,6 +125,7 @@ YANG_BGP: str = "bgp"
 YANG_IPSEC: str = "ipsec"
 YANG_INSTANCE: str = "instance"
 YANG_DISABLED_GROUP: str = "disable"
+YANG_INTERFACE_NAMESPACE: List[str] = [YANG_TAGNODE, YANG_NAME]
 
 # Keys for state dictionaries that don't match config keys
 YANG_SRC_IP_STATE: str = "src-ip"
@@ -426,27 +429,39 @@ def sanitize_vrrp_config(conf: Dict) -> Dict:
     intf_dict: Dict = conf[INTERFACE_YANG_NAME]
     new_dict: Dict = {}
     vif_list: List = []
-    intf_type: str
-    for intf_type in intf_dict:
+    int_type: str
+    for int_type in intf_dict:
         new_list: List = []
         intf: Dict
-        for count, intf in enumerate(intf_dict[intf_type]):
+        for count, intf in enumerate(intf_dict[int_type]):
             if VRRP_YANG_NAME in intf:
                 if YANG_VRRP_GROUP in intf[VRRP_YANG_NAME]:
-                    new_list.append(intf_dict[intf_type][count])
+                    new_list.append(intf_dict[int_type][count])
             if VIF_YANG_NAME in intf:
                 vif_intf: Dict
                 for vif_intf in intf[VIF_YANG_NAME]:
-                    if VRRP_YANG_NAME not in vif_intf:
+                    current_vrrp_namespace: str = get_namespace(
+                        vif_intf, VRRP_YANG_NAMESPACES
+                    )
+                    if current_vrrp_namespace == "":
                         continue
-                    if YANG_VRRP_GROUP in vif_intf[VRRP_YANG_NAME]:
+                    intf_name_key: str = get_namespace(
+                        intf, YANG_INTERFACE_NAMESPACE
+                    )
+                    if intf_name_key == "":
+                        continue
+                    if YANG_VRRP_GROUP in vif_intf[current_vrrp_namespace]:
                         new_vif: Dict = vif_intf
                         new_vif[YANG_TAGNODE] = \
-                            f"{intf[YANG_TAGNODE]}.{vif_intf[YANG_TAGNODE]}"
+                            f"{intf[intf_name_key]}.{vif_intf[YANG_TAGNODE]}"
+                        if int_type == SWITCH_YANG_NAME:
+                            # Standardise namespace on vyatta-vrrp-v1
+                            new_vif[VRRP_YANG_NAME] = new_vif.pop(
+                                current_vrrp_namespace)
                         vif_list.append(new_vif)
                 del intf[VIF_YANG_NAME]
         if new_list != []:
-            new_dict[intf_type] = new_list
+            new_dict[int_type] = new_list
     if vif_list != []:
         new_dict[VIF_YANG_NAME] = vif_list
     return {INTERFACE_YANG_NAME: new_dict}
@@ -603,17 +618,23 @@ def find_interface_in_yang_repr(
 
     interface_level: Any = None
     intf_dict: Dict
+    int_type = intf_name_to_type(interface_name)[0]
+    intf_name_convention: str
+    if int_type == SWITCH_YANG_NAME:
+        intf_name_convention = YANG_NAME
+    else:
+        intf_name_convention = YANG_TAGNODE
 
     for intf in interface_list:
         # Interface list has entries so we need to loop through them and
         # see if the interface already exists
-        if intf[YANG_TAGNODE] == interface_name:
+        if intf[intf_name_convention] == interface_name:
             interface_level = intf
             break
     else:
         # Interface list is empty so create the interface and add it to the
         # list and then return the reference
-        intf_dict = {YANG_TAGNODE: interface_name}
+        intf_dict = {intf_name_convention: interface_name}
         interface_level = intf_dict
         interface_list.append(intf_dict)
 
@@ -635,8 +656,16 @@ def find_interface_in_yang_repr(
     if VRRP_YANG_NAME not in interface_level:
         # If there is no vrrp config in the interface yet add the top level
         # dictionary to the interface
-        interface_level[VRRP_YANG_NAME] = {YANG_START_DELAY: 0,
-                                           YANG_VRRP_GROUP: []}
+        if int_type == SWITCH_YANG_NAME:
+            interface_level[SWITCH_VRRP_YANG_NAME] = {
+                YANG_START_DELAY: 0,
+                YANG_VRRP_GROUP: []
+            }
+        else:
+            interface_level[VRRP_YANG_NAME] = {
+                YANG_START_DELAY: 0,
+                YANG_VRRP_GROUP: []
+            }
     return interface_level
 
 
@@ -700,3 +729,12 @@ def elapsed_time(time_delta: str) -> str:
     time_str += str(seconds) + "s"
 
     return time_str
+
+
+def get_namespace(
+    interface_dict: Dict, namespace_list: List[str]
+) -> str:
+    for namespace in namespace_list:
+        if namespace in interface_dict:
+            return namespace
+    return ""

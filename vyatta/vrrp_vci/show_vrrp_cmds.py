@@ -165,11 +165,19 @@ def show_vrrp_summary(state_dict: Dict) -> str:
             state_dict[util.INTERFACE_YANG_NAME][intf_type]
         intf: Dict
         for intf in intf_list:
-            intf_name: str = intf[util.YANG_TAGNODE]
-            if util.VRRP_YANG_NAME not in intf:
+            intf_name_key: str = util.get_namespace(
+                intf, util.YANG_INTERFACE_NAMESPACE
+            )
+            if intf_name_key == "":
+                continue
+            intf_name: str = intf[intf_name_key]
+            current_vrrp_namespace: str = util.get_namespace(
+                intf, util.VRRP_YANG_NAMESPACES
+            )
+            if current_vrrp_namespace == "":
                 continue
             vrrp_instances: List = \
-                intf[util.VRRP_YANG_NAME][util.YANG_VRRP_GROUP]
+                intf[current_vrrp_namespace][util.YANG_VRRP_GROUP]
             vrrp_instance: Dict
             for vrrp_instance in vrrp_instances:
                 if util.YANG_INSTANCE_STATE not in vrrp_instance:
@@ -298,10 +306,13 @@ def show_vrrp_detail(
                 continue
             output += show_detail_intf_name(intf_name)
             output += SHOW_DETAIL_INTF_DIVIDER
-            if util.VRRP_YANG_NAME not in intf:
+            current_vrrp_namespace: str = util.get_namespace(
+                intf, util.VRRP_YANG_NAMESPACES
+            )
+            if current_vrrp_namespace == "":
                 continue
             vrrp_instances: List = \
-                intf[util.VRRP_YANG_NAME][util.YANG_VRRP_GROUP]
+                intf[current_vrrp_namespace][util.YANG_VRRP_GROUP]
             vrrp_instance: Dict
             for vrrp_instance in vrrp_instances:
                 if util.YANG_INSTANCE_STATE not in vrrp_instance:
@@ -756,10 +767,13 @@ def show_vrrp_statistics(
                 continue
             output += show_detail_intf_name(intf_name)
             output += SHOW_DETAIL_INTF_DIVIDER
-            if util.VRRP_YANG_NAME not in intf:
+            current_vrrp_namespace: str = util.get_namespace(
+                intf, util.VRRP_YANG_NAMESPACES
+            )
+            if current_vrrp_namespace == "":
                 continue
             vrrp_instances: List = \
-                intf[util.VRRP_YANG_NAME][util.YANG_VRRP_GROUP]
+                intf[current_vrrp_namespace][util.YANG_VRRP_GROUP]
             vrrp_instance: Dict
             for vrrp_instance in vrrp_instances:
                 if util.YANG_INSTANCE_STATS not in vrrp_instance:
@@ -1532,14 +1546,19 @@ def convert_data_file_to_dict(data_string: str) -> Dict:
 
         # Hackery to find the reference to the interface this VRRP
         # group should be added to.
-        insertion_reference: List[Dict] = util.find_interface_in_yang_repr(
+        insertion_point: List[Dict] = util.find_interface_in_yang_repr(
             intf_name, vif_number, interface_list)
 
-        insertion_reference[util.VRRP_YANG_NAME][util.YANG_VRRP_GROUP].append(
+        current_vrrp_namespace: str = util.get_namespace(
+            insertion_point, util.VRRP_YANG_NAMESPACES
+        )
+        if current_vrrp_namespace == "":
+            continue
+        insertion_point[current_vrrp_namespace][util.YANG_VRRP_GROUP].append(
             instance_dict
         )
-        if util.YANG_START_DELAY in insertion_reference[util.VRRP_YANG_NAME]:
-            del insertion_reference[util.VRRP_YANG_NAME][util.YANG_START_DELAY]
+        if util.YANG_START_DELAY in insertion_point[current_vrrp_namespace]:
+            del insertion_point[current_vrrp_namespace][util.YANG_START_DELAY]
 
     return yang_representation
 
@@ -1763,14 +1782,19 @@ VRRP Instance: vyatta-dp0p1s1-1
 
         # Hackery to find the reference to the interface this VRRP
         # group should be added to.
-        insertion_reference: List[Dict] = util.find_interface_in_yang_repr(
+        insertion_point: List[Dict] = util.find_interface_in_yang_repr(
             intf_name, vif_number, interface_list)
 
-        insertion_reference[util.VRRP_YANG_NAME][util.YANG_VRRP_GROUP].append(
+        current_vrrp_namespace: str = util.get_namespace(
+            insertion_point, util.VRRP_YANG_NAMESPACES
+        )
+        if current_vrrp_namespace == "":
+            continue
+        insertion_point[current_vrrp_namespace][util.YANG_VRRP_GROUP].append(
             instance_dict
         )
-        if util.YANG_START_DELAY in insertion_reference[util.VRRP_YANG_NAME]:
-            del insertion_reference[util.VRRP_YANG_NAME][util.YANG_START_DELAY]
+        if util.YANG_START_DELAY in insertion_point[current_vrrp_namespace]:
+            del insertion_point[current_vrrp_namespace][util.YANG_START_DELAY]
 
     return yang_representation
 
@@ -1802,12 +1826,22 @@ def show_autocomplete(
         intf_list: List = \
             state_dict[util.INTERFACE_YANG_NAME][intf_type]
         for intf in intf_list:
-            if intf[util.YANG_TAGNODE] == filter_intf:
+            intf_name_key: str = util.get_namespace(
+                intf, util.YANG_INTERFACE_NAMESPACE
+            )
+            if intf_name_key == "":
+                continue
+            if intf[intf_name_key] == filter_intf:
+                current_vrrp_namespace: str = util.get_namespace(
+                    intf, util.VRRP_YANG_NAMESPACES
+                )
+                if current_vrrp_namespace == "":
+                    continue
                 vrrp_instances: List = \
-                    intf[util.VRRP_YANG_NAME][util.YANG_VRRP_GROUP]
+                    intf[current_vrrp_namespace][util.YANG_VRRP_GROUP]
                 vrrp_instance: Dict
                 for vrrp_instance in vrrp_instances:
-                    output += f"{vrrp_instance[util.YANG_TAGNODE]}\n"
+                    output += f"{vrrp_instance[intf_name_key]}\n"
                 break
     else:
         state_dict = util.sanitize_vrrp_config(state_dict)
@@ -1816,5 +1850,10 @@ def show_autocomplete(
                 state_dict[util.INTERFACE_YANG_NAME][intf_type]
             intf: Dict
             for intf in intf_list:
-                output += f"{intf[util.YANG_TAGNODE]}\n"
+                intf_name_key: str = util.get_namespace(
+                    intf, util.YANG_INTERFACE_NAMESPACE
+                )
+                if intf_name_key == "":
+                    continue
+                output += f"{intf[intf_name_key]}\n"
     return output

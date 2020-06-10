@@ -124,6 +124,10 @@ class TestKeepalivedUtils:
              pytest.lazy_fixture(
                  "simple_multi_intf_type_vif_sanitized_config")
              ),
+            (pytest.lazy_fixture("switch_config_not_being_applied"),
+             pytest.lazy_fixture(
+                 "expected_switch_config_not_being_applied")
+             ),
         ],
         ids=[
             "No configured groups",
@@ -131,7 +135,8 @@ class TestKeepalivedUtils:
             "Two types of interface with VRRP config",
             "Parent with config, vif without",
             "Move vif dataplane",
-            "Move bonding and dataplane vif"
+            "Move bonding and dataplane vif",
+            "Switch vif",
         ]
     )
     def test_sanitize_vrrp_config(

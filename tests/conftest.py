@@ -339,17 +339,6 @@ dp0p1s1           1      MASTER  dp0vrrp1   yes    3s          <none>
 
 
 @pytest.fixture
-def generic_group_rfc_switch_show_summary():
-    return """
-                                 RFC        Addr   Last        Sync
-Interface         Group  State   Compliant  Owner  Transition  Group
----------         -----  -----   ---------  -----  ----------  -----
-sw0.10            1      MASTER  sw0vrrp1   no     3s          <none>
-
-"""
-
-
-@pytest.fixture
 def generic_group_vif_show_summary():
     return """
                                  RFC        Addr   Last        Sync
@@ -4924,11 +4913,11 @@ def second_dataplane_interface():
 @pytest.fixture
 def switch_vif_interface():
     return {
-        "tagnode": "sw0",
+        "name": "sw0",
         "vif": [
             {
                 "tagnode": "10",
-                "vyatta-vrrp-v1:vrrp": {
+                "vyatta-vrrp-interfaces-switch-v1:vrrp": {
                     "start-delay": 0
                 }
             }
@@ -4985,6 +4974,11 @@ def bonding_yang_name():
 @pytest.fixture
 def vrrp_yang_name():
     return "vyatta-vrrp-v1:vrrp"
+
+
+@pytest.fixture
+def switch_vrrp_yang_name():
+    return "vyatta-vrrp-interfaces-switch-v1:vrrp"
 
 
 @pytest.fixture
@@ -5102,22 +5096,6 @@ def simple_rfc_ipao_state(simple_config, instance_state_rfc_ipao,
         simple_yang_state[interface_yang_name][dataplane_yang_name]
     del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = [instance_state_rfc_ipao]
-    return simple_yang_state
-
-
-@pytest.fixture
-def simple_rfc_switch_state(simple_config, instance_state_rfc_switch,
-                            vrrp_yang_name, interface_yang_name,
-                            switch_list,
-                            dataplane_yang_name):
-    simple_yang_state = copy.deepcopy(simple_config)
-    del simple_yang_state[interface_yang_name][dataplane_yang_name]
-    del switch_list[0]["vif"][0][vrrp_yang_name]["start-delay"]
-    switch_list[0]["vif"][0]["tagnode"] = "sw0.10"
-    switch_list[0]["vif"][0][vrrp_yang_name]["vrrp-group"] = \
-        [instance_state_rfc_switch]
-    simple_yang_state[interface_yang_name]["vif"] = \
-        switch_list[0]["vif"]
     return simple_yang_state
 
 
@@ -5654,12 +5632,13 @@ def simple_switch_config(
 @pytest.fixture
 def switch_complex_config(
         top_level_dictionary, interface_yang_name, switch_yang_name,
-        switch_list, switch_max_config_group, vrrp_yang_name):
+        switch_list, switch_max_config_group, vrrp_yang_name,
+        switch_vrrp_yang_name):
     switch_list_copy = copy.deepcopy(switch_list)
     new_interface = switch_list_copy[0]
     del new_interface[vrrp_yang_name]
     vif_interface = new_interface["vif"][0]
-    vif_interface[vrrp_yang_name]["vrrp-group"] = \
+    vif_interface[switch_vrrp_yang_name]["vrrp-group"] = \
         [copy.deepcopy(switch_max_config_group)]
     complex_yang_config = copy.deepcopy(top_level_dictionary)
     complex_yang_config[interface_yang_name][switch_yang_name] =\
@@ -5830,14 +5809,19 @@ def parent_and_vif_config(
 @pytest.fixture
 def switch_config(
     simple_switch_config, interface_yang_name,
-    switch_yang_name, vrrp_yang_name, generic_rfc_group
+    switch_yang_name, vrrp_yang_name, generic_rfc_group,
+    switch_vrrp_yang_name
 ):
     new_yang_config = copy.deepcopy(simple_switch_config)
     intf_level = new_yang_config[interface_yang_name]
     vif_intf = intf_level[switch_yang_name][0]["vif"][0]
     del intf_level[switch_yang_name][0][vrrp_yang_name]
+    del vif_intf[switch_vrrp_yang_name]
     vif_group = copy.deepcopy(generic_rfc_group)
-    vif_intf[vrrp_yang_name]["vrrp-group"] = [vif_group]
+    vif_intf[switch_vrrp_yang_name] = {
+        "start-delay": 0,
+        "vrrp-group": [vif_group]
+    }
     return new_yang_config
 
 
@@ -6585,3 +6569,142 @@ def search_vif_dataplane_list_multiple_vrrp_groups(
     multi_vif_groups["vrrp-group"] = copy.deepcopy(generic_group)
     interface_list[0]["vif"] = [multi_vif_groups]
     return interface_list
+
+
+# Data from running instances
+
+
+@pytest.fixture
+def switch_config_not_being_applied():
+    return {
+        "vyatta-interfaces-v1:interfaces": {
+            "vyatta-interfaces-dataplane-v1:dataplane": [
+                {
+                    "tagnode": "dp0p1s0",
+                    "vyatta-vrrp-v1:vrrp": {
+                        "start-delay": 0
+                    }
+                },
+                {
+                    "tagnode": "dp0xe1",
+                    "vyatta-vrrp-v1:vrrp": {
+                        "start-delay": 0
+                    }
+                },
+                {
+                    "tagnode": "dp0xe2",
+                    "vyatta-vrrp-v1:vrrp": {
+                        "start-delay": 0
+                    }
+                },
+                {
+                    "tagnode": "dp0xe4",
+                    "vyatta-vrrp-v1:vrrp": {
+                        "start-delay": 0
+                    }
+                }
+            ],
+            "vyatta-interfaces-switch-v1:switch": [
+                {
+                    "name": "sw0",
+                    "vif": [
+                        {
+                            "tagnode": "10",
+                            "vyatta-vrrp-interfaces-switch-v1:vrrp": {
+                                "start-delay": 0,
+                                "vrrp-group": [
+                                    {
+                                        "accept": False,
+                                        "preempt": True,
+                                        "priority": 22,
+                                        "rfc-compatibility": [
+                                            None
+                                        ],
+                                        "tagnode": 10,
+                                        "version": 3,
+                                        "virtual-address": [
+                                            "11.0.0.254"
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+
+
+@pytest.fixture
+def expected_switch_config_not_being_applied():
+    return {
+        "vyatta-interfaces-v1:interfaces": {
+            "vif": [
+                {
+                    "tagnode": "sw0.10",
+                    "vyatta-vrrp-v1:vrrp": {
+                        "start-delay": 0,
+                        "vrrp-group": [
+                            {
+                                "accept": False,
+                                "preempt": True,
+                                "priority": 22,
+                                "rfc-compatibility": [
+                                    None
+                                ],
+                                "tagnode": 10,
+                                "version": 3,
+                                "virtual-address": [
+                                    "11.0.0.254"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+
+
+@pytest.fixture
+def switch_show_dictionary():
+    return {
+        'vyatta-interfaces-v1:interfaces': {
+            'vyatta-interfaces-switch-v1:switch': [
+                {
+                    'name': 'sw0',
+                    'vif': [
+                        {
+                            'tagnode': '10',
+                            'vyatta-vrrp-v1:vrrp': {
+                                'vrrp-group': [
+                                    {
+                                        'instance-state': {
+                                            'address-owner': False,
+                                            'last-transition': 0,
+                                            'rfc-interface': 'sw0vrrp1',
+                                            'state': 'MASTER',
+                                            'sync-group': ''
+                                        },
+                                        'tagnode': '10'
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+
+
+@pytest.fixture
+def switch_show_vrrp_output():
+    return """
+                                 RFC        Addr   Last        Sync
+Interface         Group  State   Compliant  Owner  Transition  Group
+---------         -----  -----   ---------  -----  ----------  -----
+sw0.10            10     MASTER  sw0vrrp1   no     3s          <none>
+
+"""
