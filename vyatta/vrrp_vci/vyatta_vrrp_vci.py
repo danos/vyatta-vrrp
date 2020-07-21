@@ -100,6 +100,8 @@ class Config(vci.Config):
         return yang_repr
 
     def check(self, conf: Dict[str, Any]) -> None:
+        if conf == {}:
+            return
         conf = util.sanitize_vrrp_config(conf)
         hello_address: List[List[str]] = util.get_hello_sources(conf)
         for address in hello_address:
