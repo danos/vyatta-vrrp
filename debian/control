@@ -37,21 +37,63 @@ Depends: vyatta-interfaces-base, ${misc:Depends}, ${yang:Depends}
 Description: vyatta-op-show-interfaces-vrrp-v1 module
  Operational mode integration for viewing VRRP interface configuration
 
-Package: vyatta-vrrp-dataplane
+Package: vyatta-op-mode-vrrp-v1-yang
 Architecture: all
 Depends:
- keepalived (>= 1.2.24-git66c870aa+vyatta27),
- vplane-config,
- vyatta-cfg,
- ${misc:Depends}
-Description: vyatta-vrrp dataplane templates
- Vyatta configuration templates for VRRP use on dataplane devices
+ vyatta-op-monitor-interfaces-vrrp-v1-yang,
+ vyatta-op-monitor-vrrp-v1-yang,
+ vyatta-op-reset-vrrp-v1-yang,
+ vyatta-op-restart-vrrp-v1-yang,
+ vyatta-op-show-vrrp-v1-yang,
+ vyatta-op-update-vrrp-v1-yang,
+ vyatta-vrrp-vci (>= ${source:Version}),
+ ${misc:Depends},
+ ${yang:Depends}
+Breaks: vyatta-vrrp-dataplane (<< 3.1)
+Replaces: vyatta-vrrp-dataplane (<< 3.1)
+Description: Dummy module to install VRRP op mode YANG commands
+ Operational mode YANG for viewing and modifying VRRP state
+
+Package: vyatta-op-show-vrrp-v1-yang
+Architecture: all
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: vyatta-op-show-vrrp-v1 module
+ Show commands for vyatta-vrrp
+
+Package: vyatta-op-reset-vrrp-v1-yang
+Architecture: all
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: vyatta-op-reset-vrrp-v1 module
+ Reset commands for vyatta-vrrp
+
+Package: vyatta-op-restart-vrrp-v1-yang
+Architecture: all
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: vyatta-op-restart-vrrp-v1 module
+ Restart commands for vyatta-vrrp
+
+Package: vyatta-op-update-vrrp-v1-yang
+Architecture: all
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: vyatta-op-update-vrrp-v1 module
+ Update commands for vyatta-vrrp
+
+Package: vyatta-op-monitor-vrrp-v1-yang
+Architecture: all
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: vyatta-op-monitor-vrrp-v1 module
+ Monitor commands for vyatta-vrrp
+
+Package: vyatta-op-monitor-interfaces-vrrp-v1-yang
+Architecture: all
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: vyatta-op-monitor-interface-vrrp-v1 module
+ Monitor interface commands for VRRP interfaces
 
 Package: vyatta-vrrp-v1-yang
 Architecture: all
 Depends:
  vyatta-vrrp (>= ${source:Version}),
- vyatta-vrrp-dataplane (>= ${source:Version}),
  vyatta-vrrp-vci (>= ${source:Version}),
  ${misc:Depends},
  ${yang:Depends}

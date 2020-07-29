@@ -1,3 +1,0 @@
-help: Show detailed VRRP information
-run: vyatta_show_vrrp.py detail
-

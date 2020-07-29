@@ -1,2 +1,0 @@
-help: Show log for Virtual Router Redundancy Protocol (VRRP)
-run: journalctl -a --no-pager | grep -e Keepalived_vrrp

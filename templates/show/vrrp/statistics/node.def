@@ -1,2 +1,0 @@
-help: Show Virtual Router Redundancy Protocol (VRRP) statistics
-run: vyatta_show_vrrp.py stats

@@ -1,3 +1,0 @@
-help: Reset VRRP master for specified interface and group
-allowed: vyatta_show_vrrp.py autocomplete --intf "$5"
-run: vyatta_vrrp_op_commands.py reset --intf "$5" --vrid "$7"

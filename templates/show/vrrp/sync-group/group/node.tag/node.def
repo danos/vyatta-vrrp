@@ -1,3 +1,0 @@
-help: Show VRRP sync-group for specified group
-allowed: vyatta_show_vrrp.py autocomplete --sync ALL
-run: vyatta_show_vrrp.py sync --sync=$5

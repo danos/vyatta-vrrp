@@ -1,0 +1,165 @@
+module vyatta-op-monitor-interfaces-vrrp-v1 {
+    namespace "urn:vyatta.com:mgmt:vyatta-op-monitor-interfaces-vrrp:1";
+    prefix vyatta-op-monitor-interfaces-vrrp-v1;
+
+    import vyatta-opd-extensions-v1 {
+        prefix opd;
+    }
+    import vyatta-op-monitor-v1 {
+        prefix monitor;
+    }
+    import vyatta-op-monitor-interfaces-v1 {
+        prefix monitor-intf;
+    }
+
+
+    organization "AT&T Inc.";
+    contact
+        "AT&T
+        Postal: 208 S. Akard Street
+        Dallas, TX 75202
+        E-mail: DL-vyatta-help@att.com
+        Web: www.att.com";
+
+    description
+        "Copyright (c) 2020, AT&T Intellectual Property.
+         All rights reserved.
+
+         Defines operational CLI for monitor commands related to VRRP
+         interfaces.
+
+        Redistribution and use in source and binary forms, with or without
+        modification, are permitted provided that the following conditions
+        are met:
+
+        1. Redistributions of source code must retain the above copyright
+           notice, this list of conditions and the following disclaimer.
+        2. Redistributions in binary form must reproduce the above
+           copyright notice, this list of conditions and the following
+           disclaimer in the documentation and/or other materials provided
+           with the distribution.
+        3. Neither the name of the copyright holder nor the names of its
+           contributors may be used to endorse or promote products derived
+           from this software without specific prior written permission.
+
+        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+        'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+        LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+        FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+        COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+        INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+        BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+        LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+        CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+        LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+        ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+        POSSIBILITY OF SUCH DAMAGE.
+
+        SPDX-License-Identifier: BSD-3-Clause";
+
+    revision 2020-07-29 {
+        description "Initial version";
+    }
+
+    opd:augment /monitor:monitor/monitor-intf:interfaces {
+
+        opd:command vrrp {
+            opd:help 'Monitor a VRRP interface';
+            opd:on-enter 'bmon -U -b -r 10 -p eth*v*,bond*v*,dp*v*';
+
+            opd:argument if-name {
+                opd:help 'Monitor specified vrrp interface';
+                opd:allowed '${vyatta_bindir}/vyatta-show-interfaces.pl --vrrp --action=allowed';
+                opd:on-enter 'bmon -U -b -r 10 -p $4';
+                type string;
+
+                opd:command flow {
+                    opd:help 'Monitor flows on specified interface';
+                    opd:on-enter 'iftop -i $4';
+                }
+
+                opd:command traffic {
+                    opd:help 'Monitor captured traffic on specified vrrp interface';
+                    opd:on-enter 'vyatta-tshark.pl --intf $4';
+
+                    opd:command detail {
+                        opd:help 'Monitor detailed traffic for the specified vrrp interface';
+                        opd:on-enter 'vyatta-tshark.pl --intf $4 --detail';
+
+                        opd:option filter {
+                            opd:help 'Monitor detailed filtered traffic for the specified vrrp interface';
+                            opd:allowed 'echo -e "<display-filter>"';
+                            opd:on-enter 'vyatta-tshark.pl --intf $4 --detail --filter "${@:8}"';
+                            type string;
+                        }
+
+                        opd:command unlimited {
+                            opd:help 'Monitor all detailed traffic for the specified vrrp interface';
+                            opd:on-enter 'vyatta-tshark.pl --intf $4 --detail --unlimited';
+
+                            opd:option filter {
+                                opd:help 'Monitor all detailed filtered traffic for the specified vrrp interface';
+                                opd:allowed 'echo -e "<display-filter>"';
+                                opd:on-enter 'vyatta-tshark.pl --intf $4 --detail --unlimited --filter "${@:9}"';
+                                type string;
+                            }
+
+                        }
+                    }
+
+                    opd:option filter {
+                        opd:help 'Monitor filtered traffic for the specified vrrp interface';
+                        opd:allowed 'echo -e "<display-filter>"';
+                        opd:on-enter 'vyatta-tshark.pl --intf $4 --filter "${@:7}"';
+                        type string;
+                    }
+
+                    opd:command save {
+                        opd:help 'Save monitor traffic to a file';
+
+                        opd:argument filename {
+                            opd:help 'Save monitored traffic to the specified file';
+                            opd:allowed 'echo -e "<name>.pcap"';
+                            opd:on-enter 'vyatta-tshark.pl --intf $4 --save "${@:7}"';
+                            type string;
+
+                            opd:command size {
+                                opd:help 'Save monitored traffic to a file with max size';
+
+                                opd:argument filesize {
+                                    opd:help 'Maximum file size (e.g., 1 = 1 KiB, 1M = 1 MiB)';
+                                    opd:allowed "echo -e '<number>'";
+                                    opd:on-enter 'vyatta-tshark.pl --intf $4 --save "${@:7}" --size "${@:9}"';
+                                    type string;
+
+                                    opd:command files {
+                                        opd:help 'Save monitored traffic to a set of rotated files';
+
+                                        opd:argument numfiles {
+                                            opd:help 'Number of files to rotate stored traffic through';
+                                            opd:allowed 'echo -e "<number>"';
+                                            opd:on-enter 'vyatta-tshark.pl --intf $4 --save "${@:7}" --size "${@:9}" --files "${@:11}"';
+                                            type uint32;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    opd:command unlimited {
+                        opd:help 'Monitor traffic for the specified vrrp interface';
+                        opd:on-enter 'vyatta-tshark.pl --intf $4 --unlimited';
+
+                        opd:option filter {
+                            opd:help 'Monitor filtered traffic for the specified vrrp interface';
+                            opd:allowed 'echo -e "<display-filter>"';
+                            opd:on-enter 'vyatta-tshark.pl --intf $4 --filter "${@:8}"';
+                            type string;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

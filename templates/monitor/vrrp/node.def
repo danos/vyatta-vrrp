@@ -1,2 +1,0 @@
-help: Monitor Virtual Router Redundancy Protocol (VRRP)
-run:  vyatta-monitor VRRP Keepalived_vrrp

@@ -1,3 +1,0 @@
-help: Send GARP through specified network interface and group 
-allowed: vyatta_show_vrrp.py autocomplete --intf=$5
-run: callrpc vyatta-vrrp-v1 garp json \{\"interface\":\"$5\",\"group\":$7\}
