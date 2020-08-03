@@ -217,6 +217,12 @@ class TestVyattaVrrpVci:
         expected = False
         assert conf_path.exists() == expected
 
+    def test_vci_config_check_no_config(
+            self, mock_pydbus, test_config,
+            mock_show_version_rpc_kvm):
+        expected = None
+        assert test_config.check({}) == expected
+
     def test_vci_config_check_simple_config(
             self, mock_pydbus, test_config, simple_config,
             mock_show_version_rpc_kvm):

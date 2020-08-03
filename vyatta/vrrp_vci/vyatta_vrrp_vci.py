@@ -100,6 +100,8 @@ class Config(vci.Config):
         return yang_repr
 
     def check(self, conf: Dict[str, Any]) -> None:
+        if conf == {}:
+            return
         conf = util.sanitize_vrrp_config(conf)
         hello_address: List[List[str]] = util.get_hello_sources(conf)
         for address in hello_address:
@@ -185,7 +187,20 @@ class State(vci.State):
             vrrp_conn = self._generate_vrrp_connection(
                 vrrp_instance, transmit_intf, sysbus
             )
-            state_future = vrrp_conn.get_instance_state()
+            try:
+                state_future = vrrp_conn.get_instance_state()
+            except KeyError:
+                state_future = {
+                    util.YANG_INSTANCE_STATE:
+                        {
+                            util.YANG_IPAO: False,
+                            util.YANG_LAST_TRANSITION: 0,
+                            util.YANG_RFC_INTF: "",
+                            util.YANG_STATE: "FAULT",
+                            util.YANG_SYNC_GROUP: ""
+                        },
+                    util.YANG_TAGNODE: f"{vrrp_instance['tagnode']}"
+                }
             state_instances.append(state_future)
         intf[current_vrrp_namespace][util.YANG_VRRP_GROUP] = \
             state_instances
@@ -195,7 +210,7 @@ class State(vci.State):
     ) -> VrrpConnection:
         vrid: str = vrrp_instance[util.YANG_TAGNODE]
         instance_name: str = f"vyatta-{transmit_intf}-{vrid}"
-        vrrp_conn: VrrpConnection
+        vrrp_conn: VrrpConnection = None
         if instance_name not in \
                 self._conf_obj.vrrp_connections:
             af_type: int = util.get_ip_version(

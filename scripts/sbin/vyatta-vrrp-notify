@@ -29,7 +29,7 @@ class NotifyDaemon:
     def loop(self):
         return self._loop
 
-    def refresh_state(self):
+    def setup_instance_variables(self):
         if self.keepalived is None:
             self.keepalived = config_file.KeepalivedConfig()
         if self.keepalived_dbus is None:
@@ -42,15 +42,23 @@ class NotifyDaemon:
             self.keepalived_proxy = self.keepalived_dbus.keepalived_process
         if self.keepalived.vrrp_connections != {}:
             self.old_instances = self.keepalived.vrrp_connections.keys()
+
+    def refresh_state(self):
         self.log.debug("Reading config")
         file_config = self.keepalived.read_config()
-        self.keepalived.update(
+        conf = util.sanitize_vrrp_config(
             self.keepalived.convert_to_vci_format_dict(file_config)
+        )
+        self.keepalived.update(
+            conf
         )
         self.log.debug("Registering vrrp instance signal")
         for instance, connection in self.keepalived.vrrp_connections.items():
             if instance not in self.old_instances:
-                connection.subscribe_instance_signals()
+                try:
+                    connection.subscribe_instance_signals()
+                except KeyError:
+                    self.log.debug(f"{instance} is not yet active")
         self.old_instances = []
 
     def shutdown_system(self):
@@ -62,14 +70,15 @@ class NotifyDaemon:
 def bus_activates(name):
     # This really isn't the best thing to do abusing the scope of variables
     # need to figure out a better way for this to work
+    daemon.setup_instance_variables()
     log.info("Bus name %s has become active, registering signals", name)
-    daemon.refresh_state()
     log.debug("Registering Keepalived Reloaded signal")
     daemon.keepalived_proxy.VrrpReloaded.connect(daemon.refresh_state)
     log.debug("Registering keepalived shutdown signal")
     daemon.keepalived_proxy.VrrpStopped.connect(daemon.shutdown_system)
     log.debug("Registering other keepalived signals")
     daemon.keepalived_dbus.subscribe_process_signals()
+    daemon.refresh_state()
 
 
 if __name__ == "__main__":
