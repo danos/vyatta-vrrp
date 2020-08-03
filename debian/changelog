@@ -1,3 +1,13 @@
+vyatta-vrrp (3.1) unstable; urgency=medium
+
+  * Add newline to default args generator
+  * Extend YANG pattern to allow switch VRRP intfs
+  * Use the switch specific vrrp namespace
+  * Bugfix/Don't error when complete config removed
+  * Bugfix/Wait for DBus object to become active
+
+ -- Anthony Dempsey <anthony.dempsey@intl.att.com>  Mon, 03 Aug 2020 09:33:17 +0100
+
 vyatta-vrrp (3.0) unstable; urgency=medium
 
   * Feature/Initial vrrp vci component commit
