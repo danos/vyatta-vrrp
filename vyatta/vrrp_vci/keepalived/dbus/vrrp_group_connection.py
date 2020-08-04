@@ -157,7 +157,8 @@ class VrrpConnection:
             util.VRRP_NAMESPACE,
             util.NOTIFICATION_NAME_YANG,
             {
-                util.NOTIFICATION_INSTANCE_NAME: self.instance_name,
+                util.NOTIFICATION_INSTANCE_NAME:
+                self.instance_name.replace("_", "."),
                 util.NOTIFICATION_NEW_STATE: status_str
             }
         )
