@@ -65,6 +65,10 @@ module vyatta-vrrp-v1 {
 
 		SPDX-License-Identifier: BSD-3-Clause";
 
+	revision 2020-10-16 {
+		description "Mark run-transition subtree as obsolete";
+	}
+
 	revision 2020-05-18 {
 		description "Remove call-rpc node in favour of new component
 			infrastructure. Added new RPC to find the transmitting
@@ -218,7 +222,7 @@ module vyatta-vrrp-v1 {
 			configd:help "VRRP group disabled";
 		}
 		container run-transition-scripts {
-			status "deprecated";
+			status "obsolete";
 			presence "true";
 			configd:help "Scripts for VRRP state-transitions";
 			leaf master {
