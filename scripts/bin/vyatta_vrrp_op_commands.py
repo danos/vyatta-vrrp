@@ -12,11 +12,13 @@ import vyatta.vrrp_vci.abstract_vrrp_classes as abstract_impl
 import vyatta.vrrp_vci.keepalived.config_file as impl_conf
 import vyatta.vrrp_vci.keepalived.dbus.process_control as process_control
 import vyatta.vrrp_vci.keepalived.util as util
+import vyatta.vrrp_vci.vyatta_vrrp_vci as vrrp_vci
 
 
 def process_arguments(command: str, intf: str, vrid: str) -> None:
     process = process_control.ProcessControl()
     if not process.is_running():
+        print("VRRP not configured")
         return
     if command == "reload":
         process.reload_config()
@@ -38,6 +40,15 @@ def process_arguments(command: str, intf: str, vrid: str) -> None:
         process.turn_on_debugs(util.DEBUG_FLAG_PER_PACKET)
     elif command == "remove-debug":
         process.turn_off_debugs(util.DEBUG_FLAG_PER_PACKET)
+    elif command == "garp":
+        if intf == "" or vrid == "":
+            return
+        vrrp_vci.send_garp(
+            {
+                util.RPC_GARP_INTERFACE: intf,
+                util.RPC_GARP_GROUP: vrid
+            }
+        )
     return
 
 
@@ -47,7 +58,7 @@ def main() -> None:
                         help="Script to reload VRRP config or reset VRRP " +
                         "state\n",
                         choices=["reload", "reset", "add-debug",
-                                 "remove-debug"]
+                                 "remove-debug", "garp"]
                         )
     parser.add_argument(
         "--intf", help="Filter on interface", default=""

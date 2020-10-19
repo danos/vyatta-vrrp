@@ -1,3 +1,0 @@
-help: Show VRRP statistics for specified interface and group
-allowed: vyatta_show_vrrp.py autocomplete --intf=$5
-run: vyatta_show_vrrp.py stats --intf=$5 --vrid=$7

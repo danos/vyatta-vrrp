@@ -1,4 +1,4 @@
 scripts/bin/*               opt/vyatta/bin
 scripts/sbin/*              opt/vyatta/sbin
 scripts/tech-support/*      opt/vyatta/share/vyatta-op/functions/tech-support.d
-templates                   opt/vyatta/share/vyatta-op
+tmplscripts                 opt/vyatta/share/

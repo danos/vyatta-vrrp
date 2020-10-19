@@ -55,6 +55,11 @@ module vyatta-op-show-interfaces-vrrp-v1 {
 
 		SPDX-License-Identifier: BSD-3-Clause";
 
+	revision 2020-08-19 {
+		description
+			"Update quotes in nodes for consistency";
+	}
+
 	revision 2020-06-12 {
 		description
 			"Extend filter pattern to include interfaces created under
@@ -67,16 +72,16 @@ module vyatta-op-show-interfaces-vrrp-v1 {
 
 	opd:augment /show:show/if:interfaces {
 		opd:command vrrp {
-			opd:help "Show VRRP interface configuration";
+			opd:help 'Show VRRP interface configuration';
 			opd:on-enter 'vyatta-show-interfaces.pl --vrrp --action=show-brief';
 
 			opd:command detail {
-				opd:help "Show detailed VRRP interface information";
+				opd:help 'Show detailed VRRP interface information';
 				opd:on-enter 'vyatta-show-interfaces.pl --vrrp --action=show';
 			}
 
 			opd:argument if-name {
-				opd:help "Show specified VRRP interface information";
+				opd:help 'Show specified VRRP interface information';
 				opd:on-enter 'vyatta-show-interfaces.pl --intf="$4"';
 				opd:allowed 'vyatta-show-interfaces.pl --vrrp --action=allowed';
 				type string {
@@ -85,7 +90,7 @@ module vyatta-op-show-interfaces-vrrp-v1 {
 				}
 
 				opd:command brief {
-					opd:help "Show summary of specified VRRP interface information";
+					opd:help 'Show summary of specified VRRP interface information';
 					opd:on-enter 'vyatta-show-interfaces.pl --intf="$4" --action=show-brief';
 				}
 			}

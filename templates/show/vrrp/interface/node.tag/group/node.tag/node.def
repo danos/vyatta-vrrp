@@ -1,3 +1,0 @@
-help: Show VRRP information for specified interface and group
-allowed: vyatta_show_vrrp.py autocomplete --intf=$4
-run: vyatta_show_vrrp.py interface --intf=$4 --vrid=$6

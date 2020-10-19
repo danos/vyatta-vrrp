@@ -1,2 +1,0 @@
-help: Reset VRRP master for a specified interface
-allowed: vyatta_show_vrrp.py autocomplete
