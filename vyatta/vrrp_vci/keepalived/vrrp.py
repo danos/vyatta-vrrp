@@ -173,9 +173,6 @@ vrrp_instance {instance} {{
             if util.YANG_IPSEC in self._group_config[util.YANG_NOTIFY]:
                 self._template += f"\n        {util.LEGACY_NOTIFY_IPSEC}"
                 self.notify_scripts.append(util.LEGACY_NOTIFY_IPSEC)
-            if util.YANG_BGP in self._group_config[util.YANG_NOTIFY]:
-                self._template += f"\n        {util.LEGACY_NOTIFY_BGP}"
-                self.notify_scripts.append(util.LEGACY_NOTIFY_BGP)
             self._template += "\n    }}"
 
         # TODO: This may need changed to add transition scripts

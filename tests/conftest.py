@@ -3965,9 +3965,6 @@ def max_config_group(pathmon_yang_name, route_to_yang_name):
         },
         "hello-source-address": "127.0.0.1",
         "notify": {
-            "bgp": [
-                None
-            ],
             "ipsec": [
                 None
             ]
@@ -4039,9 +4036,6 @@ def bonding_max_config_group(
         },
         "hello-source-address": "127.0.0.1",
         "notify": {
-            "bgp": [
-                None
-            ],
             "ipsec": [
                 None
             ]
@@ -4113,9 +4107,6 @@ def switch_max_config_group(
         },
         "hello-source-address": "127.0.0.1",
         "notify": {
-            "bgp": [
-                None
-            ],
             "ipsec": [
                 None
             ]
@@ -4745,7 +4736,6 @@ vrrp_instance vyatta-dp0p1s1-1 {
     }
     notify {
         /opt/vyatta/sbin/vyatta-ipsec-notify.sh
-        /opt/vyatta/sbin/notify-bgp
     }
 }"""
 
@@ -4787,7 +4777,6 @@ vrrp_instance vyatta-dp0bond0-1 {
     }
     notify {
         /opt/vyatta/sbin/vyatta-ipsec-notify.sh
-        /opt/vyatta/sbin/notify-bgp
     }
 }"""
 
@@ -4829,7 +4818,6 @@ vrrp_instance vyatta-sw0.10-1 {
     }
     notify {
         /opt/vyatta/sbin/vyatta-ipsec-notify.sh
-        /opt/vyatta/sbin/notify-bgp
     }
 }"""
 
