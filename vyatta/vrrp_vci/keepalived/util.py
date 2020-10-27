@@ -10,8 +10,10 @@ but never actually used anything relating to the class.
 
 
 import ipaddress
+import logging
 import re
 import socket
+import subprocess
 from enum import Enum
 from typing import Any, Dict, Generator, List, Match, Optional, Tuple, Union
 
@@ -260,6 +262,9 @@ LEGACY_NOTIFY_IPSEC = "/opt/vyatta/sbin/vyatta-ipsec-notify.sh"
 # Misc string constants
 LOGGING_MODULE_NAME: str = "vyatta-vrrp-vci"
 AGENTX_STRING: str = "tcp:localhost:705:1"
+
+# Set Logger
+log: logging.Logger = logging.getLogger(LOGGING_MODULE_NAME)
 
 
 def get_specific_vrrp_config_from_yang(
@@ -738,3 +743,11 @@ def get_namespace(
         if namespace in interface_dict:
             return namespace
     return ""
+
+
+def call_vtysh(cmd) -> None:
+    try:
+        subprocess.run(["/usr/bin/vtysh", "-c", cmd], check=True)
+    except subprocess.CalledProcessError as err:
+        log.error(f"Tried to call vtysh with {cmd} and got error {err}")
+    return

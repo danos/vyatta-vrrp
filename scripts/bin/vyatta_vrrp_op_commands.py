@@ -6,13 +6,47 @@
 # SPDX-License-Identifier: GPL-2.0-only
 
 import argparse
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import vyatta.vrrp_vci.abstract_vrrp_classes as abstract_impl
 import vyatta.vrrp_vci.keepalived.config_file as impl_conf
 import vyatta.vrrp_vci.keepalived.dbus.process_control as process_control
 import vyatta.vrrp_vci.keepalived.util as util
 import vyatta.vrrp_vci.vyatta_vrrp_vci as vrrp_vci
+from vyatta.vrrp_vci.vyatta_vrrp_vci import State
+
+
+def bgp_async() -> None:
+    keepalived_implementation: abstract_impl.ConfigFile \
+        = impl_conf.KeepalivedConfig()
+    current_state = State(keepalived_implementation)
+    state_dict = util.sanitize_vrrp_config(current_state.get())
+    intf_list: List
+    for intf_list in state_dict[util.INTERFACE_YANG_NAME].values():
+        intf_dict: Dict
+        for intf_dict in intf_list:
+            intf_name_key: str = util.get_namespace(
+                intf_dict, util.YANG_INTERFACE_NAMESPACE
+            )
+            if intf_name_key == "":
+                continue
+            intf_name: str = intf_dict[intf_name_key]
+            current_vrrp_namespace: str = util.get_namespace(
+                intf_dict, util.VRRP_YANG_NAMESPACES
+            )
+            if current_vrrp_namespace == "":
+                continue
+            vrrp_instances: List = \
+                intf_dict[current_vrrp_namespace][util.YANG_VRRP_GROUP]
+            vrrp_instance: Dict
+            for vrrp_instance in vrrp_instances:
+                if util.YANG_INSTANCE_STATE not in vrrp_instance:
+                    continue
+                group: str = vrrp_instance[util.YANG_TAGNODE]
+                state: Dict = vrrp_instance[util.YANG_INSTANCE_STATE]
+                cmd = f"clear ip bgp interface {intf_name} vrrp-failover " +\
+                    f"vrrp-group {group} state {state}"
+                util.call_vtysh(cmd)
 
 
 def process_arguments(command: str, intf: str, vrid: str) -> None:
@@ -49,6 +83,8 @@ def process_arguments(command: str, intf: str, vrid: str) -> None:
                 util.RPC_GARP_GROUP: vrid
             }
         )
+    elif command == "bgp":
+        bgp_async()
     return
 
 
@@ -58,7 +94,7 @@ def main() -> None:
                         help="Script to reload VRRP config or reset VRRP " +
                         "state\n",
                         choices=["reload", "reset", "add-debug",
-                                 "remove-debug", "garp"]
+                                 "remove-debug", "garp", "bgp"]
                         )
     parser.add_argument(
         "--intf", help="Filter on interface", default=""
