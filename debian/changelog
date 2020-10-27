@@ -1,3 +1,9 @@
+vyatta-vrrp (3.3) unstable; urgency=medium
+
+  * Replace op mode templates with op mode YANG
+
+ -- Anthony Dempsey <anthony.dempsey@intl.att.com>  Mon, 19 Oct 2020 14:48:24 +0100
+
 vyatta-vrrp (3.2) unstable; urgency=medium
 
   * Bugfix/Adjust VIF name in VCI notification
