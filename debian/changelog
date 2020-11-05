@@ -1,3 +1,10 @@
+vyatta-vrrp (3.2.1) unstable; urgency=medium
+
+  [ Daniel Gollub ]
+  * ipsec: mitigiate IPsec trigger issue with IPsec VCI rewrite
+
+ -- Anthony Dempsey <anthony.dempsey@intl.att.com>  Thu, 05 Nov 2020 14:28:57 +0000
+
 vyatta-vrrp (3.2) unstable; urgency=medium
 
   * Bugfix/Adjust VIF name in VCI notification
