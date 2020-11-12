@@ -86,6 +86,7 @@ class KeepalivedConfig(ConfigFile):
             snmp_socket tcp:localhost:705:1
             enable_snmp_keepalived
             enable_snmp_rfc
+            tmp_file_path /run/keepalived/
         }
         vrrp_instance vyatta-dp0p1s1-1 {
             state BACKUP
@@ -167,6 +168,7 @@ global_defs {
         snmp_socket tcp:localhost:705:1
         enable_snmp_keepalived
         enable_snmp_rfc
+        tmp_file_path /run/keepalived/
 }"""
         self.config_file: str = config_file_path
         self.implementation_name: str = "Keepalived"

@@ -252,8 +252,8 @@ STATS_PZERO_KEY: str = \
 DEBUG_FLAG_PER_PACKET = 1
 
 # Keepalived file paths
-FILE_PATH_KEEPALIVED_DATA = "/tmp/keepalived.data"
-FILE_PATH_KEEPALIVED_STATS = "/tmp/keepalived.stats"
+FILE_PATH_KEEPALIVED_DATA = "/run/keepalived/keepalived.data"
+FILE_PATH_KEEPALIVED_STATS = "/run/keepalived/keepalived.stats"
 
 # Legacy notification script paths
 LEGACY_NOTIFY_BGP = "/opt/vyatta/sbin/notify-bgp"

@@ -5965,6 +5965,7 @@ global_defs {
         snmp_socket tcp:localhost:705:1
         enable_snmp_keepalived
         enable_snmp_rfc
+        tmp_file_path /run/keepalived/
 }"""
 
 
