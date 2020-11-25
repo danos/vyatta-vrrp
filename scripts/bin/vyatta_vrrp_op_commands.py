@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-# Copyright (c) 2020 AT&T Intellectual Property.
+# Copyright (c) 2020,2021 AT&T Intellectual Property.
 # All rights reserved.
 #
 # SPDX-License-Identifier: GPL-2.0-only
@@ -43,7 +43,8 @@ def bgp_async() -> None:
                 if util.YANG_INSTANCE_STATE not in vrrp_instance:
                     continue
                 group: str = vrrp_instance[util.YANG_TAGNODE]
-                state: Dict = vrrp_instance[util.YANG_INSTANCE_STATE]
+                state: Dict = \
+                    vrrp_instance[util.YANG_INSTANCE_STATE][util.YANG_STATE]
                 cmd = f"clear ip bgp interface {intf_name} vrrp-failover " +\
                     f"vrrp-group {group} state {state}"
                 util.call_vtysh(cmd)

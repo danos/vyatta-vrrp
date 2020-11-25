@@ -1,4 +1,4 @@
-# Copyright (c) 2020 AT&T Intellectual Property.
+# Copyright (c) 2020,2021 AT&T Intellectual Property.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
@@ -144,9 +144,11 @@ class VrrpState(Enum):
     MASTER = 2
     FAULT = 3
     TRANSIENT = 4
+    INVALID = 5
 
 
 # VRRP state strings
+STATE_INVALID: str = "INVALID"
 STATE_TRANSIENT: str = "TRANSIENT"
 STATE_MASTER: str = "MASTER"
 STATE_BACKUP: str = "BACKUP"

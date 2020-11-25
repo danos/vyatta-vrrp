@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright (c) 2019-2020 AT&T Intellectual Property.
+# Copyright (c) 2019-2021 AT&T Intellectual Property.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
@@ -21,7 +21,7 @@ class NotifyDaemon:
         self.keepalived = None
         self.keepalived_dbus = None
         self.keepalived_proxy = None
-        self.old_instances = []
+        self.old_instances = {}
         self._loop = GLib.MainLoop()
         self.log.info("Notify daemon object created")
 
@@ -41,7 +41,7 @@ class NotifyDaemon:
                 )
             self.keepalived_proxy = self.keepalived_dbus.keepalived_process
         if self.keepalived.vrrp_connections != {}:
-            self.old_instances = self.keepalived.vrrp_connections.keys()
+            self.old_instances = self.keepalived.vrrp_connections
 
     def refresh_state(self):
         self.log.debug("Reading config")
@@ -59,10 +59,15 @@ class NotifyDaemon:
                     connection.subscribe_instance_signals()
                 except KeyError:
                     self.log.debug(f"{instance} is not yet active")
-        self.old_instances = []
+        for instance, connection in self.old_instances.items():
+            if instance not in self.keepalived.vrrp_connections:
+                connection.state_change(util.VrrpState[util.STATE_INVALID].value)
+        self.old_instances.clear()
 
     def shutdown_system(self):
         self.log.info("Keepalived VrrpStopped signal caught")
+        for connection in self.keepalived.vrrp_connections.values():
+            connection.state_change(util.VrrpState[util.STATE_INVALID].value)
         self.loop.quit()
         self.log.debug("GLib loop shutdown")
 

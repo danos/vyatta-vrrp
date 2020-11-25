@@ -1,4 +1,4 @@
-# Copyright (c) 2020 by AT&T, Inc.
+# Copyright (c) 2020,2021 by AT&T, Inc.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
@@ -62,6 +62,7 @@ class VrrpConnection:
         self.bus_object: pydbus.Bus = bus_object
         self.log: logging.Logger = logging.getLogger(util.LOGGING_MODULE_NAME)
         self.current_state: str
+        self.initial_notification = True
         self.client: vci.Client = vci.Client()
         self.af_type_str: str = util.IPV4_AF if af_type == 4 else util.IPV6_AF
         self.instance_name: str = f"vyatta-{self.intf}-{self.vrid}"
@@ -136,7 +137,8 @@ class VrrpConnection:
             status_str = util.STATE_TRANSIENT
         # May need to also send 5 gARP replies on a master transition
         # there's a note about this in the legacy implementation
-        if self.current_state == status_str:
+        if (self.current_state == status_str and
+                not self.initial_notification):
             # No actual state change so do not emit notification
             return
         self.current_state = status_str
@@ -153,6 +155,8 @@ class VrrpConnection:
                 util.NOTIFICATION_NEW_STATE: status_str
             }
         )
+        if self.initial_notification:
+            self.initial_notification = False
 
     def legacy_notify(self, status: int) -> None:
         """
@@ -205,6 +209,7 @@ class VrrpConnection:
         self.vrrp_group_proxy.VrrpStatusChange.connect(
             self.legacy_notify
         )
+        self.state_change(util.VrrpState[self.current_state].value)
 
     @activate_connection
     def reset_group_state(self) -> None:
