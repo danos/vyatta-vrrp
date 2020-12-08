@@ -46,13 +46,16 @@ def pydbus_fakes():
 
 
 @pytest.fixture
-def calendar_fakes():
-    class Calendar:
+def calendar_fakes(monkeypatch):
 
-        def timegm(self):
-            return 3
+    # pylint: disable=import-outside-toplevel
+    import vyatta.vrrp_vci.show_vrrp_cmds
+    # import time and monkeypatch here so the version used by the
+    # runner doesn't get messed up
 
-    sys.modules["calendar"] = Calendar
+    def fake_time():
+        return 3
+    monkeypatch.setattr(vyatta.vrrp_vci.show_vrrp_cmds.time, "time", fake_time)
 
 
 @pytest.fixture
