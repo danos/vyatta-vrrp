@@ -2,7 +2,6 @@
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
-import calendar
 import time
 from typing import Any, Dict, List, Optional, Union
 
@@ -199,7 +198,7 @@ def show_vrrp_summary(state_dict: Dict) -> str:
                     sync = f"<{util.SHOW_SG_VALUE}>"
                 else:
                     sync = state[util.YANG_SYNC_GROUP]
-                now: int = calendar.timegm(time.localtime())
+                now: int = int(time.time())
                 last: int = state[util.YANG_LAST_TRANSITION]
                 diff: int = now - last
                 output += \
@@ -326,7 +325,7 @@ def show_vrrp_detail(
                 state_name: str = state[util.YANG_STATE]
                 output += show_detail_line_format(
                     [f"{util.YANG_STATE.title()}:", state_name])
-                now: int = calendar.timegm(time.localtime())
+                now: int = int(time.time())
                 last: int = state[util.YANG_LAST_TRANSITION]
                 diff: int = now - last
                 output += show_detail_line_format(
