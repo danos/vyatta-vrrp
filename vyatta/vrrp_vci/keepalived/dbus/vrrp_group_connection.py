@@ -90,6 +90,11 @@ class VrrpConnection:
         rfc_intf: str = group_state[util.DBUS_XMIT_INTF_NAME][0]
         if rfc_intf.replace(".", "_") == self.intf:
             rfc_intf = ""
+        vrrp_state: str = group_state[util.YANG_STATE.capitalize()][1].upper()
+        try:
+            vrrp_state = util.VrrpState[vrrp_state].name
+        except KeyError:
+            vrrp_state = util.STATE_INIT
         processed_state: Dict[str, Union[str, Dict[str, str]]] = {
             util.YANG_INSTANCE_STATE:
             {
@@ -97,8 +102,7 @@ class VrrpConnection:
                 util.YANG_LAST_TRANSITION:
                     group_state[util.DBUS_LAST_TRANSITION_NAME][0],
                 util.YANG_RFC_INTF: rfc_intf,
-                util.YANG_STATE:
-                    group_state[util.YANG_STATE.capitalize()][1].upper(),
+                util.YANG_STATE: vrrp_state,
                 util.YANG_SYNC_GROUP:
                     group_state[util.DBUS_SYNC_GROUP_NAME][0]
             },
@@ -119,30 +123,17 @@ class VrrpConnection:
         self.vrrp_group_proxy.SendGarp()
         return
 
-    @staticmethod
-    def state_int_to_string(state: int) -> str:
-        """
-        Convert from integer states values to human readable states
-        """
-
-        if state == 0:
-            return util.STATE_INIT
-        elif state == 1:
-            return util.STATE_BACKUP
-        elif state == 2:
-            return util.STATE_MASTER
-        elif state == 3:
-            return util.STATE_FAULT
-        else:
-            return util.STATE_TRANSIENT
-
     def state_change(self, status: int) -> None:
         """
         Call back for when the state change signal fires from the
         DBus object.
         """
 
-        status_str: str = self.state_int_to_string(status)
+        status_str: str
+        try:
+            status_str = util.VrrpState(status).name
+        except ValueError:
+            status_str = util.STATE_TRANSIENT
         # May need to also send 5 gARP replies on a master transition
         # there's a note about this in the legacy implementation
         if self.current_state == status_str:
@@ -174,7 +165,11 @@ class VrrpConnection:
         IPSEC notifications. This function will run the scripts
         """
 
-        status_str: str = self.state_int_to_string(status)
+        status_str: str
+        try:
+            status_str = util.VrrpState(status).name
+        except ValueError:
+            status_str = util.STATE_TRANSIENT
         # May need to also send 5 gARP replies on a master transition
         # there's a note about this in the legacy implementation
         if self.current_state == status_str:

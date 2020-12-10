@@ -323,6 +323,8 @@ def show_vrrp_detail(
                 output += SHOW_DETAIL_GROUP_DIVIDER
                 state: Dict = vrrp_instance[util.YANG_INSTANCE_STATE]
                 state_name: str = state[util.YANG_STATE]
+                if state_name == util.VrrpState.TRANSIENT.value:
+                    state_name = util.STATE_INIT
                 output += show_detail_line_format(
                     [f"{util.YANG_STATE.title()}:", state_name])
                 now: int = int(time.time())
