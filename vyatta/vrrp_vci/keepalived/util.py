@@ -12,7 +12,7 @@ but never actually used anything relating to the class.
 import ipaddress
 import re
 import socket
-from enum import Enum
+from enum import Enum, unique
 from typing import Any, Dict, Generator, List, Match, Optional, Tuple, Union
 
 # YANG strings for interfaces types, and short names
@@ -133,6 +133,16 @@ YANG_ADVERT_INT_STATE: str = "advert-interval"
 YANG_MASTER_PRIO_STATE: str = "master-priority"
 YANG_MASTER_ROUTER_STATE: str = "master-router"
 YANG_VIP_STATE: str = "virtual-ips"
+
+
+@unique
+class VrrpState(Enum):
+    INIT = 0
+    BACKUP = 1
+    MASTER = 2
+    FAULT = 3
+    TRANSIENT = 4
+
 
 # VRRP state strings
 STATE_TRANSIENT: str = "TRANSIENT"
