@@ -51,17 +51,17 @@ class TestKeepalivedUtils:
         assert expected == result
 
     @pytest.mark.parametrize(
-        "expected,address",
+        "expected,address,fakes",
         [
-            (True, "127.0.0.1"),
-            (True, "::1"),
-            (False, "10.1.1.1"),
+            (True, "127.0.0.1", pytest.lazy_fixture("socket_fakes")),
+            (True, "::1", pytest.lazy_fixture("socket_fakes")),
+            (False, "10.1.1.1", pytest.lazy_fixture("socket_fakes")),
         ],
         ids=[
             "ipv4", "ipv6", "No configured"
         ]
     )
-    def test_is_local_address(self, expected, address):
+    def test_is_local_address(self, expected, address, fakes):
         assert util.is_local_address(address) == expected
 
     @pytest.mark.parametrize(

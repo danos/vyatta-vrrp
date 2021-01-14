@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: GPL-2.0-only.
 
 import sys
+import socket
 import copy
 import pytest
 
@@ -53,6 +54,31 @@ def calendar_fakes():
             return 3
 
     sys.modules["calendar"] = Calendar
+
+
+@pytest.fixture
+def socket_fakes():
+    class FakeSocket:
+
+        def __init__(self, family, sock_type):
+            self.family = family
+            self.sock_type = sock_type
+            self.expected: str = ("127.0.0.1", "::1")
+
+        def bind(self, connection):
+            if connection[0] not in self.expected:
+                raise OSError(
+                    f"{connection[0]} not one of expected address: "
+                    f"{self.expected}"
+                )
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_value, exc_tb):
+            pass
+
+    setattr(socket, "socket", FakeSocket)
 
 
 @pytest.fixture
