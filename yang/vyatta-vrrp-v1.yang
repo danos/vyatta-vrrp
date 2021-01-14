@@ -27,7 +27,7 @@ module vyatta-vrrp-v1 {
 		Web: www.att.com";
 
 	description
-		"Copyright (c) 2017-2020 AT&T Intellectual Property
+		"Copyright (c) 2017-2021 AT&T Intellectual Property
 		All rights reserved.
 
 		Copyright (c) 2014-2017 by Brocade Communications Systems, Inc.
@@ -64,6 +64,10 @@ module vyatta-vrrp-v1 {
 		POSSIBILITY OF SUCH DAMAGE.
 
 		SPDX-License-Identifier: BSD-3-Clause";
+
+	revision 2021-01-14 {
+		description "Remove config_delete.sh for notify bgp";
+	}
 
 	revision 2020-10-16 {
 		description "Mark run-transition subtree as obsolete";
@@ -379,7 +383,6 @@ module vyatta-vrrp-v1 {
 					leaf bgp {
 						type empty;
 						configd:help "Notify bgp daemon on VRRP state transition";
-						configd:delete "/opt/vyatta/share/tmplscripts/interfaces/all/vrrp/vrrp-group/notify/bgp/configd_delete.sh";
 					}
 					leaf ipsec {
 						type empty;
@@ -422,7 +425,6 @@ module vyatta-vrrp-v1 {
 					leaf bgp {
 						type empty;
 						configd:help "Notify bgp daemon on VRRP state transition";
-						configd:delete "/opt/vyatta/share/tmplscripts/interfaces/all/vif/vrrp/vrrp-group/notify/bgp/configd_delete.sh";
 					}
 					leaf ipsec {
 						type empty;
