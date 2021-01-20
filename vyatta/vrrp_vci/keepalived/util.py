@@ -147,14 +147,6 @@ class VrrpState(Enum):
     INVALID = 5
 
 
-# VRRP state strings
-STATE_INVALID: str = "INVALID"
-STATE_TRANSIENT: str = "TRANSIENT"
-STATE_MASTER: str = "MASTER"
-STATE_BACKUP: str = "BACKUP"
-STATE_FAULT: str = "FAULT"
-STATE_INIT: str = "INIT"
-
 # RPC keys
 RPC_RFC_MAPPING_RECEIVE: str = f"{VRRP_NAMESPACE}:receive"
 RPC_RFC_MAPPING_GROUP: str = f"{VRRP_NAMESPACE}:group"

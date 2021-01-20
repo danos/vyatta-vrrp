@@ -95,7 +95,7 @@ class VrrpConnection:
         try:
             vrrp_state = util.VrrpState[vrrp_state].name
         except KeyError:
-            vrrp_state = util.STATE_INIT
+            vrrp_state = util.VrrpState.INIT.name
         processed_state: Dict[str, Union[str, Dict[str, str]]] = {
             util.YANG_INSTANCE_STATE:
             {
@@ -134,7 +134,7 @@ class VrrpConnection:
         try:
             status_str = util.VrrpState(status).name
         except ValueError:
-            status_str = util.STATE_TRANSIENT
+            status_str = util.VrrpState.TRANSIENT.name
         # May need to also send 5 gARP replies on a master transition
         # there's a note about this in the legacy implementation
         if (self.current_state == status_str and
@@ -173,7 +173,7 @@ class VrrpConnection:
         try:
             status_str = util.VrrpState(status).name
         except ValueError:
-            status_str = util.STATE_TRANSIENT
+            status_str = util.VrrpState.TRANSIENT.name
         # May need to also send 5 gARP replies on a master transition
         # there's a note about this in the legacy implementation
         if self.current_state == status_str:
@@ -227,7 +227,7 @@ class VrrpConnection:
             util.VRRP_INSTANCE_DBUS_INTF_NAME
         )
         state: str = group_state[util.YANG_STATE.capitalize()][1].upper()
-        if state == util.STATE_MASTER:
+        if state == util.VrrpState.MASTER.name:
             self.vrrp_group_proxy.ResetMaster()
         else:
             print(

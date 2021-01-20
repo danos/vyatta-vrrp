@@ -67,7 +67,7 @@ class NotifyDaemon:
     def shutdown_system(self):
         self.log.info("Keepalived VrrpStopped signal caught")
         for connection in self.keepalived.vrrp_connections.values():
-            connection.state_change(util.VrrpState[util.STATE_INVALID].value)
+            connection.state_change(util.VrrpState.INVALID.value)
         self.loop.quit()
         self.log.debug("GLib loop shutdown")
 

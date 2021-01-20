@@ -324,7 +324,7 @@ def show_vrrp_detail(
                 state: Dict = vrrp_instance[util.YANG_INSTANCE_STATE]
                 state_name: str = state[util.YANG_STATE]
                 if state_name == util.VrrpState.TRANSIENT.value:
-                    state_name = util.STATE_INIT
+                    state_name = util.VrrpState.INIT.name
                 output += show_detail_line_format(
                     [f"{util.YANG_STATE.title()}:", state_name])
                 now: int = int(time.time())
@@ -334,7 +334,7 @@ def show_vrrp_detail(
                     [f"{util.SHOW_LAST_TRANSITION}:", util.elapsed_time(diff)]
                 )
 
-                if state_name == util.STATE_BACKUP:
+                if state_name == util.VrrpState.BACKUP.name:
                     output += "\n"
                     output += show_detail_line_format(
                         [f"{util.SHOW_MASTER_ROUTER}:",
