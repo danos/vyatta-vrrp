@@ -9,6 +9,7 @@ process using dbus controls.
 """
 
 import logging
+import os
 import time
 from functools import wraps
 from pathlib import Path
@@ -78,6 +79,13 @@ class ProcessControl:
     def shutdown_process(self) -> None:
         self.systemd_manager_intf.StopUnit(
             self.keepalived_service_file, util.SYSTEMD_REPLACE)
+        try:
+            os.rmdir(util.FILE_PATH_KEEPALIVED_DIR)
+        except OSError:
+            self.log.warning(
+                "Failed to remove dir %s",
+                util.FILE_PATH_KEEPALIVED_DIR
+            )
 
     def set_default_daemon_arguments(self) -> None:
         """
@@ -114,6 +122,13 @@ class ProcessControl:
         return util.AGENTX_STRING
 
     def start_process(self) -> None:
+        try:
+            os.mkdir(util.FILE_PATH_KEEPALIVED_DIR)
+        except OSError:
+            self.log.warning(
+                "Failed to create dir %s, show detail won't work",
+                util.FILE_PATH_KEEPALIVED_DIR
+            )
         self.set_default_daemon_arguments()
         self.systemd_manager_intf.StartUnit(
             self.keepalived_service_file, util.SYSTEMD_REPLACE)

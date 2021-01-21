@@ -390,7 +390,7 @@ def generic_group_simple_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
-   Transmitting device = dp0p1s1
+   Interface = dp0p1s1
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -400,7 +400,7 @@ def generic_group_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 100
+   Priority = 100
    Effective priority = 100
    Address owner = no
    Advert interval = 2 sec
@@ -472,7 +472,7 @@ def generic_group_rfc_simple_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
-   Transmitting device = dp0vrrp1
+   Interface = dp0vrrp1
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -482,7 +482,7 @@ def generic_group_rfc_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 100
+   Priority = 100
    Effective priority = 100
    Address owner = no
    Advert interval = 2 sec
@@ -560,7 +560,7 @@ def generic_group_rfc_sync_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
-   Transmitting device = dp0vrrp1
+   Interface = dp0vrrp1
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -570,7 +570,7 @@ def generic_group_rfc_sync_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 100
+   Priority = 100
    Effective priority = 100
    Address owner = no
    Advert interval = 2 sec
@@ -654,7 +654,7 @@ def generic_group_ipao_rfc_simple_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
-   Transmitting device = dp0vrrp1
+   Interface = dp0vrrp1
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -664,7 +664,7 @@ def generic_group_ipao_rfc_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 100
+   Priority = 100
    Effective priority = 255
    Address owner = yes
    Advert interval = 2 sec
@@ -743,7 +743,7 @@ def backup_generic_group_simple_keepalived_data():
    Master priority = 100
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
-   Transmitting device = dp0p1s1
+   Interface = dp0p1s1
    Using src_ip = 10.10.1.2
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -753,7 +753,7 @@ def backup_generic_group_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 50
+   Priority = 50
    Effective priority = 50
    Address owner = no
    Advert interval = 2 sec
@@ -775,7 +775,7 @@ def multiple_group_simple_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s2
-   Transmitting device = dp0vrrp1
+   Interface = dp0vrrp1
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -785,7 +785,7 @@ def multiple_group_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 100
+   Priority = 100
    Effective priority = 255
    Address owner = yes
    Advert interval = 2 sec
@@ -800,7 +800,7 @@ def multiple_group_simple_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s2
-   Transmitting device = dp0p1s2
+   Interface = dp0p1s2
    Using src_ip = 10.10.1.2
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -810,7 +810,7 @@ def multiple_group_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 42
-   Base priority = 100
+   Priority = 100
    Effective priority = 100
    Address owner = no
    Advert interval = 2 sec
@@ -889,7 +889,7 @@ def backup_generic_group_track_intf_simple_keepalived_data():
    Master priority = 100
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
-   Transmitting device = dp0p1s1
+   Interface = dp0p1s1
    Using src_ip = 10.10.1.2
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -899,7 +899,7 @@ def backup_generic_group_track_intf_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 50
+   Priority = 50
    Effective priority = 50
    Address owner = no
    Advert interval = 2 sec
@@ -1001,7 +1001,7 @@ def backup_generic_group_track_intf_down_simple_keepalived_data():
    Master priority = 100
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
-   Transmitting device = dp0p1s1
+   Interface = dp0p1s1
    Using src_ip = 10.10.1.2
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -1011,7 +1011,7 @@ def backup_generic_group_track_intf_down_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 50
+   Priority = 50
    Effective priority = 50
    Address owner = no
    Advert interval = 2 sec
@@ -1112,7 +1112,7 @@ def backup_generic_group_track_intf_no_weight_simple_keepalived_data():
    Master priority = 100
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
-   Transmitting device = dp0p1s1
+   Interface = dp0p1s1
    Using src_ip = 10.10.1.2
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -1122,7 +1122,7 @@ def backup_generic_group_track_intf_no_weight_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 50
+   Priority = 50
    Effective priority = 50
    Address owner = no
    Advert interval = 2 sec
@@ -1222,7 +1222,7 @@ def backup_generic_group_track_pathmon_simple_keepalived_data():
    Master priority = 100
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
-   Transmitting device = dp0p1s1
+   Interface = dp0p1s1
    Using src_ip = 10.10.1.2
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -1232,7 +1232,7 @@ def backup_generic_group_track_pathmon_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 50
+   Priority = 50
    Effective priority = 50
    Address owner = no
    Advert interval = 2 sec
@@ -1333,7 +1333,7 @@ def backup_generic_group_multiple_track_pathmon_simple_keepalived_data():
    Master priority = 100
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
-   Transmitting device = dp0p1s1
+   Interface = dp0p1s1
    Using src_ip = 10.10.1.2
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -1343,7 +1343,7 @@ def backup_generic_group_multiple_track_pathmon_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 50
+   Priority = 50
    Effective priority = 50
    Address owner = no
    Advert interval = 2 sec
@@ -1452,7 +1452,7 @@ def backup_generic_group_track_route_simple_keepalived_data():
    Master priority = 100
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
-   Transmitting device = dp0p1s1
+   Interface = dp0p1s1
    Using src_ip = 10.10.1.2
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -1462,7 +1462,7 @@ def backup_generic_group_track_route_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 50
+   Priority = 50
    Effective priority = 50
    Address owner = no
    Advert interval = 2 sec
@@ -1555,7 +1555,7 @@ def generic_group_track_multiple_simple_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
-   Transmitting device = dp0p1s1
+   Interface = dp0p1s1
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -1565,7 +1565,7 @@ def generic_group_track_multiple_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 50
+   Priority = 50
    Effective priority = 70
    Address owner = no
    Advert interval = 2 sec
@@ -1725,7 +1725,7 @@ def generic_v3_group_simple_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
-   Transmitting device = dp0p1s1
+   Interface = dp0p1s1
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -1735,7 +1735,7 @@ def generic_v3_group_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 100
+   Priority = 100
    Effective priority = 100
    Address owner = no
    Advert interval = 2000 milli-sec
@@ -1807,7 +1807,7 @@ def generic_v3_rfc_group_fast_advert_simple_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
-   Transmitting device = dp0vrrp1
+   Interface = dp0vrrp1
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -1817,7 +1817,7 @@ def generic_v3_rfc_group_fast_advert_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 100
+   Priority = 100
    Effective priority = 100
    Address owner = no
    Advert interval = 500 milli-sec
@@ -1894,7 +1894,7 @@ def generic_group_start_delay_simple_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
-   Transmitting device = dp0p1s1
+   Interface = dp0p1s1
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -1904,7 +1904,7 @@ def generic_group_start_delay_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 100
+   Priority = 100
    Effective priority = 100
    Address owner = no
    Advert interval = 2 sec
@@ -1979,7 +1979,7 @@ def generic_group_preempt_delay_simple_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
-   Transmitting device = dp0p1s1
+   Interface = dp0p1s1
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -1989,7 +1989,7 @@ def generic_group_preempt_delay_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 100
+   Priority = 100
    Effective priority = 100
    Address owner = no
    Advert interval = 2 sec
@@ -2064,7 +2064,7 @@ def generic_group_vif_simple_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1.10
-   Transmitting device = dp0p1s1.10
+   Interface = dp0p1s1.10
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -2074,7 +2074,7 @@ def generic_group_vif_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 100
+   Priority = 100
    Effective priority = 100
    Address owner = no
    Advert interval = 2 sec
@@ -2146,7 +2146,7 @@ def generic_group_vif_and_parent_simple_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
-   Transmitting device = dp0p1s1
+   Interface = dp0p1s1
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -2156,7 +2156,7 @@ def generic_group_vif_and_parent_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 100
+   Priority = 100
    Effective priority = 100
    Address owner = no
    Advert interval = 2 sec
@@ -2171,7 +2171,7 @@ def generic_group_vif_and_parent_simple_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1.10
-   Transmitting device = dp0p1s1.10
+   Interface = dp0p1s1.10
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -2181,7 +2181,7 @@ def generic_group_vif_and_parent_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 100
+   Priority = 100
    Effective priority = 100
    Address owner = no
    Advert interval = 2 sec
@@ -2206,7 +2206,7 @@ def sync_group_simple_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:03 1970)
    Listening device = dp0p1s1
-   Transmitting device = dp0p1s1
+   Interface = dp0p1s1
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -2216,7 +2216,7 @@ def sync_group_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 200
+   Priority = 200
    Effective priority = 200
    Address owner = no
    Advert interval = 1 sec
@@ -2231,7 +2231,7 @@ def sync_group_simple_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:03 1970)
    Listening device = dp0p1s2
-   Transmitting device = dp0p1s2
+   Interface = dp0p1s2
    Using src_ip = 10.10.2.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -2241,7 +2241,7 @@ def sync_group_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 200
+   Priority = 200
    Effective priority = 200
    Address owner = no
    Advert interval = 1 sec
@@ -2395,7 +2395,7 @@ def multiple_sync_groups_simple_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:03 1970)
    Listening device = dp0p1s1
-   Transmitting device = dp0p1s1
+   Interface = dp0p1s1
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -2405,7 +2405,7 @@ def multiple_sync_groups_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 200
+   Priority = 200
    Effective priority = 200
    Address owner = no
    Advert interval = 1 sec
@@ -2420,7 +2420,7 @@ def multiple_sync_groups_simple_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:03 1970)
    Listening device = dp0p1s2
-   Transmitting device = dp0p1s2
+   Interface = dp0p1s2
    Using src_ip = 10.10.2.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -2430,7 +2430,7 @@ def multiple_sync_groups_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 200
+   Priority = 200
    Effective priority = 200
    Address owner = no
    Advert interval = 1 sec
@@ -2445,7 +2445,7 @@ def multiple_sync_groups_simple_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:03 1970)
    Listening device = dp0p1s3
-   Transmitting device = dp0p1s3
+   Interface = dp0p1s3
    Using src_ip = 10.10.3.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -2455,7 +2455,7 @@ def multiple_sync_groups_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 200
+   Priority = 200
    Effective priority = 200
    Address owner = no
    Advert interval = 1 sec
@@ -2470,7 +2470,7 @@ def multiple_sync_groups_simple_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:03 1970)
    Listening device = dp0p1s4
-   Transmitting device = dp0p1s4
+   Interface = dp0p1s4
    Using src_ip = 10.10.4.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -2480,7 +2480,7 @@ def multiple_sync_groups_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 200
+   Priority = 200
    Effective priority = 200
    Address owner = no
    Advert interval = 1 sec
@@ -2559,7 +2559,7 @@ def sync_group_simple_vif_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:03 1970)
    Listening device = dp0p1s1.10
-   Transmitting device = dp0p1s1.10
+   Interface = dp0p1s1.10
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -2569,7 +2569,7 @@ def sync_group_simple_vif_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 200
+   Priority = 200
    Effective priority = 200
    Address owner = no
    Advert interval = 1 sec
@@ -2584,7 +2584,7 @@ def sync_group_simple_vif_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:03 1970)
    Listening device = dp0p1s2.20
-   Transmitting device = dp0p1s2.20
+   Interface = dp0p1s2.20
    Using src_ip = 10.10.2.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -2594,7 +2594,7 @@ def sync_group_simple_vif_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 200
+   Priority = 200
    Effective priority = 200
    Address owner = no
    Advert interval = 1 sec
@@ -2651,7 +2651,7 @@ def sync_group_simple_vif_and_nonvif_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:03 1970)
    Listening device = dp0p1s1.10
-   Transmitting device = dp0p1s1.10
+   Interface = dp0p1s1.10
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -2661,7 +2661,7 @@ def sync_group_simple_vif_and_nonvif_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 200
+   Priority = 200
    Effective priority = 200
    Address owner = no
    Advert interval = 1 sec
@@ -2676,7 +2676,7 @@ def sync_group_simple_vif_and_nonvif_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:03 1970)
    Listening device = dp0p1s2.20
-   Transmitting device = dp0p1s2.20
+   Interface = dp0p1s2.20
    Using src_ip = 10.10.2.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -2686,7 +2686,7 @@ def sync_group_simple_vif_and_nonvif_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 200
+   Priority = 200
    Effective priority = 200
    Address owner = no
    Advert interval = 1 sec
@@ -2701,7 +2701,7 @@ def sync_group_simple_vif_and_nonvif_keepalived_data():
    State = MASTER
    Last transition = 0 (Thur Jan 1 00:00:03 1970)
    Listening device = dp0p1s3
-   Transmitting device = dp0p1s3
+   Interface = dp0p1s3
    Using src_ip = 10.10.3.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -2711,7 +2711,7 @@ def sync_group_simple_vif_and_nonvif_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 42
-   Base priority = 200
+   Priority = 200
    Effective priority = 200
    Address owner = no
    Advert interval = 1 sec
@@ -5994,7 +5994,7 @@ global_defs {
         snmp_socket tcp:localhost:705:1
         enable_snmp_keepalived
         enable_snmp_rfc
-        tmp_file_path /run/keepalived/
+        dynamic_interfaces allow_if_changes
 }"""
 
 

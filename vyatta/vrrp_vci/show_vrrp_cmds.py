@@ -199,7 +199,7 @@ def show_vrrp_summary(state_dict: Dict) -> str:
                 else:
                     sync = state[util.YANG_SYNC_GROUP]
                 now: int = int(time.time())
-                last: int = state[util.YANG_LAST_TRANSITION]
+                last: int = int(float(state[util.YANG_LAST_TRANSITION]))
                 diff: int = now - last
                 output += \
                     show_summary_line_format(
@@ -328,7 +328,7 @@ def show_vrrp_detail(
                 output += show_detail_line_format(
                     [f"{util.YANG_STATE.title()}:", state_name])
                 now: int = int(time.time())
-                last: int = state[util.YANG_LAST_TRANSITION]
+                last: int = int(float(state[util.YANG_LAST_TRANSITION]))
                 diff: int = now - last
                 output += show_detail_line_format(
                     [f"{util.SHOW_LAST_TRANSITION}:", util.elapsed_time(diff)]
