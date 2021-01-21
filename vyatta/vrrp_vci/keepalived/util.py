@@ -208,10 +208,10 @@ SHOW_TRACK_ROUTES_COUNT: str = "Tracked routes count"
 SHOW_VIP_COUNT: str = "VIP count"
 
 # Keepalived data file constants
-DATA_XMIT_DEV: str = "Transmitting device"
+DATA_XMIT_DEV: str = "Interface"
 DATA_VERSION: str = "VRRP Version"
 DATA_SRC_IP: str = "Using src_ip"
-DATA_BASE_PRIORITY: str = "Base priority"
+DATA_BASE_PRIORITY: str = "Priority"
 DATA_EFFECTIVE_PRIORITY: str = "Effective priority"
 DATA_ADVERT_INT: str = "Advert interval"
 DATA_TRACK_INTF_COUNT: str = "Tracked interfaces ="
@@ -256,8 +256,9 @@ STATS_PZERO_KEY: str = \
 DEBUG_FLAG_PER_PACKET = 1
 
 # Keepalived file paths
-FILE_PATH_KEEPALIVED_DATA = "/run/keepalived/keepalived.data"
-FILE_PATH_KEEPALIVED_STATS = "/run/keepalived/keepalived.stats"
+FILE_PATH_KEEPALIVED_DIR = "/run/keepalived"
+FILE_PATH_KEEPALIVED_DATA = f"{FILE_PATH_KEEPALIVED_DIR}/keepalived.data"
+FILE_PATH_KEEPALIVED_STATS = f"{FILE_PATH_KEEPALIVED_DIR}/keepalived.stats"
 
 # Legacy notification script paths
 LEGACY_NOTIFY_BGP = "/opt/vyatta/sbin/notify-bgp"
