@@ -155,8 +155,7 @@ class VrrpConnection:
                 util.NOTIFICATION_NEW_STATE: status_str
             }
         )
-        if self.initial_notification:
-            self.initial_notification = False
+        self.initial_notification = False
 
     def legacy_notify(self, status: int) -> None:
         """
