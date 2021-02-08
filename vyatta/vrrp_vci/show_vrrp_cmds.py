@@ -185,6 +185,8 @@ def show_vrrp_summary(state_dict: Dict) -> str:
                 state: Dict = vrrp_instance[util.YANG_INSTANCE_STATE]
                 state_name: str = state[util.YANG_STATE]
                 ipao: str
+                if util.YANG_IPAO not in state:
+                    state[util.YANG_IPAO] = False
                 if state[util.YANG_IPAO]:
                     ipao = util.SHOW_IPAO_YES
                 else:
@@ -359,6 +361,8 @@ def show_vrrp_detail(
                         [f"{util.SHOW_VMAC_INTF}:",
                          state[util.YANG_RFC_INTF]]
                     )
+                if util.YANG_IPAO not in state:
+                    state[util.YANG_IPAO] = False
                 if state[util.YANG_IPAO]:
                     output += show_detail_line_format(
                         [f"{util.SHOW_IPAO}:", util.SHOW_IPAO_YES]
