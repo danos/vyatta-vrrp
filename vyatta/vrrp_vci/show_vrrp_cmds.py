@@ -359,7 +359,7 @@ def show_vrrp_detail(
                     )
                     output += show_detail_line_format(
                         [f"{util.SHOW_VMAC_INTF}:",
-                         state[util.YANG_RFC_INTF]]
+                         state[util.YANG_RFC_INTF].replace(",", "")]
                     )
                 if util.YANG_IPAO not in state:
                     state[util.YANG_IPAO] = False
