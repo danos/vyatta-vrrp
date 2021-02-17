@@ -526,6 +526,11 @@ def show_vrrp_detail(
                 )
                 vip: str
                 for vip in state[util.YANG_VIP_STATE]:
+                    if "/" not in vip:
+                        if "." in vip:
+                            vip = f"{vip}/32"
+                        else:
+                            vip = f"{vip}/128"
                     output += f"    {vip}\n"
                 output += "\n"
     return output
