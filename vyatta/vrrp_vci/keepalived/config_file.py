@@ -471,7 +471,7 @@ vrrp_sync_group {sync_group} {{
             util.YANG_TAGNODE: util.CONFIG_VRID_FILE,
             util.YANG_VERSION: util.YANG_VERSION,
             util.YANG_HELLO_SOURCE_ADDR: util.CONFIG_HELLO_SOURCE_ADDR,
-            util.YANG_RFC: util.CONFIG_VRRP_XMIT_BASE,
+            util.YANG_RFC: util.CONFIG_USE_VMAC,
             # advert_int used for v2 & v3 in Keepalived config so only need
             # to search for this for both versions. Convert to YANG specific
             # advertise-interval or fast-advertise-interval later on.
@@ -500,6 +500,9 @@ vrrp_sync_group {sync_group} {{
                 else:
                     config_dict[key] = "NOTFOUND"
                 continue
+
+            if key == util.YANG_RFC:
+                config_exists = [None]
 
             if isinstance(config_exists, list):
                 # Term exists in config and is presence

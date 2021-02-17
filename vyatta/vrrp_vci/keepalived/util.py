@@ -175,7 +175,7 @@ CONFIG_VRRP_SYNC_GROUP: str = "vrrp_sync_group"
 CONFIG_VRID_FILE: str = "virtual_router_id"
 CONFIG_START_DELAY: str = "start_delay"
 CONFIG_VRRP_SANITIZED_SYNC_GROUP: str = "sync_group"
-CONFIG_VRRP_XMIT_BASE: str = "vmac_xmit_base"
+CONFIG_USE_VMAC: str = "use_vmac"
 CONFIG_VRRP_ADVERT_INT: str = "advert_int"
 
 # Show detail output constants

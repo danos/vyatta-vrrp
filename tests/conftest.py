@@ -4482,7 +4482,6 @@ vrrp_instance vyatta-sw0.10-1 {
         10.10.1.100/25
     }
     use_vmac sw0vrrp1
-    vmac_xmit_base
 }"""
 
 
@@ -4743,7 +4742,6 @@ vrrp_instance vyatta-dp0p1s1-1 {
         10.10.1.100/25
     }
     use_vmac dp0vrrp1
-    vmac_xmit_base
     preempt_delay 10
     mcast_src_ip 127.0.0.1
     authentication {
@@ -4784,7 +4782,6 @@ vrrp_instance vyatta-dp0bond0-1 {
         10.10.1.100/25
     }
     use_vmac dp0vrrp1
-    vmac_xmit_base
     preempt_delay 10
     mcast_src_ip 127.0.0.1
     authentication {
@@ -4825,7 +4822,6 @@ vrrp_instance vyatta-sw0.10-1 {
         10.10.1.100/25
     }
     use_vmac sw0vrrp1
-    vmac_xmit_base
     preempt_delay 10
     mcast_src_ip 127.0.0.1
     authentication {

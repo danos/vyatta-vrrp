@@ -112,7 +112,6 @@ vrrp_instance {instance} {{
             else:
                 self._template += (
                     "\n    use_vmac {vmac}"
-                    "\n    vmac_xmit_base"
                 )
 
         if util.YANG_PREEMPT_DELAY in self._group_config:
