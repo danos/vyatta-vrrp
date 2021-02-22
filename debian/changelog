@@ -1,3 +1,16 @@
+vyatta-vrrp (3.6) unstable; urgency=medium
+
+  * Security/Update temporary file path to use /run
+  * Bugfix/Use local time zones for show commands
+  * Bugfix/Report undef states as INIT
+  * Bugfix/Mock out socket class for tests
+  * Bugfix/Improve firing of VCI events
+  * Bugfix/Remove unneeded configd:delete and script
+  * Bugfix/Remove hard coded state strings, use enums
+  * Bugfix/Remove unneeded if guard for boolean
+
+ -- Anthony Dempsey <anthony.dempsey@intl.att.com>  Mon, 22 Feb 2021 16:38:14 +0000
+
 vyatta-vrrp (3.5) unstable; urgency=medium
 
   [ Daniel Gollub ]
