@@ -221,7 +221,6 @@ vrrp_instance {instance} {{
         return self.notify_scripts
 
     def _generate_track_string(self, track_dict) -> None:
-        self._template += "\n    track {{"
         if util.YANG_INTERFACE_CONST in track_dict:
             self._generate_track_interfaces(
                 track_dict[util.YANG_INTERFACE_CONST])
@@ -243,15 +242,14 @@ vrrp_instance {instance} {{
         if util.ROUTE_SWITCH_YANG_NAME in track_dict:
             self._generate_track_route_to(
                 track_dict[util.ROUTE_SWITCH_YANG_NAME])
-        self._template += "\n    }}"
 
     def _generate_track_interfaces(self, intf_dict) -> None:
-        self._template += "\n        interface {{"
+        self._template += "\n    track_interface {{"
         for interface in intf_dict:
             if util.YANG_NAME in interface:
-                track_string = f"\n            {interface[util.YANG_NAME]}"
+                track_string = f"\n        {interface[util.YANG_NAME]}"
             if util.YANG_TAGNODE in interface:
-                track_string = f"\n            {interface[util.YANG_TAGNODE]}"
+                track_string = f"\n        {interface[util.YANG_TAGNODE]}"
             if util.YANG_TRACK_WEIGHT in interface:
                 if (interface[util.YANG_TRACK_WEIGHT][util.YANG_TYPE] ==
                         util.YANG_TRACK_DEC):
@@ -262,15 +260,15 @@ vrrp_instance {instance} {{
                     interface[util.YANG_TRACK_WEIGHT][util.YANG_TRACK_VALUE]
                 track_string += f"   {util.YANG_TRACK_WEIGHT}  {value:+d}"
             self._template += track_string
-        self._template += "\n        }}"  # Close interface brace
+        self._template += "\n    }}"  # Close interface brace
 
     def _generate_track_pathmon(self, pathmon_dict) -> None:
-        self._template += "\n        pathmon {{"
+        self._template += "\n    track_pathmon {{"
         for monitor in pathmon_dict[util.YANG_TRACK_MONITOR]:
             monitor_name = monitor[util.YANG_NAME]
             for policy in monitor[util.YANG_TRACK_POLICY]:
                 track_string = (
-                    f"\n            {util.YANG_TRACK_MONITOR} "
+                    f"\n        {util.YANG_TRACK_MONITOR} "
                     f"{monitor_name}    "
                     f"{util.YANG_TRACK_POLICY} {policy[util.YANG_NAME]}"
                 )
@@ -285,13 +283,13 @@ vrrp_instance {instance} {{
                     track_string += \
                         f"      {util.YANG_TRACK_WEIGHT}  {value:+d}"
                 self._template += track_string
-        self._template += "\n        }}"  # Close pathmon brace
+        self._template += "\n    }}"  # Close pathmon brace
 
     def _generate_track_route_to(self, route_dict) -> None:
-        self._template += "\n        route_to {{"
+        self._template += "\n    track_route_to {{"
         for route in route_dict:
             if util.YANG_TRACK_ROUTE in route:
-                track_string = f"\n            {route[util.YANG_TRACK_ROUTE]}"
+                track_string = f"\n        {route[util.YANG_TRACK_ROUTE]}"
             if util.YANG_TRACK_WEIGHT in route:
                 if (route[util.YANG_TRACK_WEIGHT][util.YANG_TYPE] ==
                         util.YANG_TRACK_DEC):
@@ -302,7 +300,7 @@ vrrp_instance {instance} {{
                     route[util.YANG_TRACK_WEIGHT][util.YANG_TRACK_VALUE]
                 track_string += f"   {util.YANG_TRACK_WEIGHT}  {value:+d}"
             self._template += track_string
-        self._template += "\n        }}"  # Close route brace
+        self._template += "\n    }}"  # Close route brace
 
     def __repr__(self) -> str:
         return self._template.format(

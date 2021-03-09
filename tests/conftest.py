@@ -4499,12 +4499,10 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
-    track {
-        interface {
-            dp0p1s1   weight  +10
-            dp0s2   weight  -10
-            lo
-        }
+    track_interface {
+        dp0p1s1   weight  +10
+        dp0s2   weight  -10
+        lo
     }
 }"""
 
@@ -4523,11 +4521,9 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
-    track {
-        interface {
-            dp0p1s1
-            lo
-        }
+    track_interface {
+        dp0p1s1
+        lo
     }
 }"""
 
@@ -4546,13 +4542,11 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
-    track {
-        interface {
-            lo
-        }
-        pathmon {
-            monitor test_monitor    policy test_policy
-        }
+    track_interface {
+        lo
+    }
+    track_pathmon {
+        monitor test_monitor    policy test_policy
     }
 }"""
 
@@ -4748,18 +4742,16 @@ vrrp_instance vyatta-dp0p1s1-1 {
         auth_type PASS
         auth_pass help
     }
-    track {
-        interface {
-            dp0p1s1   weight  +10
-            dp0s2   weight  -10
-            lo
-        }
-        pathmon {
-            monitor test_monitor    policy test_policy      weight  -10
-        }
-        route_to {
-            10.10.10.0/24
-        }
+    track_interface {
+        dp0p1s1   weight  +10
+        dp0s2   weight  -10
+        lo
+    }
+    track_pathmon {
+        monitor test_monitor    policy test_policy      weight  -10
+    }
+    track_route_to {
+        10.10.10.0/24
     }
     notify {
         /opt/vyatta/sbin/vyatta-ipsec-notify.sh
@@ -4788,18 +4780,16 @@ vrrp_instance vyatta-dp0bond0-1 {
         auth_type PASS
         auth_pass help
     }
-    track {
-        interface {
-            dp0p1s1   weight  +10
-            dp0s2   weight  -10
-            lo
-        }
-        pathmon {
-            monitor test_monitor    policy test_policy      weight  -10
-        }
-        route_to {
-            10.10.10.0/24
-        }
+    track_interface {
+        dp0p1s1   weight  +10
+        dp0s2   weight  -10
+        lo
+    }
+    track_pathmon {
+        monitor test_monitor    policy test_policy      weight  -10
+    }
+    track_route_to {
+        10.10.10.0/24
     }
     notify {
         /opt/vyatta/sbin/vyatta-ipsec-notify.sh
@@ -4828,18 +4818,16 @@ vrrp_instance vyatta-sw0.10-1 {
         auth_type PASS
         auth_pass help
     }
-    track {
-        interface {
-            dp0p1s1   weight  +10
-            dp0s2   weight  -10
-            lo
-        }
-        pathmon {
-            monitor test_monitor    policy test_policy      weight  -10
-        }
-        route_to {
-            10.10.10.0/24
-        }
+    track_interface {
+        dp0p1s1   weight  +10
+        dp0s2   weight  -10
+        lo
+    }
+    track_pathmon {
+        monitor test_monitor    policy test_policy      weight  -10
+    }
+    track_route_to {
+        10.10.10.0/24
     }
     notify {
         /opt/vyatta/sbin/vyatta-ipsec-notify.sh
@@ -4861,11 +4849,9 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
-    track {
-        pathmon {
-            monitor test_monitor    policy test_policy      weight  +10
-            monitor test_monitor    policy tester_policy      weight  -10
-        }
+    track_pathmon {
+        monitor test_monitor    policy test_policy      weight  +10
+        monitor test_monitor    policy tester_policy      weight  -10
     }
 }"""
 
@@ -4884,12 +4870,10 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
-    track {
-        route_to {
-            10.10.10.128/25   weight  +10
-            10.10.10.0/24   weight  -10
-            0.0.0.0/0
-        }
+    track_route_to {
+        10.10.10.128/25   weight  +10
+        10.10.10.0/24   weight  -10
+        0.0.0.0/0
     }
 }"""
 

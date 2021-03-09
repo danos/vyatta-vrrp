@@ -635,25 +635,20 @@ vrrp_sync_group {sync_group} {{
         to call each track helper function to generate the final entry
         into the config_dict["track"] value.
         """
-        try:
-            config_start: int = block.index("track {")
-        except ValueError:
-            # No tracking config in this group
-            return
-        else:
-            config_dict[util.YANG_TRACK] = {}
-            self._convert_interface_tracking_config(
-                block, config_dict, config_start)
-            intf_enum: Enum = util.intf_name_to_type(intf_type)[1]
-            self._convert_pathmon_tracking_config(
-                block, config_dict, config_start, intf_enum)
-            self._convert_route_to_tracking_config(
-                block, config_dict, config_start, intf_enum)
+        config_dict[util.YANG_TRACK] = {}
+        self._convert_interface_tracking_config(
+            block, config_dict)
+        intf_enum: Enum = util.intf_name_to_type(intf_type)[1]
+        self._convert_pathmon_tracking_config(
+            block, config_dict, intf_enum)
+        self._convert_route_to_tracking_config(
+            block, config_dict, intf_enum)
+        if not config_dict[util.YANG_TRACK]:
+            del config_dict[util.YANG_TRACK]
 
     @staticmethod
     def _convert_interface_tracking_config(
-            block: List[str], config_dict: Dict, start: int
-    ) -> None:
+            block: List[str], config_dict: Dict) -> None:
         """
         Convert track interface block into key:value pairs in the
         config dictionary, do nothing if the config isn't in the
@@ -661,7 +656,7 @@ vrrp_sync_group {sync_group} {{
         """
 
         try:
-            config_start: int = block.index("interface {", start)
+            config_start: int = block.index("track_interface {")
         except ValueError:
             # Interface tracking doesn't exist in this group
             return
@@ -691,8 +686,7 @@ vrrp_sync_group {sync_group} {{
 
     @staticmethod
     def _convert_pathmon_tracking_config(
-            block: List[str], config_dict: Dict, start: int,
-            intf_type: Enum
+            block: List[str], config_dict: Dict, intf_type: Enum
     ) -> None:
         """
         Convert track pathmon block into key:value pairs in the
@@ -701,7 +695,7 @@ vrrp_sync_group {sync_group} {{
         """
 
         try:
-            config_start: int = block.index("pathmon {", start)
+            config_start: int = block.index("track_pathmon {")
         except ValueError:
             # Pathmon tracking doesn't exist in this group
             return
@@ -754,8 +748,7 @@ vrrp_sync_group {sync_group} {{
 
     @staticmethod
     def _convert_route_to_tracking_config(
-            block: List[str], config_dict: Dict, start: int,
-            intf_type: Enum
+            block: List[str], config_dict: Dict, intf_type: Enum
     ) -> None:
         """
         Convert track route block into key:value pairs in the
@@ -764,7 +757,7 @@ vrrp_sync_group {sync_group} {{
         """
 
         try:
-            config_start: int = block.index("route_to {", start)
+            config_start: int = block.index("track_route_to {")
         except ValueError:
             # Interface tracking doesn't exist in this group
             return

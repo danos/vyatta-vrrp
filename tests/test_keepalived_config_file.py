@@ -356,7 +356,7 @@ class TestKeepalivedConfigFile:
                                                         "weight":
                                                         {"type": "decrement",
                                                          "value": 10}}]}},
-             ["track {", "interface {", "lo1", "dp0p2 weight -10", "}"],
+             ["track_interface {", "lo1", "dp0p2 weight -10", "}"],
              {"track": {}}),
             ({}, ["virtual_ipaddress {", "10.10.10.100/25", "}"], {})
         ],
@@ -364,7 +364,7 @@ class TestKeepalivedConfigFile:
     def test_convert_interface_tracking_config(self, expected, config_block,
                                                keepalived_config, result):
         keepalived_config._convert_interface_tracking_config(
-            config_block, result, 0)
+            config_block, result)
         assert result == expected
 
     @pytest.mark.parametrize(
@@ -389,7 +389,7 @@ class TestKeepalivedConfigFile:
                     }
                 }
             },
-                ["track {", "pathmon {",
+                ["track_pathmon {",
                  "monitor test_monitor policy test_policy", "}"],
                 {"track": {}}
             ),
@@ -399,7 +399,7 @@ class TestKeepalivedConfigFile:
     def test_convert_pathmon_tracking_config(self, expected, config_block,
                                              keepalived_config, result):
         keepalived_config._convert_pathmon_tracking_config(
-            config_block, result, 0, util.intf_type.dataplane)
+            config_block, result, util.intf_type.dataplane)
         assert result == expected
 
     @pytest.mark.parametrize(
@@ -415,7 +415,7 @@ class TestKeepalivedConfigFile:
                     }]
                 }
             },
-                ["track {", "route_to {",
+                ["track_route_to {",
                  "10.10.10.0/24", "}"],
                 {"track": {}}
             ),
@@ -425,5 +425,5 @@ class TestKeepalivedConfigFile:
     def test_convert_route_to_config(self, expected, config_block,
                                      keepalived_config, result):
         keepalived_config._convert_route_to_tracking_config(
-            config_block, result, 0, util.intf_type.dataplane)
+            config_block, result, util.intf_type.dataplane)
         assert result == expected
