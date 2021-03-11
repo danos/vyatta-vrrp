@@ -9,10 +9,11 @@ process using dbus controls.
 """
 
 import logging
-import os
+import shutil
 import time
 from functools import wraps
 from pathlib import Path
+from os import mkdir
 from typing import Callable, Dict, Tuple
 
 import pydbus
@@ -80,11 +81,21 @@ class ProcessControl:
         self.systemd_manager_intf.StopUnit(
             self.keepalived_service_file, util.SYSTEMD_REPLACE)
         try:
-            os.rmdir(util.FILE_PATH_KEEPALIVED_DIR)
-        except OSError:
+            shutil.rmtree(util.FILE_PATH_KEEPALIVED_DIR)
+        except FileExistsError:
+            self.log.info(
+                "%s missing, can't remove",
+                util.FILE_PATH_KEEPALIVED_DIR
+            )
+        except OSError as err:
             self.log.warning(
                 "Failed to remove dir %s",
                 util.FILE_PATH_KEEPALIVED_DIR
+            )
+            self.log.warning(
+                "Reported error was %d: %s",
+                err.errno,
+                err.strerror
             )
 
     def set_default_daemon_arguments(self) -> None:
@@ -123,11 +134,21 @@ class ProcessControl:
 
     def start_process(self) -> None:
         try:
-            os.mkdir(util.FILE_PATH_KEEPALIVED_DIR)
-        except OSError:
+            mkdir(util.FILE_PATH_KEEPALIVED_DIR)
+        except FileExistsError:
+            self.log.info(
+                "%s already exists, may be left over from a previous run",
+                util.FILE_PATH_KEEPALIVED_DIR
+            )
+        except OSError as err:
             self.log.warning(
                 "Failed to create dir %s, show detail won't work",
                 util.FILE_PATH_KEEPALIVED_DIR
+            )
+            self.log.warning(
+                "Reported error was %d: %s",
+                err.errno,
+                err.strerror
             )
         self.set_default_daemon_arguments()
         self.systemd_manager_intf.StartUnit(
