@@ -1122,6 +1122,25 @@ def _prepopulate_pmon_tracking_list(
     return monitor_list
 
 
+def _convert_tracked_lines_to_yang(
+    config_block: List[str],
+    start_of_config: int,
+    end_of_config: int,
+) -> List[Any]:
+
+    tracked_object_list: List[Any] = []
+    for line in config_block[start_of_config: end_of_config + 1]:
+        tracked_list: List[str] = line.split()
+        tracked_object: Dict[str, str] = {
+            tracked_list[0]: tracked_list[1],
+            tracked_list[2]: tracked_list[3],
+        }
+        if tracked_list[5] != "0":
+            tracked_object[tracked_list[4]] = tracked_list[5]
+        tracked_object_list.append(tracked_object)
+    return tracked_object_list
+
+
 def _convert_keepalived_data_to_yang(
     config_block: List[str], sync: str
 ) -> Dict:
@@ -1232,15 +1251,18 @@ def _convert_keepalived_data_to_yang(
     except ValueError:
         pass  # Tracked interface not in configuration
     else:
+        num_track_intf: int = int(util.find_config_value(
+            config_block, util.DATA_TRACK_INTF_COUNT
+        ))
         tracked_indexes = util.get_config_indexes(
             config_block,
-            util.DATA_TRACK_INTF_DELIMINATOR)
-        tracked_config_end = _get_end_of_tracking_config(
-            config_block, tracked_indexes[-1], True)
+            util.DATA_TRACK_INTF_COUNT)
+        tracked_config_start = tracked_indexes[0] + 1
+        tracked_config_end = tracked_indexes[0] + num_track_intf
         tracked_dict[util.YANG_INTERFACE_CONST] = (
-            _convert_tracked_type_to_yang(config_block,
-                                          tracked_indexes, tracked_config_end,
-                                          config_start_offset))
+            _convert_tracked_lines_to_yang(config_block,
+                                           tracked_config_start,
+                                           tracked_config_end))
 
     try:
         util.find_config_value(config_block, util.DATA_TRACK_PMON_COUNT)
