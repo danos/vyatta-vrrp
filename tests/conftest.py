@@ -908,18 +908,7 @@ def backup_generic_group_track_intf_simple_keepalived_data():
    Promote_secondaries = disabled
    Authentication type = none
    Tracked interfaces = 1
-------< NIC >------
- Name = dp0s2
- index = 5
- IPv4 address = 192.168.252.107
- IPv6 address = fe80::4060:2ff:fe00:2
- MAC = 42:60:02:00:00:02
- is UP
- is RUNNING
- weight = -10
- MTU = 1500
- HW Type = ETHERNET
- Enabling NIC ioctl refresh polling
+     name dp0s2 state UP weight -10
    Virtual IP = 1
      10.10.1.100/24 dev dp0p1s1 scope global
     """
@@ -1020,17 +1009,7 @@ def backup_generic_group_track_intf_down_simple_keepalived_data():
    Promote_secondaries = disabled
    Authentication type = none
    Tracked interfaces = 1
-------< NIC >------
- Name = dp0s2
- index = 5
- IPv4 address = 192.168.252.107
- IPv6 address = fe80::4060:2ff:fe00:2
- MAC = 42:60:02:00:00:02
- is DOWN
- weight = -10
- MTU = 1500
- HW Type = ETHERNET
- Enabling NIC ioctl refresh polling
+     name dp0s2 state DOWN weight -10
    Virtual IP = 1
      10.10.1.100/24 dev dp0p1s1 scope global
     """
@@ -1131,17 +1110,7 @@ def backup_generic_group_track_intf_no_weight_simple_keepalived_data():
    Promote_secondaries = disabled
    Authentication type = none
    Tracked interfaces = 1
-------< NIC >------
- Name = dp0s2
- index = 5
- IPv4 address = 192.168.252.107
- IPv6 address = fe80::4060:2ff:fe00:2
- MAC = 42:60:02:00:00:02
- is UP
- is RUNNING
- MTU = 1500
- HW Type = ETHERNET
- Enabling NIC ioctl refresh polling
+     name dp0s2 state UP weight 0
    Virtual IP = 1
      10.10.1.100/24 dev dp0p1s1 scope global
     """
@@ -1574,29 +1543,8 @@ def generic_group_track_multiple_simple_keepalived_data():
    Promote_secondaries = disabled
    Authentication type = none
    Tracked interfaces = 2
-------< NIC >------
- Name = dp0p1s1
- index = 7
- IPv4 address = 10.10.1.2
- IPv6 address = fe80::40a0:2ff:fee8:101
- MAC = 42:a0:02:e8:01:01
- is UP
- is RUNNING
- weight = 10
- MTU = 1500
- HW Type = ETHERNET
- Enabling NIC ioctl refresh polling
-------< NIC >------
- Name = dp0s2
- index = 5
- IPv4 address = 192.168.252.107
- IPv6 address = fe80::4060:2ff:fe00:2
- MAC = 42:60:02:00:00:02
- is UP
- is RUNNING
- MTU = 1500
- HW Type = ETHERNET
- Enabling NIC ioctl refresh polling
+      name dp0p1s1 state UP weight 10
+      name dp0s2 state UP weight 0
    Tracked path-monitors = 2
    Monitor = test_monitor
    Policy = test_policy
