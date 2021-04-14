@@ -294,6 +294,7 @@ vrrp_sync_group {sync_group} {{
         {instance}"""
             keepalived_config += """
     }
+    sync_group_tracking_weight
 }
 """
         group: VrrpGroup

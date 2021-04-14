@@ -4352,6 +4352,7 @@ vrrp_sync_group TEST {
         vyatta-dp0p1s1-1
         vyatta-dp0p1s2-1
     }
+    sync_group_tracking_weight
 }
 """
 
@@ -4364,6 +4365,7 @@ vrrp_sync_group TESTV2 {
         vyatta-dp0p1s3-1
         vyatta-dp0p1s4-1
     }
+    sync_group_tracking_weight
 }
 """
 
