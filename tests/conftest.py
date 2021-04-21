@@ -4290,6 +4290,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
         10.10.1.100
     }
+    no_accept
 }"""
 
 
@@ -4307,6 +4308,7 @@ vrrp_instance vyatta-dp0p1s2-1 {
     virtual_ipaddress {
         10.10.2.100
     }
+    no_accept
 }"""
 
 
@@ -4324,6 +4326,7 @@ vrrp_instance vyatta-dp0p1s3-1 {
     virtual_ipaddress {
         10.10.1.100
     }
+    no_accept
 }"""
 
 
@@ -4414,6 +4417,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
+    no_accept
 }"""
 
 
@@ -4431,6 +4435,7 @@ vrrp_instance vyatta-sw0.10-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
+    no_accept
     use_vmac sw0vrrp1
 }"""
 
@@ -4449,6 +4454,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
+    no_accept
     track_interface {
         dp0p1s1   weight  +10
         dp0s2   weight  -10
@@ -4471,6 +4477,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
+    no_accept
     track_interface {
         dp0p1s1
         lo
@@ -4492,6 +4499,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
+    no_accept
     track_interface {
         lo
     }
@@ -4515,6 +4523,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
+    no_accept
 }"""
 
 
@@ -4534,6 +4543,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
         2001::2/64
     }
     native_ipv6
+    no_accept
 }"""
 
 
@@ -4553,6 +4563,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
         2001::2/64
     }
     native_ipv6
+    no_accept
 }"""
 
 
@@ -4572,6 +4583,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
         2001::2/64
     }
     native_ipv6
+    no_accept
 }"""
 
 
@@ -4591,6 +4603,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
         2001::2/64
     }
     native_ipv6
+    no_accept
 }"""
 
 
@@ -4626,6 +4639,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
+    no_accept
     notify_master "master.py master dp0p1s1 1"
     notify_backup "backup.py backup dp0p1s1 1"
     notify_fault "fault.py fault dp0p1s1 1"
@@ -4646,6 +4660,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
+    no_accept
     nopreempt
 }"""
 
@@ -4664,6 +4679,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
+    no_accept
     authentication {
         auth_type AH
         auth_pass help
@@ -4685,6 +4701,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
+    no_accept
     use_vmac dp0vrrp1
     preempt_delay 10
     mcast_src_ip 127.0.0.1
@@ -4723,6 +4740,7 @@ vrrp_instance vyatta-dp0bond0-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
+    no_accept
     use_vmac dp0vrrp1
     preempt_delay 10
     mcast_src_ip 127.0.0.1
@@ -4761,6 +4779,7 @@ vrrp_instance vyatta-sw0.10-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
+    no_accept
     use_vmac sw0vrrp1
     preempt_delay 10
     mcast_src_ip 127.0.0.1
@@ -4799,6 +4818,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
+    no_accept
     track_pathmon {
         monitor test_monitor    policy test_policy      weight  +10
         monitor test_monitor    policy tester_policy      weight  -10
@@ -4820,6 +4840,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
     virtual_ipaddress {
         10.10.1.100/25
     }
+    no_accept
     track_route_to {
         10.10.10.128/25   weight  +10
         10.10.10.0/24   weight  -10
@@ -4844,6 +4865,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
         2001::2/64
     }
     native_ipv6
+    no_accept
 }"""
 
 

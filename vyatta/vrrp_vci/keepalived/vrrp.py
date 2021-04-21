@@ -99,6 +99,8 @@ vrrp_instance {instance} {{
         # Optional config
         if self._group_config[util.YANG_ACCEPT]:
             self._template += "\n    accept"
+        else:
+            self._template += "\n    no_accept"
 
         if not self._group_config[util.YANG_PREEMPT]:
             self._template += "\n    nopreempt"

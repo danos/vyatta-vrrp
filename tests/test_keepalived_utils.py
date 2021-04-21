@@ -165,7 +165,7 @@ class TestKeepalivedUtils:
             (
                 pytest.lazy_fixture("multiple_group_keepalived_config"),
                 "vrrp_instance",
-                [14, 26]
+                [14, 27]
             ),
         ],
         ids=[
@@ -199,7 +199,7 @@ class TestKeepalivedUtils:
             ),
             (
                 pytest.lazy_fixture("multiple_group_keepalived_config"),
-                [14, 26],
+                [14, 27],
                 pytest.lazy_fixture("multiple_group_keepalived_config_block"),
             ),
         ],
