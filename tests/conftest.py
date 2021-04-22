@@ -1440,10 +1440,7 @@ def backup_generic_group_track_route_simple_keepalived_data():
    Promote_secondaries = disabled
    Authentication type = none
    Tracked routes = 1
-   Network = 10.10.10.0
-   Prefix = 24
-   Status = DOWN
-   Weight = 10
+     name 10.10.10.0/24 state DOWN weight 10
    Virtual IP = 1
      10.10.1.100/24 dev dp0p1s1 scope global
     """
@@ -1554,13 +1551,8 @@ def generic_group_track_multiple_simple_keepalived_data():
    Policy = test_nonpolicy
    Status = COMPLIANT
    Tracked routes = 2
-   Network = 10.10.10.0
-   Prefix = 24
-   Status = DOWN
-   Weight = 10
-   Network = 11.11.11.0
-   Prefix = 24
-   Status = UP
+     name 10.10.10.0/24 state DOWN weight 10
+     name 11.11.11.0/24 state UP weight 0
    Virtual IP = 1
      10.10.1.100/24 dev dp0p1s1 scope global
     """

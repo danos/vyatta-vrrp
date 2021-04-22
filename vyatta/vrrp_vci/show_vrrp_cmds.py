@@ -1284,21 +1284,22 @@ def _convert_keepalived_data_to_yang(
                                           tracked_monitor_list))
 
     try:
-        util.find_config_value(
-            config_block, util.DATA_TRACK_ROUTES_COUNT)
+        util.find_config_value(config_block, util.DATA_TRACK_ROUTES_COUNT)
     except ValueError:
-        pass  # Tracked route not in configuration
+        pass  # Tracked routes not in configuration
     else:
+        num_track_routes: int = int(util.find_config_value(
+            config_block, util.DATA_TRACK_ROUTES_COUNT
+        ))
         tracked_indexes = util.get_config_indexes(
             config_block,
-            util.DATA_TRACK_ROUTE_NETWORK)
-        tracked_config_end = _get_end_of_tracking_config(
-            config_block, tracked_indexes[-1], False)
-        config_start_offset = 0
+            util.DATA_TRACK_ROUTES_COUNT)
+        tracked_config_start = tracked_indexes[0] + 1
+        tracked_config_end = tracked_indexes[0] + num_track_routes
         tracked_dict[util.YANG_TRACK_ROUTE] = (
-            _convert_tracked_type_to_yang(config_block,
-                                          tracked_indexes, tracked_config_end,
-                                          config_start_offset))
+            _convert_tracked_lines_to_yang(config_block,
+                                           tracked_config_start,
+                                           tracked_config_end))
 
     if tracked_dict != {}:
         instance_dict[util.YANG_TRACK] = tracked_dict
