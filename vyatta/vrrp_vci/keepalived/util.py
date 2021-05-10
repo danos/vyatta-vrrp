@@ -116,6 +116,7 @@ YANG_TRACK: str = "track"
 YANG_TRACK_VALUE: str = "value"
 YANG_TRACK_INTERFACE: str = f"{YANG_TRACK}-{YANG_INTERFACE_CONST}"
 YANG_TRACK_ROUTE: str = "route"
+YANG_TRACK_PMON: str = "pathmon"
 YANG_TRACK_MONITOR: str = "monitor"
 YANG_TRACK_POLICY: str = "policy"
 YANG_TRACK_WEIGHT: str = "weight"
@@ -135,6 +136,17 @@ YANG_ADVERT_INT_STATE: str = "advert-interval"
 YANG_MASTER_PRIO_STATE: str = "master-priority"
 YANG_MASTER_ROUTER_STATE: str = "master-router"
 YANG_VIP_STATE: str = "virtual-ips"
+
+
+# Constants for tracking configuration
+@unique
+class TrackConstant(Enum):
+    NAME_KEY = 0
+    NAME_VALUE = 1
+    STATE_KEY = 2
+    STATE_VALUE = 3
+    WEIGHT_KEY = 4
+    WEIGHT_VALUE = 5
 
 
 @unique

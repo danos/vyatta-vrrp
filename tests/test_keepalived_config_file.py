@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2020 AT&T Intellectual Property.
+# Copyright (c) 2019-2021 AT&T Intellectual Property.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
@@ -390,7 +390,7 @@ class TestKeepalivedConfigFile:
                 }
             },
                 ["track_pathmon {",
-                 "monitor test_monitor policy test_policy", "}"],
+                 "test_monitor/test_policy", "}"],
                 {"track": {}}
             ),
             ({}, ["virtual_ipaddress {", "10.10.10.100/25", "}"], {})

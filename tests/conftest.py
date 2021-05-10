@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2020 AT&T Intellectual Property.
+# Copyright (c) 2019-2021 AT&T Intellectual Property.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only.
 
@@ -1210,10 +1210,7 @@ def backup_generic_group_track_pathmon_simple_keepalived_data():
    Promote_secondaries = disabled
    Authentication type = none
    Tracked path-monitors = 1
-   Monitor = test_monitor
-   Policy = test_policy
-   Weight = 10
-   Status = COMPLIANT
+     name test_monitor/test_policy state UP weight 10
    Virtual IP = 1
      10.10.1.100/24 dev dp0p1s1 scope global
     """
@@ -1321,13 +1318,8 @@ def backup_generic_group_multiple_track_pathmon_simple_keepalived_data():
    Promote_secondaries = disabled
    Authentication type = none
    Tracked path-monitors = 2
-   Monitor = test_monitor
-   Policy = test_policy
-   Weight = 10
-   Status = COMPLIANT
-   Monitor = test_monitor
-   Policy = test_nonpolicy
-   Status = COMPLIANT
+     name test_monitor/test_policy state UP weight 10
+     name test_monitor/test_nonpolicy state UP weight 0
    Virtual IP = 1
      10.10.1.100/24 dev dp0p1s1 scope global
     """
@@ -1356,7 +1348,7 @@ Interface: dp0p1s1
 
   Tracked Path Monitor count:   1
     test_monitor
-      test_nonpolicy  COMPLIANT
+      test_nonpolicy COMPLIANT
       test_policy  COMPLIANT  weight 10
   VIP count:                    1
     10.10.1.100/24
@@ -1543,13 +1535,8 @@ def generic_group_track_multiple_simple_keepalived_data():
       name dp0p1s1 state UP weight 10
       name dp0s2 state UP weight 0
    Tracked path-monitors = 2
-   Monitor = test_monitor
-   Policy = test_policy
-   Weight = 10
-   Status = COMPLIANT
-   Monitor = test_monitor
-   Policy = test_nonpolicy
-   Status = COMPLIANT
+      name test_monitor/test_policy state UP weight 10
+      name test_monitor/test_nonpolicy state UP weight 0
    Tracked routes = 2
      name 10.10.10.0/24 state DOWN weight 10
      name 11.11.11.0/24 state UP weight 0
@@ -4496,7 +4483,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
         lo
     }
     track_pathmon {
-        monitor test_monitor    policy test_policy
+        test_monitor/test_policy
     }
 }"""
 
@@ -4707,7 +4694,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
         lo
     }
     track_pathmon {
-        monitor test_monitor    policy test_policy      weight  -10
+        test_monitor/test_policy      weight  -10
     }
     track_route_to {
         10.10.10.0/24
@@ -4746,7 +4733,7 @@ vrrp_instance vyatta-dp0bond0-1 {
         lo
     }
     track_pathmon {
-        monitor test_monitor    policy test_policy      weight  -10
+        test_monitor/test_policy      weight  -10
     }
     track_route_to {
         10.10.10.0/24
@@ -4785,7 +4772,7 @@ vrrp_instance vyatta-sw0.10-1 {
         lo
     }
     track_pathmon {
-        monitor test_monitor    policy test_policy      weight  -10
+        test_monitor/test_policy      weight  -10
     }
     track_route_to {
         10.10.10.0/24
@@ -4812,8 +4799,8 @@ vrrp_instance vyatta-dp0p1s1-1 {
     }
     no_accept
     track_pathmon {
-        monitor test_monitor    policy test_policy      weight  +10
-        monitor test_monitor    policy tester_policy      weight  -10
+        test_monitor/test_policy      weight  +10
+        test_monitor/tester_policy      weight  -10
     }
 }"""
 
