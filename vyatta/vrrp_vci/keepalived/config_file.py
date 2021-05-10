@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2020 AT&T Intellectual Property.
+# Copyright (c) 2019-2021 AT&T Intellectual Property.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
@@ -708,8 +708,8 @@ vrrp_sync_group {sync_group} {{
             line: str
             for line in track_pathmon_config:
                 tokens: List[str] = line.split()
-                monitor_name: str = tokens[1]
-                policy_name: str = tokens[3]
+                monitor_name: str = tokens[0].split("/")[0]
+                policy_name: str = tokens[0].split("/")[1]
                 insertion_dictionary: Dict[str, Union[Any, List[Dict]]] = {}
                 monitor: Dict
                 for monitor in pathmon_dict[util.YANG_TRACK_MONITOR]:

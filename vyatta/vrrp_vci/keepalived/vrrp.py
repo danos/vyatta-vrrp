@@ -1,4 +1,4 @@
-# Copyright (c) 2020 AT&T Intellectual Property.
+# Copyright (c) 2020,2021 AT&T Intellectual Property.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
@@ -270,9 +270,7 @@ vrrp_instance {instance} {{
             monitor_name = monitor[util.YANG_NAME]
             for policy in monitor[util.YANG_TRACK_POLICY]:
                 track_string = (
-                    f"\n        {util.YANG_TRACK_MONITOR} "
-                    f"{monitor_name}    "
-                    f"{util.YANG_TRACK_POLICY} {policy[util.YANG_NAME]}"
+                    f"\n        {monitor_name}/{policy[util.YANG_NAME]}"
                 )
                 if util.YANG_TRACK_WEIGHT in policy:
                     if (policy[util.YANG_TRACK_WEIGHT][util.YANG_TYPE] ==

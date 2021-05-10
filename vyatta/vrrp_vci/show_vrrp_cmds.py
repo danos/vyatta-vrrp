@@ -1,4 +1,4 @@
-# Copyright (c) 2020 AT&T Intellectual Property.
+# Copyright (c) 2020,2021 AT&T Intellectual Property.
 # All rights reserved.
 # SPDX-License-Identifier: GPL-2.0-only
 
@@ -848,107 +848,6 @@ def show_vrrp_statistics_filters(
 """ Functions to convert files to JSON"""
 
 
-def _get_end_of_tracking_config(
-    config_block: List[str],
-    last_config_index: int,
-    interface_block: bool
-) -> int:
-    """
-    Find the last index of the current tracked object type so we know where to
-    stop processing this type of tracked object
-
-    Arguments:
-        config_block: A list of strings denoting a block of tracking config
-        last_config_index:
-            The index of the start of the last object in the config_block
-        interface_block: Is this block of config a for a tracked interface
-
-    Returns:
-        last_config_index:
-            The index of the last line of config for this tracked object
-
-    N.B.
-    Tracked object blocks are mostly similar information but not completely
-
-    Tracked interfaces have a config block as follows (white space is correct):
-        ------< NIC >------
-    Name = dp0s2
-    index = 5
-    IPv4 address = 192.168.252.107
-    IPv6 address = fe80::4060:2ff:fe00:2
-    MAC = 42:60:02:00:00:02
-    is UP
-    is RUNNING
-    weight = -10
-    MTU = 1500
-    HW Type = ETHERNET
-    Enabling NIC ioctl refresh polling
-     - or -
-        ------< NIC >------
-    Name = dp0s2
-    index = 5
-    IPv4 address = 192.168.252.107
-    IPv6 address = fe80::4060:2ff:fe00:2
-    MAC = 42:60:02:00:00:02
-    is UP
-    is RUNNING
-    MTU = 1500
-    HW Type = ETHERNET
-    Enabling NIC ioctl refresh polling
-
-    Tracked path monitor objects can have the following format:
-       Monitor = test_monitor
-       Policy = test_policy
-       Weight = 10
-       Status = COMPLIANT
-     - or -
-       Monitor = test_monitor
-       Policy = test_policy
-       Status = COMPLIANT
-
-    Tracked route objects can have the following format:
-       Network = 10.10.10.0
-       Prefix = 24
-       Status = DOWN
-       Weight = 10
-     - or -
-       Network = 10.10.10.0
-       Prefix = 24
-       Status = DOWN
-
-    This lack of conformity between outputs can be frustrating when trying to
-    figure out where one tracked object starts and another finishes.
-    Each block of config for a tracked object starts with a guaranteed string,
-    finding every index in a list of strings that match this start line and
-    then walking forward from the last of these indexes gives us where each
-    set of configs for a tracked object type ends.
-    This function is used to get around the complexity by returning the last
-    line in the tracking config of the overall config.
-    It does this by counting from the index where the last
-    tracked object config starts until it finds either "Status", "Weight", or
-    "Enabling" and returning this index to the caller.
-
-    This layout of tracked data should be looked at as a future bugfix to make
-    sure all objects have the same data layout. (See VRVDR-50678)
-    """
-
-    while True:
-        last_config_index += 1
-        line = config_block[last_config_index]
-        if not interface_block:
-            if util.DATA_TRACK_STATUS in line:
-                last_config_index += 1
-                line = config_block[last_config_index]
-                if util.DATA_TRACK_WEIGHT in line:
-                    last_config_index += 1
-                break
-        else:
-            if util.DATA_TRACK_ENABLE in line:
-                last_config_index += 1
-                break
-    return last_config_index
-
-
 def _convert_track_block_to_yang(config_block: List[str]) -> Dict[str, str]:
     """
     Given a list of strings that maps to a single tracked object convert it
@@ -996,148 +895,100 @@ def _convert_track_block_to_yang(config_block: List[str]) -> Dict[str, str]:
     return tracked_obj
 
 
-def _convert_tracked_type_to_yang(
-    config_block: List[str],
-    block_indexes: List[int],
-    end_of_config: int,
-    offset: int,
-    tracked_monitor_list: List[Any] = []
-) -> List[Any]:
-    """
-    Generic function for converting tracked object config strings into YANG
-    like dictionaries for further processing.
-
-    Arguments:
-        config_block: List of strings for the VRRP group (contains all
-            information).
-        block_indexes:
-            List of indexes that denotes the start of a tracked object of the
-            current type.
-        end_of_config:
-            The index in config_block that is the last line of the last tracked
-            object of the current type.
-        offset:
-            How far from the specific block_indexes value to start converting
-            from (see N.B.).
-        tracked_monitor_list:
-            List of dictionaries containing the preprocessed monitor values
-            (see N.B.).
-
-    Returns:
-        tracked_object_list:
-            A list of dictionary objects containing the useful tracked object
-            information relevant to the show commands.
-
-    N.B.
-    All of the tracked objects have similar data dictionaries, with some very
-    slight differences. The layout of interface and route objects are the same.
-    interface:
-        {
-            "name": "dp0p1s1", "state": "UP",
-            "weight": "10"
-        }
-    route:
-        {
-            "name": "10.10.10.0/24", "state": "DOWN",
-            "weight": "10"
-        }
-    Path monitor is slightly different as the a monitor and a policy are
-    intrinsically linked as a monitor can have many policies. The
-    following is two tracked objects
-        {
-            "name": "test_monitor",
-            "policies": [
-                {
-                    "name": "test_policy",
-                    "state": "COMPLIANT",
-                    "weight": "10"
-                },
-                {
-                    "name": "test_nonpolicy",
-                    "state": "COMPLIANT",
-                }
-            ]
-        }
-    But the inner dictionaries match the other two object types, so the same
-    functionality can be used for those objects.
-
-    The offset argument is required because interface objects config block
-    starts with "------< NIC >------", path monitor config blocks start
-    with the monitor name but this has already been processed and we're
-    interested only in policy names, and the route objects config starts
-    with the Network which we are interested in.
-
-    Again, this should be improved in another ticket.
-    """
-
-    tracked_object_list: List[Any] = []
-    for tracked_index in block_indexes:
-        if tracked_monitor_list != []:
-            monitor_name = config_block[tracked_index].split()[-1]
-            for monitor in tracked_monitor_list:
-                if monitor[util.YANG_NAME] == monitor_name:
-                    tracked_object_list = monitor[util.SHOW_POLICIES]
-        if tracked_index == block_indexes[-1]:
-            track_block_end = end_of_config
-        else:
-            current_index = block_indexes.index(tracked_index)
-            track_block_end = block_indexes[current_index + 1]
-        tracked_object_list.append(_convert_track_block_to_yang(
-            config_block[tracked_index + offset:track_block_end]
-        ))
-    if tracked_monitor_list != []:
-        return tracked_monitor_list
-    return tracked_object_list
-
-
-def _prepopulate_pmon_tracking_list(
-    config_block: List[str],
-    block_indexes: List[int]
-) -> List[Dict[Any, Any]]:
-    """
-    Preprocess the monitor dictionaries with empty policy lists.
-    This is used in _convert_tracked_type_to_yang
-
-    Arguments:
-        config_block: A list of strings denoting a block of tracking config.
-        block_indexes:
-            List of indexes that denotes the start of a tracked path monitor
-            object.
-
-    Returns:
-        monitor_list:
-            A list of dictionaries containing the monitor name and an empty
-            list of policies.
-    """
-
-    monitor_names: List[str] = []
-    monitor_list: List[Dict[Any, Any]] = []
-    for tracked_index in block_indexes:
-        monitor_name: str = config_block[tracked_index].split()[-1]
-        if monitor_name not in monitor_names:
-            monitor_obj = \
-                {util.YANG_NAME: monitor_name, util.SHOW_POLICIES: []}
-            monitor_names.append(monitor_name)
-            monitor_list.append(monitor_obj)
-    return monitor_list
-
-
 def _convert_tracked_lines_to_yang(
     config_block: List[str],
     start_of_config: int,
     end_of_config: int,
+    pathmon: bool = False
 ) -> List[Any]:
+    """
+    All tracked objects follow the same config pattern:
+        name <object_name> state (UP|DOWN) weight -254..254
+    These config lines are marshalled into a list of dictionaries.
+    Interface and route tracking dictionary representation are the same
+     {
+         "name": <object_name>,
+         "state": ("UP"|"DOWN"),
+         # if weight != 0
+         "weight": -254..254
+     }
+    For path monitor the dictionary representation, and show output, is
+    slightly different. There is a one to many relationship between
+    monitors and policies, the <object_name> of the tracked object is of
+    the form <monitor>/<policy> and is split to generate the names.
+     {
+         "name": <monitor>
+         "policies": [
+             {
+                 "name": <policy>,
+                 "state": ("COMPLIANT"|"NON_COMPLIANT"),
+                 # if weight != 0
+                 "weight": -254..254
+             },
+             ...
+         ]
+     }
+    To avoid breaking existing scripts we translate the Keepalived
+    tracked state values to the expect show output values:
+        "UP"    => "COMPLIANT"
+        "DOWN"  => "NON_COMPLIANT"
+    """
 
     tracked_object_list: List[Any] = []
     for line in config_block[start_of_config: end_of_config + 1]:
-        tracked_list: List[str] = line.split()
-        tracked_object: Dict[str, str] = {
-            tracked_list[0]: tracked_list[1],
-            tracked_list[2]: tracked_list[3],
-        }
-        if tracked_list[5] != "0":
-            tracked_object[tracked_list[4]] = tracked_list[5]
-        tracked_object_list.append(tracked_object)
+        config_tokens: List[str] = line.split()
+        name_key: str = \
+            config_tokens[util.TrackConstant.NAME_KEY.value]
+        name: str = \
+            config_tokens[util.TrackConstant.NAME_VALUE.value]
+        state_key: str = \
+            config_tokens[util.TrackConstant.STATE_KEY.value]
+        state: str = \
+            config_tokens[util.TrackConstant.STATE_VALUE.value]
+        weight_key: str = \
+            config_tokens[util.TrackConstant.WEIGHT_KEY.value]
+        weight: str = \
+            config_tokens[util.TrackConstant.WEIGHT_VALUE.value]
+        if not pathmon:
+            tracked_object: Dict[str, str] = {
+                name_key: name,
+                state_key: state,
+            }
+            if weight != "0":
+                tracked_object[weight_key] = weight
+            tracked_object_list.append(tracked_object)
+        else:
+            # Preprocessing the pathmon config line, need to find or create
+            # the monitor dictionary that the policy dictionaries will be
+            # added to.
+            pathmon_tokens: List[str] = \
+                name.split("/")
+            monitor: str = pathmon_tokens[0]
+            policy: str = pathmon_tokens[1]
+            if len(tracked_object_list) == 0 or \
+                    tracked_object_list[-1][name_key] != monitor:
+                track_mon: Dict[str, str] = {
+                    name_key: monitor,
+                    util.SHOW_POLICIES: []
+                }
+                tracked_object_list.append(track_mon)
+            # Last object is guaranteed to be the monitor that this policy
+            # is attached to
+            tracked_object = tracked_object_list[-1]
+            state_translated: str
+            if state == "UP":
+                state_translated = "COMPLIANT"
+            else:
+                state_translated = "NON_COMPLIANT"
+
+            # Policy dictionary marshalling
+            policy_dict: Dict[str, str] = {
+                name_key: policy,
+                state_key: state_translated,
+            }
+            if weight != "0":
+                policy_dict[weight_key] = weight
+            tracked_object[util.SHOW_POLICIES].append(policy_dict)
     return tracked_object_list
 
 
@@ -1243,7 +1094,6 @@ def _convert_keepalived_data_to_yang(
     tracked_dict: Dict = {}
     tracked_indexes: List
     tracked_config_end: int
-    config_start_offset: int = 1
 
     # Multi line config code
     try:
@@ -1269,19 +1119,19 @@ def _convert_keepalived_data_to_yang(
     except ValueError:
         pass  # Tracked path monitor not in configuration
     else:
+        num_track_pmons: int = int(util.find_config_value(
+            config_block, util.DATA_TRACK_PMON_COUNT
+        ))
         tracked_indexes = util.get_config_indexes(
-            config_block, util.YANG_TRACK_MONITOR.capitalize()
-        )
-        tracked_config_end = _get_end_of_tracking_config(
-            config_block, tracked_indexes[-1], False)
-        tracked_monitor_list = (
-            _prepopulate_pmon_tracking_list(config_block,
-                                            tracked_indexes))
+            config_block,
+            util.DATA_TRACK_PMON_COUNT)
+        tracked_config_start = tracked_indexes[0] + 1
+        tracked_config_end = tracked_indexes[0] + num_track_pmons
         tracked_dict[util.YANG_TRACK_MONITOR] = (
-            _convert_tracked_type_to_yang(config_block,
-                                          tracked_indexes, tracked_config_end,
-                                          config_start_offset,
-                                          tracked_monitor_list))
+            _convert_tracked_lines_to_yang(config_block,
+                                           tracked_config_start,
+                                           tracked_config_end,
+                                           True))
 
     try:
         util.find_config_value(config_block, util.DATA_TRACK_ROUTES_COUNT)
@@ -1492,7 +1342,6 @@ def convert_data_file_to_dict(data_string: str) -> Dict:
         7) Returns the full representation.
     """
 
-    data_dict: dict
     config_indexes: List[int]
     config_blocks: List[List[str]]
     data_list: List[str]
