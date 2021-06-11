@@ -135,6 +135,11 @@ class VrrpConnection:
             status_str = util.VrrpState(status).name
         except ValueError:
             status_str = util.VrrpState.TRANSIENT.name
+        # If we some how get multiple shutdowns signals we call
+        # state_change with invalid data that causes a stacktrace
+        # exit gracefully here
+        if not hasattr(self, "current_state"):
+            return
         # May need to also send 5 gARP replies on a master transition
         # there's a note about this in the legacy implementation
         if (self.current_state == status_str and
