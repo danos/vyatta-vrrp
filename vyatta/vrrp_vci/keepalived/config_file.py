@@ -607,22 +607,17 @@ vrrp_sync_group {sync_group} {{
         Convert notify block into key:value pairs in the
         config dictionary, do nothing if the config isn't in the
         string.
+        Ipsec is the only value that this can be now, BGP now
+        subscribes through VCI components.
         """
 
         try:
-            config_start: int = block.index("notify {")
+            util.find_config_value(block, util.YANG_NOTIFY)
         except ValueError:
             # Notify doesn't exist in this group
             return
         else:
-            config_end: int = block.index("}", config_start)
-            notify_config: List[str] = block[config_start + 1:config_end]
-            config_dict[util.YANG_NOTIFY] = {}
-            if "/opt/vyatta/sbin/notify-bgp" in notify_config:
-                config_dict[util.YANG_NOTIFY][util.YANG_BGP] = [None]
-            if ("/opt/vyatta/sbin/vyatta-ipsec-notify.sh" in
-                    notify_config):
-                config_dict[util.YANG_NOTIFY][util.YANG_IPSEC] = [None]
+            config_dict[util.YANG_NOTIFY] = {util.YANG_IPSEC: [None]}
 
     def _convert_tracking_config(
             self, block: List[str], config_dict: Dict, intf_type: str

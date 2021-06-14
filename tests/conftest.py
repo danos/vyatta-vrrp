@@ -4699,9 +4699,7 @@ vrrp_instance vyatta-dp0p1s1-1 {
     track_route_to {
         10.10.10.0/24
     }
-    notify {
-        /opt/vyatta/sbin/vyatta-ipsec-notify.sh
-    }
+    notify    /opt/vyatta/sbin/vyatta-ipsec-notify.sh
 }"""
 
 
@@ -4738,9 +4736,7 @@ vrrp_instance vyatta-dp0bond0-1 {
     track_route_to {
         10.10.10.0/24
     }
-    notify {
-        /opt/vyatta/sbin/vyatta-ipsec-notify.sh
-    }
+    notify    /opt/vyatta/sbin/vyatta-ipsec-notify.sh
 }"""
 
 
@@ -4777,9 +4773,7 @@ vrrp_instance vyatta-sw0.10-1 {
     track_route_to {
         10.10.10.0/24
     }
-    notify {
-        /opt/vyatta/sbin/vyatta-ipsec-notify.sh
-    }
+    notify    /opt/vyatta/sbin/vyatta-ipsec-notify.sh
 }"""
 
 

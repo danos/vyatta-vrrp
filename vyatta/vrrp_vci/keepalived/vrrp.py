@@ -170,11 +170,8 @@ vrrp_instance {instance} {{
             self._generate_track_string(self._group_config[util.YANG_TRACK])
 
         if util.YANG_NOTIFY in self._group_config:
-            self._template += "\n    notify {{"
-            if util.YANG_IPSEC in self._group_config[util.YANG_NOTIFY]:
-                self._template += f"\n        {util.LEGACY_NOTIFY_IPSEC}"
-                self.notify_scripts.append(util.LEGACY_NOTIFY_IPSEC)
-            self._template += "\n    }}"
+            self._template += f"\n    notify    {util.LEGACY_NOTIFY_IPSEC}"
+            self.notify_scripts.append(util.LEGACY_NOTIFY_IPSEC)
 
         # TODO: This may need changed to add transition scripts
         # for all the transition scripts not explicitly defined.
