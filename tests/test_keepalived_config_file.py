@@ -332,12 +332,9 @@ class TestKeepalivedConfigFile:
             ({}, []),
             ({}, ["virtual_ipaddress {", "10.10.10.100/25", "}"]),
             (
-                {"notify": {"bgp": [None], "ipsec": [None]}},
+                {"notify": {"ipsec": [None]}},
                 [
-                    "notify {",
-                    "/opt/vyatta/sbin/vyatta-ipsec-notify.sh",
-                    "/opt/vyatta/sbin/notify-bgp",
-                    "}"
+                    "notify    /opt/vyatta/sbin/vyatta-ipsec-notify.sh"
                 ]
             )
         ],
