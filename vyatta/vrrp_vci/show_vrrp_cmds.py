@@ -1207,8 +1207,10 @@ def convert_data_file_to_dict(data_string: str) -> Dict:
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Base priority = 50
+   Priority = 70
    Effective priority = 70
+   Total priority = 70
+   Configured priority = 50
    Address owner = no
    Advert interval = 2 sec
    Accept = enabled
