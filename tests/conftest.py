@@ -402,6 +402,8 @@ def generic_group_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 100
    Effective priority = 100
+   Total priority = 100
+   Configured priority = 100
    Address owner = no
    Advert interval = 2 sec
    Accept = enabled
@@ -484,6 +486,8 @@ def generic_group_rfc_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 100
    Effective priority = 100
+   Total priority = 100
+   Configured priority = 100
    Address owner = no
    Advert interval = 2 sec
    Accept = enabled
@@ -572,6 +576,8 @@ def generic_group_rfc_sync_keepalived_data():
    Virtual Router ID = 1
    Priority = 100
    Effective priority = 100
+   Total priority = 100
+   Configured priority = 100
    Address owner = no
    Advert interval = 2 sec
    Accept = enabled
@@ -664,8 +670,10 @@ def generic_group_ipao_rfc_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Priority = 100
+   Priority = 255
    Effective priority = 255
+   Total priority = 255
+   Configured priority = 100
    Address owner = yes
    Advert interval = 2 sec
    Accept = enabled
@@ -755,6 +763,8 @@ def backup_generic_group_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 50
    Effective priority = 50
+   Total priority = 50
+   Configured priority = 50
    Address owner = no
    Advert interval = 2 sec
    Accept = enabled
@@ -785,8 +795,10 @@ def multiple_group_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Priority = 100
+   Priority = 255
    Effective priority = 255
+   Total priority = 255
+   Configured priority = 100
    Address owner = yes
    Advert interval = 2 sec
    Accept = enabled
@@ -812,6 +824,8 @@ def multiple_group_simple_keepalived_data():
    Virtual Router ID = 42
    Priority = 100
    Effective priority = 100
+   Total priority = 100
+   Configured priority = 100
    Address owner = no
    Advert interval = 2 sec
    Accept = enabled
@@ -901,6 +915,8 @@ def backup_generic_group_track_intf_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 50
    Effective priority = 50
+   Total priority = 50
+   Configured priority = 50
    Address owner = no
    Advert interval = 2 sec
    Accept = enabled
@@ -1002,6 +1018,8 @@ def backup_generic_group_track_intf_down_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 50
    Effective priority = 50
+   Total priority = 50
+   Configured priority = 50
    Address owner = no
    Advert interval = 2 sec
    Accept = enabled
@@ -1103,6 +1121,8 @@ def backup_generic_group_track_intf_no_weight_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 50
    Effective priority = 50
+   Total priority = 50
+   Configured priority = 50
    Address owner = no
    Advert interval = 2 sec
    Accept = enabled
@@ -1203,6 +1223,8 @@ def backup_generic_group_track_pathmon_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 50
    Effective priority = 50
+   Total priority = 50
+   Configured priority = 50
    Address owner = no
    Advert interval = 2 sec
    Accept = enabled
@@ -1311,6 +1333,8 @@ def backup_generic_group_multiple_track_pathmon_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 50
    Effective priority = 50
+   Total priority = 50
+   Configured priority = 50
    Address owner = no
    Advert interval = 2 sec
    Accept = enabled
@@ -1425,6 +1449,8 @@ def backup_generic_group_track_route_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 50
    Effective priority = 50
+   Total priority = 50
+   Configured priority = 50
    Address owner = no
    Advert interval = 2 sec
    Accept = enabled
@@ -1523,8 +1549,10 @@ def generic_group_track_multiple_simple_keepalived_data():
    Gratuitous ARP lower priority repeat = 5
    Send advert after receive lower priority advert = true
    Virtual Router ID = 1
-   Priority = 50
+   Priority = 70
    Effective priority = 70
+   Total priority = 70
+   Configured priority = 50
    Address owner = no
    Advert interval = 2 sec
    Accept = enabled
@@ -1664,6 +1692,8 @@ def generic_v3_group_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 100
    Effective priority = 100
+   Total priority = 100
+   Configured priority = 100
    Address owner = no
    Advert interval = 2000 milli-sec
    Accept = disabled
@@ -1746,6 +1776,8 @@ def generic_v3_rfc_group_fast_advert_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 100
    Effective priority = 100
+   Total priority = 100
+   Configured priority = 100
    Address owner = no
    Advert interval = 500 milli-sec
    Accept = disabled
@@ -1833,6 +1865,8 @@ def generic_group_start_delay_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 100
    Effective priority = 100
+   Total priority = 100
+   Configured priority = 100
    Address owner = no
    Advert interval = 2 sec
    Accept = enabled
@@ -1918,6 +1952,8 @@ def generic_group_preempt_delay_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 100
    Effective priority = 100
+   Total priority = 100
+   Configured priority = 100
    Address owner = no
    Advert interval = 2 sec
    Accept = enabled
@@ -2003,6 +2039,8 @@ def generic_group_vif_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 100
    Effective priority = 100
+   Total priority = 100
+   Configured priority = 100
    Address owner = no
    Advert interval = 2 sec
    Accept = enabled
@@ -2085,6 +2123,8 @@ def generic_group_vif_and_parent_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 100
    Effective priority = 100
+   Total priority = 100
+   Configured priority = 100
    Address owner = no
    Advert interval = 2 sec
    Accept = enabled
@@ -2110,6 +2150,8 @@ def generic_group_vif_and_parent_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 100
    Effective priority = 100
+   Total priority = 100
+   Configured priority = 100
    Address owner = no
    Advert interval = 2 sec
    Accept = enabled
@@ -2145,6 +2187,8 @@ def sync_group_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 200
    Effective priority = 200
+   Total priority = 200
+   Configured priority = 200
    Address owner = no
    Advert interval = 1 sec
    Accept = enabled
@@ -2170,6 +2214,8 @@ def sync_group_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 200
    Effective priority = 200
+   Total priority = 200
+   Configured priority = 200
    Address owner = no
    Advert interval = 1 sec
    Accept = enabled
@@ -2334,6 +2380,8 @@ def multiple_sync_groups_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 200
    Effective priority = 200
+   Total priority = 200
+   Configured priority = 200
    Address owner = no
    Advert interval = 1 sec
    Accept = enabled
@@ -2359,6 +2407,8 @@ def multiple_sync_groups_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 200
    Effective priority = 200
+   Total priority = 200
+   Configured priority = 200
    Address owner = no
    Advert interval = 1 sec
    Accept = enabled
@@ -2384,6 +2434,8 @@ def multiple_sync_groups_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 200
    Effective priority = 200
+   Total priority = 200
+   Configured priority = 200
    Address owner = no
    Advert interval = 1 sec
    Accept = enabled
@@ -2409,6 +2461,8 @@ def multiple_sync_groups_simple_keepalived_data():
    Virtual Router ID = 1
    Priority = 200
    Effective priority = 200
+   Total priority = 200
+   Configured priority = 200
    Address owner = no
    Advert interval = 1 sec
    Accept = enabled
@@ -2498,6 +2552,8 @@ def sync_group_simple_vif_keepalived_data():
    Virtual Router ID = 1
    Priority = 200
    Effective priority = 200
+   Total priority = 200
+   Configured priority = 200
    Address owner = no
    Advert interval = 1 sec
    Accept = enabled
@@ -2523,6 +2579,8 @@ def sync_group_simple_vif_keepalived_data():
    Virtual Router ID = 1
    Priority = 200
    Effective priority = 200
+   Total priority = 200
+   Configured priority = 200
    Address owner = no
    Advert interval = 1 sec
    Accept = enabled
@@ -2590,6 +2648,8 @@ def sync_group_simple_vif_and_nonvif_keepalived_data():
    Virtual Router ID = 1
    Priority = 200
    Effective priority = 200
+   Total priority = 200
+   Configured priority = 200
    Address owner = no
    Advert interval = 1 sec
    Accept = enabled
@@ -2615,6 +2675,8 @@ def sync_group_simple_vif_and_nonvif_keepalived_data():
    Virtual Router ID = 1
    Priority = 200
    Effective priority = 200
+   Total priority = 200
+   Configured priority = 200
    Address owner = no
    Advert interval = 1 sec
    Accept = enabled
@@ -2640,6 +2702,8 @@ def sync_group_simple_vif_and_nonvif_keepalived_data():
    Virtual Router ID = 42
    Priority = 200
    Effective priority = 200
+   Total priority = 200
+   Configured priority = 200
    Address owner = no
    Advert interval = 1 sec
    Accept = enabled
