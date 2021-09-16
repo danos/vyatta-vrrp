@@ -1,3 +1,22 @@
+vyatta-vrrp (3.7) unstable; urgency=medium
+
+  * Remove unneed tmp_file_path add dynamic_interfaces config
+  * Bugfix/Minor tweak on IPAO assumption
+  * Bugfix/Add /32 or /128 to VIPs, keepalived removes it
+  * Bugfix/Update config around RFC interfaces
+  * Bugfix/Correct directory usage and deletion
+  * Refactor/Tracking config to match upstream
+  * Bugfix/Use new tracked interface format
+  * Bugfix/Allow tracking with syncgroups - no weights
+  * Refactor/Explicit no accept for keepalived v2.2.0
+  * Refactor/Update tracked routes for new format
+  * Refactor/Update tracked pathmon for new format
+  * Bugfix/shutdown calls can cause a stacktrace
+  * Refactor/Notify rework, IPSEC sole user now
+  * Bugfix/Adjust Configured priority data retrieval
+
+ -- Anthony Dempsey <anthony.dempsey@intl.att.com>  Wed, 18 Aug 2021 14:39:16 +0100
+
 vyatta-vrrp (3.6) unstable; urgency=medium
 
   * Security/Update temporary file path to use /run
