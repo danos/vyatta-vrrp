@@ -115,6 +115,13 @@ vrrp_instance {instance} {{
                 self._template += (
                     "\n    use_vmac {vmac}"
                 )
+            if (
+                util.YANG_VRF_AWARE in self._group_config and
+                self._group_config[util.YANG_VRF_AWARE]
+            ):
+                self._template += (
+                    "\n    vrf_aware"
+                )
 
         if util.YANG_PREEMPT_DELAY in self._group_config:
             self._group_config[util.CONFIG_PREEMPT_DELAY] = \

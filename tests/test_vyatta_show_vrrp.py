@@ -159,6 +159,13 @@ class TestVyattaShowVrrp:
                 ),
                 pytest.lazy_fixture("detailed_v3_rfc_fast_advert_simple_state")
             ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture(
+                    "generic_group_vrf_aware_show_detail"
+                ),
+                pytest.lazy_fixture("detailed_rfc_vrf_aware_simple_state")
+            ),
         ],
         ids=[
             "No rfc", "rfc", "rfc sync", "rfc IPAO", "Backup show",
@@ -166,7 +173,7 @@ class TestVyattaShowVrrp:
             "Backup track pathmon", "Backup track route",
             "No rfc v3", "Start delay",
             "Preempt delay", "Multiple groups in sync-group", "Vif",
-            "RFC v3 with fast advert",
+            "RFC v3 with fast advert", "VRF Aware"
         ]
     )
     def test_show_vrrp_detail(self, fakes, expected, data):
@@ -743,6 +750,13 @@ class TestVyattaShowVrrp:
                     "generic_v3_rfc_group_fast_advert_simple_keepalived_data"
                 )
             ),
+            (
+                pytest.lazy_fixture("calendar_fakes"),
+                pytest.lazy_fixture("generic_group_vrf_aware_show_detail"),
+                pytest.lazy_fixture(
+                    "generic_group_vrf_aware_simple_keepalived_data"
+                )
+            ),
         ],
         ids=[
             "No rfc", "rfc", "rfc sync", "rfc IPAO", "Backup group",
@@ -756,7 +770,7 @@ class TestVyattaShowVrrp:
             "Simple group with preempt delay",
             "Multiple groups with sync groups",
             "Complex group with multiple tracked objects",
-            "Vif group", "Version 3 fast-advert"
+            "Vif group", "Version 3 fast-advert", "VRF aware RFC"
         ]
     )
     def test_complete_show_vrrp_detail(self, fakes, expected, file_content):

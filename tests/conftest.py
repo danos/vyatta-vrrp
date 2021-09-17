@@ -475,6 +475,7 @@ def generic_group_rfc_simple_keepalived_data():
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
    Interface = dp0vrrp1
+   VRF aware for VMAC interfaces = No
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -513,6 +514,100 @@ Interface: dp0p1s1
 
   Version:                      2
   RFC Compliant                 
+  VRF Aware:                    false
+  Virtual MAC interface:        dp0vrrp1
+  Address Owner:                no
+
+  Source Address:               10.10.1.1
+  Configured Priority:          100
+  Effective Priority:           100
+  Advertisement interval:       2 sec
+  Authentication type:          none
+  Preempt:                      enabled
+
+  VIP count:                    1
+    10.10.1.100/32
+
+"""  # noqa: W291
+
+
+@pytest.fixture
+def detailed_rfc_vrf_aware_simple_keepalived_state():
+    return {
+        "instance-state":
+        {
+            "address-owner": False,
+            "last-transition": 0,
+            "rfc-interface": "dp0vrrp1",
+            "vrf-aware": True,
+            "state": "MASTER",
+            "sync-group": "",
+            "version": 2,
+            "src-ip": "10.10.1.1",
+            "base-priority": 100,
+            "effective-priority": 100,
+            "advert-interval": "2 sec",
+            "accept": True,
+            "preempt": True,
+            "auth-type": None,
+            "virtual-ips": [
+                "10.10.1.100/32"
+            ]
+        },
+        "tagnode": "1"
+    }
+
+
+@pytest.fixture
+def generic_group_vrf_aware_simple_keepalived_data():
+    return """
+------< VRRP Topology >------
+ VRRP Instance = vyatta-dp0p1s1-1
+ VRRP Version = 2
+   State = MASTER
+   Last transition = 0 (Thur Jan 1 00:00:00 1970)
+   Listening device = dp0p1s1
+   Interface = dp0vrrp1
+   VRF aware for VMAC interfaces = Yes
+   Using src_ip = 10.10.1.1
+   Gratuitous ARP delay = 5
+   Gratuitous ARP repeat = 5
+   Gratuitous ARP refresh = 0
+   Gratuitous ARP refresh repeat = 1
+   Gratuitous ARP lower priority delay = 5
+   Gratuitous ARP lower priority repeat = 5
+   Send advert after receive lower priority advert = true
+   Virtual Router ID = 1
+   Priority = 100
+   Effective priority = 100
+   Total priority = 100
+   Configured priority = 100
+   Address owner = no
+   Advert interval = 2 sec
+   Accept = enabled
+   Preempt = enabled
+   Promote_secondaries = disabled
+   Authentication type = none
+   Virtual IP = 1
+     10.10.1.100/32 dev dp0vrrp1 scope global
+"""
+
+
+@pytest.fixture
+def generic_group_vrf_aware_show_detail():
+    # flake8: noqa: W291
+    return """
+--------------------------------------------------
+Interface: dp0p1s1
+--------------
+  Group: 1
+  ----------
+  State:                        MASTER
+  Last transition:              3s
+
+  Version:                      2
+  RFC Compliant                 
+  VRF Aware:                    true
   Virtual MAC interface:        dp0vrrp1
   Address Owner:                no
 
@@ -537,6 +632,7 @@ def detailed_rfc_simple_keepalived_state():
             "address-owner": False,
             "last-transition": 0,
             "rfc-interface": "dp0vrrp1",
+            "vrf-aware": False,
             "state": "MASTER",
             "sync-group": "",
             "version": 2,
@@ -565,6 +661,7 @@ def generic_group_rfc_sync_keepalived_data():
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
    Interface = dp0vrrp1
+   VRF aware for VMAC interfaces = No
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -607,6 +704,7 @@ Interface: dp0p1s1
 
   Version:                      2
   RFC Compliant                 
+  VRF Aware:                    false
   Virtual MAC interface:        dp0vrrp1
   Address Owner:                no
 
@@ -633,6 +731,7 @@ def detailed_rfc_sync_simple_keepalived_state():
             "address-owner": False,
             "last-transition": 0,
             "rfc-interface": "dp0vrrp1",
+            "vrf-aware": False,
             "state": "MASTER",
             "sync-group": "TEST",
             "version": 2,
@@ -661,6 +760,7 @@ def generic_group_ipao_rfc_simple_keepalived_data():
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
    Interface = dp0vrrp1
+   VRF aware for VMAC interfaces = No
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -699,6 +799,7 @@ Interface: dp0p1s1
 
   Version:                      2
   RFC Compliant                 
+  VRF Aware:                    false
   Virtual MAC interface:        dp0vrrp1
   Address Owner:                yes
 
@@ -722,6 +823,7 @@ def detailed_rfc_ipao_simple_keepalived_state():
             "address-owner": True,
             "last-transition": 0,
             "rfc-interface": "dp0vrrp1",
+            "vrf-aware": False,
             "state": "MASTER",
             "sync-group": "",
             "version": 2,
@@ -786,6 +888,7 @@ def multiple_group_simple_keepalived_data():
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s2
    Interface = dp0vrrp1
+   VRF aware for VMAC interfaces = No
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -1765,6 +1868,7 @@ def generic_v3_rfc_group_fast_advert_simple_keepalived_data():
    Last transition = 0 (Thur Jan 1 00:00:00 1970)
    Listening device = dp0p1s1
    Interface = dp0vrrp1
+   VRF aware for VMAC interfaces = No
    Using src_ip = 10.10.1.1
    Gratuitous ARP delay = 5
    Gratuitous ARP repeat = 5
@@ -1797,6 +1901,7 @@ def detailed_v3_rfc_fast_advert_simple_keepalived_state():
             "address-owner": False,
             "last-transition": 0,
             "rfc-interface": "dp0vrrp1",
+            "vrf-aware": False,
             "state": "MASTER",
             "sync-group": "",
             "version": 3,
@@ -1828,6 +1933,7 @@ Interface: dp0p1s1
 
   Version:                      3
   RFC Compliant                 
+  VRF Aware:                    false
   Virtual MAC interface:        dp0vrrp1
   Address Owner:                no
 
@@ -3478,6 +3584,7 @@ def multiple_interfaces_and_groups_state(
                         "address-owner": False,
                         "last-transition": 0,
                         "rfc-interface": "dp0vrrp1",
+                        "vrf-aware": False,
                         "state": "BACKUP",
                         "sync-group": "",
                         "version": 3,
@@ -3580,6 +3687,7 @@ Interface: dp0p1s2
 
   Version:                      3
   RFC Compliant                 
+  VRF Aware:                    false
   Virtual MAC interface:        dp0vrrp1
   Address Owner:                no
 
@@ -5311,6 +5419,21 @@ def detailed_v3_rfc_fast_advert_simple_state(
     del dataplane_list[0][vrrp_yang_name]["start-delay"]
     dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
         [detailed_v3_rfc_fast_advert_simple_keepalived_state]
+    return simple_yang_state
+
+
+@pytest.fixture
+def detailed_rfc_vrf_aware_simple_state(
+        simple_config,
+        detailed_rfc_vrf_aware_simple_keepalived_state,
+        vrrp_yang_name, interface_yang_name,
+        dataplane_yang_name):
+    simple_yang_state = copy.deepcopy(simple_config)
+    dataplane_list = \
+        simple_yang_state[interface_yang_name][dataplane_yang_name]
+    del dataplane_list[0][vrrp_yang_name]["start-delay"]
+    dataplane_list[0][vrrp_yang_name]["vrrp-group"] = \
+        [detailed_rfc_vrf_aware_simple_keepalived_state]
     return simple_yang_state
 
 

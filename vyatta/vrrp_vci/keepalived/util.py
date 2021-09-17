@@ -129,6 +129,7 @@ YANG_IPSEC: str = "ipsec"
 YANG_INSTANCE: str = "instance"
 YANG_DISABLED_GROUP: str = "disable"
 YANG_INTERFACE_NAMESPACE: List[str] = [YANG_TAGNODE, YANG_NAME]
+YANG_VRF_AWARE: str = "vrf-aware"
 
 # Keys for state dictionaries that don't match config keys
 YANG_SRC_IP_STATE: str = "src-ip"
@@ -218,6 +219,7 @@ SHOW_TRACK_INTF_COUNT: str = "Tracked Interfaces count"
 SHOW_TRACK_PMON_COUNT: str = "Tracked Path Monitor count"
 SHOW_TRACK_ROUTES_COUNT: str = "Tracked routes count"
 SHOW_VIP_COUNT: str = "VIP count"
+SHOW_VRF_AWARE: str = "VRF Aware"
 
 # Keepalived data file constants
 DATA_XMIT_DEV: str = "Interface"
@@ -241,6 +243,7 @@ DATA_TRACK_ENABLE: str = "Enabling"
 DATA_VIP_COUNT: str = "Virtual IP"
 DATA_INSTANCE_START: str = "VRRP Instance"
 DATA_SG_INSTANCE_START: str = "VRRP Sync Group"
+DATA_VRF_AWARE: str = "VRF aware for VMAC interfaces"
 
 # Show stats constants
 SHOW_STATS_RELEASED_MASTER: str = "Released master"

@@ -65,6 +65,10 @@ module vyatta-vrrp-v1 {
 
 		SPDX-License-Identifier: BSD-3-Clause";
 
+	revision 2021-09-28 {
+		description "Introduce VRF aware config for RFC interfaces";
+	}
+
 	revision 2021-01-14 {
 		description "Remove config_delete.sh for notify bgp";
 	}
@@ -273,6 +277,13 @@ module vyatta-vrrp-v1 {
 		leaf rfc-compatibility {
 			type empty;
 			configd:help "Enable RFC compatibility";
+		}
+		leaf vrf-aware {
+			type empty;
+			configd:help "Create RFC interface in the parent interface's VRF";
+			must "../rfc-compatibility" {
+				error-message "rfc-compatibility mode must be configured when using vrf-aware config";
+			}
 		}
 		leaf version {
 			type uint8 {

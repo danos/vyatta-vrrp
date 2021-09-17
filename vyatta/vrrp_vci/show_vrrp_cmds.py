@@ -358,6 +358,10 @@ def show_vrrp_detail(
                         [f"{util.SHOW_RFC_COMPAT}", ""]
                     )
                     output += show_detail_line_format(
+                        [f"{util.SHOW_VRF_AWARE}:",
+                         str(state[util.YANG_VRF_AWARE]).lower()]
+                    )
+                    output += show_detail_line_format(
                         [f"{util.SHOW_VMAC_INTF}:",
                          state[util.YANG_RFC_INTF].replace(",", "")]
                     )
@@ -1048,7 +1052,8 @@ def _convert_keepalived_data_to_yang(
             util.YANG_START_DELAY: util.SHOW_START_DELAY,
             util.YANG_AUTH_TYPE: util.SHOW_AUTH_TYPE.title(),
             util.YANG_MASTER_PRIO_STATE: util.SHOW_MASTER_PRIORITY,
-            util.YANG_MASTER_ROUTER_STATE: util.SHOW_MASTER_ROUTER
+            util.YANG_MASTER_ROUTER_STATE: util.SHOW_MASTER_ROUTER,
+            util.YANG_VRF_AWARE: util.DATA_VRF_AWARE
         }
 
     # Single line config code
@@ -1082,10 +1087,10 @@ def _convert_keepalived_data_to_yang(
             if value.isdigit():
                 # Term exists in config and has a numerical value
                 instance_dict[key] = int(value)
-            elif (value == util.SHOW_IPAO_NO or value ==
+            elif (value.lower() == util.SHOW_IPAO_NO or value ==
                     util.SHOW_PREEMPT_DISABLED):
                 instance_dict[key] = False
-            elif (value == util.SHOW_IPAO_YES or value ==
+            elif (value.lower() == util.SHOW_IPAO_YES or value ==
                     util.SHOW_PREEMPT_ENABLED):
                 instance_dict[key] = True
             else:
