@@ -588,8 +588,13 @@ def generic_group_rfc_sync_keepalived_data():
      10.10.1.100/32 dev dp0vrrp1 scope global
 ------< VRRP Sync groups >------
  VRRP Sync Group = TEST, MASTER
-   monitor = vyatta-dp0p1s2-1
-   monitor = vyatta-dp0p1s1-1
+  Num member fault 0, num member init 0
+  VRRP member instances :
+   vyatta-dp0p1s2-1
+   vyatta-dp0p1s1-1
+  sync group tracking weight set
+  Using smtp notification = no
+------< Interfaces >------
 """
 
 
@@ -2226,8 +2231,13 @@ def sync_group_simple_keepalived_data():
      10.10.2.100/32 dev dp0p1s2 scope global
 ------< VRRP Sync groups >------
  VRRP Sync Group = TEST, MASTER
-   monitor = vyatta-dp0p1s2-1
-   monitor = vyatta-dp0p1s1-1
+  Num member fault 0, num member init 0
+  VRRP member instances :
+    vyatta-dp0p1s2-1
+    vyatta-dp0p1s1-1
+  sync group tracking weight set
+  Using smtp notification = no
+------< Interfaces >------
 """
 
 
@@ -2473,12 +2483,20 @@ def multiple_sync_groups_simple_keepalived_data():
      10.10.2.100/32 dev dp0p1s4 scope global
 ------< VRRP Sync groups >------
  VRRP Sync Group = TEST, MASTER
-   monitor = vyatta-dp0p1s2-1
-   monitor = vyatta-dp0p1s1-1
+  Num member fault 0, num member init 0
+  VRRP member instances :
+   vyatta-dp0p1s2-1
+   vyatta-dp0p1s1-1
+  sync group tracking weight set
+  Using smtp notification = no
  VRRP Sync Group = TESTV2, MASTER
-   monitor = vyatta-dp0p1s3-1
-   monitor = vyatta-dp0p1s4-1
-
+  Num member fault 0, num member init 0
+  VRRP member instances :
+   vyatta-dp0p1s3-1
+   vyatta-dp0p1s4-1
+  sync group tracking weight set
+  Using smtp notification = no
+------< Interfaces >------
 """
 
 
@@ -2591,8 +2609,13 @@ def sync_group_simple_vif_keepalived_data():
      10.10.2.100/32 dev dp0p1s2 scope global
 ------< VRRP Sync groups >------
  VRRP Sync Group = TEST, MASTER
-   monitor = vyatta-dp0p1s2.20-1
-   monitor = vyatta-dp0p1s1.10-1
+  Num member fault 0, num member init 0
+  VRRP member instances :
+   vyatta-dp0p1s2.20-1
+   vyatta-dp0p1s1.10-1
+  sync group tracking weight set
+  Using smtp notification = no
+------< Interfaces >------
 """
 
 
@@ -2714,9 +2737,14 @@ def sync_group_simple_vif_and_nonvif_keepalived_data():
      10.10.3.100/32 dev dp0p1s3 scope global
 ------< VRRP Sync groups >------
  VRRP Sync Group = TEST, MASTER
-   monitor = vyatta-dp0p1s2.20-1
-   monitor = vyatta-dp0p1s1.10-1
-   monitor = vyatta-dp0p1s3-42
+  Num member fault 0, num member init 0
+  VRRP member instances :
+   vyatta-dp0p1s2.20-1
+   vyatta-dp0p1s1.10-1
+   vyatta-dp0p1s3-42
+  sync group tracking weight set
+  Using smtp notification = no
+------< Interfaces >------
 """
 
 
