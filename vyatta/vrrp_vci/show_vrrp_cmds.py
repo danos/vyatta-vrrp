@@ -1367,7 +1367,12 @@ def convert_data_file_to_dict(data_string: str) -> Dict:
     if sync_group_start_indexes != []:
         yang_representation[util.VRRP_YANG_NAME] = \
             {f"{util.YANG_SYNC_GROUP}s": []}
-        sync_group_data_list = data_list[sync_group_start_indexes[0]:]
+        sync_group_end_index: int = util.get_config_indexes(
+            data_list, util.DATA_INTF_DELIMINATOR
+        )[0]
+        sync_group_data_list = data_list[
+            sync_group_start_indexes[0]:sync_group_end_index
+        ]
         sync_group_start_indexes = util.get_config_indexes(
             sync_group_data_list, util.DATA_SG_INSTANCE_START)
         sync_group_config: List[str] = util.get_config_blocks(
@@ -1393,7 +1398,7 @@ def convert_data_file_to_dict(data_string: str) -> Dict:
             sync_group_show_dict[util.YANG_STATE] = group_tokens[-1]
             sync_group_show_dict[util.YANG_SG_MEMBER] = []
             for instance in sync_group[1:]:
-                if instance == "":
+                if util.DATA_VYATTA_CONST not in instance:
                     continue
                 tokens = instance.split()
                 sync_group_instances[tokens[-1]] = group_name

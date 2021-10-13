@@ -244,6 +244,8 @@ DATA_VIP_COUNT: str = "Virtual IP"
 DATA_INSTANCE_START: str = "VRRP Instance"
 DATA_SG_INSTANCE_START: str = "VRRP Sync Group"
 DATA_VRF_AWARE: str = "VRF aware for VMAC interfaces"
+DATA_INTF_DELIMINATOR: str = "------< Interfaces >------"
+DATA_VYATTA_CONST: str = "vyatta"
 
 # Show stats constants
 SHOW_STATS_RELEASED_MASTER: str = "Released master"
